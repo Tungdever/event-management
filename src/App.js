@@ -17,6 +17,9 @@ import EditEvent from './pages/Event/EditEvent';
 import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';
 import NotificationList from './pages/Dashboard/Notification';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Checkout from "./pages/checkout-page";
+import Sponsor from "./pages/sponsor";
 
 import AddTicket from './pages/Ticket/Add';
 
@@ -167,6 +170,12 @@ const MainLayout = () => {
         </div>
       )}
     </div>
+    <Router>
+      <Routes>
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/sponsor" element={<Sponsor />} />
+      </Routes>
+    </Router>
   );
 };
 
