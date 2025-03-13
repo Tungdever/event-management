@@ -1,11 +1,10 @@
-
 import './App.css';
 import EventDetail from './pages/Event/Detail';
 import HomePage from './pages/Event/HomePage';
 import SearchPage from './pages/Event/Search';
 import CalendarPage from './pages/Dashboard/Calendar';
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate,useLocation  } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import TicketDashboard from './pages/Ticket/TicketSold';
 import ChatBox from './pages/ChatBox/ChatBox';
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -17,10 +16,8 @@ import EditEvent from './pages/Event/EditEvent';
 import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';
 import NotificationList from './pages/Dashboard/Notification';
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Checkout from "./pages/checkout-page";
-import Sponsor from "./pages/sponsor";
-
+// import Sponsor from "./pages/sponsor";
 import AddTicket from './pages/Ticket/Add';
 
 const eventData = {
@@ -28,7 +25,7 @@ const eventData = {
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
   event_image: "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
   event_name: "Acoustic Night 2025",
-  event_desc:"In 2024, the global entertainment industry is projected to reach over $2.6 trillion, with a significant portion driven by film production and online content. The rise of advanced technologies like Artificial Intelligence (AI) and Augmented Reality (AR) has revolutionized production processes, enhancing creativity and efficiency. Notably, AI-powered tools for scriptwriting and post-production have become a new trend, shortening production cycles and increasing content originality.In Vietnam, the film industry is on a strong growth trajectory, bolstered by government support and the rising consumption of digital content. The expansion of local and international streaming platforms has stimulated the screenplay market. Vietnamese producers are actively seeking unique scripts that align with global trends and resonate with younger audiences, while fostering international collaborations to bring Vietnamese productions to global markets.Against this backdrop, TELEFILM VIETNAM 2025 serves as an ideal platform for businesses to enter and expand within the market. The exhibition showcases the latest technologies, from professional cameras to advanced post-production software. It also provides a forum for screenwriters, directors, and investors to meet, exchange ideas, and establish partnerships.",
+  event_desc: "In 2024, the global entertainment industry is projected to reach over $2.6 trillion, with a significant portion driven by film production and online content. The rise of advanced technologies like Artificial Intelligence (AI) and Augmented Reality (AR) has revolutionized production processes, enhancing creativity and efficiency. Notably, AI-powered tools for scriptwriting and post-production have become a new trend, shortening production cycles and increasing content originality.In Vietnam, the film industry is on a strong growth trajectory, bolstered by government support and the rising consumption of digital content. The expansion of local and international streaming platforms has stimulated the screenplay market. Vietnamese producers are actively seeking unique scripts that align with global trends and resonate with younger audiences, while fostering international collaborations to bring Vietnamese productions to global markets.Against this backdrop, TELEFILM VIETNAM 2025 serves as an ideal platform for businesses to enter and expand within the market. The exhibition showcases the latest technologies, from professional cameras to advanced post-production software. It also provides a forum for screenwriters, directors, and investors to meet, exchange ideas, and establish partnerships.",
   man_id: 101,
   mc_id: 202,
   event_type: "Concert",
@@ -135,16 +132,16 @@ const notifications = [
 ];
 const MainLayout = () => {
   const location = useLocation();
-  const isFullScreenPage = location.pathname === "/" 
-  || location.pathname === "/detail" || location.pathname === "/search"
-  || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/addTicket";
+  const isFullScreenPage = location.pathname === "/"
+    || location.pathname === "/detail" || location.pathname === "/search"
+    || location.pathname === "/login" || location.pathname === "/signup"
+    || location.pathname === "/addTicket";
 
   return (
     <div className="w-full min-h-screen bg-while">
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/detail" element={<EventDetail  event={eventData}/>} />
+        <Route path="/detail" element={<EventDetail event={eventData} />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUp />} />
@@ -165,25 +162,20 @@ const MainLayout = () => {
             <Route path="/editEvent" element={<EditEvent />} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
-            
+            <Route path="/checkout" element={<Checkout />} />
+            {/* <Route path="/sponsor" element={<Sponsor />} /> */}
           </Routes>
         </div>
       )}
     </div>
-    <Router>
-      <Routes>
-        <Route path="/checkout" element={<Checkout />} />
-        <Route path="/sponsor" element={<Sponsor />} />
-      </Routes>
-    </Router>
   );
 };
 
 function App() {
   return (
     <Router>
-    <MainLayout />
-  </Router>
+      <MainLayout />
+    </Router>
   );
 }
 
