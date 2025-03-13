@@ -1,13 +1,12 @@
 import React from 'react'
-
-import { Helmet } from 'react-helmet'
-
 import './checkout-page.css'
-
+import { useState } from "react";
+import { motion } from "framer-motion";
 const CheckoutPage = (props) => {
+  const [selected, setSelected] = useState("option5");
+  const [isOption2Expanded, setIsOption2Expanded] = useState(false);
   return (
     <div className="checkout-page-container">
-
       <div className="checkout-page-checkout-page">
         <div className="checkout-page-column1">
           <span className="checkout-page-text-title">Payment Method</span>
@@ -17,31 +16,38 @@ const CheckoutPage = (props) => {
             <i className="checkout__option-icon bi bi-chevron-right"></i>
           </div>
 
-          <div className="checkout__option2">
+          {/* Nhấn để mở hoặc đóng */}
+          <div className="checkout__option2" onClick={() => setIsOption2Expanded(!isOption2Expanded)}>
             <span className="checkout-page-text checkout__option-text2">Debit Card</span>
-            <i class="bi bi-chevron-down"></i>
+            <i className={`bi ${isOption2Expanded ? "bi-chevron-up" : "bi-chevron-down"}`}></i>
           </div>
-
-          <div className="checkout__option3">
-            <span className="checkout-page-text checkout__option-text3">Debit Card</span>
-
-            <div className="checkout__option5">
-              <img className='master-card' src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="25" />
-              <span className="checkout-page-text checkout__option-text5">Axim Bank</span>
-              <input type="radio" id="option1" name="payment" checked></input>
+          <motion.div
+            className="checkout__option3"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: isOption2Expanded ? "auto" : 0, opacity: isOption2Expanded ? 1 : 0 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            <div className="checkout__option5" onClick={() => setSelected("option5")}>
+              <div>
+                <img className="master-card" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="25" />
+                <span className="checkout-page-text checkout__option-text5">Axim Bank</span>
+              </div>
+              <input type="radio" className="option" checked={selected === "option5"} readOnly />
             </div>
 
-            <div className="checkout__option6">
-              <img className='visa' src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width="25" />
-              <span className="checkout-page-text checkout__option-text6">HDFC Bank</span>
+            <div className="checkout__option6" onClick={() => setSelected("option6")}>
+              <div>
+                <img className="visa" src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width="25" />
+                <span className="checkout-page-text checkout__option-text6">HDFC Bank</span>
+              </div>
+              <input type="radio" className="option" checked={selected === "option6"} readOnly />
             </div>
             <div className="checkout__option4">
               <i class="bi bi-plus-circle"></i>
               <span className="checkout-page-text checkout__option-text4">Add New Cards</span>
             </div>
-          </div>
-
-
+          </motion.div>
+        
           <div className="checkout__option7">
             <i class="bi bi-plus-circle"></i>
             <span className="checkout-page-text checkout__option-text7">Add New Method</span>
@@ -85,12 +91,13 @@ const CheckoutPage = (props) => {
             </div>
 
 
-          </div>     
+          </div>
           <div className="checkout-page-btn-pay">
             <a href="#" className="checkout-page-btn-pay">Pay Now</a>
           </div>
         </div>
       </div>
+
     </div>
   )
 }

@@ -1,0 +1,373 @@
+.sponsor-container {
+    padding: 25px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+}
+
+.checkout-page-title {
+    color: #202C4B;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.breadcrumb {
+    list-style: none;
+    padding: 0;
+}
+
+.breadcrumb-item {
+    display: inline;
+}
+
+.breadcrumb-item+.breadcrumb-item::before {
+    content: " / ";
+    padding: 0 8px;
+    color: #6c757d;
+}
+
+
+
+.btn-primary {}
+
+.card-container {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.sponsor-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: start;
+    padding: 15px;
+    width: 280px;
+    border-radius: 5px;
+    box-shadow: 0px 1px 1px 1px rgba(198, 198, 198, 0.2);
+    border: 1px solid #E5E7EB;
+    background: white;
+}
+
+.icon {
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+
+.number {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    color: #202C4B;
+}
+
+.d-flex {
+    display: flex;
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+}
+
+.avatar.avatar-md {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatar img {
+    width: 100%;
+    /* Đảm bảo ảnh chiếm toàn bộ kích thước của div */
+    height: 100%;
+    object-fit: contain;
+    /* Cắt ảnh để vừa với khung */
+    border-radius: 50%;
+    /* Giữ hình tròn nếu cần */
+}
+
+
+.ms-2 {
+    margin-left: 8px;
+}
+
+h5 {
+    font-size: 16px !important;
+    font-weight: 600 !important;
+}
+
+h6 {
+    font-size: 14px !important;
+    margin: 0;
+    /* Tránh khoảng trắng không mong muốn */
+}
+
+a {
+    text-decoration: none !important;
+    /* Xóa gạch chân */
+    color: inherit;
+    /* Giữ nguyên màu mặc định của text */
+}
+
+a:hover,
+a:focus {
+    text-decoration: none !important;
+    color: #111827 !important;
+}
+
+.fw-medium {
+    font-weight: 800 !important;
+}
+
+.table {
+    margin-bottom: 0 !important;
+}
+
+.table.table-hover tbody tr td {
+    color: #6B7280;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 10px 8px;
+}
+
+.table th,
+.table td {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.table .thead-light th {
+    background-color: #E5E7EB;
+}
+
+.small-text {
+    font-size: 12px;
+    color: #6B7280;
+}
+
+.btn.dropdown-toggle {
+    font-weight: 400;
+    font-size: 14px;
+    color: #111827;
+    border: 1px solid #E5E7EB;
+    border-radius: 5px;
+    min-width: 110px;
+    justify-content: space-between;
+}
+
+.btn.dropdown-toggle:focus,
+.btn.dropdown-toggle[aria-expanded="true"] {
+    background-color: #ff5733 !important;
+    /* Màu nền khi mở dropdown */
+    color: white !important;
+}
+
+.card .card-header {
+    border-color: #E5E7EB;
+    position: relative;
+    background: transparent;
+    padding: 16px 20px 16px;
+}
+
+.dataTables_length {
+    padding: 15px;
+}
+
+.dataTables_length label {
+    display: flex;
+    font-size: 14px;
+    color: #374151;
+    align-items: center;
+}
+
+.dataTables_length label .form-select {
+    width: auto;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    color: #374151;
+    margin: 0 8px;
+    background-position: right 5px center;
+    padding-right: 15px;
+    line-height: normal;
+}
+
+.DataTables_Table_0_filter {
+    text-align: right;
+    margin: 15px 16px;
+}
+
+.dataTables_filter input {
+    margin-left: 16px;
+    display: inline-block;
+    width: auto;
+}
+
+.form-control-sm {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.8rem;
+    height: auto;
+}
+
+.form-control {
+    border-color: #E5E7EB;
+    color: #111827;
+    background-color: #ffffff;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.6;
+    border-radius: 5px;
+    transition: all 0.5s;
+    margin-right: 16px;
+}
+
+.dataTables_info {
+    font-size: 14px;
+    color: #6B7280;
+    font-weight: 800;
+    padding: 15px;
+}
+
+.row {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dataTables_paginate.paging_numbers {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0;
+}
+
+.pagination li a {
+    background-color: transparent;
+    outline: none;
+    border: none;
+    color: #fff;
+}
+
+.pagination li a.page-link {
+    background-color: transparent;
+    outline: none;
+    border: none;
+}
+
+li.active a.page-link {
+    background: #F26522;
+    border-color: #F26522;
+    border-radius: 50%;
+    height: 26px;
+    width: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.mb-2.btn .btn-primary .d-flex .align-items-center {
+    background-color: #F26522;
+}
+
+#add_sponsor .modal-header .custom-btn-close {
+    background-color: #6B7280;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: calc(-.5 * var(--bs-modal-header-padding-y)) calc(-.5 * var(--bs-modal-header-padding-x)) calc(-.5 * var(--bs-modal-header-padding-y)) auto;
+    border: none;
+    color: #fff;
+}
+
+#add_sponsor .modal-header .btn-close.custom-btn-close::before {
+    display: none;
+    /* Ẩn icon mặc định của Bootstrap */
+}
+
+.modal .modal-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #202C4B;
+}
+
+.modal-dialog {
+    min-width: 800px;
+}
+
+.modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-header {
+    display: flex;
+}
+
+.avatar.avatar-xxl {
+    width: 80px;
+    height: 80px;
+    line-height: 80px;
+    font-size: 24px;
+}
+
+.drag-upload-btn input {
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+
+}
+
+.drag-upload-btn {
+    position: relative;
+}
+
+.export-add-sponsor {
+    display: flex;
+
+}
+
+.btn.btn-primary.d-flex.align-items-center {
+    font-size: 14px;
+}
+
+.dropdown.dropdown-export {
+    margin-right: 16px;
+}
+
+.dropdown .dropdown-toggle {
+    border: 1px solid #ccc;
+    /* Đặt viền ban đầu */
+    transition: border-color 0.2s ease-in-out;
+}
+.btn:hover,
+.dropdown .dropdown-toggle:hover,
+.dropdown .dropdown-toggle:focus,
+.dropdown .show .dropdown-toggle {
+    border-color: inherit;
+    /* Màu viền khi hover hoặc khi dropdown mở */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    /* Hiệu ứng khi hover */
+}
+
+.btn.btn-detail{
+    background-color: #ffebea;
+    margin-right: 15px;
+}
+.btn.btn-edit{
+    background-color: #e8f8f5;
+    color: #1ebb9f;
+    margin-right: 15px;
+}
+.btn.btn-delete{
+    background-color: #ffebea;
+    color: #ff3a26;
+}

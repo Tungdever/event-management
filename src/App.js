@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Checkout from "./pages/checkout-page";
-import Detail from "./pages/desktop12"
+import Sponsor from "./pages/sponsor";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/checkout" element={<Checkout />} />
-        <Route path="/detail" element={<Detail />} />
+        <Route path="/sponsor" element={<Sponsor />} />
       </Routes>
     </Router>
   );
