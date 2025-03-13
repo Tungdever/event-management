@@ -203,7 +203,7 @@ const Dashboard = () => {
           <h5>
             Sponsor List
           </h5>
-          <div className="dropdown">
+          <div className="dropdown dropdown-level">
             <button className="dropdown-toggle btn btn-white d-inline-flex align-items-center" type="button" data-bs-toggle="dropdown">
               {selectedLevel}
             </button>
@@ -257,7 +257,7 @@ const Dashboard = () => {
             <tbody>
               {sponsors.map((sponsor, index) => (
                 <tr key={index}>
-                  <td className="d-flex align-items-center">
+                  <td>
                     <div className="d-flex align-items-center">
                       <div className="avatar avatar-md border rounded-circle d-flex align-items-center justify-content-center">
                         <img

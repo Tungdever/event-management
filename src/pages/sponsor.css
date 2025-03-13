@@ -92,36 +92,30 @@
     margin-left: 8px;
 }
 
-h5 {
-    font-size: 16px !important;
-    font-weight: 600 !important;
+.card .card-header h5 {
+    font-size: 16px ;
+    font-weight: 600 ;
 }
 
-h6 {
-    font-size: 14px !important;
+.profile-upload .mb-2 h6, .ms-2 h6{
+    font-size: 14px;
     margin: 0;
     /* Tránh khoảng trắng không mong muốn */
 }
 
-a {
-    text-decoration: none !important;
-    /* Xóa gạch chân */
+.sponsor-container a {
+    text-decoration: none;
     color: inherit;
-    /* Giữ nguyên màu mặc định của text */
 }
 
-a:hover,
-a:focus {
-    text-decoration: none !important;
-    color: #111827 !important;
+.sponsor-container a:hover,
+.sponsor-container a:focus {
+    text-decoration: none ;
+    color: #111827;
 }
 
-.fw-medium {
-    font-weight: 800 !important;
-}
-
-.table {
-    margin-bottom: 0 !important;
+.sponsor-container .table {
+    margin-bottom: 0;
 }
 
 .table.table-hover tbody tr td {
@@ -155,11 +149,13 @@ a:focus {
     justify-content: space-between;
 }
 
-.btn.dropdown-toggle:focus,
-.btn.dropdown-toggle[aria-expanded="true"] {
-    background-color: #ff5733 !important;
+.dropdown-export .dropdown-toggle:focus,
+.dropdown-export .dropdown-toggle[aria-expanded="true"],
+.dropdown-level .dropdown-toggle:focus,
+.dropdown-level .dropdown-toggle[aria-expanded="true"] {
+    background-color: #ff5733;
     /* Màu nền khi mở dropdown */
-    color: white !important;
+    color: white;
 }
 
 .card .card-header {
