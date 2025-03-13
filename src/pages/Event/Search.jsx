@@ -1,5 +1,5 @@
 import { useState } from "react";
-import EventList from "../../components/EventList";
+import EventList from "../../components/EventListSearch";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 const eventData = [
@@ -64,39 +64,63 @@ const eventData = [
     event_end: "2025-03-15T22:00:00",
   },
 ];
+const Tags = () => {
+  const tags = [
+    "Online Events",
+    "Things To Do Online",
+    "Online Networking",
+    "Online Health Networking",
+    "#support",
+    "#supportgroup",
+    "#anxietyrelief",
+    "#support_group",
+    "#anxiety_relief",
+    "#anxiety_support",
+    "#anxiety_support_group",
+  ];
 
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag, index) => (
+          <span
+            key={index}
+            className="bg-gray-100 text-gray-800 px-4 py-2 rounded-full"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
 const FilterSidebar = () => {
-  const [selectedCategories, setSelectedCategories] = useState([
-    "software-testing",
-  ]);
-  const [selectedExperience, setSelectedExperience] = useState("no-experience");
-  const [selectedLevel, setSelectedLevel] = useState("all-levels");
+  const [selectedCategories, setSelectedCategories] = useState(["workshop"]);
+  const [selectedEventType, setSelectedEventType] = useState("all-types");
+  const [selectedEventSize, setSelectedEventSize] = useState("all-sizes");
 
-  const categories = [
-    { id: "software-engineering", label: "Software Engineering (30)" },
-    { id: "sales-it", label: "Sales IT Phần mềm (22)" },
-    { id: "design", label: "Thiết kế Đồ họa/Giao diện/Trải nghiệm (17)" },
-    { id: "advertising", label: "Quảng cáo/Sáng tạo (15)" },
-    { id: "software-testing", label: "Software Testing (11)" },
+  const eventCategories = [
+    { id: "conference", label: "Hội nghị (30)" },
+    { id: "workshop", label: "Workshop (22)" },
+    { id: "seminar", label: "Hội thảo (17)" },
+    { id: "concert", label: "Concert / Âm nhạc (15)" },
+    { id: "exhibition", label: "Triển lãm (11)" },
   ];
 
-  const experienceOptions = [
-    { id: "all-experience", label: "Tất cả" },
-    { id: "no-experience", label: "Không yêu cầu" },
-    { id: "less-than-1-year", label: "Dưới 1 năm" },
-    { id: "1-year", label: "1 năm" },
-    { id: "2-years", label: "2 năm" },
-    { id: "3-years", label: "3 năm" },
-    { id: "4-years", label: "4 năm" },
-    { id: "5-years", label: "5 năm" },
-    { id: "more-than-5-years", label: "Trên 5 năm" },
+  const eventTypes = [
+    { id: "all-types", label: "Tất cả" },
+    { id: "free", label: "Miễn phí" },
+    { id: "paid", label: "Trả phí" },
+    { id: "online", label: "Trực tuyến" },
+    { id: "offline", label: "Trực tiếp" },
   ];
 
-  const levelOptions = [
-    { id: "all-levels", label: "Tất cả" },
-    { id: "employee", label: "Nhân viên" },
-    { id: "team-leader", label: "Trưởng nhóm" },
-    { id: "manager", label: "Trưởng/Phó phòng" },
+  const eventSizes = [
+    { id: "all-sizes", label: "Tất cả" },
+    { id: "small", label: "Quy mô nhỏ (dưới 100 người)" },
+    { id: "medium", label: "Quy mô vừa (100 - 500 người)" },
+    { id: "large", label: "Quy mô lớn (trên 500 người)" },
   ];
 
   const toggleCategory = (id) => {
@@ -107,15 +131,15 @@ const FilterSidebar = () => {
 
   const resetFilters = () => {
     setSelectedCategories([]);
-    setSelectedExperience("all-experience");
-    setSelectedLevel("all-levels");
+    setSelectedEventType("all-types");
+    setSelectedEventSize("all-sizes");
   };
 
   return (
-    <div className="w-full  bg-white p-5 rounded-2xl shadow-lg border">
+    <div className="w-full bg-white p-5 rounded shadow border">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-gray-700">Lọc nâng cao</h2>
+        <h2 className="text-lg font-semibold text-gray-700">Bộ lọc sự kiện</h2>
         <button
           onClick={resetFilters}
           className="text-red-500 hover:text-red-600 font-medium"
@@ -124,11 +148,11 @@ const FilterSidebar = () => {
         </button>
       </div>
 
-      {/* Danh mục nghề */}
+      {/* Danh mục sự kiện */}
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-700 mb-3">Theo danh mục nghề</h3>
+        <h3 className="font-semibold text-gray-700 mb-3">Loại sự kiện</h3>
         <div className="space-y-2">
-          {categories.map((category) => (
+          {eventCategories.map((category) => (
             <div key={category.id} className="flex items-center space-x-2">
               <input
                 id={category.id}
@@ -146,55 +170,52 @@ const FilterSidebar = () => {
             </div>
           ))}
         </div>
-        <button className="mt-3 text-green-500 hover:text-green-600 font-medium">
-          Xem thêm
-        </button>
       </div>
 
-      {/* Kinh nghiệm */}
+      {/* Hình thức sự kiện */}
       <div className="mb-6">
-        <h3 className="font-semibold text-gray-700 mb-3">Kinh nghiệm</h3>
+        <h3 className="font-semibold text-gray-700 mb-3">Hình thức</h3>
         <div className="space-y-2">
-          {experienceOptions.map((exp) => (
-            <div key={exp.id} className="flex items-center space-x-2">
+          {eventTypes.map((type) => (
+            <div key={type.id} className="flex items-center space-x-2">
               <input
-                id={exp.id}
+                id={type.id}
                 type="radio"
-                name="experience"
-                checked={selectedExperience === exp.id}
-                onChange={() => setSelectedExperience(exp.id)}
+                name="eventType"
+                checked={selectedEventType === type.id}
+                onChange={() => setSelectedEventType(type.id)}
                 className="accent-blue-500 w-4 h-4"
               />
               <label
-                htmlFor={exp.id}
+                htmlFor={type.id}
                 className="text-gray-600 cursor-pointer hover:text-blue-600"
               >
-                {exp.label}
+                {type.label}
               </label>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Cấp bậc */}
+      {/* Quy mô sự kiện */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3">Cấp bậc</h3>
+        <h3 className="font-semibold text-gray-700 mb-3">Quy mô sự kiện</h3>
         <div className="space-y-2">
-          {levelOptions.map((level) => (
-            <div key={level.id} className="flex items-center space-x-2">
+          {eventSizes.map((size) => (
+            <div key={size.id} className="flex items-center space-x-2">
               <input
-                id={level.id}
+                id={size.id}
                 type="radio"
-                name="level"
-                checked={selectedLevel === level.id}
-                onChange={() => setSelectedLevel(level.id)}
+                name="eventSize"
+                checked={selectedEventSize === size.id}
+                onChange={() => setSelectedEventSize(size.id)}
                 className="accent-purple-500 w-4 h-4"
               />
               <label
-                htmlFor={level.id}
+                htmlFor={size.id}
                 className="text-gray-600 cursor-pointer hover:text-purple-600"
               >
-                {level.label}
+                {size.label}
               </label>
             </div>
           ))}
@@ -235,6 +256,8 @@ const SearchPage = () => {
 
         <div className="w-full md:w-3/4">
           <EventList event={eventData} />
+          <EventList event={eventData} />
+          <Tags />
         </div>
       </div>
       <Footer />

@@ -12,6 +12,14 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Navbar from './pages/Dashboard/Navbar';
 import Sidebar from './pages/Dashboard/Sidebar';
 import EmployeeList from './pages/Employee/EmployeeList';
+import EventForm from './pages/Event/CreateEvent';
+import EditEvent from './pages/Event/EditEvent';
+import SignUp from './pages/Auth/SignUp';
+import LoginForm from './pages/Auth/LogIn';
+import NotificationList from './pages/Dashboard/Notification';
+
+import AddTicket from './pages/Ticket/Add';
+
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -52,17 +60,93 @@ const employees = [
     image: "https://demos.creative-tim.com/test/corporate-ui-dashboard/assets/img/team-2.jpg",
   },
 ];
-
+const notifications = [
+  {
+    id: 1,
+    name: "Nguyễn Thanh Ngọc",
+    message: "đã gửi cho bạn lời mời kết bạn.",
+    time: "1 tuần",
+    mutualFriends: "3 bạn chung",
+    image: "https://storage.googleapis.com/a1aa/image/RO9a_Km3MzmI6eXhXAX_iepBq_xtGzHYV9VobLWk4Bg.jpg",
+    hasActions: true,
+  },
+  {
+    id: 2,
+    name: "Tiểu Phụng",
+    message: "đã gửi cho bạn lời mời kết bạn.",
+    time: "2 tuần",
+    mutualFriends: "2 bạn chung",
+    image: "https://storage.googleapis.com/a1aa/image/zikBlWLojSoSRz55uD4rJDkt03syxPihqxo11KJOrzc.jpg",
+    hasActions: true,
+  },
+  {
+    id: 3,
+    name: "Lưu Thanh Sang",
+    message: "đã mời bạn theo dõi một trang cá nhân. Gần đây, bạn đã thích bài viết của họ.",
+    time: "3 tuần",
+    image: "https://storage.googleapis.com/a1aa/image/VFzmkOIbebjne3na3F1tAR2DJWjNF1drwnptDa7QyLc.jpg",
+    hasActions: false,
+  },
+  {
+    id: 4,
+    name: "Hệ thống",
+    message: "Hệ thống đã đồng bộ thông tin liên hệ bạn lưu giữa các tài khoản của mình. Hãy quản lý thông tin này trong Trung tâm tài khoản.",
+    time: "4 tuần",
+    image: "https://storage.googleapis.com/a1aa/image/vQRA-hLZMfFnSRwIJxjyrqnfSO2-Zeuv5EobX8PifwA.jpg",
+    hasActions: false,
+  },
+  {
+    id: 5,
+    name: "Nguyễn Thanh Ngọc",
+    message: "đã gửi cho bạn lời mời kết bạn.",
+    time: "1 tuần",
+    mutualFriends: "3 bạn chung",
+    image: "https://storage.googleapis.com/a1aa/image/RO9a_Km3MzmI6eXhXAX_iepBq_xtGzHYV9VobLWk4Bg.jpg",
+    hasActions: true,
+  },
+  {
+    id: 6,
+    name: "Tiểu Phụng",
+    message: "đã gửi cho bạn lời mời kết bạn.",
+    time: "2 tuần",
+    mutualFriends: "2 bạn chung",
+    image: "https://storage.googleapis.com/a1aa/image/zikBlWLojSoSRz55uD4rJDkt03syxPihqxo11KJOrzc.jpg",
+    hasActions: true,
+  },
+  {
+    id: 7,
+    name: "Lưu Thanh Sang",
+    message: "đã mời bạn theo dõi một trang cá nhân. Gần đây, bạn đã thích bài viết của họ.",
+    time: "3 tuần",
+    image: "https://storage.googleapis.com/a1aa/image/VFzmkOIbebjne3na3F1tAR2DJWjNF1drwnptDa7QyLc.jpg",
+    hasActions: false,
+  },
+  {
+    id: 8,
+    name: "Hệ thống",
+    message: "Hệ thống đã đồng bộ thông tin liên hệ bạn lưu giữa các tài khoản của mình. Hãy quản lý thông tin này trong Trung tâm tài khoản.",
+    time: "4 tuần",
+    image: "https://storage.googleapis.com/a1aa/image/vQRA-hLZMfFnSRwIJxjyrqnfSO2-Zeuv5EobX8PifwA.jpg",
+    hasActions: false,
+  },
+];
 const MainLayout = () => {
   const location = useLocation();
-  const isFullScreenPage = location.pathname === "/" || location.pathname === "/detail" || location.pathname === "/search";
+  const isFullScreenPage = location.pathname === "/" 
+  || location.pathname === "/detail" || location.pathname === "/search"
+  || location.pathname === "/login" || location.pathname === "/signup"
+  || location.pathname === "/addTicket";
 
   return (
     <div className="w-full min-h-screen bg-while">
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/detail" element={<EventDetail />} />
+        <Route path="/detail" element={<EventDetail  event={eventData}/>} />
         <Route path="/search" element={<SearchPage />} />
+        <Route path="/login" element={<LoginForm />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/addTicket" element={<AddTicket />} />
+
       </Routes>
 
       {!isFullScreenPage && (
@@ -74,7 +158,11 @@ const MainLayout = () => {
             <Route path="/ticket" element={<TicketDashboard />} />
             <Route path="/chat" element={<ChatBox />} />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/createEvent" element={<EventForm />} />
+            <Route path="/editEvent" element={<EditEvent />} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
+            <Route path="/notification" element={<NotificationList notifications={notifications} />} />
+            
           </Routes>
         </div>
       )}

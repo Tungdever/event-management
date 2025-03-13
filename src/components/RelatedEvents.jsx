@@ -48,9 +48,9 @@ const events = [
   },
 ];
 
-const EventCard = ({ event }) => {
+const EventCard = () => {
   return (
-    <div className="relative flex flex-col mt-[40px] mx-auto text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-[300px] h-[320px]">
+    <div className="relative flex flex-col mt-[40px] mx-auto text-gray-700 bg-white shadow bg-clip-border rounded-xl w-[300px] h-[320px]">
     <div className="relative w-[260px] h-[260px] mx-auto -mt-4 overflow-hidden text-white shadow-lg bg-clip-border rounded-xl bg-blue-gray-500 shadow-blue-gray-500/40 flex justify-center items-center">
         <img
             src="https://i.pinimg.com/474x/d4/25/b1/d425b16e9e01a5bafd13332af9fcc250.jpg"
@@ -73,17 +73,17 @@ const EventCard = ({ event }) => {
 
 const RelatedEvents = () => {
   return (
-    <div className="bg-[#5A82BF] w-full">
-    <section className=" p-4 rounded-[6px] w-[95%] ">
+    <div className="bg-gray-100 w-full">
+    <section className=" p-4 rounded-[6px] w-[95%] mx-auto">
       <h2 className="text-xl font-bold mb-4 px-10">Có thể bạn cũng thích</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 px-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 px-8 ">
         {events.map((event) => (
           <EventCard key={event.event_id} event={event} />
         ))}
 
       </div>
       <div className="flex justify-center">
-        <button className="bg-blue-900 text-white px-4 py-2 mt-4 rounded-md">
+        <button className="border border-gray-500  px-4 py-2 mt-4 rounded-md hover:text-blue-300 hover:border-blue-300">
           Xem thêm sự kiện
         </button>
       </div>

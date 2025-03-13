@@ -12,9 +12,36 @@ const images = [
   "https://cdn.evbstatic.com/s3-build/fe/build/images/389ece7b7e2dc7ff8d28524bad30d52c-dsrp_desktop.webp",
 ];
 
+const categories = [
+  { icon: "fas fa-microphone-alt", label: "Music" },
+  { icon: "fas fa-glass-martini-alt", label: "Nightlife" },
+  { icon: "fas fa-theater-masks", label: "Performing" },
+  { icon: "fas fa-sun", label: "Holidays" },
+  { icon: "fas fa-heart", label: "Dating" },
+  { icon: "fas fa-gamepad", label: "Hobbies" },
+  { icon: "fas fa-briefcase", label: "Business" },
+  { icon: "fas fa-utensils", label: "Food & Drink" },
+];
+
+const CategoriesGrid= ()=> {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 my-12 py-4">
+  {categories.map((category, index) => (
+    <div key={index} className="flex flex-col items-center group">
+      <div className="w-[108px] h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[ #74CEF7]">
+        <i className={`${category.icon} text-2xl text-gray-600 group-hover:text-[#3d64ff]`}></i>
+      </div>
+      <p className="mt-2 text-gray-600 group-hover:text-[#3d64ff]">{category.label}</p>
+    </div>
+  ))}
+</div>
+
+  );
+}
+
 const SliderEvent = () => {
   return (
-    <div className="w-full max-w-[1300px] mx-auto my-[20px]">
+    <div className="w-full max-w-[1300px] mx-auto my-[20px] font-roboto">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={10}
@@ -36,83 +63,10 @@ const SliderEvent = () => {
         ))}
       </Swiper>
       
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mt-8">
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-microphone-alt text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Music
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-glass-martini-alt text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Nightlife
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-theater-masks text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Performing
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-sun text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Holidays
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-heart text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Dating
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-gamepad text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Hobbies
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-briefcase text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Business
-        </p>
-       </div>
-       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 rounded-full border-2 border-gray-300 flex items-center justify-center">
-         <i className="fas fa-utensils text-2xl text-gray-600">
-         </i>
-        </div>
-        <p className="mt-2 text-gray-600">
-         Food &amp; Drink
-        </p>
-       </div>
-      </div>
+        <CategoriesGrid />
     </div>
   );
 };
 
 export default SliderEvent;
+

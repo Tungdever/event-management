@@ -1,4 +1,5 @@
 import React from "react";
+import imgTicket from "../../assets/NoOrder.png"
 
 const TicketDashboard = () => {
   return (
@@ -22,7 +23,7 @@ const TicketDashboard = () => {
       
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {["Net Sales", "Tickets Sold", "Page Views"].map((title, index) => (
-          <div key={index} className="p-4 bg-white rounded-md shadow-md">
+          <div key={index} className="p-6 bg-white rounded-md shadow">
             <div className="text-gray-600">{title}</div>
             <div className="text-2xl font-bold text-gray-900">{title === "Tickets Sold" ? "0/100" : "$0.00"}</div>
           </div>
@@ -47,7 +48,7 @@ const TicketDashboard = () => {
       
       <div className="mt-6">
         <h2 className="text-xl font-bold text-gray-900">Sales by ticket type</h2>
-        <table className="mt-4 w-full bg-white rounded-md shadow-md">
+        <table className="mt-4 w-full bg-white rounded-md shadow">
           <thead>
             <tr className="text-left text-gray-600">
               <th className="px-4 py-2">Ticket type</th>
@@ -67,7 +68,7 @@ const TicketDashboard = () => {
       
       <div className="mt-6">
         <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-        <table className="mt-4 w-full bg-white rounded-md shadow-md">
+        <table className="mt-4 w-full bg-white rounded-md shadow">
           <thead>
             <tr className="text-left text-gray-600">
               <th className="px-4 py-2">Order #</th>
@@ -84,9 +85,9 @@ const TicketDashboard = () => {
                 <img
                   alt="No orders icon"
                   className="mx-auto mb-4"
-                  src="https://storage.googleapis.com/a1aa/image/LRT1cu13ifoCeq02_Ou-_XXdPqHxKTn8XljGWyoojdw.jpg"
-                  width="50"
-                  height="50"
+                  src={imgTicket}
+                  width="150"
+                  height="150"
                 />
                 No orders for this event yet
               </td>

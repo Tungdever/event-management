@@ -4,11 +4,280 @@ import RelatedEvents from "../../components/RelatedEvents";
 import "./Detail.css";
 import SliderSpeaker from "../../components/SilderSpeaker";
 import Footer from "../../components/Footer";
+import ReactMarkdown from "react-markdown";
+import ListEventScroll from "../../components/EventListScroll";
+import { FaRocket, FaInfoCircle } from "react-icons/fa";
+import Checkout from "../Ticket/CheckOut";
+const sections = [
+  {
+    title: "The origin",
+    date: "May, 2020",
+    description: "Acme was founded in Milan, Italy",
+    details: "Pretium lectus quam id leo...",
+  },
+  {
+    title: "The milestone",
+    date: "May, 2021",
+    description: "Reached 5K customers",
+    details: "Pretium lectus quam id leo...",
+  },
+  {
+    title: "The acquisitions",
+    date: "May, 2022",
+    description: "Acquired various companies, including Technology Inc.",
+    details: "Pretium lectus quam id leo...",
+  },
+  {
+    title: "The IPO",
+    date: "May, 2023",
+    description: "Acme went public at the New York Stock Exchange",
+    details: "Pretium lectus quam id leo...",
+  },
+];
+const eventdescription = {
+  event_desc: `🌟About rev™ Saigon🌟
 
+On March 28th, rev™ is debuting at Hilton Saigon. rev is our reverse-pitching series where we invite leading and emerging investors to showcase their propositions to you. (Pre-seed to Series-B founders.)
+
+
+
+🌟Why rev?🌟
+
+Pitching to VCs takes a chunk of time and loads of energy, and every rejection takes a little chip out of the soul. As an entrepreneur, you'd better be pitching to the right investors!
+
+As a startup founder, you have hundreds of other things to do, so we’ve structured rev to deliver fast, efficient insights to make the best use of your time.
+
+
+
+🌟What happens at rev?🌟
+
+rev is about more than finding alignment with a VC's investment thesis; it's about finding where your chemistry and personalities resonate. We're here to help you discover the right investors efficiently.
+
+Each VC has five minutes to pitch, followed by 2-3 of your questions.
+Afterwards, immerse yourself in networking to leave a lasting impression - better still, make yourself unforgettable to the investors!
+NB. If you are an investor and would like a speaking spot at rev, please register here and we’ll coordinate with you.`,
+};
+const eventData = [
+  {
+    id: 1,
+    title: "2025 EB-5 & Global Immigration Expo Vietnam",
+    date: "Tomorrow • 9:00 AM",
+    location: "The Reverie Saigon",
+    price: "$3,405.80",
+    organizer: "Uglobal Immigration Magazine/EB5 Investors Magazine",
+    followers: "1k followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/7Ayi17NC009F_mgUBPq9U6d7dzejFLR_aA_t4fengnY.jpg",
+  },
+  {
+    id: 2,
+    title: "SGN Satay Socials 5th to 10th Edition",
+    date: "Friday • 6:00 PM",
+    location: "The Sentry P",
+    price: "Free",
+    organizer: "Reactor School",
+    followers: "74 followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/CRYJ9pmm-EoCg4hN2hn0yVXPJHmT4SjvqQZDqwgSce8.jpg",
+  },
+  {
+    id: 3,
+    title: "Biogas & Biomass Bioenergy Asia Summit 2025 Vietnam Focus",
+    date: "Wed, Mar 19 • 9:00 AM",
+    location: "Hồ Chí Minh, 胡志明区越南",
+    price: "Free",
+    organizer: "INBC Global",
+    followers: "33 followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/hwWfrUORRiBUJ749Um2ZrzVqZ7nqFnG-acijHPDNehk.jpg",
+  },
+  {
+    id: 4,
+    title: "ĐÁNH THỨC SỰ GIÀU CÓ 69-Tp.HCM (20,21,22/03/2025)",
+    date: "Thu, Mar 20 • 8:00 AM",
+    location: "Grand Palace Wedding And Convention",
+    price: "$25.64",
+    organizer: "Luật sư PHẠM THÀNH LONG",
+    followers: "8k followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+  },
+  {
+    id: 5,
+    title: "ĐÁNH THỨC SỰ GIÀU CÓ 69-Tp.HCM (20,21,22/03/2025)",
+    date: "Thu, Mar 20 • 8:00 AM",
+    location: "Grand Palace Wedding And Convention",
+    price: "$25.64",
+    organizer: "Luật sư PHẠM THÀNH LONG",
+    followers: "8k followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+  },
+  {
+    id: 6,
+    title: "ĐÁNH THỨC SỰ GIÀU CÓ 69-Tp.HCM (20,21,22/03/2025)",
+    date: "Thu, Mar 20 • 8:00 AM",
+    location: "Grand Palace Wedding And Convention",
+    price: "$25.64",
+    organizer: "Luật sư PHẠM THÀNH LONG",
+    followers: "8k followers",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+  },
+];
+const speakers = [
+  {
+    id: 1,
+    name: "Tony Wayne",
+    role: "Developer",
+    image:
+      "https://images.unsplash.com/photo-1603871165848-0aa92c869fa1?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8&auto=format&fit=crop&w=772&q=80",
+  },
+  {
+    id: 2,
+    name: "Emma Stone",
+    role: "Designer",
+    image:
+      "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8&auto=format&fit=crop&w=772&q=80",
+  },
+  {
+    id: 3,
+    name: "John Doe",
+    role: "Photographer",
+    image:
+      "https://images.unsplash.com/photo-1522091066250-665186289043?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8&auto=format&fit=crop&w=772&q=80",
+  },
+  {
+    id: 4,
+    name: "Alice Brown",
+    role: "Marketer",
+    image:
+      "https://images.unsplash.com/photo-1531251445707-1f000e1e87d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8&auto=format&fit=crop&w=772&q=80",
+  },
+  {
+    id: 5,
+    name: "Alice Brown",
+    role: "Marketer",
+    image:
+      "https://images.unsplash.com/photo-1531251445707-1f000e1e87d0?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fHx8&auto=format&fit=crop&w=772&q=80",
+  },
+];
+const EventDescription = ({ description }) => {
+  return (
+    <div className="text-gray-700 text-justify">
+      <ReactMarkdown>{description}</ReactMarkdown>
+    </div>
+  );
+};
+
+const Timeline = ({ sections }) => {
+  return (
+    <div className="my-6 flex-col justify-center items-center mx-16">
+      {sections.map((section, index) => (
+        <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
+          <div className="font-medium text-indigo-500 mb-1 sm:mb-0">
+            {section.title}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
+            <time className="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">
+              {section.date}
+            </time>
+            <div className="text-xl font-bold text-slate-900">
+              {section.description}
+            </div>
+          </div>
+
+          <div className="text-slate-500">{section.details}</div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const Tags = () => {
+  const tags = [
+    "Online Events",
+    "Things To Do Online",
+    "Online Networking",
+    "Online Health Networking",
+    "#support",
+    "#supportgroup",
+    "#anxietyrelief",
+    "#support_group",
+    "#anxiety_relief",
+    "#anxiety_support",
+    "#anxiety_support_group",
+  ];
+
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag, index) => (
+          <span
+            key={index}
+            className="bg-gray-100 text-gray-800 px-4 py-2 rounded-full"
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const OrganizedBy = () => {
+  return (
+    <div className="mt-8 mb-4">
+      <h2 className="text-2xl font-bold mb-4">Organized by</h2>
+      <div className="bg-gray-50 p-6 rounded-lg shadow">
+        <div className="flex items-center mb-4">
+          <img
+            src="https://storage.googleapis.com/a1aa/image/iulMqkOeKR6SAOm-Zs8J1VIWV9rNEcpFiteM_nMV1hs.jpg"
+            alt="Logo of ShareWell"
+            className="w-12 h-12 rounded-full mr-4"
+          />
+          <div>
+            <h3 className="text-xl font-semibold">ShareWell</h3>
+            <div className="text-gray-600">
+              <span className="mr-4">
+                <strong>4.8k</strong> followers
+              </span>
+              <span>
+                <strong>13.4k</strong> attendees hosted
+              </span>
+            </div>
+          </div>
+        </div>
+        <p className="text-gray-700 mb-4">
+          Welcome! ShareWell is a warm and welcoming peer-to-peer community for
+          mental wellness. We host support groups for people looking to connect
+          with others to overcome similar life challenges. Ground Rules for
+          ShareWell Peer Support Sessions:...
+        </p>
+        <a href="#" className="text-blue-600">
+          View more
+        </a>
+        <div className="flex justify-end mt-4">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-full mr-2">
+            Contact
+          </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-full">
+            Follow
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 const EventDetail = ({ event }) => {
+  const [participantCount, setParticipantCount] = useState(1);
   const [expanded, setExpanded] = useState(false);
 
   const toggleTickets = () => setExpanded(!expanded);
+  const [showPopup, setShowPopup] = useState(false);
+
   const imageUrl =
     "https://cdn.evbstatic.com/s3-build/fe/build/images/389ece7b7e2dc7ff8d28524bad30d52c-dsrp_desktop.webp";
   return (
@@ -31,249 +300,124 @@ const EventDetail = ({ event }) => {
       </div>
       <div className="px-8 pt-8">
         {/* Event Details */}
-        <div className="rounded-lg px-8 pt-4">
-          <div className="text-gray-500 mb-2">
-            {new Date(event.event_start).toDateString()}
-          </div>
-          <h1 className="text-3xl font-bold text-blue-900 mb-4">
-            {event.event_name}
-          </h1>
+        <div className="rounded-lg px-8 pt-4 leading-normal">
+          <div className="flex items-start gap-4">
+            <div className="flex-1 ml-20">
+              <div className="text-gray-500 mb-2">
+                {new Date(event.event_start).toDateString()}
+              </div>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              Date and Time
-            </h2>
-            <div className="text-gray-700 ml-8">
-              <i className="bi bi-calendar-event pr-[10px]"></i>{" "}
-              {event.event_start} - {event.event_end}
-            </div>
-          </div>
+              <h1 className="text-5xl font-bold text-blue-900 mb-4">
+                {event.event_name}
+              </h1>
+              {/* Host */}
+              <section className="mt-6 flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-4">
+                <div className="flex items-center space-x-4">
+                  <img
+                    src="https://storage.googleapis.com/a1aa/image/miIpLx1H5f-jr_ow6Granz085EhA-iUZUAeqYa3XPU4.jpg"
+                    alt="NASA logo"
+                    className="w-12 h-12 rounded-full"
+                  />
+                  <div>
+                    <p className="text-gray-900 font-semibold">By NASA</p>
+                    <p className="text-gray-500">123.1k followers</p>
+                    <p className="text-pink-500 font-semibold">
+                      1.5M attendees hosted <FaRocket />
+                    </p>
+                  </div>
+                </div>
+                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">
+                  Follow
+                </button>
+              </section>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Date and Time
+                </h2>
+                <div className="text-gray-700 ">
+                  <i className="bi bi-calendar-event pr-[10px]"></i>{" "}
+                  {event.event_start} - {event.event_end}
+                </div>
+              </div>
 
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">Location</h2>
-            <div className="ml-8 text-gray-700">
-              {" "}
-              <i className="bi bi-geo-alt pr-[10px]"></i> {event.event_location}
-            </div>
-          </div>
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-2">
-              DescriptionDescription
-            </h2>
-            <div className="ml-8 text-gray-700 text-justify">
-              {event.event_desc}
-            </div>
-          </div>
-          {/* Ticket Information Section */}
-          <h2 className="text-xl font-bold mb-8">Thông tin vé</h2>
-          <div className="bg-gray-800 text-white rounded-lg shadow-lg w-full ">
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <h2 className="text-lg font-semibold">Thông tin vé</h2>
-              <button className="bg-green-500 text-white px-4 py-2 rounded-lg">
-                Mua vé ngay
-              </button>
-            </div>
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <span>20:00 - 22:30, 07 Tháng 03, 2025</span>
-              <i className="fas fa-chevron-down"></i>
-            </div>
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <span>VIP STANDING</span>
-              <span className="text-green-500">5.500.000 đ</span>
-            </div>
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <span>CAT 1</span>
-              <span className="text-green-500">4.500.000 đ</span>
-            </div>
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <span>GEN STANDING</span>
-              <span className="text-green-500">3.500.000 đ</span>
-            </div>
-            <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-              <span>CAT 2</span>
-              <span className="text-green-500">2.500.000 đ</span>
-            </div>
-            <div className="p-4 flex justify-between items-center">
-              <span>ZONE B STANDING</span>
-              <span className="text-green-500">2.000.000 đ</span>
-            </div>
-          </div>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Location
+                </h2>
+                <div className="text-gray-700">
+                  <i className="bi bi-geo-alt pr-[10px]"></i>{" "}
+                  {event.event_location}
+                </div>
+              </div>
 
-          <div className="relative max-w-[300px] max-h-[320px] bg-gradient-to-b from-[#c3e6ec] to-[#a7d1d9] rounded-lg p-8 m-3 overflow-hidden font-sans transition-all duration-500 group">
-            <p className="text-[#262626] text-xl font-bold mb-2 transition-all duration-500 group-hover:text-white relative z-10">
-              Product Name
-            </p>
-            <p className="text-[#452c2c] text-base font-normal leading-6 transition-all duration-500 group-hover:text-white relative z-10">
-              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quaerat
-              veritatis nobis saepe itaque rerum nostrum aliquid obcaecati odio
-              officia deleniti.
-            </p>
-            <div className="absolute w-8 h-8 flex items-center justify-center top-0 right-0 bg-gradient-to-br from-[#6293c8] to-[#384c6c] rounded-tr-lg rounded-bl-[32px] z-10">
-              <div className="text-white font-mono">→</div>
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Description
+                </h2>
+                <EventDescription
+                  description={eventdescription.event_desc}
+                  className="te"
+                />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Speaker</h2>
+              <SliderSpeaker speakers={speakers} />
+              <Tags />
+              <OrganizedBy />
+              {/* Section */}
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Section</h2>
+              <Timeline sections={sections} />
             </div>
-            <div className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-br from-[#364a60] to-[#384c6c] rounded-full transition-transform duration-500 group-hover:scale-[28] z-0"></div>
-          </div>
-          <h2 className="text-xl font-bold mb-8">Speaker</h2>
-          <SliderSpeaker />
-          <h2 className="text-xl font-bold mb-8">Schedule</h2>
-          <div className="bg-white rounded-lg w-2/3 lg:w-1/2 xl:w-full p-4 shadow my-[20px]">
-            <div>
-              <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">
-                Wednesday 8
-              </span>
-              <div className="flex mb-2">
-                <div className="w-2/12">
-                  <span className="text-sm text-gray-600 block">8:00a</span>
-                  <span className="text-sm text-gray-600 block">8:15a</span>
+            {/* Ticket order */}
+            <div className="max-w-[350px] min-w-[330px] h-60 bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10 sticky top-4">
+              <div className="flex-col justify-between items-center mb-4 p-4 border border-[3px] border-blue-800 rounded-lg">
+                <div className="flex items-center my-4">
+                  <p className="text-gray-900 font-semibold mr-4 text-[16px]">
+                    Online Participant
+                  </p>
+                  <div className="flex items-center space-x-4">
+                    <button
+                      className="bg-gray-200 text-gray-600 px-[12px] py-1 rounded"
+                      onClick={() =>
+                        setParticipantCount(Math.max(1, participantCount - 1))
+                      }
+                    >
+                      -
+                    </button>
+                    <span className="text-gray-900 font-semibold text-[14px]">
+                      {participantCount}
+                    </span>
+                    <button
+                      className="bg-blue-600 text-white px-[12px] py-1 rounded"
+                      onClick={() => setParticipantCount(participantCount + 1)}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div className="w-1/12">
-                  <span className="bg-blue-400 h-2 w-2 rounded-full block mt-2"></span>
-                </div>
-                <div className="w-9/12">
-                  <span className="text-sm font-semibold block">
-                    Morning Standup
-                  </span>
-                  <span className="text-sm">Zoom ID: 1134 11 1134</span>
-                </div>
-              </div>
-              <div className="flex mb-4">
-                <div className="w-2/12">
-                  <span className="text-sm text-gray-600 block">10:00a</span>
-                  <span className="text-sm text-gray-600 block">2:00p</span>
-                </div>
-                <div className="w-1/12">
-                  <span className="bg-red-400 h-2 w-2 rounded-full block mt-2"></span>
-                </div>
-                <div className="w-9/12">
-                  <span className="text-sm font-semibold block">
-                    Core Development
-                  </span>
-                  <span className="text-sm">Joey, Matt, CJ and Vlad</span>
+                <div className="flex  items-center mb-4 space-x-4 ">
+                  <p className="text-gray-600 text-[14px]">Free</p>
+                  <FaInfoCircle className="text-blue-700 text-[16px]" />
                 </div>
               </div>
-              <div className="flex mb-4">
-                <div className="w-2/12">
-                  <span className="text-sm text-gray-600 block">3:00p</span>
-                  <span className="text-sm text-gray-600 block">3:30p</span>
-                </div>
-                <div className="w-1/12">
-                  <span className="bg-indigo-600 h-2 w-2 rounded-full block mt-2"></span>
-                </div>
-                <div className="w-9/12">
-                  <span className="text-sm font-semibold block">
-                    Interview with Ed Harris
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <span className="text-gray-900 relative inline-block date uppercase font-medium tracking-widest">
-                Thursday 9
-              </span>
-              <div className="flex mb-2">
-                <div className="w-2/12">
-                  <span className="text-sm text-gray-600 block">8:00a</span>
-                  <span className="text-sm text-gray-600 block">8:15a</span>
-                </div>
-                <div className="w-1/12">
-                  <span className="bg-blue-400 h-2 w-2 rounded-full block mt-2"></span>
-                </div>
-                <div className="w-9/12">
-                  <span className="text-sm font-semibold block">
-                    Morning Standup
-                  </span>
-                  <span className="text-sm">Zoom ID: 1134 11 1134</span>
-                </div>
-              </div>
-              <div className="flex mb-4">
-                <div className="w-2/12">
-                  <span className="text-sm text-gray-600 block">6:00p</span>
-                  <span className="text-sm text-gray-600 block">7:30p</span>
-                </div>
-                <div className="w-1/12">
-                  <span className="bg-yellow-400 h-2 w-2 rounded-full block mt-2"></span>
-                </div>
-                <div className="w-9/12">
-                  <span className="text-sm font-semibold block">
-                    Dinner with Mom
-                  </span>
-                </div>
+
+              <div>
+                <button
+                  className="bg-red-600 text-white w-full py-2 rounded-lg hover:bg-red-500 mt-2"
+                  onClick={() => setShowPopup(true)}
+                >
+                  Select tickets
+                </button>
+
+                {/* Hiển thị popup nếu showPopup === true */}
+                {showPopup && <Checkout onClose={() => setShowPopup(false)} />}
               </div>
             </div>
           </div>
-          
-<section class="relative flex flex-col justify-center bg-slate-50 overflow-hidden">
-    <div class="w-full max-w-6xl mx-auto px-4 md:px-6 py-24">
-        <div class="flex flex-col justify-center divide-y divide-slate-200 [&>*]:py-16">
-
-            <div class="w-full max-w-3xl mx-auto">
-            
-               
-                <div class="-my-6">
-
-                   
-                    <div class="relative pl-8 sm:pl-32 py-6 group">
-                        
-                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The origin</div>
-                        
-                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
-                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2020</time>
-                            <div class="text-xl font-bold text-slate-900">Acme was founded in Milan, Italy</div>
-                        </div>
-                      
-                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>
-                    </div>
-                    
-                  
-                    <div class="relative pl-8 sm:pl-32 py-6 group">
-                       
-                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The milestone</div>
-                       
-                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
-                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2021</time>
-                            <div class="text-xl font-bold text-slate-900">Reached 5K customers</div>
-                        </div>
-                      
-                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>
-                    </div>
-                    
-                    
-                    <div class="relative pl-8 sm:pl-32 py-6 group">
-                        
-                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The acquisitions</div>
-                        
-                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
-                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2022</time>
-                            <div class="text-xl font-bold text-slate-900">Acquired various companies, inluding Technology Inc.</div>
-                        </div>
-                       
-                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>
-                    </div>
-                    
-                    
-                    <div class="relative pl-8 sm:pl-32 py-6 group">
-                       
-                        <div class="font-medium text-indigo-500 mb-1 sm:mb-0">The IPO</div>
-                     
-                        <div class="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
-                            <time class="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">May, 2023</time>
-                            <div class="text-xl font-bold text-slate-900">Acme went public at the New York Stock Exchange</div>
-                        </div>
-                       
-                        <div class="text-slate-500">Pretium lectus quam id leo. Urna et pharetra pharetra massa massa. Adipiscing enim eu neque aliquam vestibulum morbi blandit cursus risus.</div>
-                    </div>
-
-                </div>
-               
-                
-            </div>
-
-        </div>
-    </div>
-</section>
         </div>
       </div>
-      <RelatedEvents />
+
+      <ListEventScroll events={eventData} />
+
       <Footer />
     </>
   );
