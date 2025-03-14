@@ -5,7 +5,7 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "@tabler/icons-webfont/dist/tabler-icons.min.css";
 import { useState } from "react";
-const Dashboard = () => {
+const Sponsor = () => {
   const [selectedLevel, setSelectedLevel] = useState("Select level");
   const [selectedExport, setSelectedExport] = useState("Export");
   const handleSelect = (sponsor) => {
@@ -45,7 +45,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="sponsor-container">
+    <div className="sponsor-containerr">
       <div className="d-md-flex d-block align-items-center justify-content-between page-breadcrumb mb-3">
         <div my-auto mb-2>
           <h2 className="checkout-page-title">Sponsor</h2>
@@ -167,7 +167,7 @@ const Dashboard = () => {
 
         </div>
       </div>
-      <div class="card-container">
+      <div class="card-containerr">
         <div class="sponsor-card">
           <div class="icon">🔶</div>
           <div className="ms-2">
@@ -329,4 +329,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Sponsor;

@@ -15,13 +15,13 @@ const EmployeeListGrid = ({ employees }) => {
   return (
     <div className="bg-gray-100 min-h-screen p-6">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Contact Grid</h2>
+        <h2 className="text-xl font-semibold">Employee List</h2>
         <div className="flex items-center space-x-4">
           <button className="bg-orange-500 text-white px-4 py-2 rounded">
             Export
           </button>
           <button className="bg-orange-500 text-white px-4 py-2 rounded">
-            Add Contact
+            Add Employee
           </button>
           <select className="border rounded px-4 py-2">
             <option>Sort By: Last 7 Days</option>

@@ -66,8 +66,8 @@ const Sidebar = () => {
   };
 
   return (
-    <div className="w-64 h-screen bg-white text-black p-2 shadow-lg fixed top-0 left-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-orange-500 mb-8">Management Event</h1>
+    <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
+      <h1 className="text-2xl font-bold text-orange-500 mb-8 mt-2">Management Event</h1>
       <ul>
         {defaultMenuItems.map((menu) => (
           <SidebarItem
@@ -87,21 +87,21 @@ const SidebarItem = ({ menu, isOpen, onClick }) => {
     <li className="mb-2">
       <div
         className={`flex justify-between items-center px-2 py-2 rounded-lg cursor-pointer transition-all duration-300 
-        text-[14px] font-semibold hover:bg-orange-500 hover:text-white ${isOpen ? "bg-orange-500 text-white" : ""}`}
+        text-[14px] font-medium hover:bg-gray-300 hover:text-orange-500 ${isOpen ? "bg-gray-300 text-orange-500" : ""}`}
         onClick={menu.submenu ? onClick : null}
       >
         <Link to={menu.path}>{menu.title}</Link>
         {menu.submenu && (
-          <FaChevronDown className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+          <FaChevronDown size={12} className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         )}
       </div>
       {menu.submenu && isOpen && (
-        <ul className="mt-2 ml-4">
+        <ul className="mt-2 ml-2">
           {menu.submenu.map((sub) => (
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className="block px-3 py-2 text-gray-700 hover:bg-orange-400 hover:text-white rounded-lg transition-all text-[14px]"
+                className="block px-2 ml-2 py-2 text-gray-700 hover:bg-gray-200 hover:text-orange-500 rounded-lg transition-all text-[14px]"
               >
                 {sub.title}
               </Link>

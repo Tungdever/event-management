@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
+import { useNavigate } from "react-router-dom";
 const Checkout = ({ onClose }) => {
   const [firstName, setFirstName] = useState("Trung");
   const [lastName, setLastName] = useState("Hồ");
   const [email, setEmail] = useState("trungho.234416@gmail.com");
   const [updates, setUpdates] = useState(true);
   const [bestEvents, setBestEvents] = useState(true);
+  const navigate = useNavigate();
 
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000); 
+  }, []);
   return (
+    loading ?<h1></h1> : 
     <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
       <div className="max-w-4xl bg-white rounded-lg shadow-lg p-6 relative">
         {/* Nút đóng popup */}
@@ -62,7 +72,7 @@ const Checkout = ({ onClose }) => {
               <p className="text-gray-700 mb-4">
                 By selecting Register, I agree to the <a className="text-blue-500" href="#">Eventbrite Terms of Service</a>.
               </p>
-              <button className="w-full bg-orange-500 text-white py-2 rounded">Register</button>
+              <button className="w-full bg-orange-500 text-white py-2 rounded" onClick={() => navigate("/checkout")}>Register</button>
             </form>
             <p className="text-gray-500 text-center mt-4">Powered by <span className="font-semibold">eventbrite</span></p>
           </div>

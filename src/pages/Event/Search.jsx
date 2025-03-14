@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
 import EventList from "../../components/EventListSearch";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
+import { Filter, X } from "lucide-react";
 const eventData = [
   {
     event_id: 1,
@@ -98,14 +100,15 @@ const Tags = () => {
 const FilterSidebar = () => {
   const [selectedCategories, setSelectedCategories] = useState(["workshop"]);
   const [selectedEventType, setSelectedEventType] = useState("all-types");
-  const [selectedEventSize, setSelectedEventSize] = useState("all-sizes");
+  const [selectedEventTime, setSelectedEventTime] = useState("all-times");
+  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
 
   const eventCategories = [
-    { id: "conference", label: "Hội nghị (30)" },
-    { id: "workshop", label: "Workshop (22)" },
-    { id: "seminar", label: "Hội thảo (17)" },
-    { id: "concert", label: "Concert / Âm nhạc (15)" },
-    { id: "exhibition", label: "Triển lãm (11)" },
+    { id: "conference", label: "Hội nghị" },
+    { id: "workshop", label: "Workshop" },
+    { id: "seminar", label: "Hội thảo" },
+    { id: "concert", label: "Concert / Âm nhạc" },
+    { id: "exhibition", label: "Triển lãm" },
   ];
 
   const eventTypes = [
@@ -116,54 +119,57 @@ const FilterSidebar = () => {
     { id: "offline", label: "Trực tiếp" },
   ];
 
-  const eventSizes = [
-    { id: "all-sizes", label: "Tất cả" },
-    { id: "small", label: "Quy mô nhỏ (dưới 100 người)" },
-    { id: "medium", label: "Quy mô vừa (100 - 500 người)" },
-    { id: "large", label: "Quy mô lớn (trên 500 người)" },
+  const eventTimes = [
+    { id: "all-times", label: "Tất cả" },
+    { id: "today", label: "Hôm nay" },
+    { id: "this-weekend", label: "Cuối tuần này" },
+    { id: "this-month", label: "Tháng này" },
   ];
 
-  const toggleCategory = (id) => {
-    setSelectedCategories((prev) =>
-      prev.includes(id) ? prev.filter((cat) => cat !== id) : [...prev, id]
-    );
-  };
+  const eventLocations = [
+    { id: "all-locations", label: "Tất cả địa điểm" },
+    { id: "hanoi", label: "Hà Nội" },
+    { id: "hochiminh", label: "TP. Hồ Chí Minh" },
+    { id: "danang", label: "Đà Nẵng" },
+  ];
 
   const resetFilters = () => {
     setSelectedCategories([]);
     setSelectedEventType("all-types");
-    setSelectedEventSize("all-sizes");
+    setSelectedEventTime("all-times");
+    setSelectedEventLocation("all-locations");
   };
 
   return (
-    <div className="w-full bg-white p-5 rounded shadow border">
+    <div className="w-full bg-white p-5 rounded-lg shadow-md border space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center border-b pb-3">
         <h2 className="text-lg font-semibold text-gray-700">Bộ lọc sự kiện</h2>
         <button
           onClick={resetFilters}
           className="text-red-500 hover:text-red-600 font-medium"
         >
-          Xóa lọc ({selectedCategories.length})
+          Xóa lọc
         </button>
       </div>
 
-      {/* Danh mục sự kiện */}
-      <div className="mb-6">
-        <h3 className="font-semibold text-gray-700 mb-3">Loại sự kiện</h3>
+      {/* Loại sự kiện */}
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-2">Loại sự kiện</h3>
         <div className="space-y-2">
           {eventCategories.map((category) => (
             <div key={category.id} className="flex items-center space-x-2">
               <input
                 id={category.id}
-                type="checkbox"
+                type="radio"
+                name="eventCategory"
                 checked={selectedCategories.includes(category.id)}
-                onChange={() => toggleCategory(category.id)}
-                className="accent-green-500 w-4 h-4"
+                onChange={() => setSelectedCategories([category.id])}
+                className="accent-orange-500 w-4 h-4"
               />
               <label
                 htmlFor={category.id}
-                className="text-gray-600 cursor-pointer hover:text-green-600"
+                className="text-gray-600 cursor-pointer hover:text-orange-600"
               >
                 {category.label}
               </label>
@@ -173,8 +179,8 @@ const FilterSidebar = () => {
       </div>
 
       {/* Hình thức sự kiện */}
-      <div className="mb-6">
-        <h3 className="font-semibold text-gray-700 mb-3">Hình thức</h3>
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-2">Hình thức</h3>
         <div className="space-y-2">
           {eventTypes.map((type) => (
             <div key={type.id} className="flex items-center space-x-2">
@@ -184,11 +190,11 @@ const FilterSidebar = () => {
                 name="eventType"
                 checked={selectedEventType === type.id}
                 onChange={() => setSelectedEventType(type.id)}
-                className="accent-blue-500 w-4 h-4"
+                className="accent-orange-500 w-4 h-4"
               />
               <label
                 htmlFor={type.id}
-                className="text-gray-600 cursor-pointer hover:text-blue-600"
+                className="text-gray-600 cursor-pointer hover:text-orange-600"
               >
                 {type.label}
               </label>
@@ -197,25 +203,50 @@ const FilterSidebar = () => {
         </div>
       </div>
 
-      {/* Quy mô sự kiện */}
+      {/* Thời gian tổ chức */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3">Quy mô sự kiện</h3>
+        <h3 className="font-semibold text-gray-700 mb-2">Thời gian tổ chức</h3>
         <div className="space-y-2">
-          {eventSizes.map((size) => (
-            <div key={size.id} className="flex items-center space-x-2">
+          {eventTimes.map((time) => (
+            <div key={time.id} className="flex items-center space-x-2">
               <input
-                id={size.id}
+                id={time.id}
                 type="radio"
-                name="eventSize"
-                checked={selectedEventSize === size.id}
-                onChange={() => setSelectedEventSize(size.id)}
-                className="accent-purple-500 w-4 h-4"
+                name="eventTime"
+                checked={selectedEventTime === time.id}
+                onChange={() => setSelectedEventTime(time.id)}
+                className="accent-orange-500 w-4 h-4"
               />
               <label
-                htmlFor={size.id}
-                className="text-gray-600 cursor-pointer hover:text-purple-600"
+                htmlFor={time.id}
+                className="text-gray-600 cursor-pointer hover:text-orange-600"
               >
-                {size.label}
+                {time.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Địa điểm tổ chức */}
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-2">Địa điểm tổ chức</h3>
+        <div className="space-y-2">
+          {eventLocations.map((location) => (
+            <div key={location.id} className="flex items-center space-x-2">
+              <input
+                id={location.id}
+                type="radio"
+                name="eventLocation"
+                checked={selectedEventLocation === location.id}
+                onChange={() => setSelectedEventLocation(location.id)}
+                className="accent-orange-500 w-4 h-4"
+              />
+              <label
+                htmlFor={location.id}
+                className="text-gray-600 cursor-pointer hover:text-orange-600"
+              >
+                {location.label}
               </label>
             </div>
           ))}
@@ -225,12 +256,20 @@ const FilterSidebar = () => {
   );
 };
 
+
 const SearchPage = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 250); 
+  }, []);
   return (
-    <>
+    loading ?<h1></h1> : <>
       <Header />
       <div class=" mx-auto px-6 py-4">
-        <nav class="text-sm text-blue-600 space-x-2 pt-2">
+        <nav class="text-sm text-orange-600 space-x-2 pt-2">
           <a href="#" class="hover:underline">
             Home
           </a>
@@ -249,14 +288,14 @@ const SearchPage = () => {
           Live music events in Ho Chi Minh, Vietnam
         </h1>
       </div>
-      <div className="flex flex-col md:flex-row gap-6 p-5">
+      <div className="flex flex-col md:flex-row gap-2 p-5">
         <div className="w-full md:w-1/4">
           <FilterSidebar />
         </div>
 
         <div className="w-full md:w-3/4">
           <EventList event={eventData} />
-          <EventList event={eventData} />
+          
           <Tags />
         </div>
       </div>

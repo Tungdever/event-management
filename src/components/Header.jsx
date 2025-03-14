@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+import { useNavigate } from "react-router-dom";
 
 const SearchBar = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [searchHistory, setSearchHistory] = useState([
     "Music Festival",
@@ -66,7 +68,8 @@ const SearchBar = () => {
         </select>
       </div>
 
-      <button className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700">
+      <button className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
+      onClick={() => navigate("/search")}>
         <i className="fas fa-search"></i>
       </button>
     </div>

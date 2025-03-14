@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FaUserFriends, FaHeart, FaShareAlt } from "react-icons/fa";
 
 const events = [
@@ -36,41 +35,39 @@ const events = [
 
 export default function EventList() {
   return (
-<div className="max-w-4xl ">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">
-          More events from this organizer
-        </h2>
+    <div className=" max-w-5xl mx-auto p-6">
+      <h2 className="text-3xl font-bold text-gray-900 mb-8">Popular</h2>
+      <div className="space-y-6">
         {events.map((event) => (
           <div
             key={event.id}
-            className="flex items-start mb-6 bg-white p-4 rounded-lg shadow"
+            className="flex items-center bg-white shadow rounded-lg overflow-hidden p-4 hover:bg-gray-100 transition"
           >
-            <div className="flex-1">
+            <img
+              src={event.image}
+              alt={event.title}
+              className="w-40 h-24 object-cover rounded-lg"
+            />
+            <div className="ml-4 flex-1">
               <h3 className="text-lg font-semibold text-gray-900">{event.title}</h3>
               <p className="text-sm text-red-600">{event.date}</p>
               <p className="text-sm text-gray-600">{event.price}</p>
               <p className="text-sm text-gray-600">{event.organizer}</p>
-              <p className="text-sm text-gray-600 flex items-center">
-                <FaUserFriends className="mr-1" /> {event.followers}
+              <p className="text-sm text-gray-600 flex items-center mt-1">
+                <FaUserFriends className="mr-1 text-blue-500" /> {event.followers}
               </p>
             </div>
-            <div className="flex-shrink-0 ml-4">
-              <img
-                alt={event.title}
-                className="w-[200px] h-[110px] object-cover rounded"
-                src={event.image}
-              />
-            </div>
-            <div className="flex flex-col items-center justify-center ml-4">
-              <button className="text-gray-500 hover:text-gray-700">
-                <FaHeart />
+            <div className="flex flex-col items-center ml-4">
+              <button className="text-gray-500 hover:text-red-500 mb-2">
+                <FaHeart size={20} />
               </button>
-              <button className="text-gray-500 hover:text-gray-700 mt-2">
-                <FaShareAlt />
+              <button className="text-gray-500 hover:text-blue-500">
+                <FaShareAlt size={20} />
               </button>
             </div>
           </div>
         ))}
       </div>
+    </div>
   );
 }

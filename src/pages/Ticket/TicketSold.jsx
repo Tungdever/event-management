@@ -10,14 +10,14 @@ const TicketDashboard = () => {
       </div>
       
       <div className="mt-6">
-        <div className="flex items-center text-gray-600">
-          <i className="fas fa-calendar-alt mr-2"></i>
-          <span>Feb 25, 2025 at 10:00am</span>
+        <div className="flex items-center text-gray-600 ">
+          <i className="fas fa-calendar-alt mr-2 text-blue-700"></i>
+          <span className="text-blue-700">Feb 25, 2025 at 10:00am</span>
         </div>
         <div className="mt-4 flex items-center space-x-4">
-          <input className="flex-1 px-4 py-2 border rounded-md" type="text" value="https://www.eventbrite.com/e/event-demo-for-project-tickets-1205327" readOnly/>
-          <button className="px-4 py-2 bg-gray-200 rounded-md">Copy link</button>
-          <button className="px-4 py-2 bg-gray-200 rounded-md">Share</button>
+          <input className="flex-1 px-4 py-2 border rounded-md " type="text" value="https://www.eventbrite.com/e/event-demo-for-project-tickets-1205327" readOnly/>
+          <button className="px-4 py-2 rounded-md bg-blue-200 text-blue-700">Copy link</button>
+          <button className="px-4 py-2 bg-blue-200 text-blue-700 rounded-md">Share</button>
         </div>
       </div>
       
@@ -38,7 +38,7 @@ const TicketDashboard = () => {
             { icon: "fas fa-lock", text: "Order form responses" },
             { icon: "fas fa-chart-line", text: "Sales report" }
           ].map((action, index) => (
-            <button key={index} className="px-4 py-2 bg-gray-200 rounded-md flex items-center space-x-2">
+            <button key={index} className="px-4 py-2 bg-green-200 text-green-700 rounded-md flex items-center space-x-2">
               <i className={`${action.icon} text-blue-600`}></i>
               <span>{action.text}</span>
             </button>
@@ -48,9 +48,9 @@ const TicketDashboard = () => {
       
       <div className="mt-6">
         <h2 className="text-xl font-bold text-gray-900">Sales by ticket type</h2>
-        <table className="mt-4 w-full bg-white rounded-md shadow">
+        <table className="mt-4 w-full bg-white rounded-md  border border-gray-200">
           <thead>
-            <tr className="text-left text-gray-600">
+            <tr className="text-left bg-gray-200 text-gray-700">
               <th className="px-4 py-2">Ticket type</th>
               <th className="px-4 py-2">Sold</th>
               <th className="px-4 py-2">Price</th>
@@ -58,9 +58,14 @@ const TicketDashboard = () => {
           </thead>
           <tbody>
             <tr className="border-t">
-              <td className="px-4 py-2">Demo</td>
+              <td className="px-4 py-2">VIP</td>
               <td className="px-4 py-2">0/100</td>
-              <td className="px-4 py-2">$1.00</td>
+              <td className="px-4 py-2">10.0 VND</td>
+            </tr>
+            <tr className="border-t">
+              <td className="px-4 py-2">COMMON</td>
+              <td className="px-4 py-2">0/100</td>
+              <td className="px-4 py-2">5.00 VND</td>
             </tr>
           </tbody>
         </table>
@@ -68,9 +73,9 @@ const TicketDashboard = () => {
       
       <div className="mt-6">
         <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
-        <table className="mt-4 w-full bg-white rounded-md shadow">
+        <table className="mt-4 w-full bg-white rounded-[20px]   border border-gray-200" >
           <thead>
-            <tr className="text-left text-gray-600">
+            <tr className="text-left bg-gray-200 text-gray-700">
               <th className="px-4 py-2">Order #</th>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Quantity</th>
@@ -94,9 +99,7 @@ const TicketDashboard = () => {
             </tr>
           </tbody>
         </table>
-        <div className="mt-4 text-blue-600">
-          <a href="#">Go to all Orders</a>
-        </div>
+        
       </div>
     </div>
   );

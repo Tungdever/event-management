@@ -189,21 +189,7 @@ const destinations = [
     image:
       "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
   },
-  {
-    name: "Houston",
-    image:
-      "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
-  },
-  {
-    name: "Houston",
-    image:
-      "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
-  },
-  {
-    name: "Houston",
-    image:
-      "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
-  },
+  
 ];
 
 const popularCities = [

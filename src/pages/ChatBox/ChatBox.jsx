@@ -25,61 +25,7 @@ const chats = [
       { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
     ]
   },
-  {
-    id: 2,
-    name: "Elliot Murray",
-    message: "Document",
-    time: "06:12 AM",
-    img: "https://storage.googleapis.com/a1aa/image/Jjz8x9rNWMTHsrCD7jWoUSPc89ax5d78ik4iO0dqnCI.jpg",
-    status: "Offline",
-    conversation: [
-      { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Elliot Murray",
-    message: "Document",
-    time: "06:12 AM",
-    img: "https://storage.googleapis.com/a1aa/image/Jjz8x9rNWMTHsrCD7jWoUSPc89ax5d78ik4iO0dqnCI.jpg",
-    status: "Offline",
-    conversation: [
-      { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Elliot Murray",
-    message: "Document",
-    time: "06:12 AM",
-    img: "https://storage.googleapis.com/a1aa/image/Jjz8x9rNWMTHsrCD7jWoUSPc89ax5d78ik4iO0dqnCI.jpg",
-    status: "Offline",
-    conversation: [
-      { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Elliot Murray",
-    message: "Document",
-    time: "06:12 AM",
-    img: "https://storage.googleapis.com/a1aa/image/Jjz8x9rNWMTHsrCD7jWoUSPc89ax5d78ik4iO0dqnCI.jpg",
-    status: "Offline",
-    conversation: [
-      { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Elliot Murray",
-    message: "Document",
-    time: "06:12 AM",
-    img: "https://storage.googleapis.com/a1aa/image/Jjz8x9rNWMTHsrCD7jWoUSPc89ax5d78ik4iO0dqnCI.jpg",
-    status: "Offline",
-    conversation: [
-      { sender: "Elliot Murray", text: "Here is the document you asked for.", time: "07:30 AM" }
-    ]
-  },
+
 ];
 
 const ChatBox =()=> {
