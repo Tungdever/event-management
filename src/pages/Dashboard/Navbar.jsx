@@ -77,9 +77,9 @@ const ProfileDropdown = () => {
         />
         <div className="ml-2">
           <h2 className="text-sm font-semibold text-gray-800 hover:text-blue-500 transition-all duration-200">
-            John Doe
+            Trung Ho
           </h2>
-          <p className="text-xs text-gray-500">Administrator</p>
+          <p className="text-xs text-gray-500">Organizer</p>
         </div>
       </button>
 

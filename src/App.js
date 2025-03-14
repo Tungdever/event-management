@@ -20,7 +20,6 @@ import NotificationList from './pages/Dashboard/Notification';
 import Checkout from "./pages/checkout-page";
 import TodoApp from './pages/Employee/Task';
 import AddTicket from './pages/Ticket/AddTicket';
-
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",

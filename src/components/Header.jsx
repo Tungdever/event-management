@@ -2,7 +2,53 @@ import React, { useState, useRef, useEffect } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { useNavigate } from "react-router-dom";
+import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 
+
+
+const LocationDropdown = ()=> {
+  const [selected, setSelected] = useState("Ho Chi Minh ");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const locations = ["Ho Chi Minh", "Hanoi", "Da Nang"];
+
+  // Hàm xử lý chọn thành phố
+  const handleSelectCity = (city) => {
+    setSelected(city);
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative flex items-center px-4">
+      {/*  */}
+      <FaMapMarkerAlt className="text-gray-500 cursor-pointer" />
+
+      {/*  */}
+      <div
+        className="relative ml-2 text-gray-500 text-sm cursor-pointer flex items-center"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="px-3 py-2">{selected}</span>
+        <FaChevronDown className="ml-2 text-gray-400" />
+      </div>
+
+      {/*  */}
+      {isOpen && (
+        <div className="absolute top-full left-8 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+          {locations.map((city, index) => (
+            <div
+              key={index}
+              className="p-2 text-gray-700 text-sm hover:bg-orange-200 cursor-pointer transition"
+              onClick={() => handleSelectCity(city)}
+            >
+              {city}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 const SearchBar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,12 +106,13 @@ const SearchBar = () => {
       <div className="border-l border-gray-300 h-6 mx-4"></div>
 
       <div className="relative flex items-center px-4">
-        <i className="fas fa-map-marker-alt text-gray-500 cursor-pointer" onClick={() => setShowHistory(!showHistory)}></i>
+        {/* <i className="fas fa-map-marker-alt text-gray-500 cursor-pointer" onClick={() => setShowHistory(!showHistory)}></i>
         <select className="ml-2 text-gray-500 bg-transparent outline-none">
           <option value="Ho Chi Minh City">Ho Chi Minh City</option>
           <option value="Hanoi">Hanoi</option>
           <option value="Da Nang">Da Nang</option>
-        </select>
+        </select> */}
+        <LocationDropdown/>
       </div>
 
       <button className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
@@ -126,8 +173,8 @@ const Header = () => {
           <div
             className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer "
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            ref={menuRef} // Gán ref vào menu
-            onMouseEnter={() => setIsMenuOpen(true)} // Hover vào mũi tên thì mở submenu
+            ref={menuRef} //
+            onMouseEnter={() => setIsMenuOpen(true)} // 
           >
             <i className="fa-solid fa-user text-lg"></i>
             <p className="pl-[6px] font-medium">trungbo.234416@gmail.com</p>
@@ -154,7 +201,7 @@ const Header = () => {
                 ].map((item, index) => (
                   <a
                     key={index}
-                    href="#"
+                    href="/dashboard"
                     className="block pl-4 pr-10 py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[14px]"
                   >
                     {item}

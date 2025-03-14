@@ -19,7 +19,7 @@ const EventsPage = () => {
       status: "Draft",
     },
     {
-      id: 22,
+      id: 2,
       date: "APR 16",
       title: "Mental Health First Aid (MHFA) Training",
       location: "Online event",
@@ -57,22 +57,16 @@ const EventsPage = () => {
             <FaSearch className="absolute right-3 top-3 text-gray-400" />
           </div>
           <div className="flex space-x-4 mx-4">
-            <button className="flex items-center space-x-2 bg-blue-600 text-white py-2 px-4 rounded-md">
-              <FaList />
-              <span>List</span>
-            </button>
-            <button className="flex items-center space-x-2 border border-gray-300 py-2 px-4 rounded-md">
-              <FaCalendarAlt />
-              <span>Calendar</span>
-            </button>
-            <select className="bg-blue-600 text-white py-2 px-4 rounded-md" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
+            
+           
+            <select className="bg-gray-600 text-white py-2 px-4 rounded-md" value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)}>
               <option value="Draft">Draft</option>
               <option value="Public">Public</option>
               <option value="Complete">Complete</option>
             </select>
           </div>
           <div>
-          <button className="ml-auto bg-red-600 text-white py-2 px-4 rounded-md" onClick={() => navigate("/create-event")}>
+          <button className="ml-auto bg-orange-600 text-white py-2 px-4 rounded-md" onClick={() => navigate("/createEvent")}>
             Create Event
           </button>
           </div>
@@ -131,7 +125,7 @@ const EventsPage = () => {
 
 const Dashboard = () => {
   return (
-    <div>
+    <div  className="">
       <EventsPage/>
     </div>
   );

@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Header from "../../components/Header";
 
-import "./Detail.css";
 import SliderEvent from "../../components/SliderEvent";
 import Footer from "../../components/Footer";
 import { useRef } from "react";
@@ -165,48 +164,63 @@ const Navbar = () => {
 
 const destinations = [
   {
-    name: "Washington",
-    image:
-      "https://storage.googleapis.com/a1aa/image/jqo2dfVUzjKQ7w7hG2Tk_ntPuxynHif31Y49Hrcbc2Q.jpg",
+    "name": "Hà Nội",
+    "image": "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api"
   },
   {
-    name: "Atlanta",
-    image:
-      "https://storage.googleapis.com/a1aa/image/8iET984xgdbdnXpltDMAlJ_3UT_hpLIXCflhkGaoqkE.jpg",
+    "name": "Đà Nẵng",
+    "image": "https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api"
   },
   {
-    name: "Dallas",
-    image:
-      "https://storage.googleapis.com/a1aa/image/-21qmRvfsVtdEvxaRgtHVP0Sf8bHgA9NOJAQ9T4grxQ.jpg",
+    "name": "Hội An",
+    "image": "https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api"
   },
   {
-    name: "Houston",
-    image:
-      "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
+    "name": "Nha Trang",
+    "image": "https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api"
   },
   {
-    name: "Houston",
-    image:
-      "https://storage.googleapis.com/a1aa/image/Nk-hpgR3cc2Eki5Fj2ZeElISiSJalWpQzajxEqGZusY.jpg",
+    "name": "Đà Lạt",
+    "image": "https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api"
   },
-  
-];
+  {
+    "name": "Huế",
+    "image": "https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api"
+  },
+  {
+    "name": "Phú Quốc",
+    "image": "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api"
+  },
+  {
+    "name": "Sa Pa",
+    "image": "https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api"
+  },
+  {
+    "name": "Cần Thơ",
+    "image": "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api"
+  },
+  {
+    "name": "Hải Phòng",
+    "image": "https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api"
+  }
+]
 
 const popularCities = [
-  "Albuquerque",
-  "Abilene",
-  "Austin",
-  "Irvine",
-  "Denver",
-  "Phoenix",
-  "Seattle",
-  "Anaheim",
-  "Nashville",
-  "San Antonio",
-  "Portland",
-  "Detroit",
-  "Baltimore",
+  "Hà Nội",
+  "Hồ Chí Minh",
+  "Đà Nẵng",
+  "Hội An",
+  "Nha Trang",
+  "Đà Lạt",
+  "Huế",
+  "Phú Quốc",
+  "Sa Pa",
+  "Cần Thơ",
+  "Hải Phòng",
+  "Vũng Tàu",
+  "Quy Nhơn"
 ];
+
 
 const TopDestinations = () => {
   const scrollRef = useRef(null);
@@ -225,7 +239,7 @@ const TopDestinations = () => {
   return (
     <div className="bg-gray-50 text-gray-900 container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">
-        Top destinations in United States
+        Top destinations in Viet Nam 
       </h1>
       <div className="relative">
         <div
@@ -280,7 +294,15 @@ const TopDestinations = () => {
 };
 
 const HomePage = () => {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 250); 
+  }, []);
   return (
+    loading ?<h1></h1> :
     <div>
       <Header />
       <SliderEvent />

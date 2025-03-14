@@ -1,7 +1,6 @@
 import { useState } from "react";
 import Header from "../../components/Header";
-import RelatedEvents from "../../components/RelatedEvents";
-import "./Detail.css";
+
 import SliderSpeaker from "../../components/SilderSpeaker";
 import Footer from "../../components/Footer";
 import ReactMarkdown from "react-markdown";
@@ -10,30 +9,35 @@ import { FaRocket, FaInfoCircle } from "react-icons/fa";
 import Checkout from "../Ticket/CheckOut";
 const sections = [
   {
-    title: "The origin",
-    date: "May, 2020",
-    description: "Acme was founded in Milan, Italy",
-    details: "Pretium lectus quam id leo...",
+    startTime: "09:00 AM",
+    endTime: "10:00 AM",
+    speakerName: "Dr. John Doe",
+    speakerTitle: "Professor of Computer Science",
+    topic: "The Future of AI",
   },
   {
-    title: "The milestone",
-    date: "May, 2021",
-    description: "Reached 5K customers",
-    details: "Pretium lectus quam id leo...",
+    startTime: "10:15 AM",
+    endTime: "11:00 AM",
+    speakerName: "Ms. Jane Smith",
+    speakerTitle: "CEO of Tech Innovations",
+    topic: "Entrepreneurship in the Digital Age",
   },
   {
-    title: "The acquisitions",
-    date: "May, 2022",
-    description: "Acquired various companies, including Technology Inc.",
-    details: "Pretium lectus quam id leo...",
+    startTime: "11:15 AM",
+    endTime: "12:00 PM",
+    speakerName: "Mr. Alan Walker",
+    speakerTitle: "Cybersecurity Expert",
+    topic: "Protecting Data in a Connected World",
   },
   {
-    title: "The IPO",
-    date: "May, 2023",
-    description: "Acme went public at the New York Stock Exchange",
-    details: "Pretium lectus quam id leo...",
+    startTime: "01:30 PM",
+    endTime: "02:30 PM",
+    speakerName: "Dr. Emily Brown",
+    speakerTitle: "AI Research Scientist",
+    topic: "Ethical AI: Balancing Innovation and Responsibility",
   },
 ];
+
 const eventdescription = {
   event_desc: `🌟About rev™ Saigon🌟
 
@@ -175,20 +179,23 @@ const Timeline = ({ sections }) => {
     <div className="my-6 flex-col justify-center items-center mx-16">
       {sections.map((section, index) => (
         <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
-          <div className="font-medium text-indigo-500 mb-1 sm:mb-0">
-            {section.title}
-          </div>
+          {/* Thời gian (bên trái) */}
+          <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap">
+            {section.startTime} - {section.endTime}
+          </time>
 
+          {/* Đường kẻ timeline & chấm tròn */}
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
-            <time className="sm:absolute left-0 translate-y-0.5 inline-flex items-center justify-center text-xs font-semibold uppercase w-20 h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full">
-              {section.date}
-            </time>
             <div className="text-xl font-bold text-slate-900">
-              {section.description}
+              {section.speakerName}
             </div>
           </div>
 
-          <div className="text-slate-500">{section.details}</div>
+          {/* Nội dung phát biểu */}
+          <p className="text-gray-600">{section.speakerTitle}</p>
+          <p className="text-lg font-bold text-indigo-700 mt-1">
+            "{section.topic}"
+          </p>
         </div>
       ))}
     </div>
@@ -314,15 +321,15 @@ const EventDetail = ({ event }) => {
               <section className="mt-6 flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-4">
                 <div className="flex items-center space-x-4">
                   <img
-                    src="https://storage.googleapis.com/a1aa/image/miIpLx1H5f-jr_ow6Granz085EhA-iUZUAeqYa3XPU4.jpg"
-                    alt="NASA logo"
-                    className="w-12 h-12 rounded-full"
+                    src="https://storage.googleapis.com/a1aa/image/iulMqkOeKR6SAOm-Zs8J1VIWV9rNEcpFiteM_nMV1hs.jpg"
+                    alt="Logo of ShareWell"
+                    className="w-12 h-12 rounded-full mr-4"
                   />
                   <div>
-                    <p className="text-gray-900 font-semibold">By NASA</p>
+                    <p className="text-gray-900 font-semibold">By ShareWell</p>
                     <p className="text-gray-500">123.1k followers</p>
                     <p className="text-pink-500 font-semibold">
-                      1.5M attendees hosted <FaRocket />
+                      1.5M attendees hosted
                     </p>
                   </div>
                 </div>

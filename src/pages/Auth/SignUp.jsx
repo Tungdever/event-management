@@ -28,7 +28,7 @@ export default function SignUp() {
             width={40}
             height={40}
           />
-          <h1 className="text-2xl font-bold">Sign Up</h1>
+          <h1 className="text-3xl font-bold text-orange-500">Sign Up</h1>
         </div>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">

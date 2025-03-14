@@ -1,22 +1,22 @@
 import { useState } from "react";
-import { FaChevronDown } from "react-icons/fa";
-import { Link } from "react-router-dom";  
 
+import { Link } from "react-router-dom";  
+import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
+import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
 const defaultMenuItems = [
   {
     title: "Dashboard",
     path: "/dashboard",
+    icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Dashboard", path: "/dashboard" },]
+      { title: "Manager", path: "/dashboard" },]
   },
   {
     title: "Events",
     path: "/event",
+    icon: <MdEvent />,
     submenu: [
-      { title: "Management event", path: "",sub_submenu :[
-        { title: "Create event", path: "/createEvent" },
-        { title: "Edit event", path: "/editEvent" },
-      ] },
+      ,
       { title: "Sponsor", path: "/sponsor",sub_submenu :[
         { title: "Create Sponsor", path: "/createSponsor" },
         { title: "Edit Sponsor", path: "/editSponsor" },
@@ -30,24 +30,25 @@ const defaultMenuItems = [
         { title: "Edit Section", path: "/editSection" },
       ] },
       { title: "Attendee", path: "/attendee" },
-      { title: "Chat", path: "/chat" },
+      { title: "Chat", path: "/chat" ,icon: <MdChat /> },
       { title: "Ticket", path: "/ticket" },
-      { title: "Order", path: "/order" },
-      { title: "Finance", path: "/finance" },
+     
     ],
   },
   {
     title: "Team",
     path: "/team",
+    icon: <FaUsers />,
     submenu: [
       { title: "Member", path: "/member" },
       { title: "Task", path: "/task" },
-      { title: "Calendar", path: "/calendar" },
+      { title: "Calendar", path: "/calendar",icon: <FaCalendarAlt /> },
     ],
   },
   {
     title: "Setting",
     path: "/setting",
+    icon: <FaCogs />,
     submenu: [
       { title: "Profile", path: "/profile" },
       { title: "Notification", path: "/notification" },
@@ -56,7 +57,12 @@ const defaultMenuItems = [
 ];
 
 const Sidebar = () => {
-  const [openMenus, setOpenMenus] = useState({});
+  const [openMenus, setOpenMenus] = useState(
+    defaultMenuItems.reduce((acc, menu) => {
+      acc[menu.title] = true;
+      return acc;
+    }, {})
+  );
 
   const toggleMenu = (menuTitle) => {
     setOpenMenus((prev) => ({
@@ -87,10 +93,13 @@ const SidebarItem = ({ menu, isOpen, onClick }) => {
     <li className="mb-2">
       <div
         className={`flex justify-between items-center px-2 py-2 rounded-lg cursor-pointer transition-all duration-300 
-        text-[14px] font-medium hover:bg-gray-300 hover:text-orange-500 ${isOpen ? "bg-gray-300 text-orange-500" : ""}`}
+        text-[14px] font-medium hover:bg-gray-100 hover:text-orange-500 ${isOpen ? "bg-gray-200 text-orange-500" : ""}`}
         onClick={menu.submenu ? onClick : null}
       >
+      <div className="flex items-center">
+        {menu.icon && <span className="mr-2 text-[16px]">{menu.icon}</span>}
         <Link to={menu.path}>{menu.title}</Link>
+      </div>
         {menu.submenu && (
           <FaChevronDown size={12} className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         )}
@@ -101,7 +110,7 @@ const SidebarItem = ({ menu, isOpen, onClick }) => {
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className="block px-2 ml-2 py-2 text-gray-700 hover:bg-gray-200 hover:text-orange-500 rounded-lg transition-all text-[14px]"
+                className="block px-2 ml-2 py-2 text-gray-700 hover:bg-gray-100 hover:text-orange-500 rounded-lg transition-all text-[14px]"
               >
                 {sub.title}
               </Link>

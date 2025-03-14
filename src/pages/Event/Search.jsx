@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import EventList from "../../components/EventListSearch";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { Filter, X } from "lucide-react";
+
 const eventData = [
   {
     event_id: 1,
@@ -98,10 +98,11 @@ const Tags = () => {
   );
 };
 const FilterSidebar = () => {
-  const [selectedCategories, setSelectedCategories] = useState(["workshop"]);
+  const [selectedCategories, setSelectedCategories] = useState(["concert"]);
   const [selectedEventType, setSelectedEventType] = useState("all-types");
   const [selectedEventTime, setSelectedEventTime] = useState("all-times");
-  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
+  const [selectedEventLocation, setSelectedEventLocation] =
+    useState("all-locations");
 
   const eventCategories = [
     { id: "conference", label: "Hội nghị" },
@@ -141,7 +142,7 @@ const FilterSidebar = () => {
   };
 
   return (
-    <div className="w-full bg-white p-5 rounded-lg shadow-md border space-y-6">
+    <div className="w-full bg-white p-5 rounded-sm  space-y-6 overflow-y-auto h-[900px]">
       {/* Header */}
       <div className="flex justify-between items-center border-b pb-3">
         <h2 className="text-lg font-semibold text-gray-700">Bộ lọc sự kiện</h2>
@@ -165,7 +166,7 @@ const FilterSidebar = () => {
                 name="eventCategory"
                 checked={selectedCategories.includes(category.id)}
                 onChange={() => setSelectedCategories([category.id])}
-                className="accent-orange-500 w-4 h-4"
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={category.id}
@@ -190,7 +191,7 @@ const FilterSidebar = () => {
                 name="eventType"
                 checked={selectedEventType === type.id}
                 onChange={() => setSelectedEventType(type.id)}
-                className="accent-orange-500 w-4 h-4"
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={type.id}
@@ -215,7 +216,7 @@ const FilterSidebar = () => {
                 name="eventTime"
                 checked={selectedEventTime === time.id}
                 onChange={() => setSelectedEventTime(time.id)}
-                className="accent-orange-500 w-4 h-4"
+                className="aw-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={time.id}
@@ -240,7 +241,7 @@ const FilterSidebar = () => {
                 name="eventLocation"
                 checked={selectedEventLocation === location.id}
                 onChange={() => setSelectedEventLocation(location.id)}
-                className="accent-orange-500 w-4 h-4"
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={location.id}
@@ -256,17 +257,18 @@ const FilterSidebar = () => {
   );
 };
 
-
 const SearchPage = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 250); 
+    }, 250);
   }, []);
-  return (
-    loading ?<h1></h1> : <>
+  return loading ? (
+    <h1></h1>
+  ) : (
+    <>
       <Header />
       <div class=" mx-auto px-6 py-4">
         <nav class="text-sm text-orange-600 space-x-2 pt-2">
@@ -293,9 +295,9 @@ const SearchPage = () => {
           <FilterSidebar />
         </div>
 
-        <div className="w-full md:w-3/4">
+        <div className="w-full md:w-3/4 overflow-y-auto">
           <EventList event={eventData} />
-          
+
           <Tags />
         </div>
       </div>
