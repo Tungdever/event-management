@@ -17,7 +17,7 @@ import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';
 import NotificationList from './pages/Dashboard/Notification';
 import Checkout from "./pages/checkout-page";
-// import Sponsor from "./pages/sponsor";
+import Sponsor from "./pages/sponsor";
 import AddTicket from './pages/Ticket/Add';
 
 const eventData = {
@@ -163,7 +163,7 @@ const MainLayout = () => {
             <Route path="/member" element={<EmployeeList employees={employees} />} />
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
             <Route path="/checkout" element={<Checkout />} />
-            {/* <Route path="/sponsor" element={<Sponsor />} /> */}
+            <Route path="/sponsor" element={<Sponsor />} />
           </Routes>
         </div>
       )}
