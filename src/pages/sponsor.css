@@ -289,12 +289,13 @@
 
 }
 /* Avatar */
-.sponsor-container .avatar-md {
-    width: 32px;
-    height: 32px;
+.avt-name{
     display: flex;
     align-items: center;
-    justify-content: center;
+}
+.sponsor-container .avatar{
+    width: 32px;
+    height: 32px;
 }
 
 .sponsor-container .avatar img {

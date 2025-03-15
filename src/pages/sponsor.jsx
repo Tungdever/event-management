@@ -381,7 +381,8 @@ const Dashboard = () => {
             {sponsors.map((sponsor, index) => (
               <tr key={index}>
                 <td>
-                    <div className="avatar avatar-md">
+                  <div className="avt-name">
+                    <div className="avatar">
                       <img
                         src={sponsor.sponsor_logo}
                         alt={sponsor.sponsor_name}
@@ -394,6 +395,7 @@ const Dashboard = () => {
                         <h6>{sponsor.sponsor_name}</h6>
                       </a>
                     </div>
+                  </div>
                 </td>
                 <td>{sponsor.sponsor_level}</td>
                 <td>{sponsor.sponsor_email}</td>
