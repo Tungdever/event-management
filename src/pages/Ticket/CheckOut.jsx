@@ -14,7 +14,7 @@ const Checkout = ({ onClose }) => {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 2000); 
+    }, 200); 
   }, []);
   return (
     loading ?<h1></h1> : 
@@ -69,12 +69,10 @@ const Checkout = ({ onClose }) => {
                   <span className="ml-2 text-gray-700">Send me emails about the best events happening nearby or online.</span>
                 </label>
               </div>
-              <p className="text-gray-700 mb-4">
-                By selecting Register, I agree to the <a className="text-blue-500" href="#">Eventbrite Terms of Service</a>.
-              </p>
-              <button className="w-full bg-orange-500 text-white py-2 rounded" onClick={() => navigate("/checkout")}>Register</button>
+             
+              <button className="w-full bg-orange-500 text-white py-2 rounded" onClick={() => navigate("/checkout")}>Pay now</button>
             </form>
-            <p className="text-gray-500 text-center mt-4">Powered by <span className="font-semibold">eventbrite</span></p>
+            <p className="text-gray-500 text-center mt-4">Powered by <span className="font-semibold">Mangager Event</span></p>
           </div>
           <div className="w-full md:w-1/3 bg-gray-100 p-6">
             <div className="relative mb-4">
@@ -85,10 +83,10 @@ const Checkout = ({ onClose }) => {
             </div>
             <h3 className="text-xl font-semibold mb-4">Order summary</h3>
             <p className="text-gray-700 mb-2">Wednesday, July 16 · 10am - 5pm +07</p>
-            <p className="text-gray-700 mb-2">1 x General Admission <span className="float-right">$0.00</span></p>
+            <p className="text-gray-700 mb-2">1 x General Admission <span className="float-right">0.00 VND</span></p>
             <p className="text-gray-700 mb-2">Delivery <span className="float-right">1 x eTicket</span></p>
             <hr className="my-4" />
-            <p className="text-xl font-semibold">Total <span className="float-right">$0.00</span></p>
+            <p className="text-xl font-semibold">Total <span className="float-right">0.00 VND</span></p>
           </div>
         </div>
       </div>

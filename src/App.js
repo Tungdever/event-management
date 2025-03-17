@@ -18,8 +18,11 @@ import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';
 import NotificationList from './pages/Dashboard/Notification';
 import Checkout from "./pages/checkout-page";
-import TodoApp from './pages/Employee/Task';
-import AddTicket from './pages/Ticket/AddTicket';
+import AddTicket from "./pages/Ticket/AddTicket"
+import EventPublishing from './pages/Event/EventPublishing';
+import Profile from './pages/Dashboard/Profile';
+import TaskBoard from './pages/Employee/TaskDashboard';
+
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -30,15 +33,11 @@ const eventData = {
   mc_id: 202,
   event_type: "Concert",
   event_host: "Công ty Âm Nhạc XYZ",
-  event_location: "Nhà hát Thành phố, TP.HCM",
+  event_location: "Sheraton Hanoi Hotel 11 Đường Xuân Diệu Hanoi, Hà Nội ",
   event_status: "Sắp diễn ra",
   event_start: "2025-03-15T19:00:00",
   event_end: "2025-03-15T22:00:00",
-  listTickets: [
-    { ticket_id: 1, event_id: 1, ticket_type: "VIP", price: 1200000, quantity: 50 },
-    { ticket_id: 2, event_id: 1, ticket_type: "Standard", price: 600000, quantity: 200 },
-    { ticket_id: 3, event_id: 1, ticket_type: "Student", price: 300000, quantity: 100 }
-  ]
+ 
 };
 const employees = [
   {
@@ -133,6 +132,7 @@ const notifications = [
 
 const MainLayout = () => {
   const location = useLocation();
+  const [tickets, setTickets] = useState([]);
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
@@ -162,11 +162,13 @@ const MainLayout = () => {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/createEvent" element={<EventForm />} />
             <Route path="/editEvent" element={<EditEvent />} />
+            <Route path="/publicEvent" element={<EventPublishing />} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
-            
-            <Route path="/addTicket" element={<AddTicket />} />
-            <Route path="/task" element={<TodoApp />} />
+            <Route path="/profile" element={<Profile/>}></Route>
+            <Route path ="/addticket" element={<AddTicket/>}>  </Route>
+            <Route path="/task" element={<TaskBoard />} />
+
           </Routes>
         </div>
       )}
@@ -175,6 +177,7 @@ const MainLayout = () => {
 };
 
 function App() {
+  
   return (
     <Router>
     <MainLayout />

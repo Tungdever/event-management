@@ -1,3 +1,4 @@
+import { div } from "framer-motion/client";
 import React from "react";
 import { useState } from "react";
 import {
@@ -14,270 +15,399 @@ import {
 } from "react-icons/fa";
 import { FaClock, FaUser, FaList } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-
+import SectionEvent from "./SectionEvent";
+import UploadContainer from "./UploadImg";
+import DatetimeLocation from "./EventDateLocate";
+import OverviewSection from "./OverviewSection";
 const Overview = () => {
   const [text, setText] = useState("");
 
   return (
     <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4 px-8">
-    <h1 className="text-2xl font-bold mb-2">Overview</h1>
-    <p className="text-gray-600 mb-4">
-      Add more details about your event and include what people can expect
-      if they attend.
-    </p>
-    <div className="border rounded-lg p-4 mb-4">
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center space-x-2">
-          <FaTextHeight />
-          <span>Normal</span>
+      <h1 className="text-2xl font-bold mb-2">Overview</h1>
+      <p className="text-gray-600 mb-4">
+        Add more details about your event and include what people can expect if
+        they attend.
+      </p>
+      <div className="border rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <FaTextHeight />
+            <span>Normal</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <FaBold />
+            <FaItalic />
+            <FaLink />
+            <FaListUl />
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <FaBold />
-          <FaItalic />
-          <FaLink />
-          <FaListUl />
+        <textarea
+          className="w-full h-32 border rounded-lg p-2"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        ></textarea>
+        <div className="flex justify-end mt-2">
+          <FaTrashAlt
+            className="text-gray-500 cursor-pointer"
+            onClick={() => setText("")}
+          />
         </div>
       </div>
-      <textarea
-        className="w-full h-32 border rounded-lg p-2"
-        value={text}
-        onChange={(e) => setText(e.target.value)}
-      ></textarea>
-      <div className="flex justify-end mt-2">
-        <FaTrashAlt
-          className="text-gray-500 cursor-pointer"
-          onClick={() => setText("")}
-        />
+      <div className="flex items-center text-blue-600 mb-4">
+        <FaBolt className="mr-2" />
+        <span>Suggest description</span>
+      </div>
+      <div className="flex justify-between">
+        <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
+          <FaAlignLeft className="mr-2" />
+          <span>Add text</span>
+        </button>
+        <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
+          <FaImage className="mr-2" />
+          <span>Add image</span>
+        </button>
+        <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
+          <FaVideo className="mr-2" />
+          <span>Add video</span>
+        </button>
       </div>
     </div>
-    <div className="flex items-center text-blue-600 mb-4">
-      <FaBolt className="mr-2" />
-      <span>Suggest description</span>
-    </div>
-    <div className="flex justify-between">
-      <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
-        <FaAlignLeft className="mr-2" />
-        <span>Add text</span>
-      </button>
-      <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
-        <FaImage className="mr-2" />
-        <span>Add image</span>
-      </button>
-      <button className="flex items-center w-[150px] justify-center border border-gray-600 rounded px-4 py-2">
-        <FaVideo className="mr-2" />
-        <span>Add video</span>
-      </button>
-    </div>
-  </div>
   );
 };
-const  LocationForm =()=> {
-
+const LocationForm = () => {
   return (
     <div className="max-w-4xl bg-white rounded-lg  w-full">
-        <form>
-          <div className="mb-4">
+      <form>
+        <div className="mb-4">
+          <label className="block text-gray-700 mb-2">
+            Venue Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            placeholder="Venue Name"
+            className="w-full px-4 py-2 border rounded-md"
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
             <label className="block text-gray-700 mb-2">
-              Venue Name <span className="text-red-500">*</span>
+              Address 1 <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
-              placeholder="Venue Name"
+              placeholder="Address 1"
               className="w-full px-4 py-2 border rounded-md"
             />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">
-                Address 1 <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Address 1"
-                className="w-full px-4 py-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">Address 2</label>
-              <input
-                type="text"
-                placeholder="Address 2"
-                className="w-full px-4 py-2 border rounded-md"
-              />
-            </div>
+          <div>
+            <label className="block text-gray-700 mb-2">Address 2</label>
+            <input
+              type="text"
+              placeholder="Address 2"
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block text-gray-700 mb-2">
-                City <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="City"
-                className="w-full px-4 py-2 border rounded-md"
-              />
-            </div>
-            <div>
-              <label className="block text-gray-700 mb-2">State/Province</label>
-              <input
-                type="text"
-                placeholder="e.g. California"
-                className="w-full px-4 py-2 border rounded-md"
-              />
-            </div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700 mb-2">
+              City <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="City"
+              className="w-full px-4 py-2 border rounded-md"
+            />
           </div>
-          
-         
-        </form>
-      </div>
+          <div>
+            <label className="block text-gray-700 mb-2">State/Province</label>
+            <input
+              type="text"
+              placeholder="e.g. California"
+              className="w-full px-4 py-2 border rounded-md"
+            />
+          </div>
+        </div>
+      </form>
+    </div>
   );
-}
-
+};
 const Sections = () => {
   const [title, setTitle] = useState("");
 
   return (
     <div className="bg-white p-8 rounded-lg  border border-blue-500 max-w-[710px] w-full mb-4">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-bold">Agenda</h1>
-          <button className="text-red-600">Delete section</button>
-        </div>
-       
-        <div className="flex items-center mb-4">
-          <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
-            Agenda
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Agenda</h1>
+        <button className="text-red-600">Delete section</button>
+      </div>
+
+      <div className="flex items-center mb-4">
+        <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
+          Agenda
+        </button>
+        <button className="text-gray-600 pb-1">+ Add new agenda</button>
+      </div>
+      <div className="border-b-2 border-blue-600 mb-4"></div>
+      <div className="mb-4">
+        <label className="block text-gray-700 mb-2">
+          Title <span className="text-red-600">*</span>
+        </label>
+        <input
+          type="text"
+          className="w-full border rounded p-2"
+          placeholder="Title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </div>
+      <div className="flex space-x-4 mb-4">
+        <div className="flex-1">
+          <label className="block text-gray-700 mb-2">Start time</label>
+          <button className="w-full border rounded p-2 flex items-center justify-center">
+            <FaClock className="mr-2" /> Start time
           </button>
-          <button className="text-gray-600 pb-1">+ Add new agenda</button>
         </div>
-        <div className="border-b-2 border-blue-600 mb-4"></div>
+        <div className="flex-1">
+          <label className="block text-gray-700 mb-2">End time</label>
+          <button className="w-full border rounded p-2 flex items-center justify-center text-gray-400">
+            <FaClock className="mr-2" /> End time
+          </button>
+        </div>
+      </div>
+      <div className="flex space-x-4 mb-4">
+        <button className="flex items-center text-gray-600">
+          <FaUser className="mr-2" /> Host or Artist
+        </button>
+      </div>
+      <div className="bg-gray-100 p-4 rounded-lg text-center">
+        <button className="text-blue-600">+ Add slot</button>
+      </div>
+    </div>
+  );
+};
+const UploadMedia = () => {
+  const [image, setImage] = useState(null);
+  const [video, setVideo] = useState(null);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setImage(URL.createObjectURL(file));
+    }
+  };
+
+  const handleVideoUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setVideo(URL.createObjectURL(file));
+    }
+  };
+
+  return (
+    <div className="bg-white p-8 rounded-lg  border border-blue-500 max-w-[710px] w-full mb-4">
+      <h1 className="text-2xl font-semibold mb-4">Add images and video</h1>
+
+      {/* Image Upload Section */}
+      <div className="mb-6">
+        <h2 className="text-xl font-semibold mb-2">Images</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          <i className="fas fa-lightbulb text-blue-500"></i>
+          <span className="font-semibold"> Pro tip: </span>
+          Use photos that set the mood, and avoid distracting text overlays.
+          <a className="text-blue-500" href="#">
+            {" "}
+            View examples <i className="fas fa-arrow-right"></i>
+          </a>
+        </p>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mb-2">
+          {image ? (
+            <img
+              src={image}
+              alt="Uploaded preview"
+              className="mb-4 w-64 h-32 object-cover"
+            />
+          ) : (
+            <img
+              src="https://mybic.vn/uploads/news/default/no-image.png"
+              alt="Placeholder"
+              className="mb-4"
+              width="100"
+              height="100"
+            />
+          )}
+          <p className="text-gray-600 mb-4">Drag and drop an image or</p>
+          <label className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer">
+            Upload Image
+            <input
+              type="file"
+              accept="image/jpeg, image/png"
+              className="hidden"
+              onChange={handleImageUpload}
+            />
+          </label>
+        </div>
+        <p className="text-sm text-gray-600">
+          • Recommended image size: 2160 x 1080px • Maximum file size: 10MB •
+          Supported image files: JPEG, PNG
+        </p>
+      </div>
+
+      <hr className="my-6" />
+
+      {/* Video Upload Section */}
+      <div>
+        <h2 className="text-xl font-semibold mb-2">Video</h2>
+        <p className="text-sm text-gray-600 mb-4">
+          Add a video to show your event’s vibe. The video will appear with your
+          event images.
+        </p>
+        <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mb-2">
+          {video ? (
+            <video controls className="mb-4 w-64">
+              <source src={video} type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          ) : null}
+          <label className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer">
+            Upload Video
+            <input
+              type="file"
+              accept="video/mp4, video/mov"
+              className="hidden"
+              onChange={handleVideoUpload}
+            />
+          </label>
+        </div>
+        <p className="text-sm text-gray-600">
+          • Min resolution: 480p • Ratio: any vertical • Length: up to 1 min •
+          Format: MP4, MOV
+        </p>
+        <a className="text-blue-500" href="#">
+          View more details <i className="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  );
+};
+const Agenda = () => {
+  const [title, setTitle] = useState("ssss");
+  const [startTime, setStartTime] = useState("2:30 AM");
+  const [endTime, setEndTime] = useState("3:00 AM");
+  const [description, setDescription] = useState("d");
+  const [host, setHost] = useState("");
+  const [desc, setDesc] = useState(false);
+  const [artist, setArtist] = useState(false);
+  return (
+    <div className="bg-white p-8 rounded-lg  border border-blue-500 max-w-[710px] w-full mb-4">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold">Agenda</h2>
+        <button className="text-red-500">Delete section</button>
+      </div>
+
+      <div className="border-b border-gray-200 mb-4"></div>
+      <form>
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2">
-            Title <span className="text-red-600">*</span>
+          <label className="block text-sm font-medium text-gray-700">
+            Title *
           </label>
           <input
             type="text"
-            className="w-full border rounded p-2"
-            placeholder="Title"
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
         <div className="flex space-x-4 mb-4">
-          <div className="flex-1">
-            <label className="block text-gray-700 mb-2">Start time</label>
-            <button className="w-full border rounded p-2 flex items-center justify-center">
-              <FaClock className="mr-2" /> Start time
-            </button>
-          </div>
-          <div className="flex-1">
-            <label className="block text-gray-700 mb-2">End time</label>
-            <button className="w-full border rounded p-2 flex items-center justify-center text-gray-400">
-              <FaClock className="mr-2" /> End time
-            </button>
-          </div>
-        </div>
-        <div className="flex space-x-4 mb-4">
-          <button className="flex items-center text-gray-600">
-            <FaUser className="mr-2" /> Host or Artist
-          </button>
-          <button className="flex items-center text-gray-600">
-            <FaList className="mr-2" /> Add description
-          </button>
-        </div>
-        <div className="bg-gray-100 p-4 rounded-lg text-center">
-          <button className="text-blue-600">+ Add slot</button>
-        </div>
-      </div>
-  );
-};
-
-const EventPublishing = () => {
-  return (
-    <div className="bg-gray-50 p-6 min-h-screen flex justify-center items-center">
-      <div className="max-w-4xl bg-white p-8 rounded-lg shadow-md w-full">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Your event is almost ready to publish
-        </h1>
-        <p className="text-gray-600 mb-6">
-          Review your settings and let everyone find your event.
-        </p>
-
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Event Preview Section */}
-          <div className="flex-1 bg-gray-100 p-6 rounded-lg">
-            <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-              <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg mb-4">
-                <i className="fas fa-image text-gray-400 text-4xl"></i>
-              </div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-2">
-                Mental Health First Aid (MHFA) Training (CPD Accredited)
-              </h2>
-              <p className="text-gray-600 mb-2">
-                Wednesday, April 16 · 10am - 12pm GMT+7
-              </p>
-              <p className="text-gray-600 mb-4">Online event</p>
-              <div className="flex items-center text-gray-600 mb-4">
-                <i className="far fa-calendar-alt mr-2"></i>
-                <i className="far fa-user mr-2"></i>
-              </div>
-              <a href="#" className="text-blue-600">
-                Preview
-              </a>
-            </div>
-            <div>
-              <h3 className="text-gray-900 font-semibold mb-2">Organized by</h3>
+          <div className="w-1/2">
+            <label className="block text-sm font-medium text-gray-700">
+              Start time
+            </label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                placeholder="Organizer"
+                className="block w-full border border-gray-300 rounded-md shadow-sm p-2 pl-10"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
               />
-            </div>
-          </div>
-
-          {/* Event Type & Tags Section */}
-          <div className="flex-1 bg-gray-100 p-6 rounded-lg">
-            <div className="mb-6">
-              <h3 className="text-gray-900 font-semibold mb-2">
-                Event type and category
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Your type and category help your event appear in more searches.
-              </p>
-              <select className="w-full p-2 border border-gray-300 rounded-lg mb-4">
-                <option>Type</option>
-              </select>
-              <div className="flex gap-4">
-                <select className="w-full p-2 border border-gray-300 rounded-lg">
-                  <option>Category</option>
-                </select>
-                <select
-                  className="w-full p-2 border border-gray-300 rounded-lg"
-                  disabled
-                >
-                  <option>Subcategory</option>
-                </select>
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i className="far fa-clock text-gray-400"></i>
               </div>
             </div>
-            <div>
-              <h3 className="text-gray-900 font-semibold mb-2">Tags</h3>
-              <p className="text-gray-600 mb-4">
-                Help people discover your event by adding tags related to your
-                event’s theme, topic, vibe, location, and more.
-              </p>
+          </div>
+          <div className="w-1/2">
+            <label className="block text-sm font-medium text-gray-700">
+              End time
+            </label>
+            <div className="relative mt-1">
               <input
                 type="text"
-                className="w-full p-2 border border-gray-300 rounded-lg mb-2"
-                placeholder="Add search keywords to your event"
+                className="block w-full border border-gray-300 rounded-md shadow-sm p-2 pl-10"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
               />
-              <p className="text-gray-600 text-sm">0/10 tags</p>
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i className="far fa-clock text-gray-400"></i>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+        <div className="flex flex-col  ">
+          {!desc ? (
+            <button
+              className="flex items-center text-gray-600 mt-2 text-[14px] mb-2"
+              onClick={() => setDesc(true)}
+            >
+              <FaList className="mr-2" /> Add description
+            </button>
+          ) : (
+            <div className="">
+              <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+                Description
+              </label>
+              <textarea
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                rows="3"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <div className="text-right text-gray-400 text-xs">
+                {description.length} / 1000
+              </div>
+            </div>
+          )}
+          {!artist ? (
+            <button
+              className="flex items-center text-gray-600 mt-2 text-[14px] mb-2"
+              onClick={() => setArtist(true)}
+            >
+              <FaUser className="mr-2" /> Add Host or Artist
+            </button>
+          ) : (
+            <div className=" ">
+              <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+                Artist
+              </label>
+              <input
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                rows="3"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+              />
+              <div className="text-right text-gray-400 text-xs">
+                {description.length} / 1000
+              </div>
+            </div>
+          )}
+        </div>
+        <button className="w-full py-2 bg-gray-100 text-blue-600 rounded-md shadow-sm">
+          + Add slot
+        </button>
+      </form>
     </div>
   );
 };
-
 const DateLocation = () => {
   const [eventType, setEventType] = useState("single");
   const [locationType, setLocationType] = useState("online");
@@ -352,7 +482,6 @@ const DateLocation = () => {
             />
           </div>
         </div>
-      
       </div>
 
       {/* Location Selection */}
@@ -393,13 +522,82 @@ const DateLocation = () => {
             <p className="font-semibold">To be announced</p>
           </button>
         </div>
-        <LocationForm/>
+        <LocationForm />
       </div>
     </div>
   );
 };
+const EventOverviewUp = () => {
+  const [videoLink, setVideoLink] = useState("");
 
-const  EventOverview =() => {
+  return (
+    <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
+      <h1 className="text-2xl font-semibold mb-2">Overview</h1>
+      <p className="text-gray-600 mb-4">
+        Add more details about your event and include what people can expect if
+        they attend.
+      </p>
+
+      <div className="border border-gray-300 rounded-lg mb-4">
+        <div className="flex items-center justify-between border-b border-gray-300 p-2">
+          <div className="flex items-center space-x-2">
+            <button className="text-gray-600">Normal</button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="text-gray-600">B</button>
+            <button className="text-gray-600">I</button>
+            <button className="text-gray-600">U</button>
+            <button className="text-gray-600">&#8226; List</button>
+            <button className="text-gray-600">1. List</button>
+          </div>
+        </div>
+        <textarea
+          className="w-full p-4 h-32 border-none focus:outline-none"
+          placeholder=""
+        />
+      </div>
+
+      <button className="text-blue-600 flex items-center mb-4">
+        ⚡ Suggest description
+      </button>
+
+      <div className="border border-red-500 rounded-lg mb-4 p-4">
+        <div className="flex flex-col items-center justify-center h-32 border-2 border-dashed border-gray-300 rounded-lg mb-2">
+          <span className="text-gray-400 text-4xl">🖼️</span>
+          <p className="text-gray-400">Drag & drop or click to add image.</p>
+          <p className="text-gray-400">JPEG, PNG, GIF, no larger than 10MB.</p>
+        </div>
+        <p className="text-red-500 text-sm mb-2">
+          You must upload some image or delete this block
+        </p>
+        <div className="flex items-center border border-red-500 rounded-lg p-2">
+          <input
+            type="text"
+            className="w-full border-none focus:outline-none"
+            placeholder="Video link*"
+            value={videoLink}
+            onChange={(e) => setVideoLink(e.target.value)}
+          />
+          <span className="text-red-500 ml-2">⚠️</span>
+        </div>
+        <p className="text-red-500 text-sm">Invalid Video link</p>
+      </div>
+
+      <div className="flex space-x-4">
+        <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-600">
+          📝 Add text
+        </button>
+        <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-600">
+          🖼️ Add image
+        </button>
+        <button className="flex items-center px-4 py-2 border border-gray-300 rounded-lg text-gray-600">
+          🎥 Add video
+        </button>
+      </div>
+    </div>
+  );
+};
+const EventOverview = () => {
   const [eventTitle, setEventTitle] = useState(
     "Mental Health First Aid (MHFA) Training (CPD Accredited)"
   );
@@ -409,52 +607,64 @@ const  EventOverview =() => {
 
   return (
     <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
-        <h1 className="text-2xl font-bold mb-6">Event Overview</h1>
+      <h1 className="text-2xl font-bold mb-6">Event Overview</h1>
 
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Event title</h2>
-          
-          <label className="block">
-           
-            <input
-              type="text"
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2"
-              value={eventTitle}
-              onChange={(e) => setEventTitle(e.target.value)}
-            />
-          </label>
-        </div>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Event title</h2>
 
-        <div className="mb-6">
-          <h2 className="text-lg font-semibold mb-2">Summary</h2>
-          
-          <label className="block">
-           
-            <textarea
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2"
-              rows="3"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-            />
-          </label>
-          <div className="text-right text-gray-600 mt-1">{summary.length} / 140</div>
-        </div>
+        <label className="block">
+          <input
+            type="text"
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2"
+            value={eventTitle}
+            onChange={(e) => setEventTitle(e.target.value)}
+          />
+        </label>
+      </div>
 
-        <div className="text-blue-500 flex items-center">
-          <i className="fas fa-bolt mr-2"></i>
-          <a href="#" className="font-semibold">Suggest summary</a>
+      <div className="mb-6">
+        <h2 className="text-lg font-semibold mb-2">Summary</h2>
+
+        <label className="block">
+          <textarea
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2"
+            rows="3"
+            value={summary}
+            onChange={(e) => setSummary(e.target.value)}
+          />
+        </label>
+        <div className="text-right text-gray-600 mt-1">
+          {summary.length} / 140
         </div>
       </div>
+
+      <div className="text-blue-500 flex items-center">
+        <i className="fas fa-bolt mr-2"></i>
+        <a href="#" className="font-semibold">
+          Suggest summary
+        </a>
+      </div>
+    </div>
   );
-}
+};
 const EventForm = () => {
   const navigate = useNavigate();
+  const [showUpload, setShowUpload] = useState(false);
+  const [showOverview, setShowOverView] = useState(false);
+  const [eventTitle, setEventTitle] = useState(
+    "Mental Health First Aid (MHFA) Training (CPD Accredited)"
+  );
+  const [summary, setSummary] = useState(
+    "Join our MHFA course to learn vital mental health first aid skills, supporting others in times of crisis with confidence and compassion."
+  );
   return (
     <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
       {/* Left Section */}
-      <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
+      <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm ">
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-          <h2 className="text-lg font-semibold">Mental Health First Aid (MHFA) Training (CPD Accredited)</h2>
+          <h2 className="text-lg font-semibold">
+            Mental Health First Aid (MHFA) Training (CPD Accredited)
+          </h2>
           <div className="flex items-center text-gray-500 mt-2">
             <i className="far fa-calendar-alt mr-2"></i>
             <span>Wed, Apr 16, 2025, 10:00 AM</span>
@@ -463,49 +673,67 @@ const EventForm = () => {
             <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
               Draft <i className="fas fa-caret-down ml-1"></i>
             </button>
-            <a href="#" className="text-blue-600">Preview <i className="fas fa-external-link-alt"></i></a>
+            <a href="#" className="text-blue-600">
+              Preview <i className="fas fa-external-link-alt"></i>
+            </a>
           </div>
         </div>
         <h3 className="text-lg font-semibold mb-2">Steps</h3>
         <ul>
-          <li className="flex items-center mb-2"><i className="fas fa-check-circle text-blue-600 mr-2"></i>Build event page</li>
-          <li className="flex items-center mb-2"><i className="far fa-circle text-gray-400 mr-2"></i>Online event page</li>
-          <li className="flex items-center mb-2"><i className="far fa-dot-circle text-blue-600 mr-2"></i>Add tickets</li>
-          <li className="flex items-center"><i className="far fa-circle text-gray-400 mr-2"></i>Publish</li>
+          <li className="flex items-center mb-2">
+            <i className="fas fa-check-circle text-blue-600 mr-2"></i>Build
+            event page
+          </li>
+          <li className="flex items-center mb-2">
+            <i className="far fa-circle text-gray-400 mr-2"></i>Online event
+            page
+          </li>
+          <li className="flex items-center mb-2">
+            <i className="far fa-dot-circle text-blue-600 mr-2"></i>Add tickets
+          </li>
+          <li className="flex items-center">
+            <i className="far fa-circle text-gray-400 mr-2"></i>Publish
+          </li>
         </ul>
       </aside>
       {/* Right Section */}
-      <div className=" px-2 w-full lg:w-3/4">
-        <div className="max-w-3xl mx-auto p-4">
+      <div className=" px-2 w-full lg:w-3/4 ">
+        <div className="max-w-3xl mx-auto p-4 ">
           {/* Image Upload Section */}
-          <div className="relative bg-gray-200 rounded-lg overflow-hidden mb-6 max-w-[710px] min-h-[400px]">
-            <img
-              src="https://storage.googleapis.com/a1aa/image/oFssrRGOqYsjeanal5Ggc6TQow520FnOxiqapc7K5xs.jpg"
-              alt="A busy event with people socializing in a large room"
-              className="w-full h-[400px] object-cover opacity-50"
-            />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white bg-opacity-75 p-6 rounded-lg text-center">
-                <i className="fas fa-upload text-2xl text-blue-500 mb-2"></i>
-                <p className="text-blue-500">Upload photos & video</p>
-              </div>
-            </div>
-          </div>
+          <UploadContainer />
 
           {/* Event Overview Section */}
-          
-          <EventOverview/>
-          <Sections/>
+          {!showOverview ? (
+            <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
+             onClick={() => setShowOverView(true)}>             
+                <h2 className="text-5xl font-semibold mb-2">{eventTitle}</h2>
+                <span>{summary}</span>
+            </div>
+          ) : (
+            <EventOverview />
+          )}
+
           {/* Date and Location Section */}
-          
-          <DateLocation />
+          <SectionEvent />
+          <DatetimeLocation />
           {/* Overview Section */}
+          <OverviewSection/>
+          {/* {!showOverview ? (
+            <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
+             onClick={() => setShowOverView(true)}>             
+                <h2 className="text-2xl font-semibold mb-2">Over View</h2>
+                <span className="text-[14px] text-gray-600 mb-2">{summary}</span>
+            </div>
+          ) : (
+            <Overview />
+          )} */}
           
-          <Overview/>
           {/* Save Button */}
           <div className="text-right">
-            <button className="bg-orange-600 text-white px-6 py-2 rounded-lg"
-            onClick={() => navigate("/addTicket")} >
+            <button
+              className="bg-orange-600 text-white px-6 py-2 rounded-lg"
+              onClick={() => navigate("/addTicket")}
+            >
               Save and continue
             </button>
           </div>

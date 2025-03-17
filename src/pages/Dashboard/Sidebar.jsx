@@ -64,6 +64,8 @@ const Sidebar = () => {
     }, {})
   );
 
+  const [activeSubmenu, setActiveSubmenu] = useState(null); // Lưu trạng thái submenu đang active
+
   const toggleMenu = (menuTitle) => {
     setOpenMenus((prev) => ({
       ...prev,
@@ -81,6 +83,8 @@ const Sidebar = () => {
             menu={menu}
             isOpen={openMenus[menu.title]}
             onClick={() => toggleMenu(menu.title)}
+            activeSubmenu={activeSubmenu}
+            setActiveSubmenu={setActiveSubmenu}
           />
         ))}
       </ul>
@@ -88,7 +92,7 @@ const Sidebar = () => {
   );
 };
 
-const SidebarItem = ({ menu, isOpen, onClick }) => {
+const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu }) => {
   return (
     <li className="mb-2">
       <div
@@ -96,10 +100,10 @@ const SidebarItem = ({ menu, isOpen, onClick }) => {
         text-[14px] font-medium hover:bg-gray-100 hover:text-orange-500 ${isOpen ? "bg-gray-200 text-orange-500" : ""}`}
         onClick={menu.submenu ? onClick : null}
       >
-      <div className="flex items-center">
-        {menu.icon && <span className="mr-2 text-[16px]">{menu.icon}</span>}
-        <Link to={menu.path}>{menu.title}</Link>
-      </div>
+        <div className="flex items-center">
+          {menu.icon && <span className="mr-2 text-[16px]">{menu.icon}</span>}
+          <Link to={menu.path}>{menu.title}</Link>
+        </div>
         {menu.submenu && (
           <FaChevronDown size={12} className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
         )}
@@ -110,7 +114,10 @@ const SidebarItem = ({ menu, isOpen, onClick }) => {
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className="block px-2 ml-2 py-2 text-gray-700 hover:bg-gray-100 hover:text-orange-500 rounded-lg transition-all text-[14px]"
+                className={`block px-2 ml-2 py-2 rounded-lg transition-all text-[14px] 
+                ${activeSubmenu === sub.title ? "text-orange-600 font-semibold" : "text-gray-700"} 
+                hover:bg-gray-100 hover:text-orange-500`}
+                onClick={() => setActiveSubmenu(sub.title)}
               >
                 {sub.title}
               </Link>

@@ -65,7 +65,7 @@ const CheckoutPage = (props) => {
               <span className="checkout-page-tile">
                 She Is Women's Conference 2025 - BLOOM
               </span>
-              <span className="checkout-page-text-title-price checkout-page-price">$66.00</span>
+              <span className="checkout-page-text-title-price checkout-page-price">66.00 VND</span>
             </div>
           </div>
 

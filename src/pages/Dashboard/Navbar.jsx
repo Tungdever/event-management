@@ -3,7 +3,7 @@ import { RiMenuLine } from "react-icons/ri";
 
 const Navbar = () => {
   return (
-    <div className="py-2 px-6 bg-[#f8f4f3] flex items-center shadow-md shadow-black/5 sticky top-0 left-0 z-30">
+    <div className="py-2 px-6 bg-[#f8f4f3] flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30">
       <button type="button" className="text-xl text-gray-900 font-semibold">
         <RiMenuLine />
       </button>
