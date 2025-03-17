@@ -48,6 +48,25 @@ const AddTicket = () => {
       setLoading(false);
     }, 250);
   }, []);
+
+  const [tickets, setTickets] = useState([]); // Lưu danh sách ticket
+  const [ticketData, setTicketData] = useState({
+    name: "",
+    quantity: 0,
+    price: 0,
+    type: "Paid",
+    salesStart: "",
+    startTime: "",
+    salesEnd: "",
+    endTime: "",
+  });
+
+  const handleSaveTicket = () => {
+    setTickets([...tickets, ticketData]);
+    setShowForm(false);
+    setShowOverView(true);
+  };
+
   return loading ? (
     <h1></h1>
   ) : (
@@ -137,82 +156,48 @@ const AddTicket = () => {
           </div>
         ) : (
           <div className="max-w-7xl mx-auto p-4 flex">
-            {/* Left Side - Ticket List */}
             <div className="w-2/3 pr-4">
               <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
-              <nav className="flex space-x-4 border-b mt-4">
-                {[
-                  "Admission",
-                  "Add-ons",
-                  "Promotions",
-                  "Holds",
-                  "Settings",
-                ].map((tab, index) => (
-                  <a
-                    key={index}
-                    href="#"
-                    className={`pb-2 ${
-                      index === 0
-                        ? "text-blue-600 border-b-2 border-blue-600"
-                        : "text-gray-500 hover:text-gray-700"
-                    }`}
-                  >
-                    {tab}
-                  </a>
-                ))}
-              </nav>
               <div className="mt-6 bg-white shadow rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <i className="fas fa-bars text-gray-400 mr-4"></i>
+                {tickets.map((ticket, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between border-b pb-4 mb-4"
+                  >
                     <div>
                       <h2 className="text-lg font-semibold text-gray-900">
-                        Test Ticket Paid
+                        {ticket.name}
                       </h2>
                       <div className="flex items-center text-sm text-gray-500">
                         <span className="text-green-500 mr-2">•</span>
                         <span>On Sale</span>
                         <span className="mx-2">•</span>
-                        <span>Ends Apr 16, 2025 at 10:00 AM</span>
+                        <span>
+                          Ends {ticket.salesEnd} at {ticket.endTime}
+                        </span>
                       </div>
                     </div>
+                    <div className="flex items-center space-x-4">
+                      <span className="text-gray-500">
+                        Sold: 0/{ticket.quantity}
+                      </span>
+                      <span className="text-gray-500">${ticket.price}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center space-x-4">
-                    <span className="text-gray-500">Sold: 0/30</span>
-                    <span className="text-gray-500">$2.00</span>
-                    <i className="fas fa-ellipsis-v text-gray-500"></i>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-4 flex items-center justify-between">
-                <div className="flex items-center text-gray-500">
-                  <span>Event capacity</span>
-                  <i className="fas fa-info-circle ml-2"></i>
-                </div>
-                <div className="text-blue-600">
-                  <span>0 / 300</span>
-                  <a href="#" className="ml-2">
-                    Edit capacity
-                  </a>
-                </div>
+                ))}
               </div>
             </div>
-
-            {/* Right Side - Add Ticket Button & Popup */}
             <div className="w-1/3 flex flex-col items-end">
-              <div className="relative top-4 right-4">
-                <button
-                  onClick={() => setPopupOpen(!isPopupOpen)}
-                  className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full"
-                >
-                  Add Ticket <i className="fas fa-caret-down"></i>
-                </button>
-                <TicketPopup
-                  isOpen={isPopupOpen}
-                  onClose={() => setPopupOpen(false)}
-                />
-              </div>
-            </div>
+        <div className="relative top-4 right-4">
+          <button
+            onClick={() => setPopupOpen(!isPopupOpen)}
+            className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full"
+          >
+            Add Ticket <i className="fas fa-caret-down"></i>
+          </button>
+          <TicketPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
+        </div>
+      </div>
           </div>
         )}
 
@@ -228,45 +213,53 @@ const AddTicket = () => {
 
       {/* Add Tickets Form */}
       <div
-        className={`fixed top-0 right-0 h-full w-full lg:w-1/3  max-h-[700px] mt-[55px] border border-t-2 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 right-0 h-full w-full lg:w-1/3 max-h-[700px] mt-[55px] border border-t-2 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
           showForm ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="p-6 ">
-          <div className="flex justify-between">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">
-              Let's create tickets
-            </h2>
-            <button
-              onClick={() => setShowForm(false)}
-              className="text-gray-500 hover:text-gray-800"
-            >
-              <i className="fas fa-times text-xl"></i>
-            </button>
-          </div>
+        <div className="p-6">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">
+            Let's create tickets
+          </h2>
+
           <div className="flex space-x-4 mb-4">
             {["Paid", "Free"].map((type) => (
               <button
                 key={type}
                 className={`px-4 py-2 rounded-md ${
-                  ticketType === type
+                  ticketData.type === type
                     ? "bg-blue-100 text-blue-700"
                     : "bg-gray-200 text-gray-700"
                 }`}
-                onClick={() => setTicketType(type)}
+                onClick={() => setTicketData({ ...ticketData, type })}
               >
                 {type}
               </button>
             ))}
           </div>
+
           <div className="space-y-4">
             <label className="block text-gray-700">
               Name *
-              <input type="text" className="w-full border rounded-md p-2" />
+              <input
+                type="text"
+                className="w-full border rounded-md p-2"
+                value={ticketData.name}
+                onChange={(e) =>
+                  setTicketData({ ...ticketData, name: e.target.value })
+                }
+              />
             </label>
             <label className="block text-gray-700">
               Available quantity *
-              <input type="number" className="w-full border rounded-md p-2" />
+              <input
+                type="number"
+                className="w-full border rounded-md p-2"
+                value={ticketData.quantity}
+                onChange={(e) =>
+                  setTicketData({ ...ticketData, quantity: e.target.value })
+                }
+              />
             </label>
             <label className="block text-gray-700">
               Price *
@@ -275,31 +268,63 @@ const AddTicket = () => {
                   $
                 </span>
                 <input
-                  type="text"
+                  type="number"
                   className="w-full border rounded-r-md p-2"
-                  defaultValue="0.00"
+                  value={ticketData.price}
+                  onChange={(e) =>
+                    setTicketData({ ...ticketData, price: e.target.value })
+                  }
                 />
               </div>
             </label>
             <div className="grid grid-cols-2 gap-4">
               <label className="block text-gray-700">
                 Sales start *
-                <input type="date" className="w-full border rounded-md p-2" />
+                <input
+                  type="date"
+                  className="w-full border rounded-md p-2"
+                  value={ticketData.salesStart}
+                  onChange={(e) =>
+                    setTicketData({ ...ticketData, salesStart: e.target.value })
+                  }
+                />
               </label>
               <label className="block text-gray-700">
                 Start time
-                <input type="time" className="w-full border rounded-md p-2" />
+                <input
+                  type="time"
+                  className="w-full border rounded-md p-2"
+                  value={ticketData.startTime}
+                  onChange={(e) =>
+                    setTicketData({ ...ticketData, startTime: e.target.value })
+                  }
+                />
               </label>
               <label className="block text-gray-700">
                 Sales end *
-                <input type="date" className="w-full border rounded-md p-2" />
+                <input
+                  type="date"
+                  className="w-full border rounded-md p-2"
+                  value={ticketData.salesEnd}
+                  onChange={(e) =>
+                    setTicketData({ ...ticketData, salesEnd: e.target.value })
+                  }
+                />
               </label>
               <label className="block text-gray-700">
                 End time
-                <input type="time" className="w-full border rounded-md p-2" />
+                <input
+                  type="time"
+                  className="w-full border rounded-md p-2"
+                  value={ticketData.endTime}
+                  onChange={(e) =>
+                    setTicketData({ ...ticketData, endTime: e.target.value })
+                  }
+                />
               </label>
             </div>
           </div>
+
           <div className="flex justify-end space-x-4 mt-6">
             <button
               className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md"
@@ -309,10 +334,8 @@ const AddTicket = () => {
             </button>
             <button
               className="bg-orange-600 text-white px-4 py-2 rounded-md"
-              onClick={() => {
-                setShowOverView(true);
-                setShowForm(false);
-              }}
+              
+              onClick={handleSaveTicket}
             >
               Save
             </button>
