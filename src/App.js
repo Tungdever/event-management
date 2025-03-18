@@ -22,6 +22,8 @@ import AddTicket from "./pages/Ticket/AddTicket"
 import EventPublishing from './pages/Event/EventPublishing';
 import Profile from './pages/Dashboard/Profile';
 import TaskBoard from './pages/Employee/TaskDashboard';
+import TicketList from './pages/Ticket/TicketList';
+import CRUDEvent from './pages/Event/FullPageCRUDEvent';
 
 const eventData = {
   event_id: 1,
@@ -136,7 +138,7 @@ const MainLayout = () => {
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/checkout";
+  || location.pathname === "/checkout"|| location.pathname === "/myticket";
 
   return (
     <div className="w-full min-h-screen bg-while">
@@ -148,7 +150,7 @@ const MainLayout = () => {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/checkout" element={<Checkout />} />
-
+        <Route path ="/myticket" element={<TicketList/>}></Route>
       </Routes>
 
       {!isFullScreenPage && (
@@ -160,7 +162,7 @@ const MainLayout = () => {
             <Route path="/ticket" element={<TicketDashboard />} />
             <Route path="/chat" element={<ChatBox />} />
             <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/createEvent" element={<EventForm />} />
+            <Route path="/createEvent" element={<CRUDEvent />} />
             <Route path="/editEvent" element={<EditEvent />} />
             <Route path="/publicEvent" element={<EventPublishing />} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
@@ -168,7 +170,7 @@ const MainLayout = () => {
             <Route path="/profile" element={<Profile/>}></Route>
             <Route path ="/addticket" element={<AddTicket/>}>  </Route>
             <Route path="/task" element={<TaskBoard />} />
-
+            <Route path="/crudEvent" element={<CRUDEvent/>}></Route>
           </Routes>
         </div>
       )}
