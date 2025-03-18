@@ -22,7 +22,7 @@ const AddTicket = () => {
           onClick={onClose}
           className="absolute text-gray-500 text-sm mb-2 right-2"
         >
-          X
+          <i class="fa-solid fa-xmark"></i>
         </button>
         <div className="space-y-4">
           {[
@@ -50,7 +50,7 @@ const AddTicket = () => {
     }, 500);
   }, []);
 
-  const [tickets, setTickets] = useState([]); 
+  const [tickets, setTickets] = useState([]);
   const [ticketData, setTicketData] = useState({
     name: "",
     quantity: 0,
@@ -69,10 +69,9 @@ const AddTicket = () => {
   };
 
   return loading ? (
-    <Loader/>
+    <Loader />
   ) : (
     <div className="flex flex-col lg:flex-row bg-gray-50  relative">
-      
       {/* Main Content */}
       <main className="relative flex-1 p-6 min-h-screen">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -90,20 +89,43 @@ const AddTicket = () => {
                 onClick={() => handleTicketClick(type)}
               >
                 <div className="flex items-center">
-                 
-                   {type === "Paid" ? (
-                     <svg width="63" height="63" viewBox="0 0 63 63" fill="none" xmlns="http://www.w3.org/2000/svg">
-                     <rect width="63" height="63" rx="8" fill="#3659E3" fillOpacity="0.08"></rect>
-                     <path
-                       fillRule="evenodd"
-                       clipRule="evenodd"
-                       d="M34.65 14.175C34.65 14.175 34.65 19.6875 29.925 19.6875C25.2 19.6875 25.2 14.175 25.2 14.175H17.325V45.675H25.2C25.1747 44.4468 25.6384 43.259 26.4891 42.3728C27.3399 41.4866 28.5078 40.9748 29.736 40.95H29.925C31.1532 40.9247 32.341 41.3884 33.2272 42.2391C34.1134 43.0899 34.6252 44.2578 34.65 45.486V45.675H42.525V14.175H34.65ZM44.1 17.325V47.25H37.8V48.825H45.675V17.325H44.1ZM26.9325 47.2503C27.4409 45.3611 28.7707 43.8 30.555 42.9978C31.1169 43.233 31.6062 43.6135 31.9725 44.1003C29.8673 44.7219 28.4037 46.6309 28.35 48.8253H20.475V47.2503H26.9325ZM25.2 30.7125V29.1375H22.05V30.7125H25.2ZM28.35 30.7125V29.1375H31.5V30.7125H28.35ZM37.8 29.1375H34.65V30.7125H37.8V29.1375ZM36.225 44.1H40.95V15.75H36.225C35.595 18.4275 33.8625 21.2625 29.925 21.2625C25.9875 21.2625 24.255 18.4275 23.625 15.75H18.9V44.1H23.625C24.1956 41.1381 26.9218 39.0935 29.925 39.375C32.9282 39.0935 35.6543 41.1381 36.225 44.1Z"
-                       fill="#6898F7"
-                     ></path>
-                   </svg>
+                  {type === "Paid" ? (
+                    <svg
+                      width="63"
+                      height="63"
+                      viewBox="0 0 63 63"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        width="63"
+                        height="63"
+                        rx="8"
+                        fill="#3659E3"
+                        fillOpacity="0.08"
+                      ></rect>
+                      <path
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        d="M34.65 14.175C34.65 14.175 34.65 19.6875 29.925 19.6875C25.2 19.6875 25.2 14.175 25.2 14.175H17.325V45.675H25.2C25.1747 44.4468 25.6384 43.259 26.4891 42.3728C27.3399 41.4866 28.5078 40.9748 29.736 40.95H29.925C31.1532 40.9247 32.341 41.3884 33.2272 42.2391C34.1134 43.0899 34.6252 44.2578 34.65 45.486V45.675H42.525V14.175H34.65ZM44.1 17.325V47.25H37.8V48.825H45.675V17.325H44.1ZM26.9325 47.2503C27.4409 45.3611 28.7707 43.8 30.555 42.9978C31.1169 43.233 31.6062 43.6135 31.9725 44.1003C29.8673 44.7219 28.4037 46.6309 28.35 48.8253H20.475V47.2503H26.9325ZM25.2 30.7125V29.1375H22.05V30.7125H25.2ZM28.35 30.7125V29.1375H31.5V30.7125H28.35ZM37.8 29.1375H34.65V30.7125H37.8V29.1375ZM36.225 44.1H40.95V15.75H36.225C35.595 18.4275 33.8625 21.2625 29.925 21.2625C25.9875 21.2625 24.255 18.4275 23.625 15.75H18.9V44.1H23.625C24.1956 41.1381 26.9218 39.0935 29.925 39.375C32.9282 39.0935 35.6543 41.1381 36.225 44.1Z"
+                        fill="#6898F7"
+                      ></path>
+                    </svg>
                   ) : (
-                    <svg width="63" height="63" viewBox="0 0 63 63" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect width="63" height="63" rx="6.38" fill="#F2E7FE" fillOpacity="0.8"></rect>
+                    <svg
+                      width="63"
+                      height="63"
+                      viewBox="0 0 63 63"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <rect
+                        width="63"
+                        height="63"
+                        rx="6.38"
+                        fill="#F2E7FE"
+                        fillOpacity="0.8"
+                      ></rect>
                       <path
                         fillRule="evenodd"
                         clipRule="evenodd"
@@ -111,7 +133,6 @@ const AddTicket = () => {
                         fill="#9374E7"
                       ></path>
                     </svg>
-                  
                   )}
 
                   <div className="ml-4">
@@ -130,47 +151,52 @@ const AddTicket = () => {
         ) : (
           <div className="max-w-7xl mx-auto p-4 flex">
             <div className="w-2/3 pr-4">
-              <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
-              <div className="mt-6 bg-white shadow rounded-lg p-4">
-                {tickets.map((ticket, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between border-b pb-4 mb-4"
-                  >
+              {tickets.map((ticket, index) => (
+                <div className="mt-2 bg-white  rounded-[5px] p-4 border border-gray-400">
+                  <div key={index} className=" mb-4">
                     <div>
-                      <h2 className="text-lg font-semibold text-gray-900">
-                        {ticket.name}
-                      </h2>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <span className="text-green-500 mr-2">•</span>
-                        <span>On Sale</span>
-                        <span className="mx-2">•</span>
-                        <span>
-                          Ends {ticket.salesEnd} at {ticket.endTime}
-                        </span>
+                      <div className="flex items-center justify-between">
+                        <h2 className="text-lg font-semibold text-gray-900 pb-2 ">
+                          {ticket.name}
+                        </h2>
+                        <div className="flex items-center space-x-4 pb-2">
+                          <span className="text-gray-500">
+                            Sold: 0/{ticket.quantity}
+                          </span>
+                          <span className="text-gray-500">${ticket.price}</span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center text-sm text-gray-500 border-t border-t-gray-500 pt-4 justify-between">
+                        <div className="flex items-center ">
+                          <span className="text-green-500 mr-2">•</span>
+                          <span>On Sale</span>
+                          <span className="mx-2">•</span>
+                          <span>
+                            Ends {ticket.salesEnd} at {ticket.endTime}
+                          </span>
+                        </div>
+                        <i class="fa-solid fa-pen-to-square hover:text-blue-600 hover:cursor-pointer"></i>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <span className="text-gray-500">
-                        Sold: 0/{ticket.quantity}
-                      </span>
-                      <span className="text-gray-500">${ticket.price}</span>
-                    </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
             <div className="w-1/3 flex flex-col items-end">
-        <div className="relative top-4 right-4">
-          <button
-            onClick={() => setPopupOpen(!isPopupOpen)}
-            className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full"
-          >
-            Add Ticket <i className="fas fa-caret-down"></i>
-          </button>
-          <TicketPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
-        </div>
-      </div>
+              <div className="relative top-4 right-4">
+                <button
+                  onClick={() => setPopupOpen(!isPopupOpen)}
+                  className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full"
+                >
+                  Add Ticket <i className="fas fa-caret-down"></i>
+                </button>
+                <TicketPopup
+                  isOpen={isPopupOpen}
+                  onClose={() => setPopupOpen(false)}
+                />
+              </div>
+            </div>
           </div>
         )}
         <div className="flex items-center justify-end p-4 rounded-lg cursor-pointer w-2/4 absolute bottom-20 right-4">
@@ -195,11 +221,13 @@ const AddTicket = () => {
           </h2>
 
           <div className="flex space-x-4 mb-4">
-            {["Paid", "Free",].map((type) => (
+            {["Paid", "Free"].map((type) => (
               <button
                 key={type}
                 className={`px-4 py-2 rounded-md ${
-                  ticketType === type ? "bg-blue-100 text-blue-700" : "bg-gray-200 text-gray-700"
+                  ticketType === type
+                    ? "bg-blue-100 text-blue-700"
+                    : "bg-gray-200 text-gray-700"
                 }`}
                 onClick={() => setTicketType(type)}
               >
@@ -231,27 +259,27 @@ const AddTicket = () => {
                 }
               />
             </label>
-                {
-                  ticketType === "Paid" ? 
-                  <label className="block text-gray-700">
-                  Price *
-                  <div className="flex items-center">
-                    <span className="bg-gray-200 px-4 py-2 rounded-l-md border border-r-0 border-gray-300">
-                      $
-                    </span>
-                    <input
-                      type="number"
-                      className="w-full border rounded-r-md p-2"
-                      value={ticketData.price}
-                      onChange={(e) =>
-                        setTicketData({ ...ticketData, price: e.target.value })
-                      }
-                    />
-                  </div>
-                </label>: <></>
-               
-            }
-            
+            {ticketType === "Paid" ? (
+              <label className="block text-gray-700">
+                Price *
+                <div className="flex items-center">
+                  <span className="bg-gray-200 px-4 py-2 rounded-l-md border border-r-0 border-gray-300">
+                    $
+                  </span>
+                  <input
+                    type="number"
+                    className="w-full border rounded-r-md p-2"
+                    value={ticketData.price}
+                    onChange={(e) =>
+                      setTicketData({ ...ticketData, price: e.target.value })
+                    }
+                  />
+                </div>
+              </label>
+            ) : (
+              <></>
+            )}
+
             <div className="grid grid-cols-2 gap-4">
               <label className="block text-gray-700">
                 Sales start *
@@ -309,7 +337,6 @@ const AddTicket = () => {
             </button>
             <button
               className="bg-orange-600 text-white px-4 py-2 rounded-md"
-              
               onClick={handleSaveTicket}
             >
               Save

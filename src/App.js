@@ -22,7 +22,7 @@ import AddTicket from "./pages/Ticket/AddTicket"
 import EventPublishing from './pages/Event/EventPublishing';
 import Profile from './pages/Dashboard/Profile';
 import TaskBoard from './pages/Employee/TaskDashboard';
-import TicketList from './pages/Ticket/TicketList';
+import TicketList from './pages/Ticket/MyTicket';
 import CRUDEvent from './pages/Event/FullPageCRUDEvent';
 
 const eventData = {
@@ -130,11 +130,43 @@ const notifications = [
     hasActions: false,
   },
 ];
+const ticketData = [
+  {
+    id: "A1B2C3",
+    ticketName: "Music Festival 2025",
+    eventDate: "April 20, 2025",
+    eventTime: "18:00 - 23:00",
+    location: "Central Park, New York",
+    seat: "VIP Zone - A12",
+    price: "$50.00",
+    image: "https://i.pinimg.com/474x/c9/fc/5b/c9fc5b906a994962bbc5d530e1cb9ce6.jpg",
+  },
+  {
+    id: "D4E5F6",
+    ticketName: "Tech Conference",
+    eventDate: "May 15, 2025",
+    eventTime: "09:00 - 17:00",
+    location: "Silicon Valley Convention Center",
+    seat: "Hall B - Row 5, Seat 23",
+    price: "$120.00",
+    image: "https://i.pinimg.com/474x/20/12/68/201268d8c3f9c7f98521b949b8671b92.jpg",
+  },
+  {
+    id: "G7H8I9",
+    ticketName: "Art Exhibition",
+    eventDate: "June 10, 2025",
+    eventTime: "10:00 - 20:00",
+    location: "Louvre Museum, Paris",
+    seat: "General Admission",
+    price: "$30.00",
+    image: "https://i.pinimg.com/474x/92/18/4a/92184a471672bcd65d46557674d14206.jpg",
+  },
+];
 
 
 const MainLayout = () => {
   const location = useLocation();
-  const [tickets, setTickets] = useState([]);
+  
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
@@ -150,7 +182,7 @@ const MainLayout = () => {
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/checkout" element={<Checkout />} />
-        <Route path ="/myticket" element={<TicketList/>}></Route>
+        <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
       </Routes>
 
       {!isFullScreenPage && (
@@ -164,7 +196,7 @@ const MainLayout = () => {
             <Route path="/calendar" element={<CalendarPage />} />
             <Route path="/createEvent" element={<CRUDEvent />} />
             <Route path="/editEvent" element={<EditEvent />} />
-            <Route path="/publicEvent" element={<EventPublishing />} />
+            <Route path="/publicEvent" element={<EventPublishing eventData={eventData}/>} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
             <Route path="/profile" element={<Profile/>}></Route>

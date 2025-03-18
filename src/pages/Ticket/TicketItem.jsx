@@ -11,7 +11,7 @@ const TicketItem = ({ ticket }) => {
           <div className="flex justify-between items-center mt-4">
             <div>
               <h1 className="text-2xl font-bold uppercase">
-                {ticket.eventName}
+                {ticket.ticketName}
               </h1>
               <p className="text-semibold">{ticket.eventDate}</p>
             </div>

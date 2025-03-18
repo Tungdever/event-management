@@ -26,7 +26,7 @@ const TagsInput = () => {
               onClick={() => removeTag(tag)}
               className="text-gray-500 hover:text-gray-900"
             >
-             <i class="fa-solid fa-xmark"></i>
+              <i class="fa-solid fa-xmark"></i>
             </button>
           </span>
         ))}
@@ -56,12 +56,18 @@ const TagsInput = () => {
 const PublishSettings = () => {
   const [eventVisibility, setEventVisibility] = useState("public");
   const [publishTime, setPublishTime] = useState("now");
+  const [refunds ,setRefunds] = useState("yes")
+  const [validityDays, setValidityDays] = useState(7);
 
+  const handleChange = (event) => {
+    setValidityDays(event.target.value);
+  };
   return (
     <div className="w-full max-w-4xl mt-8 mb-4 relative">
       <h1 className="text-2xl font-bold mb-6">Publish settings</h1>
       <div className="flex flex-col md:flex-row mb-10">
         <div className="flex-1">
+          {/* public or private */}
           <div className="mb-6">
             <h2 className="text-lg font-semibold mb-2">
               Is your event public or private?
@@ -73,7 +79,7 @@ const PublishSettings = () => {
                   name="event_visibility"
                   checked={eventVisibility === "public"}
                   onChange={() => setEventVisibility("public")}
-                  className="mr-2"
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Public</span>
               </label>
@@ -88,7 +94,7 @@ const PublishSettings = () => {
                   name="event_visibility"
                   checked={eventVisibility === "private"}
                   onChange={() => setEventVisibility("private")}
-                  className="mr-2"
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Private</span>
               </label>
@@ -96,11 +102,78 @@ const PublishSettings = () => {
                 Shared only with a select audience
               </p>
             </div>
+            {eventVisibility === "private" ? <select className="w-full p-2 border border-gray-300 rounded-lg mt-2">
+              <option value="1">Anyon with the link</option>
+             
+            </select> : <></>}
           </div>
+          {/* Refund policy */}
           <div>
+            <h2 className="text-lg font-semibold mb-2">
+              Set your refund policy
+            </h2>
+            <p className="text-gray-500 text-[13px] mb-2">
+              After your event is published, you can only update your policy to
+              make it more flexible for your attendees.
+            </p>
+            <div className="mb-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="refund_option"
+                  checked={refunds === "yes"}
+                  onChange={() => setRefunds("yes")}
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
+                />
+                <span className="text-base">Allow refunds</span>
+              </label>
+            </div>
+            <div>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  name="refund_option"
+                  checked={refunds === "no"}
+                  onChange={() => setRefunds("no")}
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
+                />
+                <span className="text-base">Don't allow refunds</span>
+              </label>
+            </div>
+            {refunds ==="yes" ?<div className="flex flex-col gap-2">
+              <div className="flex flex-col">
+                <label
+                  htmlFor="refundPolicyCutoffText"
+                  className="text-gray-700 text-[11px] mt-3"
+                >
+                  Days before the event
+                </label>
+                <input
+                  id="refundPolicyCutoffText"
+                  type="number"
+                  name="refundPolicy.validityDays"
+                  value={validityDays}
+                  onChange={handleChange}
+                  min={1}
+                  max={30}
+                  className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <p className="text-gray-700 text-[13px]">
+                Set how many days (1 to 30) before the event that attendees can
+                request refunds.
+              </p>
+            </div> :<></> }
+            
+          </div>
+        </div>
+        <div className="flex-1 mt-6 md:mt-0 md:ml-6">
+          {/* Schedule publish */}
+          <div className="bg-gray-100 p-4 rounded-lg">
             <h2 className="text-lg font-semibold mb-2">
               When should we publish your event?
             </h2>
+
             <div className="mb-4">
               <label className="flex items-center">
                 <input
@@ -108,27 +181,34 @@ const PublishSettings = () => {
                   name="publish_time"
                   checked={publishTime === "now"}
                   onChange={() => setPublishTime("now")}
-                  className="mr-2"
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Publish now</span>
               </label>
             </div>
-            <div>
+            <div className="mb-4">
               <label className="flex items-center">
                 <input
                   type="radio"
                   name="publish_time"
                   checked={publishTime === "later"}
                   onChange={() => setPublishTime("later")}
-                  className="mr-2"
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Schedule for later</span>
               </label>
             </div>
-          </div>
-        </div>
-        <div className="flex-1 mt-6 md:mt-0 md:ml-6">
-          <div className="bg-gray-100 p-4 rounded-lg">
+            {publishTime === "later" ? <div className="flex space-x-2 mb-4">
+              <label className="block text-gray-700 text-[13px]">
+                Start date *
+                <input type="date" className="w-full border rounded-md p-2" />
+              </label>
+              <label className="block text-gray-700 text-[13px]">
+                Start time
+                <input type="time" className="w-full border rounded-md p-2" />
+              </label>
+            </div> : <></>}
+            
             <h2 className="text-lg font-semibold mb-4">
               Check out these tips before you publish{" "}
               <i className="fas fa-lightbulb text-yellow-500"></i>
@@ -170,7 +250,7 @@ const PublishSettings = () => {
     </div>
   );
 };
-const EventPublishing = ({eventData}) => {
+const EventPublishing = ({ eventData }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -182,7 +262,7 @@ const EventPublishing = ({eventData}) => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="bg-gray-50 p-6 min-h-screen flex flex-col justify-center items-center">
+    <div className="bg-gray-50 p-2 min-h-screen flex flex-col justify-center items-center">
       <h1 className="text-2xl font-bold text-gray-900 mb-2">
         Your event is almost ready to publish
       </h1>
@@ -191,8 +271,8 @@ const EventPublishing = ({eventData}) => {
       </p>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 bg-gray-100 p-6 rounded-lg">
-          <div className="bg-white p-4 rounded-lg shadow-md mb-4 text-[14px] relative">
+        <div className="flex-1 bg-gray-100 p-3 rounded-lg">
+          <div className="bg-white p-4 rounded-[20px] shadow-md mb-4 text-[14px] relative">
             <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg mb-4">
               <img
                 src={eventData.event_image}
@@ -200,23 +280,17 @@ const EventPublishing = ({eventData}) => {
                 className="h-full w-full object-cover rounded-lg"
               />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {eventData.event_name}
             </h2>
-            <div className="flex text-gray-600 mb-2">
-              <i className="far fa-calendar-alt mr-2"></i>
-              <p>
-                {new Date(eventData.event_start).toLocaleString()} - {" "}
+              <p className="font-semibold text-gray-600 text-[13px] mb-1">
+                {new Date(eventData.event_start).toLocaleString()} -{" "}
                 {new Date(eventData.event_end).toLocaleString()}
               </p>
-            </div>
-            <div className="flex text-gray-600 mb-2">
-              <i className="fa-solid fa-location-dot mr-2"></i>
-              <p>{eventData.event_location}</p>
-            </div>
-            
-            <div className="flex items-center text-gray-600 mb-4 space-x-4">
-           
+              <p className="text-gray-600 text-[13px] mb-1">{eventData.event_location}</p>
+
+            <div className="flex items-center text-gray-600 mt-2 space-x-4 justify-between">
+              <div className="space-x-4">
               <span className="font-semibold text-[12px] ">
                 <i class="fa-solid fa-ticket mr-2"></i>
                 200.00 VND
@@ -225,11 +299,13 @@ const EventPublishing = ({eventData}) => {
                 <i className="far fa-user mr-2"></i>
                 300
               </span>
-            </div>
-            <div className="text-blue-600 absolute bottom-2 right-4 hover:curso-pointer">
+              </div>
+              <div className="text-blue-600 hover:curso-pointer">
               <a href="#">Preview</a>
               <i class="fa-solid fa-up-right-from-square ml-2"></i>
             </div>
+            </div>
+            
           </div>
           <div>
             <h3 className="text-gray-900 font-semibold mb-2">Organized by</h3>
@@ -243,7 +319,7 @@ const EventPublishing = ({eventData}) => {
         </div>
 
         {/* Event Type & Tags Section */}
-        <div className="flex-1 bg-gray-100 p-6 rounded-lg">
+        <div className="flex-1 bg-gray-100 p-2 rounded-lg">
           <div className="mb-6">
             <h3 className="text-gray-900 font-semibold mb-2">
               Event type and category
@@ -252,7 +328,6 @@ const EventPublishing = ({eventData}) => {
               Your type and category help your event appear in more searches.
             </p>
             <select className="w-full p-2 border border-gray-300 rounded-lg mb-4">
-              
               <option value="1">Conference</option>
               <option value="2">Seminar or Talk</option>
               <option value="3">Tradeshow, Consumer Show, or Expo</option>
@@ -276,7 +351,6 @@ const EventPublishing = ({eventData}) => {
             </select>
             <div className="flex gap-4">
               <select className="w-full p-2 border border-gray-300 rounded-lg">
-                
                 <option value="103">Music</option>
                 <option value="101">Business &amp; Professional</option>
                 <option value="110">Food &amp; Drink</option>
@@ -301,7 +375,6 @@ const EventPublishing = ({eventData}) => {
               </select>
 
               <select className="w-full p-2 border border-gray-300 rounded-lg">
-                
                 <option value="4001">TV</option>
                 <option value="4002">Film</option>
                 <option value="4003">Anime</option>
@@ -319,9 +392,7 @@ const EventPublishing = ({eventData}) => {
               Help people discover your event by adding tags related to your
               event’s theme, topic, vibe, location, and more.
             </p>
-            <TagsInput/>
-            
-          
+            <TagsInput />
           </div>
         </div>
       </div>
