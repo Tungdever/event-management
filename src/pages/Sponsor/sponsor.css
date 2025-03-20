@@ -1,11 +1,12 @@
 .sponsor-container {
+    color: #6B7280;
     padding: 24px;
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
 }
 
 
-.checkout-page-title {
+.container-title {
     color: #202C4B;
     font-size: 24px;
     font-weight: 700;
@@ -85,71 +86,73 @@
     flex-wrap: wrap;
     padding: 0 12px;
 }
+
 @media (min-width: 768px) {
-    .col-md {
-        flex:1 0 0%
+    .sponsor-container .col-md {
+        flex: 1 0 0%
     }
-    .col-md-auto {
+
+    .sponsor-container .col-md-auto {
         flex: 0 0 auto;
         width: auto
     }
 
-    .col-md-1 {
+    .sponsor-container .col-md-1 {
         flex: 0 0 auto;
         width: 8.33333333%
     }
 
-    .col-md-2 {
+    .sponsor-container .col-md-2 {
         flex: 0 0 auto;
         width: 16.66666667%
     }
 
-    .col-md-3 {
+    .sponsor-container .col-md-3 {
         flex: 0 0 auto;
         width: 25%
     }
 
-    .col-md-4 {
+    .sponsor-container .col-md-4 {
         flex: 0 0 auto;
         width: 33.33333333%
     }
 
-    .col-md-5 {
+    .sponsor-container .col-md-5 {
         flex: 0 0 auto;
         width: 41.66666667%
     }
 
-    .col-md-6 {
+    .sponsor-container .col-md-6 {
         flex: 0 0 auto;
         width: 50%
     }
 
-    .col-md-7 {
+    .sponsor-container .col-md-7 {
         flex: 0 0 auto;
         width: 58.33333333%
     }
 
-    .col-md-8 {
+    .sponsor-container .col-md-8 {
         flex: 0 0 auto;
         width: 66.66666667%
     }
 
-    .col-md-9 {
+    .sponsor-container .col-md-9 {
         flex: 0 0 auto;
         width: 75%
     }
 
-    .col-md-10 {
+    .sponsor-container .col-md-10 {
         flex: 0 0 auto;
         width: 83.33333333%
     }
 
-    .col-md-11 {
+    .sponsor-container .col-md-11 {
         flex: 0 0 auto;
         width: 91.66666667%
     }
 
-    .col-md-12 {
+    .sponsor-container .col-md-12 {
         flex: 0 0 auto;
         width: 100%
     }
@@ -158,81 +161,82 @@
 
 
 @media (min-width: 992px) {
-    .col-lg {
-        flex:1 0 0%
+    .sponsor-container .col-lg {
+        flex: 1 0 0%
     }
-    .col-lg-auto {
+
+    .sponsor-container .col-lg-auto {
         flex: 0 0 auto;
         width: auto
     }
 
-    .col-lg-1 {
+    .sponsor-container .col-lg-1 {
         flex: 0 0 auto;
         width: 8.33333333%
     }
 
-    .col-lg-2 {
+    .sponsor-container .col-lg-2 {
         flex: 0 0 auto;
         width: 16.66666667%
     }
 
-    .col-lg-3 {
+    .sponsor-container .col-lg-3 {
         flex: 0 0 auto;
         width: 25%;
     }
 
-    .col-lg-4 {
+    .sponsor-container .col-lg-4 {
         flex: 0 0 auto;
         width: 33.33333333%
     }
 
-    .col-lg-5 {
+    .sponsor-container .col-lg-5 {
         flex: 0 0 auto;
         width: 41.66666667%
     }
 
-    .col-lg-6 {
+    .sponsor-container .col-lg-6 {
         flex: 0 0 auto;
         width: 50%
     }
 
-    .col-lg-7 {
+    .sponsor-container .col-lg-7 {
         flex: 0 0 auto;
         width: 58.33333333%
     }
 
-    .col-lg-8 {
+    .sponsor-container .col-lg-8 {
         flex: 0 0 auto;
         width: 66.66666667%
     }
 
-    .col-lg-9 {
+    .sponsor-container .col-lg-9 {
         flex: 0 0 auto;
         width: 75%
     }
 
-    .col-lg-10 {
+    .sponsor-container .col-lg-10 {
         flex: 0 0 auto;
         width: 83.33333333%
     }
 
-    .col-lg-11 {
+    .sponsor-container .col-lg-11 {
         flex: 0 0 auto;
         width: 91.66666667%
     }
 
-    .col-lg-12 {
+    .sponsor-container .col-lg-12 {
         flex: 0 0 auto;
         width: 100%
     }
 
 }
 
-.flex-fill {
+.sponsor-container .flex-fill {
     flex: 1 1 auto;
 }
 
-.card-title {
+.sponsor-container .card-title {
     font-size: 12px;
     font-weight: 500;
     margin-bottom: 4px;
@@ -282,18 +286,26 @@
     color: #202C4B;
     line-height: 1.2;
 }
-.modal-body .row>* {
+
+.modal-body .row>*{
     flex-shrink: 0;
     padding-right: 12px;
     padding-left: 12px;
 
 }
+.row.align-items-center>*{
+    flex-shrink: 0;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
 /* Avatar */
-.avt-name{
+.sponsor-container .avt-name {
     display: flex;
     align-items: center;
 }
-.sponsor-container .avatar{
+
+.sponsor-container .avatar {
     width: 32px;
     height: 32px;
 }
@@ -316,10 +328,13 @@
     border-collapse: collapse;
 }
 
+.sponsor-container .table-responsive {
+    overflow-x: auto;
+}
+
 .sponsor-container .table th,
 .sponsor-container .table td {
     vertical-align: middle;
-    white-space: nowrap;
     border-bottom: 1px solid #E5E7EB;
     padding: 10px 8px;
     text-align: left;
@@ -342,6 +357,7 @@
     list-style: none;
 }
 
+.sponsor-container .pagination li button,
 .sponsor-container .pagination li a {
     display: flex;
     align-items: center;
@@ -362,9 +378,9 @@
 }
 
 /* Button */
-.sponsor-container .btn {
+.btn {
     display: inline-block;
-    padding: 8px 12px;
+    padding: 0.5rem 0.85rem;
     font-size: 14px;
     font-weight: 600;
     text-align: center;
@@ -374,14 +390,16 @@
     transition: 0.3s;
 }
 
-.sponsor-container .btn.btn-primary {
+.btn.btn-primary {
     background-color: #F26522;
     color: white;
 }
-.table-action {
+
+.sponsor-container .table-action {
     display: flex;
     gap: 8px;
 }
+
 /* Các button cụ thể */
 .sponsor-container .btn-detail {
     background-color: #ffebea;
@@ -399,14 +417,15 @@
     color: #ff3a26;
 }
 
-.custom-dropdown {
+.sponsor-container .custom-dropdown {
     position: relative;
     display: inline-block;
     margin-right: 15px;
+    z-index: 1;
 }
 
 /* Nút toggle dropdown */
-.custom-dropdown-toggle {
+.sponsor-container .custom-dropdown-toggle {
     background: white;
     border: 1px solid #ccc;
     padding: 8px 16px;
@@ -417,7 +436,7 @@
 }
 
 /* Menu dropdown */
-.custom-dropdown-menu {
+.sponsor-container .custom-dropdown-menu {
     position: absolute;
     top: 100%;
     right: 0;
@@ -432,25 +451,25 @@
 }
 
 /* Các mục trong menu */
-.custom-dropdown-menu li {
+.sponsor-container .custom-dropdown-menu li {
     padding: 8px 12px;
     cursor: pointer;
     transition: background 0.2s;
 }
 
 /* Hover item */
-.custom-dropdown-menu li:hover {
+.sponsor-container .custom-dropdown-menu li:hover {
     background: #ebfbfb;
     color: #F26522;
 }
 
-.custom-dropdown-toggle:focus {
+.sponsor-container .custom-dropdown-toggle:focus {
     background-color: #F26522;
     color: white;
     transition: linear .2s;
 }
 
-.custom-dropdown-toggle:after {
+.sponsor-container .custom-dropdown-toggle:after {
     display: inline-block;
     margin-inline-start: 0.5rem;
     vertical-align: 0;
@@ -565,6 +584,9 @@
 .modal-title {
     margin-bottom: 0;
     line-height: 1.5;
+    font-size: 20px;
+    font-weight: 600;
+    color: #202C4B;
     /* Thay thế $modal-title-line-height */
 }
 
@@ -629,20 +651,24 @@
         max-width: 800px;
     }
 }
+
 ::after,
 ::before {
     box-sizing: border-box;
 }
-.row {
+
+.sponsor-container .row {
     display: flex;
     flex-wrap: wrap;
     margin: 0 -12px;
 }
-.mb-3 {
+
+.sponsor-container .mb-3 {
     margin-bottom: 16px;
 }
+
 /* Khung avatar */
-.avatar-container {
+.sponsor-container .avatar-container {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
@@ -655,51 +681,87 @@
 }
 
 /* Avatar hình tròn */
-.avatar {
+.sponsor-container .custom-avatar {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    border: 2px dashed #ccc;
+    border: 1px solid #ccc;
     overflow: hidden;
     flex-shrink: 0;
+    margin-right: 8px;
+    color: #343a40;
+    font-weight: bold;
+    text-align: center;
+
 }
 
-.avatar img {
+.sponsor-container .custom-avatar-2 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    line-height: 2rem;
+    font-size: 0.8rem;
+    border-radius: 50%;
+    border: 1px solid #E5E7EB;
+    flex-shrink: 0;
+    margin-right: 8px;
+    color: #FFF;
+    font-weight: 500;
+}
+
+.sponsor-container .custom-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    border-radius: 50%;
+    max-width: 100%;
+    vertical-align: middle;
+}
+
+.sponsor-container .file-name-icon img {
+    width: auto;
+    height: auto;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+.sponsor-container .img-fluid {
+    max-width: 100%;
+    height: auto;
 }
 
 /* Phần upload ảnh */
-.profile-upload {
+.sponsor-container .profile-upload {
     flex: 1;
 }
 
-.upload-title {
+.sponsor-container .upload-title {
     margin-bottom: 8px;
     font-size: 16px;
     font-weight: bold;
 }
 
-.upload-subtext {
+.sponsor-container .upload-subtext {
     font-size: 12px;
     color: #666;
 }
 
-.upload-btn {
+.sponsor-container .upload-btn {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.upload-btn input {
+.sponsor-container .upload-btn input {
     display: none;
 }
 
-.upload-btn label {
+.sponsor-container .upload-btn label {
     font-size: 12px;
     padding: 4px 8px;
     background-color: #F26522;
@@ -709,25 +771,24 @@
 }
 
 .cancel-btn {
-    font-size: 12px;
-    padding: 4px 8px;
+    font-size: 14px;
     background-color: #F8F9FA;
     border-radius: 4px;
     cursor: pointer;
     text-decoration: none;
-    color: black;
+    color: #111827;
 }
 
-.cancel-btn:hover {
+.sponsor-container .cancel-btn:hover {
     background-color: #d3d4d5;
 }
 
 /* Form nhóm */
-.form-group {
+.sponsor-container .form-group {
     margin-bottom: 16px;
 }
 
-.form-label {
+.sponsor-container .form-label {
     border-color: #E5E7EB;
     color: #111827;
     background-color: #ffffff;
@@ -740,7 +801,7 @@
     transition: all 0.5s;
 }
 
-.input-field {
+.sponsor-container .input-field {
     width: 100%;
     padding: 8px;
     border: 1px solid #ccc;
@@ -748,11 +809,11 @@
     font-size: 14px;
 }
 
-.required {
+.sponsor-container .required {
     color: red;
 }
 
-.card {
+.sponsor-container .card {
     margin-bottom: 1.5rem;
     background-color: #FFF;
     transition: all 0.5s ease-in-out;
@@ -768,7 +829,7 @@
     background-clip: border-box;
 }
 
-.card .card-header {
+.sponsor-container .card .card-header {
     border-bottom: 1px solid #E5E7EB;
     position: relative;
     background: transparent;
@@ -780,32 +841,32 @@
     gap: 1rem;
 }
 
-.custom-card-body {
+.sponsor-container .custom-card-body {
     padding: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.custom-card-content {
+.sponsor-container .custom-card-content {
     display: flex;
     align-items: center;
     overflow: hidden;
 }
 
-.dataTables_length {
+.sponsor-container .dataTables_length {
     padding: 15px 0;
     margin-left: 20px;
 }
 
-.dataTables_length select {
+.sponsor-container .dataTables_length select {
     width: auto;
     display: inline-block;
     word-wrap: normal;
     text-transform: none;
 }
 
-.dataTables_length label {
+.sponsor-container .dataTables_length label {
     font-weight: normal;
     text-align: left;
     white-space: nowrap;
@@ -815,25 +876,25 @@
     font-size: 14px;
 }
 
-.row.table-length-filter {
+.sponsor-container .row.table-length-filter {
     display: flex;
     align-items: center;
     justify-content: space-between;
 
 }
 
-.dataTables_length select {
+.sponsor-container .dataTables_length select {
     width: auto;
     display: inline-block;
 }
 
-.dataTables_length label .form-select {
+.sponsor-container .dataTables_length label .form-select {
     border: 1px solid #E5E7EB;
     border-radius: 6px;
     color: #374151;
     margin: 0 8px;
-    background-position: right 5px center;
-    padding-right: 15px;
+    background-position: right 0px center;
+    padding-right: 20px;
     line-height: normal;
     background-color: #ffffff;
     font-size: 14px;
@@ -845,13 +906,13 @@
     transition: border-color .15s ease-in-out, box-shadow .15s ease-in-out;
 }
 
-.form-select-sm {
+.sponsor-container .form-select-sm {
     padding-top: .25rem;
     padding-bottom: .25rem;
     padding-left: .5rem;
 }
 
-.card .card-header h5 {
+.sponsor-container .card .card-header h5 {
     font-size: 16px;
     font-weight: 600;
     color: #202C4B;
@@ -860,29 +921,29 @@
 
 }
 
-.dataTables_filter {
+.sponsor-container .dataTables_filter {
     margin: 15px 16px 15px 16px;
 }
 
-.dataTables_filter label {
+.sponsor-container .dataTables_filter label {
     font-weight: normal;
     white-space: nowrap;
     text-align: left;
     display: inline-block;
 }
 
-.dataTables_filter input {
+.sponsor-container .dataTables_filter input {
     display: inline-block;
     width: auto;
 }
 
-.form-control-sm {
+.sponsor-container .form-control-sm {
     font-size: 0.8rem;
     height: auto;
     padding: 0.25rem 0.8rem;
 }
 
-.form-control {
+.sponsor-container .form-control {
     border-color: #E5E7EB;
     color: #111827;
     background-color: #ffffff;
@@ -895,11 +956,89 @@
     border: 1px solid #dee2e6;
     outline: none;
 }
-.dataTables_info{
+
+.sponsor-container .dataTables_info {
     margin-left: 20px;
 }
-.table-info-paginate{
+
+.sponsor-container .table-info-paginate {
     display: flex;
     align-items: center;
     justify-content: space-between;
+}
+
+.sponsor-container .p-3 {
+    padding: 1rem;
+}
+
+.sponsor-container .custom-body-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+}
+
+.sponsor-container .file-name-icon {
+    display: flex;
+    align-items: center;
+    
+}
+
+.sponsor-container .mb-0 {
+    margin-bottom: 0;
+}
+
+.sponsor-container .custom-text {
+    color: #111827;
+    /* text-gray-9 (màu xám nhạt Bootstrap) */
+    font-weight: 500;
+    /* fw-medium (tương đương font-weight: 500) */
+}
+
+.sponsor-container .badge {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    color: #fff;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.375rem;
+}
+
+.sponsor-container .badge {
+    padding: 0.25rem 0.45rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+}
+.sponsor-container .badge.badge-diamond {
+    background: #00c3ff;
+    color: #FFF;
+}
+.sponsor-container .badge.badge-gold {
+    background: #ffaa00;
+    color: #FFF;
+}
+.sponsor-container .badge.badge-silver {
+    background: #b9b8b6;
+    color: #FFF;
+}
+
+.sponsor-container .custom-content-1 {
+    padding-bottom: .25rem;
+    border-bottom: 1px solid #E5E7EB;
+    margin-bottom: 1.5rem ;
+}
+.sponsor-container .custom-row-1{
+    align-items: center;
+}
+.sponsor-container .fs-12 {
+    font-size: 0.75rem;
+}
+.sponsor-container .text-gray-9 {
+    color: #111827;
 }

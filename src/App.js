@@ -16,8 +16,10 @@ import EditEvent from './pages/Event/EditEvent';
 import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';
 import NotificationList from './pages/Dashboard/Notification';
-import Checkout from "./pages/checkout-page";
-import Sponsor from "./pages/sponsor";
+import Checkout from "./pages/Checkout/checkout-page";
+import Sponsor from "./pages/Sponsor/sponsor";
+import Speaker from "./pages/Speaker/speaker"
+import Session from "./pages/Session/session"
 import AddTicket from './pages/Ticket/Add';
 
 const eventData = {
@@ -164,6 +166,8 @@ const MainLayout = () => {
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/sponsor" element={<Sponsor />} />
+            <Route path="/speaker" element={<Speaker />} />
+            <Route path="/session" element={<Session />} />
           </Routes>
         </div>
       )}
