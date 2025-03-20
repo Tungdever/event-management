@@ -1,5 +1,3 @@
-<<<<<<<<< Temporary merge branch 1
-
 import './App.css';
 import EventDetail from './pages/Event/Detail';
 import HomePage from './pages/Event/HomePage';
@@ -22,15 +20,14 @@ import Checkout from "./pages/Checkout/checkout-page";
 import Sponsor from "./pages/Sponsor/sponsor";
 import Speaker from "./pages/Speaker/speaker"
 import Session from "./pages/Session/session"
-import AddTicket from './pages/Ticket/Add';
-
+import AddTicket from './pages/Ticket/AddTicket';
 import ForgotPassword from './pages/Auth/ForgotPass';
 import CRUDEvent from './pages/Event/FullPageCRUDEvent';
 import TicketList from './pages/Ticket/MyTicket';
 import TaskBoard from './pages/Employee/TaskDashboard';
 import Profile from './pages/Dashboard/Profile';
 import EventPublishing from './pages/Event/EventPublishing';
-import AddTicket from "./pages/Ticket/AddTicket"
+
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -175,7 +172,7 @@ const MainLayout = () => {
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/addTicket";
+  || location.pathname === "/addTicket" || location.pathname === "/checkout";
 
   return (
     <div className="w-full min-h-screen bg-while">
@@ -209,7 +206,6 @@ const MainLayout = () => {
             <Route path ="/addticket" element={<AddTicket/>}>  </Route>
             <Route path="/task" element={<TaskBoard />} />
             <Route path="/crudEvent" element={<CRUDEvent/>}></Route>
-            <Route path="/checkout" element={<Checkout />} />
             <Route path="/sponsor" element={<Sponsor />} />
             <Route path="/speaker" element={<Speaker />} />
             <Route path="/session" element={<Session />} />
