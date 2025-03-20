@@ -153,7 +153,7 @@ const TaskCard = ({ id, title, event, startDate, endDate, priority, assignee }) 
       <p className="text-sm text-gray-500">Assigned to: {assignee}</p>
 
       {isOpen && (
-        <Popover className="absolute right-0 mt-2 z-10 bg-gray-200 text-orange-500 shadow-lg rounded-lg p-4 w-64">
+        <Popover className="absolute right-0 mt-2 z-10 bg-gray-100 text-[#6b7280] shadow-lg rounded-lg p-4 w-64">
           <h4 className="font-bold">{title}</h4>
           <p className="text-sm ">Event: {event}</p>
           <p className="text-sm ">Start: {startDate}</p>

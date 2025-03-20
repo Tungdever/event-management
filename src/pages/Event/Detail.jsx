@@ -402,8 +402,12 @@ const EventDetail = ({ event }) => {
                   </div>
                 </div>
                 <div className="flex  items-center mb-4 space-x-4 ">
-                  <p className="text-gray-600 text-[14px]">Free</p>
-                  <FaInfoCircle className="text-blue-700 text-[16px]" />
+                  {/* <p className="text-gray-600 text-[14px]">Free</p>
+                  <FaInfoCircle className="text-blue-700 text-[16px]" /> */}
+                  <select className="w-full bg-gray-100 border-[1px] border-gray-200 rounded-[4px] p-2 border-none mb-4 text-[12px] focus:outline-none focus:border-transparent focus:ring-0">
+                  <option value="1">VIP- 200.00 VND</option>
+                  <option value="1">COMMON- 100.00 VND</option>
+            </select>
                 </div>
               </div>
 

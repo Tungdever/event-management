@@ -24,6 +24,7 @@ import Profile from './pages/Dashboard/Profile';
 import TaskBoard from './pages/Employee/TaskDashboard';
 import TicketList from './pages/Ticket/MyTicket';
 import CRUDEvent from './pages/Event/FullPageCRUDEvent';
+import ForgotPassword from './pages/Auth/ForgotPass';
 
 const eventData = {
   event_id: 1,
@@ -169,7 +170,7 @@ const MainLayout = () => {
   
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
-  || location.pathname === "/login" || location.pathname === "/signup"
+  || location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/forgot"
   || location.pathname === "/checkout"|| location.pathname === "/myticket";
 
   return (
@@ -181,6 +182,7 @@ const MainLayout = () => {
         <Route path="/search" element={<SearchPage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path ="/forgot" element={<ForgotPassword/>} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
       </Routes>

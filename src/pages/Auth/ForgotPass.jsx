@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function SignUp() {
+export default function ForgotPassword() {
   const [timer, setTimer] = useState(60);
 
   const handleResend = () => {
@@ -18,19 +18,19 @@ export default function SignUp() {
             height={40}
             className="mb-4"
           />
-          <h1 className="text-2xl font-semibold mb-6">Sign Up</h1>
+          <h1 className="text-2xl font-semibold mb-6 text-orange-600">Forgot Password</h1>
         </div>
         <form className="space-y-4">
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 mb-4" >
             <input
               type="text"
               placeholder={`${timer}s`}
               className="border border-gray-300 rounded-lg p-2 flex-grow"
-              readOnly
+              
             />
             <button
               type="button"
-              className="bg-blue-500 text-white rounded-lg px-4 py-2"
+              className="bg-orange-500 text-white rounded-lg px-4 py-2"
               onClick={handleResend}
             >
               Gửi lại
@@ -38,7 +38,7 @@ export default function SignUp() {
           </div>
           <button
             type="submit"
-            className="bg-blue-500 text-white w-full rounded-lg py-2"
+            className="bg-orange-500 text-white w-full rounded-lg py-2"
           >
             Xác Nhận
           </button>

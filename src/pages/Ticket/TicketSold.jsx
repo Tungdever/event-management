@@ -23,9 +23,9 @@ const TicketDashboard = () => {
       
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         {["Net Sales", "Tickets Sold", "Page Views"].map((title, index) => (
-          <div key={index} className="p-6 bg-white rounded-md shadow">
-            <div className="text-gray-600">{title}</div>
-            <div className="text-2xl font-bold text-gray-900">{title === "Tickets Sold" ? "0/100" : "$0.00"}</div>
+          <div key={index} className="p-4 bg-white rounded-md shadow border border-orange-600">
+            <div className="text-orange-600 p-2">{title}</div>
+            <div className="text-2xl font-bold text-orange-900 p-2">{title === "Tickets Sold" ? "0/100" : "$0.00"}</div>
           </div>
         ))}
       </div>
@@ -50,7 +50,7 @@ const TicketDashboard = () => {
         <h2 className="text-xl font-bold text-gray-900">Sales by ticket type</h2>
         <table className="mt-4 w-full bg-white rounded-md  border border-gray-200">
           <thead>
-            <tr className="text-left bg-gray-200 text-gray-700">
+            <tr className="text-left bg-gray-200 text-orange-500">
               <th className="px-4 py-2">Ticket type</th>
               <th className="px-4 py-2">Sold</th>
               <th className="px-4 py-2">Price</th>
@@ -75,7 +75,7 @@ const TicketDashboard = () => {
         <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
         <table className="mt-4 w-full bg-white rounded-[20px]   border border-gray-200" >
           <thead>
-            <tr className="text-left bg-gray-200 text-gray-700">
+            <tr className="text-left bg-gray-200 text-orange-500">
               <th className="px-4 py-2">Order #</th>
               <th className="px-4 py-2">Name</th>
               <th className="px-4 py-2">Quantity</th>

@@ -37,7 +37,7 @@ const EventsPage = () => {
   return (
    
       <div className="container mx-auto p-6">
-        <h1 className="text-4xl font-bold text-purple-900">Events</h1>
+        <h1 className="text-4xl font-bold text-[#202C4B]">Events</h1>
         <div className="flex items-center mt-6">
           <nav className="flex space-x-4">
             {["Events", "Collections"].map((tab) => (
