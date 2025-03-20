@@ -1,5 +1,5 @@
 import React from 'react'
-import './checkout-page.css'
+import "../Checkout/checkout-page.css"
 import { useState } from "react";
 import { motion } from "framer-motion";
 const CheckoutPage = (props) => {
