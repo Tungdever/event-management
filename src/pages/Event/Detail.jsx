@@ -375,7 +375,7 @@ const EventDetail = ({ event }) => {
               <Timeline sections={sections} />
             </div>
             {/* Ticket order */}
-            <div className="max-w-[350px] min-w-[330px] h-60 bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10 sticky top-4">
+            <div className="max-w-[400px] min-w-[350px] h-100 bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10 sticky top-4">
               <div className="flex-col justify-between items-center mb-4 p-4 border border-[3px] border-blue-800 rounded-lg">
                 <div className="flex items-center my-4">
                   <p className="text-gray-900 font-semibold mr-4 text-[16px]">

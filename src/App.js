@@ -25,8 +25,9 @@ import ForgotPassword from './pages/Auth/ForgotPass';
 import CRUDEvent from './pages/Event/FullPageCRUDEvent';
 import TicketList from './pages/Ticket/MyTicket';
 import TaskBoard from './pages/Employee/TaskDashboard';
-import Profile from './pages/Dashboard/Profile';
+
 import EventPublishing from './pages/Event/EventPublishing';
+import ViewProfile from './pages/Dashboard/ViewProfile';
 
 const eventData = {
   event_id: 1,
@@ -166,7 +167,25 @@ const ticketData = [
   },
 ];
 
-
+const profileData = [
+  {
+    fullName: "Michael Johnson",
+    title: "Event Organizer & Planner",
+    desc: "Experienced event planner specializing in corporate events, conferences, and social gatherings. Passionate about creating seamless and memorable experiences.",
+    firstName: "Michael",
+    lastName: "Johnson",
+    birthday: "1985-06-15",
+    gender: "Male",
+    email: "michael.johnson@example.com",
+    phone: "+1 555-123-4567",
+    permanentAddress: "123 Main Street, New York, NY, USA",
+    country: "USA",
+    state: "New York",
+    currentAddress: "456 Elm Street, Brooklyn, NY, USA",
+    organizer: "Founder & CEO of MJ Event Management",
+    education: "Bachelor's Degree in Event Management, University of California",
+  }
+];
 const MainLayout = () => {
   const location = useLocation();
   const isFullScreenPage = location.pathname === "/" 
@@ -202,13 +221,14 @@ const MainLayout = () => {
             <Route path="/publicEvent" element={<EventPublishing eventData={eventData}/>} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />
-            <Route path="/profile" element={<Profile/>}></Route>
+           
             <Route path ="/addticket" element={<AddTicket/>}>  </Route>
             <Route path="/task" element={<TaskBoard />} />
             <Route path="/crudEvent" element={<CRUDEvent/>}></Route>
             <Route path="/sponsor" element={<Sponsor />} />
             <Route path="/speaker" element={<Speaker />} />
             <Route path="/session" element={<Session />} />
+            <Route path="/view" element={<ViewProfile infor={profileData[0]}/>} />
           </Routes>
         </div>
       )}

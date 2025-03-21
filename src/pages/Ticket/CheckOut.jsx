@@ -22,7 +22,7 @@ const Checkout = ({ onClose }) => {
       <div className="max-w-4xl bg-white rounded-lg shadow-lg p-6 relative">
         {/* Nút đóng popup */}
         <button onClick={onClose} className="absolute top-2 right-2 text-gray-500">
-          <i className="fas fa-times"></i>
+          <i className="fas fa-times p-4 m-4 hover:text-orange-500"></i>
         </button>
         
         {/* Nội dung form */}
@@ -32,13 +32,13 @@ const Checkout = ({ onClose }) => {
               <i className="fas fa-arrow-left text-xl"></i>
               <h2 className="text-xl font-semibold ml-4">Checkout</h2>
             </div>
-            <p className="text-gray-500 mb-4">Time left 18:55</p>
+            
             <h3 className="text-2xl font-bold mb-4">Contact information</h3>
             <p className="text-gray-700 mb-4">
               Logged in as <span className="font-semibold">{email}</span>.{' '}
               <a className="text-blue-500" href="#">Not you?</a>
             </p>
-            <p className="text-red-500 mb-4">* Required</p>
+           
             <form>
               <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
                 <div className="w-full md:w-1/2">
@@ -77,9 +77,7 @@ const Checkout = ({ onClose }) => {
           <div className="w-full md:w-1/3 bg-gray-100 p-6">
             <div className="relative mb-4">
              
-              <button className="absolute top-2 right-2 text-gray-500">
-                <i className="fas fa-times"></i>
-              </button>
+              
             </div>
             <h3 className="text-xl font-semibold mb-4">Order summary</h3>
             <p className="text-gray-700 mb-2">Wednesday, July 16 · 10am - 5pm +07</p>

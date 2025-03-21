@@ -25,7 +25,7 @@ const defaultMenuItems = [
         { title: "Create Speaker", path: "/createSpeaker" },
         { title: "Edit Speaker", path: "/editSpeaker" },
       ] },
-      { title: "Section", path: "/section" ,sub_submenu :[
+      { title: "Session", path: "/session" ,sub_submenu :[
         { title: "Create Section", path: "/createSection" },
         { title: "Edit Section", path: "/editSection" },
       ] },
@@ -50,7 +50,7 @@ const defaultMenuItems = [
     path: "/setting",
     icon: <FaCogs />,
     submenu: [
-      { title: "Profile", path: "/profile" },
+      { title: "Profile", path: "/view" },
       { title: "Notification", path: "/notification" },
     ],
   },
@@ -97,7 +97,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
     <li className="mb-2">
       <div
         className={`flex justify-between items-center px-2 py-2 rounded-lg cursor-pointer transition-all duration-300 
-        text-[14px] font-medium hover:bg-gray-100 hover:text-orange-500 ${isOpen ? "bg-gray-200 text-orange-500" : ""}`}
+        text-[14px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
         onClick={menu.submenu ? onClick : null}
       >
         <div className="flex items-center">
@@ -115,8 +115,8 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
               <Link
                 to={sub.path}
                 className={`block px-2 ml-2 py-2 rounded-lg transition-all text-[14px] 
-                ${activeSubmenu === sub.title ? "text-orange-600 font-semibold" : "text-gray-700"} 
-                hover:bg-gray-100 hover:text-orange-500`}
+                ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
+                hover:bg-gray-100 hover:text-[#0357AF]`}
                 onClick={() => setActiveSubmenu(sub.title)}
               >
                 {sub.title}
