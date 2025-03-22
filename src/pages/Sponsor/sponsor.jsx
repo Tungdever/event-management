@@ -851,7 +851,7 @@ const Sponsor = () => {
                 <th>Tel</th>
                 <th>Website</th>
                 <th>Status</th>
-                <th>Action</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>

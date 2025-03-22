@@ -27,6 +27,8 @@ import TicketList from './pages/Ticket/MyTicket';
 import TaskBoard from './pages/Employee/TaskDashboard';
 
 import EventPublishing from './pages/Event/EventPublishing';
+import Refund from './pages/Refund/refund'
+import RefundManagement from './pages/Refund/refund_management'
 import ViewProfile from './pages/Dashboard/ViewProfile';
 
 const eventData = {
@@ -191,7 +193,7 @@ const MainLayout = () => {
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/addTicket" || location.pathname === "/checkout";
+  || location.pathname === "/addTicket" || location.pathname === "/checkout" || location.pathname === "/refund";
 
   return (
     <div className="w-full min-h-screen bg-while">
@@ -205,6 +207,7 @@ const MainLayout = () => {
         <Route path ="/forgot" element={<ForgotPassword/>} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
+        <Route path ="/refund" element={<Refund />}></Route>
       </Routes>
 
       {!isFullScreenPage && (
@@ -228,6 +231,7 @@ const MainLayout = () => {
             <Route path="/sponsor" element={<Sponsor />} />
             <Route path="/speaker" element={<Speaker />} />
             <Route path="/session" element={<Session />} />
+            <Route path="/dashboard/refund" element={<RefundManagement />} />
             <Route path="/view" element={<ViewProfile infor={profileData[0]}/>} />
           </Routes>
         </div>
