@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 
-const AddTicket = () => {
+const AddTicket = ({ tickets, setTickets, onNext }) => {
   const [ticketType, setTicketType] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
   const [showOverview, setShowOverView] = useState(false);
@@ -50,7 +50,7 @@ const AddTicket = () => {
     }, 500);
   }, []);
 
-  const [tickets, setTickets] = useState([]);
+
   const [ticketData, setTicketData] = useState({
     name: "",
     quantity: 0,

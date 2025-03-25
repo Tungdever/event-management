@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { FaUser, FaList } from "react-icons/fa";
 
-const SectionEvent = () => {
-  const [slots, setSlots] = useState([]);
+const SectionEvent = ({ slots, setSlots }) => {
+
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [desc, setDesc] = useState(false);

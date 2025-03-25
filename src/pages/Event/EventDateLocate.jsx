@@ -163,17 +163,9 @@ const OverView = ({ formData, setShowDetail }) => {
   );
 };
 
-const DatetimeLocation = () => {
+const DatetimeLocation = ({formData, setFormData }) => {
   const [showDetail, setShowDetail] = useState(false);
-  const [formData, setFormData] = useState({
-    date: "",
-    startTime: "",
-    endTime: "",
-    locationType: "online",
-    venueName: "",
-    address: "",
-    city: "",
-  });
+  
 
   return (
     <div>

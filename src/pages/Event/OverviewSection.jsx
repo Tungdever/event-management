@@ -75,9 +75,9 @@ const Overview = ({ setShowOverview, content, setContent }) => {
   );
 };
 
-const OverviewSection = () => {
+const OverviewSection = ({ content, setContent }) => {
   const [showOverview, setShowOverview] = useState(false);
-  const [content, setContent] = useState({ text: "", media: [] });
+  
 
   return (
     <div>

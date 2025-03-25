@@ -25,7 +25,7 @@ import ForgotPassword from './pages/Auth/ForgotPass';
 import CRUDEvent from './pages/Event/FullPageCRUDEvent';
 import TicketList from './pages/Ticket/MyTicket';
 import TaskBoard from './pages/Employee/TaskDashboard';
-
+import EventManagement from './pages/CRUD_Event/CRUDEvent';
 import EventPublishing from './pages/Event/EventPublishing';
 import ViewProfile from './pages/Dashboard/ViewProfile';
 
@@ -229,6 +229,7 @@ const MainLayout = () => {
             <Route path="/speaker" element={<Speaker />} />
             <Route path="/session" element={<Session />} />
             <Route path="/view" element={<ViewProfile infor={profileData[0]}/>} />
+            <Route path ="/eventcreate" element={<EventManagement/>}>  </Route>
           </Routes>
         </div>
       )}

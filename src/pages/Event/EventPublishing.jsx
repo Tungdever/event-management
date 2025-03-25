@@ -1,14 +1,7 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
-const TagsInput = () => {
-  const [tags, setTags] = useState([
-    "mental_health",
-    "first_aid",
-    "training",
-    "cpd_accredited",
-    "wellness",
-  ]);
-
+const TagsInput = ({ tags, setTags }) => {
+  
   const removeTag = (tagToRemove) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
@@ -53,11 +46,17 @@ const TagsInput = () => {
     </div>
   );
 };
-const PublishSettings = () => {
-  const [eventVisibility, setEventVisibility] = useState("public");
-  const [publishTime, setPublishTime] = useState("now");
-  const [refunds ,setRefunds] = useState("yes")
-  const [validityDays, setValidityDays] = useState(7);
+const PublishSettings = ({
+  eventVisibility,
+  setEventVisibility,
+  publishTime,
+  setPublishTime,
+  refunds,
+  setRefunds,
+  validityDays,
+  setValidityDays,
+}) => {
+
 
   const handleChange = (event) => {
     setValidityDays(event.target.value);
@@ -250,7 +249,19 @@ const PublishSettings = () => {
     </div>
   );
 };
-const EventPublishing = ({ eventData }) => {
+const EventPublishing = ({
+  eventData,
+  tags,
+  setTags,
+  eventVisibility,
+  setEventVisibility,
+  publishTime,
+  setPublishTime,
+  refunds,
+  setRefunds,
+  validityDays,
+  setValidityDays,
+}) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -392,11 +403,20 @@ const EventPublishing = ({ eventData }) => {
               Help people discover your event by adding tags related to your
               event’s theme, topic, vibe, location, and more.
             </p>
-            <TagsInput />
+            <TagsInput tags={tags} setTags={setTags} />
           </div>
         </div>
       </div>
-      <PublishSettings />
+      <PublishSettings
+              eventVisibility={eventVisibility}
+              setEventVisibility={setEventVisibility}
+              publishTime={publishTime}
+              setPublishTime={setPublishTime}
+              refunds={refunds}
+              setRefunds={setRefunds}
+              validityDays={validityDays}
+              setValidityDays={setValidityDays}
+            />
     </div>
   );
 };

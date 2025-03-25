@@ -160,9 +160,9 @@ const UploadedImagesSlider = ({ images }) => {
   );
 };
 
-const UploadContainer = () => {
+const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
   const [showUpload, setShowUpload] = useState(false);
-  const [uploadedImages, setUploadedImages] = useState([]);
+  
 
   return (
     <div>
