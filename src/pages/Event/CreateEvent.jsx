@@ -99,15 +99,7 @@ const EventForm = () => {
     <DatetimeLocation />
     {/* Overview Section */}
     <OverviewSection />
-    {/* {!showOverview ? (
-      <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
-       onClick={() => setShowOverView(true)}>             
-          <h2 className="text-2xl font-semibold mb-2">Over View</h2>
-          <span className="text-[14px] text-gray-600 mb-2">{summary}</span>
-      </div>
-    ) : (
-      <Overview />
-    )} */}
+  
 
     {/* Save Button */}
     <div className="text-right">

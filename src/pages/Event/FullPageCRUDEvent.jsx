@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import EventForm from "./CreateEvent";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
+
 const eventData = {
     event_id: 1,
     event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -19,6 +20,7 @@ const eventData = {
   };
 
 const CRUDEvent = () => {
+  
   const [selectedStep, setSelectedStep] = useState("build");
 
   const renderStepComponent = () => {
