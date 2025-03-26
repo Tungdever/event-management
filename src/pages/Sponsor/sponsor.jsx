@@ -26,6 +26,8 @@ const Sponsor = () => {
     Silver: { class: "badge-silver", icon: "ti ti-coins" },
   };
 
+  // =====================================================================
+  // Danh sách sponsor
   const [sponsors, setSponsors] = useState([
     {
       sponsor_id: "1",
@@ -241,7 +243,7 @@ const Sponsor = () => {
     );
 
     // Reset form
-    setNewSponsor({
+    setSelectedSponsor({
       sponsor_id: "",
       sponsor_name: "",
       sponsor_logo: "",
@@ -425,7 +427,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_name: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_name}</p>}
+                      {empty.sponsor_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_name}</p>}
                     </div>
                   </div>
 
@@ -437,7 +439,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_email: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_email}</p>}
+                      {empty.sponsor_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_email}</p>}
                     </div>
                   </div>
 
@@ -449,7 +451,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_address: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1">{empty.sponsor_address}</p>}
+                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_address}</p>}
                     </div>
 
                   </div>
@@ -461,7 +463,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_tel: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1">{empty.sponsor_tel}</p>}
+                      {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_tel}</p>}
                     </div>
                   </div>
 
@@ -473,7 +475,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_website: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_website && <p className="text-red-500 text-sm mt-1">{empty.sponsor_website}</p>}
+                      {empty.sponsor_website && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_website}</p>}
                     </div>
 
                   </div>
@@ -486,7 +488,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_representative_name: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_name}</p>}
+                      {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_name}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -497,7 +499,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_representative_position: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_position}</p>}
+                      {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_position}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -508,7 +510,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_representative_email: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_email}</p>}
+                      {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_email}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -519,7 +521,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_representative_phone: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_phone}</p>}
+                      {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_phone}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -554,7 +556,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_amount: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1">{empty.sponsor_amount}</p>}
+                      {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_amount}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -584,7 +586,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_contribution: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contribution}</p>}
+                      {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_contribution}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -595,7 +597,7 @@ const Sponsor = () => {
                           setNewSponsor({ ...newSponsor, sponsor_contract: e.target.value })
                         } />
                       </div>
-                      {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contract}</p>}
+                      {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_contract}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
@@ -623,8 +625,7 @@ const Sponsor = () => {
                       <div className="form-group">
                         <label className="form-label">Status<span className="required">*</span></label>
                         <select
-                          className="input-field"
-                          value={newSponsor.sponsor_status}
+
                           onChange={(e) =>
                             setNewSponsor({ ...newSponsor, sponsor_status: e.target.value })
                           }
@@ -815,7 +816,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_name}</p>}
+                    {empty.sponsor_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_name}</p>}
                   </div>
 
                   <div className="col-md-6">
@@ -831,7 +832,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_email}</p>}
+                    {empty.sponsor_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_email}</p>}
                   </div>
 
                   <div className="col-md-12">
@@ -846,7 +847,7 @@ const Sponsor = () => {
                             }))
                           } />
                       </div>
-                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1">{empty.sponsor_address}</p>}
+                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_address}</p>}
                     </div>
 
                   </div>
@@ -863,7 +864,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1">{empty.sponsor_tel}</p>}
+                    {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_tel}</p>}
                   </div>
 
                   <div className="col-md-6">
@@ -879,7 +880,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_website && <p className="text-red-500 text-sm mt-1">{empty.sponsor_website}</p>}
+                    {empty.sponsor_website && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_website}</p>}
                   </div>
 
                   <div className="col-md-6">
@@ -895,7 +896,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_name}</p>}
+                    {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_name}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -910,7 +911,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_position}</p>}
+                    {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_position}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -925,7 +926,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_email}</p>}
+                    {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_email}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -940,7 +941,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_phone}</p>}
+                    {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_representative_phone}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -984,7 +985,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1">{empty.sponsor_amount}</p>}
+                    {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_amount}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -1021,7 +1022,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contribution}</p>}
+                    {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_contribution}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -1036,7 +1037,7 @@ const Sponsor = () => {
                           } />
                       </div>
                     </div>
-                    {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contract}</p>}
+                    {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1 mb-1">{empty.sponsor_contract}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
