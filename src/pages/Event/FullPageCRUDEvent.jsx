@@ -2,79 +2,18 @@ import React, { useState, useEffect } from "react";
 import EventForm from "./CreateEvent";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
-const initialEventData = {
-  event_id: 1,
-  event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
-  event_image: "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-  event_name: "Acoustic Night 2025",
-  man_id: 101,
-  mc_id: 202,
-  event_type: "Concert",
-  event_host: "Công ty Âm Nhạc XYZ",
-  event_location: "Sheraton Hanoi Hotel 11 Đường Xuân Diệu Hanoi, Hà Nội",
-  event_status: "Sắp diễn ra",
-  event_start: "2025-03-15T19:00:00",
-  event_end: "2025-03-15T22:00:00",
-};
-
-// Hàm lưu trữ tất cả trạng thái vào localStorage
-const saveToLocalStorage = (state) => {
-  try {
-    const serializedState = {
-      selectedStep: state.selectedStep,
-      eventData: state.eventData,
-      tickets: state.tickets,
-      tags: state.tags,
-      eventVisibility: state.eventVisibility,
-      publishTime: state.publishTime,
-      refunds: state.refunds,
-      validityDays: state.validityDays,
-      uploadedImages: state.uploadedImages,
-      eventTitle: state.eventTitle,
-      summary: state.summary,
-      agendaSlots: state.agendaSlots,
-      locationData: state.locationData,
-      overviewContent: state.overviewContent,
-    };
-    localStorage.setItem("eventState", JSON.stringify(serializedState));
-  } catch (error) {
-    console.error("Error saving to localStorage:", error);
-  }
-};
-
-// Hàm khôi phục trạng thái từ localStorage (tùy chọn)
-const loadFromLocalStorage = () => {
-  try {
-    const savedState = localStorage.getItem("eventState");
-    return savedState ? JSON.parse(savedState) : null;
-  } catch (error) {
-    console.error("Error loading from localStorage:", error);
-    return null;
-  }
-};
 
 const CRUDEvent = () => {
-  // Khởi tạo state, sử dụng dữ liệu từ localStorage nếu có
-  const savedState = loadFromLocalStorage();
-  const [selectedStep, setSelectedStep] = useState(savedState?.selectedStep || "build");
-  const [eventData, setEventData] = useState(savedState?.eventData || initialEventData);
-  const [tickets, setTickets] = useState(savedState?.tickets || []);
-  const [tags, setTags] = useState(savedState?.tags || ["mental_health", "first_aid", "training", "cpd_accredited", "wellness"]);
-  const [eventVisibility, setEventVisibility] = useState(savedState?.eventVisibility || "public");
-  const [publishTime, setPublishTime] = useState(savedState?.publishTime || "now");
-  const [refunds, setRefunds] = useState(savedState?.refunds || "yes");
-  const [validityDays, setValidityDays] = useState(savedState?.validityDays || 7);
-  const [uploadedImages, setUploadedImages] = useState(savedState?.uploadedImages || []);
-  const [eventTitle, setEventTitle] = useState(
-    savedState?.eventTitle || "Mental Health First Aid (MHFA) Training (CPD Accredited)"
-  );
-  const [summary, setSummary] = useState(
-    savedState?.summary ||
-      "Join our MHFA course to learn vital mental health first aid skills, supporting others in times of crisis with confidence and compassion."
-  );
-  const [agendaSlots, setAgendaSlots] = useState(savedState?.agendaSlots || []);
-  const [locationData, setLocationData] = useState(
-    savedState?.locationData || {
+  const [selectedStep, setSelectedStep] = useState("build");
+  const [event, setEvent] = useState({
+    eventName: "",
+    eventDesc: "",
+    eventType: "",
+    eventHost: "",
+    eventStatus: "",
+    eventStart: "",
+    eventEnd: "",
+    eventLocation: {
       date: "",
       startTime: "",
       endTime: "",
@@ -82,86 +21,185 @@ const CRUDEvent = () => {
       venueName: "",
       address: "",
       city: "",
-    }
-  );
-  const [overviewContent, setOverviewContent] = useState(savedState?.overviewContent || { text: "", media: [] });
+    },
+    tags: [
+      "mental_health",
+      "first_aid",
+      "training",
+      "cpd_accredited",
+      "wellness",
+    ],
+    eventVisibility: "public",
+    publishTime: "now",
+    refunds: "yes",
+    validityDays: 7,
+    uploadedImages: [],
+    overviewContent: { text: "", media: [] },
+    tickets: [],
+  });
 
-  // Lưu trữ state vào localStorage mỗi khi bất kỳ trạng thái nào thay đổi
-  useEffect(() => {
-    const currentState = {
-      selectedStep,
-      eventData,
-      tickets,
-      tags,
-      eventVisibility,
-      publishTime,
-      refunds,
-      validityDays,
-      uploadedImages,
-      eventTitle,
-      summary,
-      agendaSlots,
-      locationData,
-      overviewContent,
+  const uploadFilesToCloudinary = async (files) => {
+    const uploadedIds = [];
+    const fileList = files.map((item) =>
+      typeof item === "object" && item.url ? item.url : item
+    );
+
+    for (const file of fileList) {
+      try {
+        let blob;
+        if (typeof file === "string" && file.startsWith("blob:")) {
+          const response = await fetch(file);
+          if (!response.ok) throw new Error(`Failed to fetch blob: ${file}`);
+          blob = await response.blob();
+        } else if (file instanceof File || file instanceof Blob) {
+          blob = file;
+        } else {
+          console.warn("Invalid file type, skipping:", file);
+          continue;
+        }
+
+        const formData = new FormData();
+        formData.append("file", blob);
+
+        const response = await fetch("http://localhost:8080/api/storage/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Upload failed: ${errorText}`);
+        }
+
+        const result = await response.text();
+        const publicId = result.split("File uploaded: ")[1];
+        if (!publicId) throw new Error("Invalid public_id in response: " + result);
+
+        uploadedIds.push(publicId);
+      } catch (error) {
+        console.error("Error uploading file:", file, error);
+        uploadedIds.push(null);
+      }
+    }
+
+    return uploadedIds.filter((id) => id !== null);
+  };
+
+  const saveEventToDatabase = async (eventData) => {
+    const dataEvent = {
+      eventName: eventData.eventName || "",
+      eventDesc: eventData.eventDesc || "",
+      eventType: eventData.eventType || "",
+      eventHost: eventData.eventHost || "",
+      eventStatus: eventData.eventStatus || "public",
+      eventStart: eventData.eventLocation.date && eventData.eventLocation.startTime
+        ? `${eventData.eventLocation.date} ${eventData.eventLocation.startTime}`
+        : "",
+      eventEnd: eventData.eventLocation.date && eventData.eventLocation.endTime
+        ? `${eventData.eventLocation.date} ${eventData.eventLocation.endTime}`
+        : "",
+      eventLocation:
+        eventData.eventLocation.locationType === "online"
+          ? "Online"
+          : `${eventData.eventLocation.venueName || ""} ${eventData.eventLocation.address || ""} ${eventData.eventLocation.city || ""}`.trim(),
+      tags: eventData.tags.join("|"),
+      eventVisibility: eventData.eventVisibility || "public",
+      publishTime: eventData.publishTime || "now",
+      refunds: eventData.refunds || "no",
+      validityDays: eventData.validityDays || 7,
+      eventImages: eventData.uploadedImages || [],
+      textContent: eventData.overviewContent.text || "",
+      mediaContent: eventData.overviewContent.media.map((item) => item.url) || [],
     };
-    saveToLocalStorage(currentState);
-  }, [
-    selectedStep,
-    eventData,
-    tickets,
-    tags,
-    eventVisibility,
-    publishTime,
-    refunds,
-    validityDays,
-    uploadedImages,
-    eventTitle,
-    summary,
-    agendaSlots,
-    locationData,
-    overviewContent,
-  ]);
+
+    try {
+      const response = await fetch("http://localhost:8080/api/events/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataEvent),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to save event: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log("Event saved to database:", result);
+      return result;
+    } catch (error) {
+      console.error("Error saving event to database:", error);
+      throw error;
+    }
+  };
+
+  const handlePublish = async () => {
+    try {
+      // Bước 1: Upload files lên Cloudinary
+      const uploadedImageIds = await uploadFilesToCloudinary(event.uploadedImages);
+      const uploadedMediaIds = await uploadFilesToCloudinary(
+        event.overviewContent.media
+      );
+
+      if (uploadedImageIds.length === 0 && uploadedMediaIds.length === 0) {
+        throw new Error("No files were uploaded successfully.");
+      }
+
+      // Bước 2: Cập nhật event với public_id từ Cloudinary
+      const updatedEvent = {
+        ...event,
+        uploadedImages: uploadedImageIds,
+        overviewContent: {
+          ...event.overviewContent,
+          media: uploadedMediaIds.map((id, index) => ({
+            type: event.overviewContent.media[index]?.type || "image",
+            url: id,
+          })),
+        },
+      };
+      setEvent(updatedEvent);
+
+      // Bước 3: Gửi dữ liệu event về backend để lưu vào database
+      await saveEventToDatabase(updatedEvent);
+
+      console.log("Event published and saved:", updatedEvent);
+      alert(
+        `Event published successfully!\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}`
+      );
+    } catch (error) {
+      console.error("Failed to publish event:", error);
+      alert(`Failed to process event: ${error.message}`);
+    }
+  };
 
   const renderStepComponent = () => {
     switch (selectedStep) {
       case "build":
         return (
           <EventForm
-            eventTitle={eventTitle}
-            setEventTitle={setEventTitle}
-            summary={summary}
-            setSummary={setSummary}
-            uploadedImages={uploadedImages}
-            setUploadedImages={setUploadedImages}
-            agendaSlots={agendaSlots}
-            setAgendaSlots={setAgendaSlots}
-            locationData={locationData}
-            setLocationData={setLocationData}
-            overviewContent={overviewContent}
-            setOverviewContent={setOverviewContent}
+            event={event}
+            setEvent={setEvent}
             onNext={() => setSelectedStep("tickets")}
           />
         );
       case "tickets":
-        return <AddTicket tickets={tickets} setTickets={setTickets} onNext={() => setSelectedStep("publish")} />;
-      case "publish":
         return (
-          <EventPublishing
-            eventData={eventData}
-            tags={tags}
-            setTags={setTags}
-            eventVisibility={eventVisibility}
-            setEventVisibility={setEventVisibility}
-            publishTime={publishTime}
-            setPublishTime={setPublishTime}
-            refunds={refunds}
-            setRefunds={setRefunds}
-            validityDays={validityDays}
-            setValidityDays={setValidityDays}
+          <AddTicket
+            tickets={event.tickets}
+            setTickets={(newTickets) =>
+              setEvent((prev) => ({ ...prev, tickets: newTickets }))
+            }
+            onNext={() => setSelectedStep("publish")}
           />
         );
+      case "publish":
+        return (
+          <EventPublishing event={event} setEvent={setEvent} onPublish={handlePublish} />
+        );
       default:
-        return <EventForm />;
+        return <EventForm event={event} setEvent={setEvent} />;
     }
   };
 
@@ -169,10 +207,16 @@ const CRUDEvent = () => {
     <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
       <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
-          <h2 className="text-lg font-semibold">{eventTitle}</h2>
+          <h2 className="text-lg font-semibold">
+            {event.eventName || "Untitled Event"}
+          </h2>
           <div className="flex items-center text-gray-500 mt-2">
             <i className="far fa-calendar-alt mr-2"></i>
-            <span>Wed, Apr 16, 2025, 10:00 AM</span>
+            <span>
+              {event.eventLocation.date && event.eventLocation.startTime
+                ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
+                : "Date and time not set"}
+            </span>
           </div>
           <div className="flex items-center mt-4">
             <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
@@ -186,7 +230,10 @@ const CRUDEvent = () => {
         <h3 className="text-lg font-semibold mb-2">Steps</h3>
         <div className="space-y-2">
           {["build", "tickets", "publish"].map((step) => (
-            <label key={step} className="flex items-center space-x-2 cursor-pointer">
+            <label
+              key={step}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
               <input
                 type="radio"
                 name="eventStep"

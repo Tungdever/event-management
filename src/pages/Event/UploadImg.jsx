@@ -3,8 +3,8 @@ import Cropper from "react-easy-crop";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
-  const [images, setImages] = useState([]);
+const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
+  const [images, setImages] = useState(uploadedImages || []); // Đồng bộ với uploadedImages từ cha
   const [cropImage, setCropImage] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -14,18 +14,24 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
-    if (files.length + images.length > 3) return;
+    if (files.length + images.length > 3) {
+      alert("You can upload a maximum of 3 images.");
+      return;
+    }
 
     const newImages = files.map((file) => URL.createObjectURL(file));
-    setCropImage(newImages[0]); 
+    setCropImage(newImages[0]);
     setShowCropper(true);
   };
 
-  const onCropComplete = useCallback(async (croppedArea, croppedPixels) => {
-    setCroppedAreaPixels(croppedPixels);
-    const croppedImg = await getCroppedImg(cropImage, croppedPixels);
-    setCroppedPreview(croppedImg); 
-  }, [cropImage]);
+  const onCropComplete = useCallback(
+    async (croppedArea, croppedPixels) => {
+      setCroppedAreaPixels(croppedPixels);
+      const croppedImg = await getCroppedImg(cropImage, croppedPixels);
+      setCroppedPreview(croppedImg);
+    },
+    [cropImage]
+  );
 
   const getCroppedImg = async (imageSrc, cropArea) => {
     const image = await createImage(imageSrc);
@@ -57,25 +63,33 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
   const handleSaveCrop = async () => {
     if (!cropImage || !croppedAreaPixels) return;
     const croppedImg = await getCroppedImg(cropImage, croppedAreaPixels);
-    setImages([...images, croppedImg]);
-    setUploadedImages([...images, croppedImg]); 
+    const updatedImages = [...images, croppedImg];
+    setImages(updatedImages);
+    setUploadedImages(updatedImages); // Truyền danh sách hình ảnh mới về cha
     setShowCropper(false);
+    setCropImage(null); // Reset cropImage sau khi lưu
+    setCroppedPreview(null); // Reset preview
+  };
+
+  const handleComplete = () => {
+    setUploadedImages(images); // Đảm bảo dữ liệu cuối cùng được gửi về cha
+    setShowUpload(false);
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4 ">
+    <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <h1 className="text-2xl font-semibold mb-4">Add images</h1>
 
       <div className="mb-6">
         <h2 className="text-xl font-semibold mb-2">Images</h2>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mb-2">
-        <img
-              src="https://mybic.vn/uploads/news/default/no-image.png"
-              alt="Placeholder"
-              className="mb-4"
-              width="160"
-              height="120"
-            />
+          <img
+            src="https://mybic.vn/uploads/news/default/no-image.png"
+            alt="Placeholder"
+            className="mb-4"
+            width="160"
+            height="120"
+          />
           <input
             type="file"
             accept="image/jpeg, image/png"
@@ -84,10 +98,12 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
             id="upload-input"
             onChange={handleImageUpload}
           />
-          <label htmlFor="upload-input" className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer">
+          <label
+            htmlFor="upload-input"
+            className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer"
+          >
             Upload Images
           </label>
-          
         </div>
         <p className="text-sm text-gray-600">
           • Recommended image size: 2160 x 1080px • Maximum file size: 10MB •
@@ -95,12 +111,20 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
         </p>
         <div className="flex gap-2 mt-4">
           {images.map((img, index) => (
-            <img key={index} src={img} alt="Uploaded" className="w-24 h-24 object-cover rounded-md" />
+            <img
+              key={index}
+              src={img}
+              alt="Uploaded"
+              className="w-24 h-24 object-cover rounded-md"
+            />
           ))}
         </div>
       </div>
 
-      <button onClick={() => setShowUpload(false)} className="bg-blue-500 text-white px-6 py-2 rounded-md mt-4">
+      <button
+        onClick={handleComplete}
+        className="bg-blue-500 text-white px-6 py-2 rounded-md mt-4"
+      >
         Complete
       </button>
 
@@ -130,8 +154,16 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
               <div className="flex flex-col items-center gap-4">
                 {croppedPreview && (
                   <>
-                    <img src={croppedPreview} alt="Square Preview" className="w-36 h-36 object-cover rounded-md border" />
-                    <img src={croppedPreview} alt="Rectangle Preview" className="w-64 h-32 object-cover rounded-md border" />
+                    <img
+                      src={croppedPreview}
+                      alt="Square Preview"
+                      className="w-36 h-36 object-cover rounded-md border"
+                    />
+                    <img
+                      src={croppedPreview}
+                      alt="Rectangle Preview"
+                      className="w-64 h-32 object-cover rounded-md border"
+                    />
                   </>
                 )}
               </div>
@@ -139,8 +171,18 @@ const UploadMedia = ({ setShowUpload, setUploadedImages }) => {
           </div>
 
           <div className="absolute bottom-6 right-6 flex gap-4">
-            <button onClick={() => setShowCropper(false)} className="bg-gray-300 px-4 py-2 rounded-md">Cancel</button>
-            <button onClick={handleSaveCrop} className="bg-blue-500 text-white px-4 py-2 rounded-md">Save</button>
+            <button
+              onClick={() => setShowCropper(false)}
+              className="bg-gray-300 px-4 py-2 rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSaveCrop}
+              className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            >
+              Save
+            </button>
           </div>
         </div>
       )}
@@ -153,7 +195,11 @@ const UploadedImagesSlider = ({ images }) => {
     <Carousel autoPlay infiniteLoop showThumbs={false}>
       {images.map((img, index) => (
         <div key={index} className="relative max-w-[710px] min-h-[400px] mb-4">
-          <img src={img} alt={`Uploaded ${index}`} className="w-full h-[400px] object-cover" />
+          <img
+            src={img}
+            alt={`Uploaded ${index}`}
+            className="w-full h-[400px] object-cover"
+          />
         </div>
       ))}
     </Carousel>
@@ -162,7 +208,6 @@ const UploadedImagesSlider = ({ images }) => {
 
 const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
   const [showUpload, setShowUpload] = useState(false);
-  
 
   return (
     <div>
@@ -181,15 +226,18 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-white bg-opacity-75 p-6 rounded-lg text-center">
-                              <i className="fas fa-upload text-2xl text-blue-500 mb-2"></i>
-                              <p className="text-blue-500">Upload photos</p>
-                            </div>
+                <i className="fas fa-upload text-2xl text-blue-500 mb-2"></i>
+                <p className="text-blue-500">Upload photos</p>
+              </div>
             </div>
           </div>
-
         )
       ) : (
-        <UploadMedia setShowUpload={setShowUpload} setUploadedImages={setUploadedImages} />
+        <UploadMedia
+          setShowUpload={setShowUpload}
+          uploadedImages={uploadedImages}
+          setUploadedImages={setUploadedImages}
+        />
       )}
     </div>
   );

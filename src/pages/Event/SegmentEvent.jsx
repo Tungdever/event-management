@@ -1,46 +1,80 @@
-import { useState, useRef } from "react";
-import { FaUser, FaList } from "react-icons/fa";
+import { useState, useRef, useEffect } from "react";
+import { FaList, FaUser } from "react-icons/fa";
 
-const SectionEvent = ({ slots, setSlots }) => {
+const SectionEvent = () => {
+  // segments là mảng để lưu danh sách các segment
+  const [segments, setSegments] = useState([]);
+  
+  // newSegment để lưu dữ liệu của segment đang được thêm
+  const [newSegment, setNewSegment] = useState({
+    eventId: "",
+    segmentId: "",
+    segmentTitle: "",
+    segmentDesc: "",
+    speakerName: "",
+    startTime: "",
+    endTime: "",
+  });
 
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
   const [desc, setDesc] = useState(false);
-  const [artist, setArtist] = useState(false);
+  const [actor, setActor] = useState(false); // Sửa artist thành actor cho nhất quán
   const [isAdding, setIsAdding] = useState(false);
-  const [startTime, setStartTime] = useState("");
-  const [endTime, setEndTime] = useState("");
   const addSectionRef = useRef(null);
 
-  const handleClickOutside = (event) => {
-    if (
-      addSectionRef.current &&
-      !addSectionRef.current.contains(event.target)
-    ) {
-      if (title.trim() !== "" && startTime && endTime) {
-        setSlots([...slots, { title, startTime, endTime, description }]);
-        setTitle("");
-        setStartTime("");
-        setEndTime("");
-        setDescription("");
-        setDesc(false);
-        setArtist(false);
-        setIsAdding(false);
-      }
-    }
+  // Xử lý thay đổi input
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewSegment((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
+
+  // Xử lý nhấp chuột bên ngoài
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        addSectionRef.current &&
+        !addSectionRef.current.contains(event.target) &&
+        isAdding
+      ) {
+        if (
+          newSegment.segmentTitle.trim() !== "" &&
+          newSegment.startTime &&
+          newSegment.endTime
+        ) {
+          setSegments((prev) => [...prev, { ...newSegment }]);
+          // Reset form sau khi thêm
+          setNewSegment({
+            eventId: "",
+            segmentId: "",
+            segmentTitle: "",
+            segmentDesc: "",
+            speakerName: "",
+            startTime: "",
+            endTime: "",
+          });
+          setDesc(false);
+          setActor(false);
+          setIsAdding(false);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [newSegment, isAdding]);
 
   const handleAddSlot = () => {
     setIsAdding(true);
   };
 
   return (
-    <div
-      className="bg-white p-8 rounded-lg  border border-blue-500 max-w-[710px] w-full mb-4"
-      onClick={handleClickOutside}
-    >
+    <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Agenda</h1>
+        <h1 className="text-2xl font-semibold">Segment</h1>
         <button className="text-red-500">Delete section</button>
       </div>
       <p className="text-gray-600 mb-6">
@@ -50,27 +84,27 @@ const SectionEvent = ({ slots, setSlots }) => {
       </p>
       <div className="flex items-center mb-4">
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
-          Agenda
+          Segment
         </button>
         <button className="text-gray-500 pb-1" onClick={handleAddSlot}>
-          + Add new agenda
+          + Add new segment
         </button>
       </div>
 
       {/* Danh sách agenda slots */}
-      {slots.map((slot, index) => (
+      {segments.map((segment, index) => (
         <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
           <div className="border-red-500 border-l-2 pl-4">
             <div className="flex justify-between">
               <span className="text-red-500">
-                {slot.startTime} - {slot.endTime}
+                {segment.startTime} - {segment.endTime}
               </span>
               <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
             </div>
             <span className="font-semibold text-gray-500 text-xl py-2">
-              {slot.title}
+              {segment.segmentTitle}
             </span>
-            <p className="text-gray-500 border-t-2 pt-2">{slot.description}</p>
+            <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
           </div>
         </div>
       ))}
@@ -85,10 +119,11 @@ const SectionEvent = ({ slots, setSlots }) => {
             <input
               className="w-full p-2 border border-gray-300 rounded-lg"
               type="text"
-              id="title"
+              id="segmentTitle"
               placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              name="segmentTitle"
+              value={newSegment.segmentTitle}
+              onChange={handleChange}
             />
           </div>
           <div className="flex space-x-4 mb-4">
@@ -97,11 +132,12 @@ const SectionEvent = ({ slots, setSlots }) => {
                 Start time
               </label>
               <input
+                className="w-full p-2 border border-gray-300 rounded-lg"
                 type="time"
                 id="start-time"
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                value={startTime}
-                onChange={(e) => setStartTime(e.target.value)}
+                name="startTime"
+                value={newSegment.startTime}
+                onChange={handleChange}
               />
             </div>
             <div className="flex-1">
@@ -109,11 +145,12 @@ const SectionEvent = ({ slots, setSlots }) => {
                 End time
               </label>
               <input
+                className="w-full p-2 border border-gray-300 rounded-lg"
                 type="time"
                 id="end-time"
-                className="w-full p-2 border border-gray-300 rounded-lg"
-                value={endTime}
-                onChange={(e) => setEndTime(e.target.value)}
+                name="endTime"
+                value={newSegment.endTime}
+                onChange={handleChange}
               />
             </div>
           </div>
@@ -134,18 +171,19 @@ const SectionEvent = ({ slots, setSlots }) => {
                 <textarea
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   rows="3"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  name="segmentDesc"
+                  value={newSegment.segmentDesc}
+                  onChange={handleChange}
                 />
                 <div className="text-right text-gray-400 text-xs">
-                  {description.length} / 1000
+                  {newSegment.segmentDesc.length} / 1000
                 </div>
               </div>
             )}
-            {!artist ? (
+            {!actor ? (
               <button
                 className="flex items-center text-gray-600 mt-2 text-[14px] mb-2"
-                onClick={() => setArtist(true)}
+                onClick={() => setActor(true)}
               >
                 <FaUser className="mr-2" /> Add Artist
               </button>
@@ -157,11 +195,12 @@ const SectionEvent = ({ slots, setSlots }) => {
                 <textarea
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   rows="3"
-                  value={artist}
-                  onChange={(e) => setArtist(e.target.value)}
+                  name="speakerName"
+                  value={newSegment.speakerName}
+                  onChange={handleChange}
                 />
                 <div className="text-right text-gray-400 text-xs">
-                  {artist.length} / 1000
+                  {newSegment.speakerName.length} / 1000
                 </div>
               </div>
             )}
