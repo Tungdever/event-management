@@ -1,4 +1,5 @@
 import './App.css';
+import EventPage from './pages/Event/EventPage';
 import EventDetail from './pages/Event/Detail';
 import HomePage from './pages/Event/HomePage';
 import SearchPage from './pages/Event/Search';
@@ -193,7 +194,7 @@ const MainLayout = () => {
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"
   || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/addTicket" || location.pathname === "/checkout" || location.pathname === "/refund";
+  || location.pathname === "/addTicket" || location.pathname === "/checkout" || location.pathname === "/refund" || location.pathname === "/eventpage";
 
   return (
     <div className="w-full min-h-screen bg-while">
@@ -208,6 +209,7 @@ const MainLayout = () => {
         <Route path="/checkout" element={<Checkout />} />
         <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
         <Route path ="/refund" element={<Refund />}></Route>
+        <Route path ="/eventpage" element={<EventPage />}></Route>
       </Routes>
 
       {!isFullScreenPage && (
@@ -223,8 +225,7 @@ const MainLayout = () => {
             <Route path="/editEvent" element={<EditEvent />} />
             <Route path="/publicEvent" element={<EventPublishing eventData={eventData}/>} />
             <Route path="/member" element={<EmployeeList employees={employees} />} />
-            <Route path="/notification" element={<NotificationList notifications={notifications} />} />
-           
+            <Route path="/notification" element={<NotificationList notifications={notifications} />} />       
             <Route path ="/addticket" element={<AddTicket/>}>  </Route>
             <Route path="/task" element={<TaskBoard />} />
             <Route path="/crudEvent" element={<CRUDEvent/>}></Route>

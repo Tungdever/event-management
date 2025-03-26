@@ -10,16 +10,16 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import "../../fonts/Times New Roman";
 const Sponsor = () => {
-
   const [selectedLevel, setSelectedLevel] = useState("Select level");
-  const [selectedExport, setSelectedExport] = useState("Export");
-
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
-
+  const [selectedSponsor, setSelectedSponsor] = useState(null);
+  const [empty, setEmpty] = useState({});
   const dropdownExportRef = useRef(null);
   const dropdownLevelRef = useRef(null);
-  const [selectedSponsor, setSelectedSponsor] = useState(null);
+
+  // =====================================================================
+  // Màu sắc và icon của từng Level
   const levelClass = {
     Diamond: { class: "badge-diamond", icon: "ti ti-diamond" },
     Gold: { class: "badge-gold", icon: "ti ti-coins" },
@@ -32,66 +32,262 @@ const Sponsor = () => {
       sponsor_name: "FPT",
       sponsor_logo: "https://upload.wikimedia.org/wikipedia/commons/2/29/FPT_Software_Logo.png",
       sponsor_email: "fpt@gmail.com",
+      sponsor_address: "add1",
       sponsor_level: "Gold",
       sponsor_representative_name: "Nguyễn Văn A",
-      sponsor_representative_position: "",
+      sponsor_representative_position: "CEO",
       sponsor_representative_email: "anv@gmail.com",
-      sponsor_representative_phone: "",
-      sponsor_tel: "012345xxxx",
+      sponsor_representative_phone: "0123456789",
+      sponsor_tel: "0123456789",
       sponsor_website: "FPT.vn",
-      sponsor_type: "incorporation",
-      sponsor_amount: "100000000",
+      sponsor_type: "Financialive",
+      sponsor_amount: 100000000,
       sponsor_contribution: "",
       sponsor_status: "Active",
       sponsor_contract: "contract1.pdf",
       sponsor_start_date: "18/03/2025",
       sponsor_end_date: "18/04/2025",
+      sponsor_status: "Active",
     },
     {
       sponsor_id: "2",
       sponsor_name: "BIDV",
       sponsor_logo: "https://upload.wikimedia.org/wikipedia/commons/6/69/Logo_BIDV.svg",
       sponsor_email: "bidv@gmail.com",
+      sponsor_address: "add2",
       sponsor_level: "Silver",
       sponsor_representative_name: "Nguyễn Văn B",
-      sponsor_representative_position: "",
+      sponsor_representative_position: "CEO",
       sponsor_representative_email: "bnv@gmail.com",
-      sponsor_representative_phone: "",
-      sponsor_tel: "012345xxxx",
+      sponsor_representative_phone: "0123456789",
+      sponsor_tel: "0123456789",
       sponsor_website: "BIDV.vn",
-      sponsor_type: "incorporation",
-      sponsor_amount: "100000000",
+      sponsor_type: "In-kind",
+      sponsor_amount: 100000000,
       sponsor_contribution: "",
       sponsor_status: "Expired",
       sponsor_contract: "contract2.pdf",
       sponsor_start_date: "18/03/2025",
       sponsor_end_date: "18/04/2025",
+      sponsor_status: "Active",
     },
     {
       sponsor_id: "3",
       sponsor_name: "Intel",
       sponsor_logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Intel_logo_%282020%2C_light_blue%29.svg/320px-Intel_logo_%282020%2C_light_blue%29.svg.png",
       sponsor_email: "intel@gmail.com",
+      sponsor_address: "add3",
       sponsor_level: "Diamond",
       sponsor_representative_name: "Nguyễn Văn C",
-      sponsor_representative_position: "",
+      sponsor_representative_position: "CEO",
       sponsor_representative_email: "cnv@gmail.com",
-      sponsor_representative_phone: "",
-      sponsor_tel: "012345xxxx",
+      sponsor_representative_phone: "0123456789",
+      sponsor_tel: "0123456789",
       sponsor_website: "Intel.vn",
-      sponsor_type: "incorporation",
-      sponsor_amount: "100000000",
+      sponsor_type: "Media",
+      sponsor_amount: 100000000,
       sponsor_contribution: "",
       sponsor_status: "Canceled",
       sponsor_contract: "contract3.pdf",
       sponsor_start_date: "18/03/2025",
       sponsor_end_date: "18/04/2025",
+      sponsor_status: "Active",
     },
   ]);
+  const [newSponsor, setNewSponsor] = useState({
+    sponsor_id: "",
+    sponsor_name: "",
+    sponsor_logo: "",
+    sponsor_email: "",
+    sponsor_level: "",
+    sponsor_representative_name: "",
+    sponsor_representative_position: "",
+    sponsor_representative_email: "",
+    sponsor_representative_phone: "",
+    sponsor_tel: "",
+    sponsor_website: "",
+    sponsor_type: "",
+    sponsor_amount: "",
+    sponsor_contribution: "",
+    sponsor_status: "",
+    sponsor_contract: "",
+    sponsor_start_date: "",
+    sponsor_end_date: "",
+  });
+
+  // =====================================================================
+  //  Thống kê số lượng nhà tài trợ
   const totalSponsors = sponsors.length;
   const diamondSponsors = sponsors.filter(sponsor => sponsor.sponsor_level === "Diamond").length;
   const goldSponsors = sponsors.filter(sponsor => sponsor.sponsor_level === "Gold").length;
   const silverSponsors = sponsors.filter(sponsor => sponsor.sponsor_level === "Silver").length;
+
+  // =====================================================================
+  // Xử lý Dropdown (Export & Level)
+  const toggleDropdownExport = () => {
+    setIsOpenExport(!isOpenExport);
+    setIsOpenLevel(false);
+  };
+  const toggleDropdownLevel = () => {
+    setIsOpenLevel(!isOpenLevel);
+    setIsOpenExport(false);
+  };
+  const handleLevel = (option) => {
+    setSelectedLevel(option);
+    setIsOpenLevel(false);
+  };
+
+  // =====================================================================
+  // Kiểm tra dữ liệu nhập (Validation)
+  const checkInput = (sponsor, newEmpty) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(0[1-9][0-9]{8}|84[1-9][0-9]{8})$/;
+    const websiteRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d{1,5})?(\/.*)?$/;
+
+    if (!sponsor.sponsor_name?.trim()) newEmpty.sponsor_name = "Please fill in field.";
+    if (!sponsor.sponsor_email?.trim()) {
+      newEmpty.sponsor_email = "Please fill in field.";
+    } else if (!emailRegex.test(sponsor.sponsor_email)) {
+      newEmpty.sponsor_email = "Invalid email.";
+    }
+    if (!sponsor.sponsor_representative_name?.trim()) newEmpty.sponsor_representative_name = "Please fill in field.";
+    if (!sponsor.sponsor_representative_email?.trim()) {
+      newEmpty.sponsor_representative_email = "Please fill in field.";
+    } else if (!emailRegex.test(sponsor.sponsor_representative_email)) {
+      newEmpty.sponsor_representative_email = "Invalid email.";
+    }
+
+    if (!sponsor.sponsor_representative_phone?.trim()) {
+      newEmpty.sponsor_representative_phone = "Please fill in field.";
+    }
+    else if (!phoneRegex.test(sponsor.sponsor_representative_phone)) {
+      newEmpty.sponsor_representative_phone = "Invalid Phone.";
+    }
+    if (!sponsor.sponsor_representative_position?.trim()) newEmpty.sponsor_representative_position = "Please fill in field.";
+
+    if (!sponsor.sponsor_address?.trim()) newEmpty.sponsor_address = "Please fill in field.";
+    if (!sponsor.sponsor_tel?.trim()) {
+      newEmpty.sponsor_tel = "Please fill in field.";
+    }
+    else if (!phoneRegex.test(sponsor.sponsor_tel)) {
+      newEmpty.sponsor_tel = "Invalid Phone.";
+    }
+    if (!sponsor.sponsor_website?.trim()) {
+      newEmpty.sponsor_website = "Please fill in field.";
+    }
+    else if (!websiteRegex.test(sponsor.sponsor_website)) {
+      newEmpty.sponsor_website = "Invalid website.";
+    }
+    if (!sponsor.sponsor_contract?.trim()) newEmpty.sponsor_contract = "Please fill in field.";
+    if (!sponsor.sponsor_contribution?.trim()) newEmpty.sponsor_contribution = "Please fill in field.";
+    // Nếu có lỗi, cập nhật state và dừng submit
+  }
+
+  // =====================================================================
+  // Xử lý Thêm, Sửa, Xóa Sponsor
+  const addSponsorHandle = (e) => {
+    e.preventDefault();
+    // Check input
+    let newEmpty = {};
+    checkInput(newSponsor, newEmpty);
+    if (Object.keys(newEmpty).length > 0) {
+      setEmpty(newEmpty);
+      return;
+    }
+    const updatedSponsors = [
+      ...sponsors,
+      { ...newSponsor, sponsor_id: String(sponsors.length + 1) },
+    ];
+    setSponsors(updatedSponsors);
+
+    // Reset form
+    setNewSponsor({
+      sponsor_id: "",
+      sponsor_name: "",
+      sponsor_logo: "",
+      sponsor_email: "",
+      sponsor_level: "",
+      sponsor_representative_name: "",
+      sponsor_representative_position: "",
+      sponsor_representative_email: "",
+      sponsor_representative_phone: "",
+      sponsor_tel: "",
+      sponsor_website: "",
+      sponsor_type: "",
+      sponsor_amount: "",
+      sponsor_contribution: "",
+      sponsor_status: "",
+      sponsor_contract: "",
+      sponsor_start_date: "",
+      sponsor_end_date: "",
+    });
+    setEmpty({});
+    // Đóng modal
+    document.querySelector("#add-sponsor .btn-close").click();
+  };
+  const editSponsorHandle = (e) => {
+    e.preventDefault();
+    // Check input
+    let newEmpty = {};
+    checkInput(selectedSponsor, newEmpty);
+    if (Object.keys(newEmpty).length > 0) {
+      setEmpty(newEmpty);
+      return;
+    }
+    setSponsors((prevSponsors) =>
+      prevSponsors.map((sponsor) =>
+        sponsor.sponsor_id === selectedSponsor.sponsor_id ? selectedSponsor : sponsor
+      )
+    );
+
+    // Reset form
+    setNewSponsor({
+      sponsor_id: "",
+      sponsor_name: "",
+      sponsor_logo: "",
+      sponsor_email: "",
+      sponsor_level: "",
+      sponsor_representative_name: "",
+      sponsor_representative_position: "",
+      sponsor_representative_email: "",
+      sponsor_representative_phone: "",
+      sponsor_tel: "",
+      sponsor_website: "",
+      sponsor_type: "",
+      sponsor_amount: "",
+      sponsor_contribution: "",
+      sponsor_status: "",
+      sponsor_contract: "",
+      sponsor_start_date: "",
+      sponsor_end_date: "",
+    });
+    setEmpty({});
+    // Đóng modal
+    document.querySelector("#edit-sponsor .btn-close").click();
+  };
+  const handleDeleteSponsor = (selectedSponsor) => {
+    const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsor_id !== selectedSponsor.sponsor_id);
+    setSponsors(updatedSponsors);
+    setSelectedSponsor(null);
+  };
+
+  // =====================================================================
+  // Xử lý Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const totalPages = Math.ceil(sponsors.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, sponsors.length);
+  const currentSponsors = sponsors.slice(startIndex, endIndex);
+  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setCurrentPage(1);
+  };
+
+  // =====================================================================
+  // Export dữ liệu (PDF, Excel)
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.setFont("Times New Roman");
@@ -126,8 +322,6 @@ const Sponsor = () => {
     const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     saveAs(data, "sponsor_list.xlsx");
   };
-
-
   const handleExport = (option) => {
     if (option === "Export as PDF") {
       exportToPDF();
@@ -136,45 +330,9 @@ const Sponsor = () => {
     }
     setIsOpenExport(false);
   };
-  const handleDeleteSponsor = (selectedSponsor) => {
-    const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsor_id !== selectedSponsor.sponsor_id);
-    setSponsors(updatedSponsors);
-    setSelectedSponsor(null);
-  };
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalPages = Math.ceil(sponsors.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, sponsors.length);
-  const currentSponsors = sponsors.slice(startIndex, endIndex);
-  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setCurrentPage(1);
-  };
-  // Xử lý mở/đóng dropdown Export
-  const toggleDropdownExport = () => {
-    setIsOpenExport(!isOpenExport);
-    setIsOpenLevel(false); // Đóng dropdown khác nếu đang mở
-  };
 
-  // Xử lý mở/đóng dropdown Level
-  const toggleDropdownLevel = () => {
-    setIsOpenLevel(!isOpenLevel);
-    setIsOpenExport(false); // Đóng dropdown khác nếu đang mở
-  };
-
-  // Xử lý chọn Export
-
-
-  // Xử lý chọn Level
-  const handleLevel = (option) => {
-    setSelectedLevel(option);
-    setIsOpenLevel(false);
-  };
-
-  // Đóng dropdown khi click bên ngoài
+  // =====================================================================
+  // Xử lí khi click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -197,6 +355,50 @@ const Sponsor = () => {
     };
   }, []);
 
+  // =====================================================================
+  // Component Upload-Image
+  const SponsorUpload = ({sponsor, setSponsor }) => {
+    const fileInputRef = useRef(null);
+
+    const handleButtonClick = () => {
+      fileInputRef.current.click(); // Kích hoạt input file
+    };
+
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setSponsor((prev) => ({ ...prev, sponsor_logo: reader.result }));
+        };
+      }
+    };
+    return (
+      <div className="avatar-container">
+        <div className="custom-avatar">
+          <img src={sponsor?.sponsor_logo || ""} alt="Sponsor" />
+        </div>
+        <div className="profile-upload">
+          <div className="upload-title">Upload Sponsor Image</div>
+          <p className="upload-subtext">Image should be below 4 MB</p>
+          <div className="upload-btn">
+            <label onClick={handleButtonClick}>Upload</label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <a className="cancel-btn" onClick={() => setSponsor((prev) => ({ ...prev, sponsor_logo: "" }))}>
+              Cancel
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="sponsor-container">
       <div className="modal fade" id="add-sponsor" tabindex="-1" aria-hidden="true">
@@ -211,20 +413,7 @@ const Sponsor = () => {
                 <div className="row">
                   {/* Avatar và upload */}
                   <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src="https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg" alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload Sponsor Image</div>
-                        <p className="upload-subtext">Image should be below 4 MB</p>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
-                    </div>
+                    <SponsorUpload sponsor={newSponsor} setSponsor={setNewSponsor} />
                   </div>
 
                   {/* Form input */}
@@ -232,8 +421,11 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_name: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_name}</p>}
                     </div>
                   </div>
 
@@ -241,8 +433,11 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_email: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_email}</p>}
                     </div>
                   </div>
 
@@ -250,8 +445,11 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Address <span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_address: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1">{empty.sponsor_address}</p>}
                     </div>
 
                   </div>
@@ -259,8 +457,11 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_tel: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1">{empty.sponsor_tel}</p>}
                     </div>
                   </div>
 
@@ -268,8 +469,11 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Website <span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_website: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_website && <p className="text-red-500 text-sm mt-1">{empty.sponsor_website}</p>}
                     </div>
 
                   </div>
@@ -278,39 +482,63 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Name <span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_representative_name: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_name}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Positon<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_representative_position: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_position}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Email<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_representative_email: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_email}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Phone<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_representative_phone: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_phone}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Type<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <select
+                          className="input-field"
+                          value={newSponsor.sponsor_type}
+                          onChange={(e) =>
+                            setNewSponsor({ ...newSponsor, sponsor_type: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Type --</option>
+                          <option value="ActFinancialive">Financial Sponsorship</option>
+                          <option value="In-kind">In-kind Sponsorship</option>
+                          <option value="Media">Media Sponsorship</option>
+                          <option value="Promotional">Promotional Partners</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -318,7 +546,33 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Amount<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="number" min="0" onKeyDown={(e) => {
+                          if (e.key === "-" || e.key === "e" || e.key === "E") {
+                            e.preventDefault(); // Ngăn không cho nhập "-"
+                          }
+                        }} className="input-field input-field-number" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_amount: e.target.value })
+                        } />
+                      </div>
+                      {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1">{empty.sponsor_amount}</p>}
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Level<span className="required">*</span></label>
+                        <select
+                          className="input-field"
+                          value={newSponsor.sponsor_level}
+                          onChange={(e) =>
+                            setNewSponsor({ ...newSponsor, sponsor_level: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Level --</option>
+                          <option value="Diamond">Diamond</option>
+                          <option value="Gold">Gold</option>
+                          <option value="Silver">Silver</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -326,23 +580,31 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Contribution<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_contribution: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contribution}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Contract<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_contract: e.target.value })
+                        } />
                       </div>
+                      {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contract}</p>}
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Start Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="date" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_start_date: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -350,7 +612,9 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">End Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="date" className="input-field" onChange={(e) =>
+                          setNewSponsor({ ...newSponsor, sponsor_end_date: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -358,7 +622,17 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Status<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <select
+                          className="input-field"
+                          value={newSponsor.sponsor_status}
+                          onChange={(e) =>
+                            setNewSponsor({ ...newSponsor, sponsor_status: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Status --</option>
+                          <option value="Active">Active</option>
+                          <option value="Inactive">Inactive</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -366,7 +640,9 @@ const Sponsor = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Add Sponsor</button>
+                <button type="submit" className="btn btn-primary" onClick={addSponsorHandle}>
+                  Add Sponsor
+                </button>
               </div>
             </form>
           </div>
@@ -522,20 +798,7 @@ const Sponsor = () => {
                 <div className="row">
                   {/* Avatar và upload */}
                   <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src="https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg" alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload Sponsor Image</div>
-                        <p className="upload-subtext">Image should be below 4 MB</p>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
-                    </div>
+                    <SponsorUpload sponsor={selectedSponsor} setSponsor={setSelectedSponsor} />
                   </div>
 
                   {/* Form input */}
@@ -543,26 +806,47 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSponsor?.sponsor_name || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_name || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_name: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_name}</p>}
                   </div>
 
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSponsor?.sponsor_email || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_email || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_email: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_email}</p>}
                   </div>
 
                   <div className="col-md-12">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Address <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_address || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_address || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_address: e.target.value,
+                            }))
+                          } />
                       </div>
+                      {empty.sponsor_address && <p className="text-red-500 text-sm mt-1">{empty.sponsor_address}</p>}
                     </div>
 
                   </div>
@@ -570,58 +854,114 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_tel || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_tel || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_tel: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_tel && <p className="text-red-500 text-sm mt-1">{empty.sponsor_tel}</p>}
                   </div>
 
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Website <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_website || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_website || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_website: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
-
+                    {empty.sponsor_website && <p className="text-red-500 text-sm mt-1">{empty.sponsor_website}</p>}
                   </div>
 
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Name <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_name || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_name || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_representative_name: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_representative_name && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_name}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Positon<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_position || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_position || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_representative_position: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_representative_position && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_position}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Email<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_email || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_email || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_representative_email: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_representative_email && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_email}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Represent Phone<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_phone || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_representative_phone || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_representative_phone: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_representative_phone && <p className="text-red-500 text-sm mt-1">{empty.sponsor_representative_phone}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Type<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_type || ""} />
+                        <select
+                          className="input-field"
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_type: e.target.value,
+                            }))
+                          }
+                          value={selectedSponsor?.sponsor_type}
+                        >
+                          <option value="">-- Select Type --</option>
+                          <option value="Financialive">Financial Sponsorship</option>
+                          <option value="In-kind">In-kind Sponsorship</option>
+                          <option value="Media">Media Sponsorship</option>
+                          <option value="Promotional">Promotional Partners</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -629,7 +969,42 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Amount<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_amount || ""} />
+                        <input type="number" min="0" onKeyDown={(e) => {
+                          if (e.key === "-" || e.key === "e" || e.key === "E") {
+                            e.preventDefault(); // Ngăn không cho nhập "-"
+                          }
+                        }}
+                          value={selectedSponsor?.sponsor_amount || 0}
+                          className="input-field input-field-number"
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_amount: e.target.value,
+                            }))
+                          } />
+                      </div>
+                    </div>
+                    {empty.sponsor_amount && <p className="text-red-500 text-sm mt-1">{empty.sponsor_amount}</p>}
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Level<span className="required">*</span></label>
+                        <select
+                          className="input-field"
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_level: e.target.value,
+                            }))
+                          }
+                          value={selectedSponsor?.sponsor_level}
+                        >
+                          <option value="">-- Select Level --</option>
+                          <option value="Diamond">Diamond</option>
+                          <option value="Gold">Gold</option>
+                          <option value="Silver">Silver</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -637,23 +1012,43 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Contribution<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_contribution || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_contribution || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_contribution: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_contribution && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contribution}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Contract<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_contract || ""} />
+                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_contract || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_contract: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
+                    {empty.sponsor_contract && <p className="text-red-500 text-sm mt-1">{empty.sponsor_contract}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Start Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_start_date || ""} />
+                        <input type="date" className="input-field" value={selectedSponsor?.sponsor_start_date || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_start_date: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
                   </div>
@@ -661,7 +1056,13 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">End Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_end_date || ""} />
+                        <input type="date" className="input-field" value={selectedSponsor?.sponsor_end_date || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_end_date: e.target.value,
+                            }))
+                          } />
                       </div>
                     </div>
                   </div>
@@ -669,7 +1070,20 @@ const Sponsor = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Status<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsor_status} />
+                        <select
+                          className="input-field"
+                          value={selectedSponsor?.sponsor_status || ""}
+                          onChange={(e) =>
+                            setSelectedSponsor((prev) => ({
+                              ...prev,
+                              sponsor_status: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">-- Select Status --</option>
+                          <option value="Active">Active</option>
+                          <option value="Inactive">Inactive</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -677,7 +1091,7 @@ const Sponsor = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Save changes</button>
+                <button type="submit" className="btn btn-primary" onClick={editSponsorHandle}>Save changes</button>
               </div>
             </form>
           </div>
