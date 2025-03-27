@@ -11,7 +11,6 @@ import Dashboard from './pages/Dashboard/Dashboard';
 import Navbar from './pages/Dashboard/Navbar';
 import Sidebar from './pages/Dashboard/Sidebar';
 import EmployeeList from './pages/Employee/EmployeeList';
-import EventForm from './pages/Event/CreateEvent';
 import EditEvent from './pages/Event/EditEvent';
 import SignUp from './pages/Auth/SignUp';
 import LoginForm from './pages/Auth/LogIn';

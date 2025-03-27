@@ -187,10 +187,7 @@ const CRUDEvent = () => {
       case "tickets":
         return (
           <AddTicket
-            tickets={event.tickets}
-            setTickets={(newTickets) =>
-              setEvent((prev) => ({ ...prev, tickets: newTickets }))
-            }
+            eventId ={1}
             onNext={() => setSelectedStep("publish")}
           />
         );
