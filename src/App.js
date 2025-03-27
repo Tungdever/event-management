@@ -28,6 +28,7 @@ import TaskBoard from './pages/Employee/TaskDashboard';
 import EventPublishing from './pages/Event/EventPublishing';
 import ViewProfile from './pages/Dashboard/ViewProfile';
 
+
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -188,7 +189,7 @@ const profileData = [
 const MainLayout = () => {
   const location = useLocation();
   const isFullScreenPage = location.pathname === "/" 
-  || location.pathname === "/detail" || location.pathname === "/search"
+  || location.pathname === "/detail" || location.pathname === "/search"|| location.pathname === "/test"
   || location.pathname === "/login" || location.pathname === "/signup"
   || location.pathname === "/addTicket" || location.pathname === "/checkout";
 
@@ -197,13 +198,14 @@ const MainLayout = () => {
       
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/detail" element={<EventDetail event={eventData} />} />
+        <Route path="/detail" element={<EventDetail eventId={1} />} />
         <Route path="/search" element={<SearchPage />} />
         <Route path="/login" element={<LoginForm />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path ="/forgot" element={<ForgotPassword/>} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
+        
       </Routes>
 
       {!isFullScreenPage && (
