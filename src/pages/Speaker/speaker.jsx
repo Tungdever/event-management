@@ -14,16 +14,20 @@ const Speaker = () => {
   const [selectedLevel, setSelectedLevel] = useState("Select level");
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
-
+  const [empty, setEmpty] = useState({});
   const dropdownExportRef = useRef(null);
   const dropdownLevelRef = useRef(null);
   const [selectedSpeaker, setSelectedSpeaker] = useState(null);
+  // =====================================================================
+  // Màu sắc và icon của từng status
   const levelClass = {
     Confirmed: { class: "bg-confirmed", icon: "ti ti-circle-check" },
     Pending: { class: "bg-pending", icon: "ti ti-clock-hour-4" },
     Rejected: { class: "bg-rejected", icon: "ti ti-circle-dashed-x" },
   };
 
+  // =====================================================================
+  // danh sách diễn giả
   const [speakers, setSpeakers] = useState([
     {
       "speaker_id": "1",
@@ -31,21 +35,14 @@ const Speaker = () => {
       "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
       "speaker_email": "nguyenvana@gmail.com",
       "speaker_phone": "0123456789",
-
       "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
       "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
       "speaker_social_media": [
         "linkedin: https://linkedin.com/in/nguyenvana",
         "twitter: https://twitter.com/nguyenvana"
       ],
       "speaker_status": "Confirmed",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
+
     },
     {
       "speaker_id": "2",
@@ -63,12 +60,7 @@ const Speaker = () => {
       ]
       ,
       "speaker_status": "Pending",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
+      
     },
     {
       "speaker_id": "3",
@@ -84,60 +76,10 @@ const Speaker = () => {
         "twitter: https://twitter.com/nguyenvana"
       ],
       "speaker_status": "Rejected",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
+      
     },
     {
-      "speaker_id": "1",
-      "speaker_name": "Nguyễn Văn A",
-      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speaker_email": "nguyenvana@gmail.com",
-      "speaker_phone": "0123456789",
-
-      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
-      "speaker_social_media": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speaker_status": "Confirmed",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
-    },
-    {
-      "speaker_id": "2",
-      "speaker_name": "Nguyễn Văn A",
-      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speaker_email": "nguyenvana@gmail.com",
-      "speaker_phone": "0123456789",
-
-      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
-      "speaker_social_media": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ]
-      ,
-      "speaker_status": "Pending",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
-    },
-    {
-      "speaker_id": "3",
+      "speaker_id": "4",
       "speaker_name": "Nguyễn Văn A",
       "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
       "speaker_email": "nguyenvana@gmail.com",
@@ -150,31 +92,347 @@ const Speaker = () => {
         "twitter: https://twitter.com/nguyenvana"
       ],
       "speaker_status": "Rejected",
-      "speaker_presentation_date": "18/03/2025",
-      "speaker_presentation_time": "10:00 AM - 11:30 AM",
-      "speaker_presentation_materials": [
-        "slides_ai_presentation.pdf",
-        "ai_trends_2025.docx"
-      ]
+      
     },
+    {
+      "speaker_id": "5",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
 
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",      
+    },
+    {
+      "speaker_id": "6",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "7",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "8",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "8",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+     
+    },
+    {
+      "speaker_id": "9",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "10",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "11",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "12",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
+    {
+      "speaker_id": "13",
+      "speaker_name": "Nguyễn Văn A",
+      "speaker_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
+      "speaker_email": "nguyenvana@gmail.com",
+      "speaker_phone": "0123456789",
+      "speaker_biography": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
+
+      "speaker_experience": "10 năm kinh nghiệm trong ngành AI",
+      "speaker_social_media": [
+        "linkedin: https://linkedin.com/in/nguyenvana",
+        "twitter: https://twitter.com/nguyenvana"
+      ],
+      "speaker_status": "Rejected",
+      
+    },
   ]);
+  const [newSpeaker, setNewSpeaker] = useState([
+    {
+      "speaker_id": "",
+      "speaker_name": "",
+      "speaker_photo": "",
+      "speaker_email": "",
+      "speaker_phone": "",
+      "speaker_biography": "",
+      "speaker_experience": "",
+      "speaker_social_media": "",
+      "speaker_contract": "",
+      "speaker_status": "",
+
+    },
+  ]);
+  // =====================================================================
+  // Thống kê 
   const totalSpeakers = speakers.length;
   const confirmedSpeakers = speakers.filter(speaker => speaker.speaker_status === "Confirmed").length;
   const pendingSpeakers = speakers.filter(speaker => speaker.speaker_status === "Pending").length;
   const rejectedSpeakers = speakers.filter(speaker => speaker.speaker_status === "Rejected").length;
+
+  // =====================================================================
+  // Xử lý Dropdown (Export & Level)
+  const toggleDropdownExport = () => {
+    setIsOpenExport(!isOpenExport);
+    setIsOpenLevel(false); // Đóng dropdown khác nếu đang mở
+  };
+  const toggleDropdownLevel = () => {
+    setIsOpenLevel(!isOpenLevel);
+    setIsOpenExport(false);
+  };
+  const handleLevel = (option) => {
+    setSelectedLevel(option);
+    setIsOpenLevel(false);
+  };
+
+  // =====================================================================
+  // Kiểm tra dữ liệu nhập (Validation)
+  const checkInput = (speaker, newEmpty) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^(0[1-9][0-9]{8}|84[1-9][0-9]{8})$/;
+    const websiteRegex = /^(https?:\/\/)?(www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(:\d{1,5})?(\/.*)?$/;
+    if (!speaker.speaker_name?.trim()) newEmpty.speaker_name = "Please fill in field.";
+    if (!speaker.speaker_email?.trim()) {
+      newEmpty.speaker_email = "Please fill in field.";
+    } else if (!emailRegex.test(speaker.speaker_email)) {
+      newEmpty.speaker_email = "Invalid email.";
+    }
+
+    if (!speaker.speaker_phone?.trim()) {
+      newEmpty.speaker_phone = "Please fill in field.";
+    }
+    else if (!phoneRegex.test(speaker.speaker_phone)) {
+      newEmpty.speaker_phone = "Invalid Phone.";
+    }
+
+    // if (!speaker.speaker_social_media?.trim()) {
+    //   newEmpty.speaker_social_media = "Please fill in field.";
+    // }
+    // else if (!websiteRegex.test(speaker.speaker_social_media)) {
+    //   newEmpty.speaker_social_media = "Invalid website.";
+    // }
+    if (!speaker.speaker_biography?.trim()) newEmpty.speaker_biography = "Please fill in field.";
+    if (!speaker.speaker_experience?.trim()) newEmpty.speaker_experience = "Please fill in field.";
+   
+    if (!speaker.speaker_contract?.trim()) newEmpty.speaker_contract = "Please fill in field.";
+
+  }
+
+  // =====================================================================
+  // Xử lý Thêm, Sửa, Xóa Speaker
+  const addSpeakerHandle = (e) => {
+    e.preventDefault();
+    // Check input
+    let newEmpty = {};
+    checkInput(newSpeaker, newEmpty);
+    if (Object.keys(newEmpty).length > 0) {
+      setEmpty(newEmpty);
+      return;
+    }
+    const updatedSpeakers = [
+      ...speakers,
+      { ...newSpeaker, speaker_id: String(speakers.length + 1) },
+    ];
+    setSpeakers(updatedSpeakers);
+
+    // Reset form
+    setNewSpeaker({
+      speaker_id: "",
+      speaker_name: "",
+      speaker_photo: "",
+      speaker_email: "",
+      speaker_phone: "",
+      speaker_biography: "",
+      speaker_experience: "",
+      speaker_social_media: "",
+      speaker_contract: "",
+      speaker_status: "",
+
+    });
+    setEmpty({});
+    // Đóng modal
+    document.querySelector("#add-speaker .btn-close").click();
+  };
+  const editSpeakerHandle = (e) => {
+    console.log("1");
+    e.preventDefault();
+    // Check input
+    let newEmpty = {};
+    checkInput(selectedSpeaker, newEmpty);
+    if (Object.keys(newEmpty).length > 0) {
+      setEmpty(newEmpty);
+      console.log("2");
+      console.log(newEmpty);
+      return;
+    }
+    console.log("3");
+    setSpeakers((prevSpeakers) =>
+      prevSpeakers.map((speaker) =>
+        speaker.speaker_id === selectedSpeaker.speaker_id ? selectedSpeaker : speaker
+      )
+    );
+    console.log("4");
+    // Reset form
+    setSelectedSpeaker({
+      speaker_id: "",
+      speaker_name: "",
+      speaker_photo: "",
+      speaker_email: "",
+      speaker_phone: "",
+      speaker_biography: "",
+      speaker_experience: "",
+      speaker_social_media: [],
+      speaker_contract: "",
+      speaker_status: "",
+
+    });
+    console.log("5");
+    setEmpty({});
+    // Đóng modal
+    document.querySelector("#edit-speaker .btn-close").click();
+    console.log("6");
+  };
+  const handleDeleteSpeaker = (selectedSpeaker) => {
+    const updatedSpeakers = speakers.filter(speaker => speaker.speaker_id !== selectedSpeaker.speaker_id);
+    setSpeakers(updatedSpeakers);
+    setSelectedSpeaker(null);
+  };
+ 
+  // =====================================================================
+  // Xử lý Phân trang
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const totalPages = Math.ceil(speakers.length / rowsPerPage);
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = Math.min(startIndex + rowsPerPage, speakers.length);
+  const currentSpeakers = speakers.slice(startIndex, endIndex);
+  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handleRowsPerPageChange = (event) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setCurrentPage(1);
+  };
+
+  // =====================================================================
+  // Export dữ liệu (PDF, Excel)
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.setFont("Times New Roman");
     doc.addFont('Times New Roman.ttf', 'Times New Roman', 'normal');
     doc.text("Speaker List", 14, 10);
 
-    const tableColumn = ["Name", "Level", "Email", "Contact", "Phone", "Website"];
+    const tableColumn = ["Name", "Level", "Email", "Contract", "Phone", "Website"];
     const tableRows = speakers.map((speaker) => [
       speaker.speaker_name,
       speaker.speaker_level,
       speaker.speaker_email,
-      speaker.speaker_contact,
+      speaker.speaker_contract,
       speaker.speaker_tel,
       speaker.speaker_website,
     ]);
@@ -197,8 +455,6 @@ const Speaker = () => {
     const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
     saveAs(data, "speaker_list.xlsx");
   };
-
-
   const handleExport = (option) => {
     if (option === "Export as PDF") {
       exportToPDF();
@@ -207,44 +463,8 @@ const Speaker = () => {
     }
     setIsOpenExport(false);
   };
-  const handleDeleteSpeaker = (selectedSpeaker) => {
-    const updatedSpeakers = speakers.filter(speaker => speaker.speaker_id !== selectedSpeaker.speaker_id);
-    setSpeakers(updatedSpeakers);
-    setSelectedSpeaker(null);
-  };
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalPages = Math.ceil(speakers.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, speakers.length);
-  const currentSpeakers = speakers.slice(startIndex, endIndex);
-  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setCurrentPage(1);
-  };
-  // Xử lý mở/đóng dropdown Export
-  const toggleDropdownExport = () => {
-    setIsOpenExport(!isOpenExport);
-    setIsOpenLevel(false); // Đóng dropdown khác nếu đang mở
-  };
-
-  // Xử lý mở/đóng dropdown Level
-  const toggleDropdownLevel = () => {
-    setIsOpenLevel(!isOpenLevel);
-    setIsOpenExport(false); // Đóng dropdown khác nếu đang mở
-  };
-
-  // Xử lý chọn Export
-
-
-  // Xử lý chọn Level
-  const handleLevel = (option) => {
-    setSelectedLevel(option);
-    setIsOpenLevel(false);
-  };
-
+  
+  // =====================================================================
   // Đóng dropdown khi click bên ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -268,6 +488,50 @@ const Speaker = () => {
     };
   }, []);
 
+  // =====================================================================
+  // Component Upload-Image
+  const SpeakerUpload = ({ speaker, setSpeaker }) => {
+    const fileInputRef = useRef(null);
+
+    const handleButtonClick = () => {
+      fileInputRef.current.click(); // Kích hoạt input file
+    };
+
+    const handleFileChange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          setSpeaker((prev) => ({ ...prev, speaker_photo: reader.result }));
+        };
+      }
+    };
+    return (
+      <div className="avatar-container">
+        <div className="custom-avatar">
+          <img src={speaker?.speaker_photo || ""} alt="Speaker" />
+        </div>
+        <div className="profile-upload">
+          <div className="upload-title">Upload Speaker Image</div>
+          <p className="upload-subtext">Image should be below 4 MB</p>
+          <div className="upload-btn">
+            <label onClick={handleButtonClick}>Upload</label>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            <a className="cancel-btn" onClick={() => setSpeaker((prev) => ({ ...prev, speaker_photo: "" }))}>
+              Cancel
+            </a>
+          </div>
+        </div>
+      </div>
+    );
+  };
   return (
     <div className="speaker-container">
       <div className="modal fade" id="add-speaker" tabindex="-1" aria-hidden="true">
@@ -282,20 +546,7 @@ const Speaker = () => {
                 <div className="row">
                   {/* Avatar và upload */}
                   <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src="https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg" alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload Speaker Image</div>
-                        <p className="upload-subtext">Image should be below 4 MB</p>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
-                    </div>
+                    <SpeakerUpload speaker={newSpeaker} setSpeaker={setNewSpeaker} />
                   </div>
 
                   {/* Form input */}
@@ -303,7 +554,132 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_name: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_name}</p>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Email <span className="required">*</span></label>
+                        <input type="email" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_email: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_email}</p>}
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Phone Number <span className="required">*</span></label>
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_phone: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_phone && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_phone}</p>}
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Social Media</label>
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_social_media: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-12">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Biography<span className="required">*</span></label>
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_biography: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_biography && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_biography}</p>}
+                  </div>
+
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Experience<span className="required">*</span></label>
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_experience: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_experience && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_experience}</p>}
+                  </div>                 
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Contract<span className="required">*</span></label>
+                        <input type="text" className="input-field" onChange={(e) =>
+                          setNewSpeaker({ ...newSpeaker, speaker_contract: e.target.value })
+                        } />
+                      </div>
+                    </div>
+                    {empty.speaker_contract && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_contract}</p>}
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Status<span className="required">*</span></label>
+                        <select
+                          className="input-field"
+                          value={newSpeaker.speaker_status}
+                          onChange={(e) =>
+                            setNewSpeaker({ ...newSpeaker, speaker_status: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Status --</option>
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" className="btn btn-primary" onClick={addSpeakerHandle}>Add Speaker</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="edit-speaker" tabindex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-lg" >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Edit Speaker</h4>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+              <div className="modal-body">
+                <div className="row">
+                  {/* Avatar và upload */}
+                  <div className="col-md-12">
+                    <SpeakerUpload speaker={selectedSpeaker} setSpeaker={setSelectedSpeaker} />
+                  </div>
+
+                  {/* Form input */}
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Name <span className="required">*</span></label>
+                        <input type="email" className="input-field" value={selectedSpeaker?.speaker_name || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_name: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -312,7 +688,9 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" value={selectedSpeaker?.speaker_email || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_email: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -320,15 +698,28 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_phone || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_phone: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
-                        <label className="form-label">Social Media<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <label className="form-label">Social Media</label>
+                        <textarea
+                          className="input-field"
+                          value={selectedSpeaker?.speaker_social_media?.join("\n") || ""}
+                          onChange={(e) => {
+                            const updatedSocialMedia = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
+                            setSelectedSpeaker((prev) => ({
+                              ...prev,
+                              speaker_social_media: updatedSocialMedia
+                            }));
+                          }}
+                          style={{ whiteSpace: "pre-line", height: "60px", width: "100%" }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -336,7 +727,9 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Biography<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_biography || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_biography: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -345,56 +738,19 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Experience<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_experience || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_experience: e.target.value })
+                        } />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Presentation Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Presentation Time<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Materials<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
-                      </div>
-                    </div>
-                  </div>
+                  </div>                
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Contract<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Start Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">End Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_contract || ""} onChange={(e) =>
+                          setSelectedSpeaker({ ...selectedSpeaker, speaker_contract: e.target.value })
+                        } />
                       </div>
                     </div>
                   </div>
@@ -402,7 +758,18 @@ const Speaker = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Status<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <select
+                          className="input-field"
+                          value={selectedSpeaker?.speaker_status}
+                          onChange={(e) =>
+                            setSelectedSpeaker({ ...selectedSpeaker, speaker_status: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Status --</option>
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -410,7 +777,7 @@ const Speaker = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Add Speaker</button>
+                <button type="submit" className="btn btn-primary" onClick={editSpeakerHandle}>Save changes</button>
               </div>
             </form>
           </div>
@@ -430,7 +797,7 @@ const Speaker = () => {
                     <div className="custom-body-header p-3">
                       <div className="file-name-icon">
                         <a href="#" className="custom-avatar-2">
-                          <img src={selectedSpeaker.speaker_logo} className="img-fluid" alt="img"></img>
+                          <img src={selectedSpeaker.speaker_photo} className="img-fluid" alt="img"></img>
                         </a>
                         <div>
                           <p className="custom-text mb-0">{selectedSpeaker.speaker_name}</p>
@@ -446,7 +813,6 @@ const Speaker = () => {
                   </div>
                   <div className="p-3">
                     <p className="custom-text">Basic Info</p>
-                    <div className="custom-content-1">
                       <div className="row align-items-center">
                         <div className="col-md-4">
                           <div className="mb-3">
@@ -475,33 +841,7 @@ const Speaker = () => {
                             </p>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                    <p className="custom-text">Presentation detail</p>
-                    <div>
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Date</p>
-                            <p className="text-gray-9">{selectedSpeaker.speaker_presentation_date}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Time</p>
-                            <p className="text-gray-9">{selectedSpeaker.speaker_presentation_time}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Materials</p>
-                            <p className="text-gray-9" style={{ whiteSpace: "pre-line" }}>
-                              {selectedSpeaker.speaker_presentation_materials.join("\n")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                    </div>                   
                   </div>
                 </>
               ) : (<p>No data available</p>)}
@@ -509,131 +849,7 @@ const Speaker = () => {
           </div>
         </div>
       </div>
-      <div className="modal fade" id="edit-speaker" tabindex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered modal-lg" >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit Speaker</h4>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form>
-              <div className="modal-body">
-                <div className="row">
-                  {/* Avatar và upload */}
-                  <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src="https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg" alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload Speaker Image</div>
-                        <p className="upload-subtext">Image should be below 4 MB</p>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Form input */}
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSpeaker?.speaker_name || ""} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSpeaker?.speaker_email || ""} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_phone || ""} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Social Media<span className="required">*</span></label>
-                        <textarea
-                          className="input-field"
-                          value={selectedSpeaker?.speaker_social_media?.join("\n") || ""}
-                          onChange={(e) => {
-                            const updatedSocialMedia = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
-                            setSelectedSpeaker((prev) => ({
-                              ...prev,
-                              speaker_social_media: updatedSocialMedia
-                            }));
-                          }}
-                          style={{ whiteSpace: "pre-line", height: "60px", width: "100%" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Biography<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_biography || ""} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Experience<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_experience || ""} />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Presentation Date<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_presentation_date || ""} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Presentation Time<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_presentation_time || ""} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Materials<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSpeaker?.speaker_presentation_materials || ""} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Save changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
       <div className="page-breadcrumb">
         <div my-auto mb-2>
           <h2 className="container-title">Speaker</h2>
@@ -796,7 +1012,7 @@ const Speaker = () => {
                     <div className="avt-name">
                       <div className="avatar">
                         <img
-                          src={speaker.speaker_logo}
+                          src={speaker.speaker_photo}
                           alt={speaker.speaker_name}
                           className="img-fluid"
                           style={{ width: "28px", height: "28px", objectFit: "cover" }}
