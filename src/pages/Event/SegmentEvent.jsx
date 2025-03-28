@@ -1,25 +1,82 @@
 import { useState, useRef, useEffect } from "react";
 import { FaList, FaUser } from "react-icons/fa";
+import axios from "axios";
 
-const SectionEvent = () => {
-  // segments là mảng để lưu danh sách các segment
+const ImageUploader = ({ onImageUpload }) => {
+  const [selectedFile, setSelectedFile] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        alert("Please upload an image file.");
+        return;
+      }
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedFile(imageUrl);
+
+      // Upload ảnh lên Cloudinary qua API
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const response = await axios.post("http://localhost:8080/api/storage/upload", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const publicId = response.data.replace("File uploaded: ", "").trim();
+        onImageUpload({ file, imageUrl, publicId }); 
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        alert("Failed to upload image.");
+      }
+    }
+  };
+
+  const handleIconClick = () => {
+    fileInputRef.current.click();
+  };
+
+  return (
+    <div
+      className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-[50px] h-[50px] cursor-pointer overflow-hidden"
+      onClick={handleIconClick}
+    >
+      {selectedFile ? (
+        <img
+          src={selectedFile}
+          alt="Uploaded Preview"
+          className="w-full h-full object-cover rounded-full"
+        />
+      ) : (
+        <i className="fa-solid fa-image text-gray-600 text-xl"></i>
+      )}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept="image/*"
+        onChange={handleFileChange}
+      />
+    </div>
+  );
+};
+const SectionEvent = ({ eventId }) => {
   const [segments, setSegments] = useState([]);
-  
-  // newSegment để lưu dữ liệu của segment đang được thêm
+  const [speakerImageData, setSpeakerImageData] = useState(null); 
   const [newSegment, setNewSegment] = useState({
-    eventId: "",
+    eventId: eventId || "",
     segmentId: "",
     segmentTitle: "",
     segmentDesc: "",
     speakerName: "",
+    speakerDesc: "",
     startTime: "",
     endTime: "",
   });
-
   const [desc, setDesc] = useState(false);
-  const [actor, setActor] = useState(false); // Sửa artist thành actor cho nhất quán
+  const [actor, setActor] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
-  const addSectionRef = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   // Xử lý thay đổi input
   const handleChange = (e) => {
@@ -30,45 +87,62 @@ const SectionEvent = () => {
     }));
   };
 
-  // Xử lý nhấp chuột bên ngoài
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        addSectionRef.current &&
-        !addSectionRef.current.contains(event.target) &&
-        isAdding
-      ) {
-        if (
-          newSegment.segmentTitle.trim() !== "" &&
-          newSegment.startTime &&
-          newSegment.endTime
-        ) {
-          setSegments((prev) => [...prev, { ...newSegment }]);
-          // Reset form sau khi thêm
-          setNewSegment({
-            eventId: "",
-            segmentId: "",
-            segmentTitle: "",
-            segmentDesc: "",
-            speakerName: "",
-            startTime: "",
-            endTime: "",
-          });
-          setDesc(false);
-          setActor(false);
-          setIsAdding(false);
-        }
-      }
+  const handleImageUpload = ({ file, imageUrl, publicId }) => {
+    setSpeakerImageData({ file, imageUrl, publicId });
+  };
+
+  const handleAddSlot = async () => {
+    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
+      alert("Please fill in all required fields (Title, Start Time, End Time).");
+      return;
+    }
+    if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
+      alert("Please fill in Speaker Name and Description.");
+      return;
+    }
+
+    setLoading(true);
+    const currentDate = new Date().toISOString().split("T")[0]; 
+    const postData = {
+      segmentTitle: newSegment.segmentTitle,
+      speaker: actor
+        ? {
+           
+            speakerImage: speakerImageData?.publicId || "", 
+            speakerName: newSegment.speakerName,
+            speakerDesc: newSegment.speakerDesc,
+          }
+        : null,
+      eventID: eventId,
+      segmentDesc: newSegment.segmentDesc,
+      startTime: `${currentDate}T${newSegment.startTime}:00.000+00:00`,
+      endTime: `${currentDate}T${newSegment.endTime}:00.000+00:00`,
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [newSegment, isAdding]);
-
-  const handleAddSlot = () => {
-    setIsAdding(true);
+    try {
+      const response = await axios.post(`http://localhost:8080/api/segment/${eventId}`, postData);
+      alert("Segment added successfully!");
+      setSegments((prev) => [...prev, response.data]);
+      setNewSegment({
+        eventId: eventId || "",
+        segmentId: "",
+        segmentTitle: "",
+        segmentDesc: "",
+        speakerName: "",
+        speakerDesc: "",
+        startTime: "",
+        endTime: "",
+      });
+      setSpeakerImageData(null);
+      setDesc(false);
+      setActor(false);
+      setIsAdding(false);
+    } catch (error) {
+      console.error("Error adding segment:", error);
+      alert("Failed to add segment.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -86,18 +160,23 @@ const SectionEvent = () => {
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
           Segment
         </button>
-        <button className="text-gray-500 pb-1" onClick={handleAddSlot}>
+        <button
+          className="text-gray-500 pb-1"
+          onClick={() => setIsAdding(true)}
+          disabled={loading}
+        >
           + Add new segment
         </button>
       </div>
 
-      {/* Danh sách agenda slots */}
+      {/* Danh sách segments */}
       {segments.map((segment, index) => (
         <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
           <div className="border-red-500 border-l-2 pl-4">
             <div className="flex justify-between">
               <span className="text-red-500">
-                {segment.startTime} - {segment.endTime}
+                {segment.startTime.split("T")[1].substring(0, 5)} -{" "}
+                {segment.endTime.split("T")[1].substring(0, 5)}
               </span>
               <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
             </div>
@@ -105,15 +184,29 @@ const SectionEvent = () => {
               {segment.segmentTitle}
             </span>
             <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
+            {segment.speaker && (
+                <div className="flex items-center mt-2">
+                  {segment.speaker.speakerImage && (
+                    <img
+                      src={`http://res.cloudinary.com/dho1vjupv/image/upload/${segment.speaker.speakerImage}`}
+                      alt={segment.speaker.speakerName}
+                      className="w-12 h-12 rounded-full object-cover mr-3"
+                    />
+                  )}
+                  <p className="text-gray-500">
+                    Speaker: {segment.speaker.speakerName} - {segment.speaker.speakerDesc}
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       ))}
 
-      {/* Form thêm slot */}
+      {/* Form thêm segment */}
       {isAdding && (
-        <div ref={addSectionRef} className="p-4 border border-gray-300 rounded-lg">
+        <div className="p-4 border border-gray-300 rounded-lg">
           <div className="mb-4">
-            <label className="block text-gray-700 mb-2" htmlFor="title">
+            <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="title">
               Title<span className="text-red-500">*</span>
             </label>
             <input
@@ -128,8 +221,8 @@ const SectionEvent = () => {
           </div>
           <div className="flex space-x-4 mb-4">
             <div className="flex-1">
-              <label className="block text-gray-700 mb-2" htmlFor="start-time">
-                Start time
+              <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="start-time">
+                Start time<span className="text-red-500">*</span>
               </label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -141,8 +234,8 @@ const SectionEvent = () => {
               />
             </div>
             <div className="flex-1">
-              <label className="block text-gray-700 mb-2" htmlFor="end-time">
-                End time
+              <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="end-time">
+                End time<span className="text-red-500">*</span>
               </label>
               <input
                 className="w-full p-2 border border-gray-300 rounded-lg"
@@ -185,34 +278,58 @@ const SectionEvent = () => {
                 className="flex items-center text-gray-600 mt-2 text-[14px] mb-2"
                 onClick={() => setActor(true)}
               >
-                <FaUser className="mr-2" /> Add Artist
+                <FaUser className="mr-2" /> Add Speaker
               </button>
             ) : (
               <div>
                 <label className="block text-gray-600 mt-2 text-[14px] mb-2">
-                  Artist
+                  Speaker Name <span className="text-red-500">*</span>
+                </label>
+                <div className="flex space-x-4 mb-4">
+                  <input
+                    className="w-[200px] p-2 border border-gray-300 rounded-lg"
+                    type="text"
+                    id="speakerName"
+                    placeholder="Speaker Name"
+                    name="speakerName"
+                    value={newSegment.speakerName}
+                    onChange={handleChange}
+                  />
+                  <ImageUploader onImageUpload={handleImageUpload} />
+                </div>
+                <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                   rows="3"
-                  name="speakerName"
-                  value={newSegment.speakerName}
+                  name="speakerDesc"
+                  value={newSegment.speakerDesc}
                   onChange={handleChange}
                 />
                 <div className="text-right text-gray-400 text-xs">
-                  {newSegment.speakerName.length} / 1000
+                  {newSegment.speakerDesc.length} / 1000
                 </div>
               </div>
             )}
           </div>
+          <button
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
+            onClick={handleAddSlot}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Save Segment"}
+          </button>
         </div>
       )}
 
-      <div className="bg-gray-100 p-4 rounded-lg text-center mt-4">
-        <button className="text-blue-600 w-full" onClick={handleAddSlot}>
-          + Add slot
-        </button>
-      </div>
+      {!isAdding && (
+        <div className="bg-gray-100 p-4 rounded-lg text-center mt-4">
+          <button className="text-blue-600 w-full" onClick={() => setIsAdding(true)}>
+            + Add slot
+          </button>
+        </div>
+      )}
     </div>
   );
 };

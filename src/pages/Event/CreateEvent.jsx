@@ -110,7 +110,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
         </div>
       )}
 
-      <SectionEvent />
+      <SectionEvent  eventId={1}/>
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
