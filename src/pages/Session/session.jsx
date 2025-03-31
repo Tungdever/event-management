@@ -404,18 +404,10 @@ const Session = () => {
                 <div className="row">
                   {/* Avatar và upload */}
                   <div className="col-md-12">
-                    <div className="avatar-container">
+                    <div className="avatar-container d-flex justify-center">
                       <div className="custom-avatar">
-                        <img src={selectedSpeaker?.speaker_photo || ""} alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload materials</div>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
+                        <img src={selectedSession?.session_photo || ""} alt="img" />
+                      </div>                      
                     </div>
                   </div>
 
@@ -424,7 +416,7 @@ const Session = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSession?.session_speaker_name || ""} />
+                        <input type="email" className="input-field" value={selectedSession?.session_speaker_name || ""} disabled/>
                       </div>
                     </div>
                   </div>
