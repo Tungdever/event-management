@@ -1,179 +1,149 @@
-import { useState, useRef, useEffect } from "react";
-import { FaList, FaUser } from "react-icons/fa";
-import axios from "axios";
+import React, { useState, useEffect } from "react";
+import EventForm from "./CreateEvent";
+import AddTicket from "../Ticket/AddTicket";
+import EventPublishing from "./EventPublishing";
 
-const ImageUploader = ({ onImageUpload }) => {
-  const [selectedFile, setSelectedFile] = useState(null);
-  const fileInputRef = useRef(null);
-
-  const handleFileChange = async (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("Please upload an image file.");
-        return;
-      }
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedFile(imageUrl);
-
-      // Upload ảnh lên Cloudinary qua API
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const response = await axios.post("http://localhost:8080/api/storage/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        const publicId = response.data.replace("File uploaded: ", "").trim();
-        onImageUpload({ file, imageUrl, publicId }); 
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Failed to upload image.");
-      }
-    }
-  };
-
-  const handleIconClick = () => {
-    fileInputRef.current.click();
-  };
-
-  return (
-    <div
-      className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-[50px] h-[50px] cursor-pointer overflow-hidden"
-      onClick={handleIconClick}
-    >
-      {selectedFile ? (
-        <img
-          src={selectedFile}
-          alt="Uploaded Preview"
-          className="w-full h-full object-cover rounded-full"
-        />
-      ) : (
-        <i className="fa-solid fa-image text-gray-600 text-xl"></i>
-      )}
-      <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
-    </div>
-  );
-};
-const SectionEvent = ({ eventId }) => {
-  const [segments, setSegments] = useState([]);
-  const [speakerImageData, setSpeakerImageData] = useState(null); 
-  const [newSegment, setNewSegment] = useState({
-    eventId: eventId || "",
-    segmentId: "",
-    segmentTitle: "",
-    segmentDesc: "",
-    speakerName: "",
-    speakerDesc: "",
-    startTime: "",
-    endTime: "",
-  });
-  const [desc, setDesc] = useState(false);
-  const [actor, setActor] = useState(false);
-  const [isAdding, setIsAdding] = useState(false);
-  const [loading, setLoading] = useState(false);
-
-  // Xử lý thay đổi input
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setNewSegment((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
-
-  const handleImageUpload = ({ file, imageUrl, publicId }) => {
-    setSpeakerImageData({ file, imageUrl, publicId });
-  };
-
-  const handleAddSlot = async () => {
-    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
-      alert("Please fill in all required fields (Title, Start Time, End Time).");
-      return;
-    }
-    if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
-      alert("Please fill in Speaker Name and Description.");
-      return;
-    }
-
-    setLoading(true);
-    const currentDate = new Date().toISOString().split("T")[0]; 
-    const postData = {
-      segmentTitle: newSegment.segmentTitle,
-      speaker: actor
-        ? {
-           
-            speakerImage: speakerImageData?.publicId || "", 
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
-          }
-        : null,
-      eventID: eventId,
-      segmentDesc: newSegment.segmentDesc,
-      startTime: `${currentDate}T${newSegment.startTime}:00.000+00:00`,
-      endTime: `${currentDate}T${newSegment.endTime}:00.000+00:00`,
-    };
-
-    try {
-      const response = await axios.post(`http://localhost:8080/api/segment/${eventId}`, postData);
-      alert("Segment added successfully!");
-      setSegments((prev) => [...prev, response.data]);
-      setNewSegment({
-        eventId: eventId || "",
-        segmentId: "",
-        segmentTitle: "",
-        segmentDesc: "",
-        speakerName: "",
-        speakerDesc: "",
+const CRUDEvent = () => {
+  const [selectedStep, setSelectedStep] = useState("build");
+  const [event, setEvent] = useState({
+    eventName: "",
+    eventDesc: "",
+    eventType: "",
+    eventHost: "",
+    eventStatus: "",
+    eventStart: "",
+    eventEnd: "",
+    eventLocation: {
+      date: "",
+      startTime: "",
+      endTime: "",
+      locationType: "online",
+      venueName: "",
+      address: "",
+      city: "",
+    },
+    tags: [],
+    eventVisibility: "public",
+    publishTime: "now",
+    refunds: "yes",
+    validityDays: 7,
+    uploadedImages: [],
+    overviewContent: { text: "", media: [] },
+    tickets: [
+      {
+        eventId: "",
+        ticketId: "",
+        ticketName: "",
+        ticketType: "Paid",
+        price: "",
+        quantity: "",
         startTime: "",
         endTime: "",
-      });
-      setSpeakerImageData(null);
-      setDesc(false);
-      setActor(false);
-      setIsAdding(false);
-    } catch (error) {
-      console.error("Error adding segment:", error);
-      alert("Failed to add segment.");
-    } finally {
-      setLoading(false);
+      },
+    ],
+    segment: [
+      {
+        segmentTitle: "",
+        speaker: {
+          speakerImage: "",
+          speakerName: "",
+          speakerDesc: "",
+        },
+
+        eventID: "",
+        segmentDesc: "",
+        startTime: "",
+        endTime: "",
+      },
+    ],
+  });
+
+const handleTicketsUpdate = (updatedTickets) => {
+  setEvent((prevEvent) => ({
+    ...prevEvent,
+    tickets: updatedTickets, 
+  }));
+
+};
+  const renderStepComponent = () => {
+    switch (selectedStep) {
+      case "build":
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            onNext={() => setSelectedStep("tickets")}
+          />
+        );
+      case "tickets":
+        return (
+          <AddTicket ticketData={event.tickets} onTicketsUpdate={handleTicketsUpdate} 
+          eventId={1} onNext={() => setSelectedStep("publish")} />
+        );
+      case "publish":
+        return (
+          <EventPublishing
+            event={event}
+            setEvent={setEvent}
+            onPublish={handlePublish}
+          />
+        );
+      default:
+        return <EventForm event={event} setEvent={setEvent} />;
     }
   };
 
   return (
-    <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
-      {/* Danh sách segments */}
-      {segments.map((segment, index) => (
-        <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
-          <div className="border-red-500 border-l-2 pl-4">
-            <div className="flex justify-between">
-              <span className="text-red-500">
-                {segment.startTime.split("T")[1].substring(0, 5)} -{" "}
-                {segment.endTime.split("T")[1].substring(0, 5)}
-              </span>
-              <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
-            </div>
-            <span className="font-semibold text-gray-500 text-xl py-2">
-              {segment.segmentTitle}
+    <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
+      <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
+        <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+          <h2 className="text-lg font-semibold">
+            {event.eventName || "Untitled Event"}
+          </h2>
+          <div className="flex items-center text-gray-500 mt-2">
+            <i className="far fa-calendar-alt mr-2"></i>
+            <span>
+              {event.eventLocation.date && event.eventLocation.startTime
+                ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
+                : "Date and time not set"}
             </span>
-            <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
-            {segment.speaker && (
-              
-                <p className="text-gray-500">
-
-                Speaker: {segment.speaker.speakerName} - {segment.speaker.speakerDesc}
-              </p>
-            )}
+          </div>
+          <div className="flex items-center mt-4">
+            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
+              Draft <i className="fas fa-caret-down ml-1"></i>
+            </button>
+            <a href="#" className="text-blue-600">
+              Preview <i className="fas fa-external-link-alt"></i>
+            </a>
           </div>
         </div>
-      ))}
+        <h3 className="text-lg font-semibold mb-2">Steps</h3>
+        <div className="space-y-2">
+          {["build", "tickets", "publish"].map((step) => (
+            <label
+              key={step}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="eventStep"
+                value={step}
+                checked={selectedStep === step}
+                onChange={() => setSelectedStep(step)}
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+              />
+              <span>
+                {step === "build" && "Build event page"}
+                {step === "tickets" && "Add tickets"}
+                {step === "publish" && "Publish"}
+              </span>
+            </label>
+          ))}
+        </div>
+      </aside>
+      <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
     </div>
   );
 };
 
-export default SectionEvent;
+export default CRUDEvent;

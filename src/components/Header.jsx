@@ -4,26 +4,22 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 
-
-
-const LocationDropdown = ()=> {
-  const [selected, setSelected] = useState("Ho Chi Minh ");
+const LocationDropdown = ({ onLocationChange }) => {
+  const [selected, setSelected] = useState("Ho Chi Minh");
   const [isOpen, setIsOpen] = useState(false);
 
   const locations = ["Ho Chi Minh", "Hanoi", "Da Nang"];
 
-  // Hàm xử lý chọn thành phố
+  
   const handleSelectCity = (city) => {
     setSelected(city);
     setIsOpen(false);
+    onLocationChange(city); 
   };
 
   return (
     <div className="relative flex items-center px-4">
-      {/*  */}
       <FaMapMarkerAlt className="text-gray-500 cursor-pointer" />
-
-      {/*  */}
       <div
         className="relative ml-2 text-gray-500 text-sm cursor-pointer flex items-center"
         onClick={() => setIsOpen(!isOpen)}
@@ -31,8 +27,6 @@ const LocationDropdown = ()=> {
         <span className="px-3 py-2">{selected}</span>
         <FaChevronDown className="ml-2 text-gray-400" />
       </div>
-
-      {/*  */}
       {isOpen && (
         <div className="absolute top-full left-8 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
           {locations.map((city, index) => (
@@ -48,10 +42,12 @@ const LocationDropdown = ()=> {
       )}
     </div>
   );
-}
+};
+
 const SearchBar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState("Ho Chi Minh");
   const [searchHistory, setSearchHistory] = useState([
     "Music Festival",
     "Tech Conference",
@@ -73,8 +69,29 @@ const SearchBar = () => {
     };
   }, []);
 
+
+  const handleSearch = async () => {
+    try {
+      const response = await fetch(
+        `/api/events/search/name-and-location?name=${encodeURIComponent(searchTerm)}&location=${encodeURIComponent(selectedLocation)}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+      const data = await response.json();
+      // Navigate đến /search và truyền data qua state
+      navigate("/search", { state: { events: data } });
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo
+    }
+  };
+
   return (
-    <div className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]" ref={searchRef}>
+    <div
+      className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]"
+      ref={searchRef}
+    >
       <div className="flex items-center px-4 w-[380px]">
         <i className="fas fa-search text-gray-500"></i>
         <input
@@ -102,21 +119,14 @@ const SearchBar = () => {
           ))}
         </div>
       )}
-
       <div className="border-l border-gray-300 h-6 mx-4"></div>
-
       <div className="relative flex items-center px-4">
-        {/* <i className="fas fa-map-marker-alt text-gray-500 cursor-pointer" onClick={() => setShowHistory(!showHistory)}></i>
-        <select className="ml-2 text-gray-500 bg-transparent outline-none">
-          <option value="Ho Chi Minh City">Ho Chi Minh City</option>
-          <option value="Hanoi">Hanoi</option>
-          <option value="Da Nang">Da Nang</option>
-        </select> */}
-        <LocationDropdown/>
+        <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
-
-      <button className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
-      onClick={() => navigate("/search")}>
+      <button
+        className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
+        onClick={handleSearch} // Gọi hàm handleSearch thay vì navigate trực tiếp
+      >
         <i className="fas fa-search"></i>
       </button>
     </div>
@@ -125,16 +135,14 @@ const SearchBar = () => {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const menuRef = useRef(null); 
+  const menuRef = useRef(null);
 
-  
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -148,14 +156,11 @@ const Header = () => {
         <div className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300">
           Manage Event
         </div>
-        <SearchBar/>
-
-
+        <SearchBar />
         {/* Navigation Menu */}
         <div className="flex items-center gap-6 mx-4">
           {[
             { icon: "bi-calendar4-event", text: "Create event" },
-          
             { icon: "bi bi-heart", text: "Likes" },
             { icon: "bi bi-question-circle", text: "Help" },
           ].map((item, index) => (
@@ -168,26 +173,20 @@ const Header = () => {
               {item.text}
             </a>
           ))}
-
           {/* User Profile */}
           <div
-            className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer "
+            className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            ref={menuRef} //
-            onMouseEnter={() => setIsMenuOpen(true)} // 
+            ref={menuRef}
+            onMouseEnter={() => setIsMenuOpen(true)}
           >
             <i className="fa-solid fa-user text-lg"></i>
             <p className="pl-[6px] font-medium">trungbo.234416@gmail.com</p>
-            <i
-              className="bi bi-chevron-down pt-[4px] pl-[3px] cursor-pointer"
-             
-            ></i>
-
-            {/* Submenu */}
+            <i className="bi bi-chevron-down pt-[4px] pl-[3px] cursor-pointer"></i>
             {isMenuOpen && (
               <div
                 className="absolute right-0 top-full mt-2 w-[205px] bg-white border rounded shadow-lg z-50"
-                onMouseLeave={() => setIsMenuOpen(false)} // Rời chuột khỏi submenu thì đóng
+                onMouseLeave={() => setIsMenuOpen(false)}
               >
                 {[
                   "Browse events",

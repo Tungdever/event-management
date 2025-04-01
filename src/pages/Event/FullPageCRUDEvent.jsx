@@ -22,20 +22,40 @@ const CRUDEvent = () => {
       address: "",
       city: "",
     },
-    tags: [
-      "mental_health",
-      "first_aid",
-      "training",
-      "cpd_accredited",
-      "wellness",
-    ],
+    tags: [],
     eventVisibility: "public",
     publishTime: "now",
     refunds: "yes",
     validityDays: 7,
     uploadedImages: [],
     overviewContent: { text: "", media: [] },
-    tickets: [],
+    tickets: [
+      {
+        eventId: "",
+        ticketId: "",
+        ticketName: "",
+        ticketType: "Paid",
+        price: "",
+        quantity: "",
+        startTime: "",
+        endTime: "",
+      },
+    ],
+    segment: [
+      {
+        segmentTitle: "",
+        speaker: {
+          speakerImage: "",
+          speakerName: "",
+          speakerDesc: "",
+        },
+
+        eventID: "",
+        segmentDesc: "",
+        startTime: "",
+        endTime: "",
+      },
+    ],
   });
 
   const uploadFilesToCloudinary = async (files) => {
@@ -61,10 +81,13 @@ const CRUDEvent = () => {
         const formData = new FormData();
         formData.append("file", blob);
 
-        const response = await fetch("http://localhost:8080/api/storage/upload", {
-          method: "POST",
-          body: formData,
-        });
+        const response = await fetch(
+          "http://localhost:8080/api/storage/upload",
+          {
+            method: "POST",
+            body: formData,
+          }
+        );
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -72,8 +95,9 @@ const CRUDEvent = () => {
         }
 
         const result = await response.text();
-        const publicId = result.split("File uploaded: ")[1];
-        if (!publicId) throw new Error("Invalid public_id in response: " + result);
+        const publicId = result[1];
+        if (!publicId)
+          throw new Error("Invalid public_id in response: " + result);
 
         uploadedIds.push(publicId);
       } catch (error) {
@@ -92,16 +116,20 @@ const CRUDEvent = () => {
       eventType: eventData.eventType || "",
       eventHost: eventData.eventHost || "",
       eventStatus: eventData.eventStatus || "public",
-      eventStart: eventData.eventLocation.date && eventData.eventLocation.startTime
-        ? `${eventData.eventLocation.date} ${eventData.eventLocation.startTime}`
-        : "",
-      eventEnd: eventData.eventLocation.date && eventData.eventLocation.endTime
-        ? `${eventData.eventLocation.date} ${eventData.eventLocation.endTime}`
-        : "",
+      eventStart:
+        eventData.eventLocation.date && eventData.eventLocation.startTime
+          ? `${eventData.eventLocation.date} ${eventData.eventLocation.startTime}`
+          : "",
+      eventEnd:
+        eventData.eventLocation.date && eventData.eventLocation.endTime
+          ? `${eventData.eventLocation.date} ${eventData.eventLocation.endTime}`
+          : "",
       eventLocation:
         eventData.eventLocation.locationType === "online"
           ? "Online"
-          : `${eventData.eventLocation.venueName || ""} ${eventData.eventLocation.address || ""} ${eventData.eventLocation.city || ""}`.trim(),
+          : `${eventData.eventLocation.venueName || ""} ${
+              eventData.eventLocation.address || ""
+            } ${eventData.eventLocation.city || ""}`.trim(),
       tags: eventData.tags.join("|"),
       eventVisibility: eventData.eventVisibility || "public",
       publishTime: eventData.publishTime || "now",
@@ -109,26 +137,84 @@ const CRUDEvent = () => {
       validityDays: eventData.validityDays || 7,
       eventImages: eventData.uploadedImages || [],
       textContent: eventData.overviewContent.text || "",
-      mediaContent: eventData.overviewContent.media.map((item) => item.url) || [],
+      mediaContent:
+        eventData.overviewContent.media.map((item) => item.url) || [],
     };
-
+  
     try {
-      const response = await fetch("http://localhost:8080/api/events/create", {
+      // Step 1: Save the event to the database
+      const eventResponse = await fetch("http://localhost:8080/api/events/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(dataEvent),
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
+  
+      if (!eventResponse.ok) {
+        const errorText = await eventResponse.text();
         throw new Error(`Failed to save event: ${errorText}`);
       }
-
-      const result = await response.json();
-      console.log("Event saved to database:", result);
-      return result;
+  
+      const eventResult = await eventResponse.json();
+      const eventId = eventResult.eventId; // Assuming the API returns eventId
+      console.log("Event saved to database with ID:", eventId);
+  
+      // Step 2: Save segments for the event
+      if (eventData.segment && eventData.segment.length > 0) {
+        const segmentData = eventData.segment.map((seg) => ({
+          ...seg,
+          eventID: eventId, // Assign the retrieved eventId
+        }));
+  
+        const segmentResponse = await fetch(
+          `http://localhost:8080/api/segment/${eventId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(segmentData),
+          }
+        );
+  
+        if (!segmentResponse.ok) {
+          const errorText = await segmentResponse.text();
+          throw new Error(`Failed to save segments: ${errorText}`);
+        }
+  
+        const segmentResult = await segmentResponse.json();
+        console.log("Segments saved:", segmentResult);
+      }
+  
+      // Step 3: Save tickets for the event
+      if (eventData.tickets && eventData.tickets.length > 0) {
+        const ticketData = eventData.tickets.map((ticket) => ({
+          ...ticket,
+          eventId: eventId, // Assign the retrieved eventId
+        }));
+  
+        const ticketResponse = await fetch(
+          `http://localhost:8080/api/ticket/${eventId}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(ticketData),
+          }
+        );
+  
+        if (!ticketResponse.ok) {
+          const errorText = await ticketResponse.text();
+          throw new Error(`Failed to save tickets: ${errorText}`);
+        }
+  
+        const ticketResult = await ticketResponse.json();
+        console.log("Tickets saved:", ticketResult);
+      }
+  
+      return { eventId, ...eventResult }; 
     } catch (error) {
       console.error("Error saving event to database:", error);
       throw error;
@@ -137,17 +223,15 @@ const CRUDEvent = () => {
 
   const handlePublish = async () => {
     try {
-      // Bước 1: Upload files lên Cloudinary
+      // Step 1: Upload files to Cloudinary
       const uploadedImageIds = await uploadFilesToCloudinary(event.uploadedImages);
-      const uploadedMediaIds = await uploadFilesToCloudinary(
-        event.overviewContent.media
-      );
-
+      const uploadedMediaIds = await uploadFilesToCloudinary(event.overviewContent.media);
+  
       if (uploadedImageIds.length === 0 && uploadedMediaIds.length === 0) {
         throw new Error("No files were uploaded successfully.");
       }
-
-      // Bước 2: Cập nhật event với public_id từ Cloudinary
+  
+      // Step 2: Update event with public_ids from Cloudinary
       const updatedEvent = {
         ...event,
         uploadedImages: uploadedImageIds,
@@ -160,20 +244,28 @@ const CRUDEvent = () => {
         },
       };
       setEvent(updatedEvent);
-
-      // Bước 3: Gửi dữ liệu event về backend để lưu vào database
-      await saveEventToDatabase(updatedEvent);
-
-      console.log("Event published and saved:", updatedEvent);
+  
+      // Step 3: Save event, segments, and tickets to database
+      const result = await saveEventToDatabase(updatedEvent);
+      const eventId = result.eventId;
+  
+      console.log("Event published and saved with ID:", eventId);
       alert(
-        `Event published successfully!\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}`
+        `Event published successfully!\nEvent ID: ${eventId}\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}`
       );
     } catch (error) {
       console.error("Failed to publish event:", error);
       alert(`Failed to process event: ${error.message}`);
     }
   };
+// Hàm nhận dữ liệu từ component con và cập nhật state
+const handleTicketsUpdate = (updatedTickets) => {
+  setEvent((prevEvent) => ({
+    ...prevEvent,
+    tickets: updatedTickets,
+  }));
 
+};
   const renderStepComponent = () => {
     switch (selectedStep) {
       case "build":
@@ -186,14 +278,16 @@ const CRUDEvent = () => {
         );
       case "tickets":
         return (
-          <AddTicket
-            eventId ={1}
-            onNext={() => setSelectedStep("publish")}
-          />
+          <AddTicket ticketData={event.tickets} onTicketsUpdate={handleTicketsUpdate} 
+          eventId={1} onNext={() => setSelectedStep("publish")} />
         );
       case "publish":
         return (
-          <EventPublishing event={event} setEvent={setEvent} onPublish={handlePublish} />
+          <EventPublishing
+            event={event}
+            setEvent={setEvent}
+            onPublish={handlePublish}
+          />
         );
       default:
         return <EventForm event={event} setEvent={setEvent} />;

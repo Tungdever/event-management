@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import EventList from "../../components/EventListSearch";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-
+import { useLocation } from "react-router-dom";
 const eventData = [
   {
     event_id: 1,
@@ -97,12 +97,13 @@ const Tags = () => {
     </div>
   );
 };
-const FilterSidebar = () => {
-  const [selectedCategories, setSelectedCategories] = useState(["concert"]);
+
+const FilterSidebar = ({ onFilterChange }) => {
+  const [selectedCategories, setSelectedCategories] = useState("concert"); 
   const [selectedEventType, setSelectedEventType] = useState("all-types");
   const [selectedEventTime, setSelectedEventTime] = useState("all-times");
-  const [selectedEventLocation, setSelectedEventLocation] =
-    useState("all-locations");
+  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
+  const [eventData, setEventData] = useState([]); 
 
   const eventCategories = [
     { id: "conference", label: "Hội nghị" },
@@ -134,21 +135,52 @@ const FilterSidebar = () => {
     { id: "danang", label: "Đà Nẵng" },
   ];
 
+  // Hàm gọi API dựa trên filter
+  const fetchEvents = async (endpoint, param) => {
+    try {
+      const response = await fetch(`/api/events${endpoint}?${param}`);
+      if (!response.ok) throw new Error("Failed to fetch events");
+      const data = await response.json();
+      setEventData(data); 
+      onFilterChange(data); 
+    } catch (error) {
+      console.error("Error fetching events:", error);
+    }
+  };
+
+  
+  useEffect(() => {
+    
+    if (selectedCategories && selectedCategories !== "all-categories") {
+      fetchEvents("/search/tags", `tag=${selectedCategories}`);
+    } else if (selectedEventType && selectedEventType !== "all-types") {
+      fetchEvents("/search/type", `type=${selectedEventType}`);
+    } else if (selectedEventTime && selectedEventTime !== "all-times") {
+     
+      const today = new Date().toISOString().split("T")[0]; 
+      fetchEvents("/search/date", `date=${today}`);
+    } else if (selectedEventLocation && selectedEventLocation !== "all-locations") {
+      fetchEvents("/search/location", `location=${selectedEventLocation}`);
+    }
+  }, [selectedCategories, selectedEventType, selectedEventTime, selectedEventLocation]);
+
   const resetFilters = () => {
-    setSelectedCategories([]);
+    setSelectedCategories("all-categories");
     setSelectedEventType("all-types");
     setSelectedEventTime("all-times");
     setSelectedEventLocation("all-locations");
+    setEventData([]); 
+    onFilterChange([]); 
   };
 
   return (
-    <div className="w-full bg-white p-5 rounded-sm  space-y-6 overflow-y-auto h-[900px]">
+    <div className="w-full bg-white p-6 rounded-lg shadow-lg space-y-8 h-[900px] overflow-y-auto border border-gray-200">
       {/* Header */}
-      <div className="flex justify-between items-center border-b pb-3">
-        <h2 className="text-lg font-semibold text-gray-700">Bộ lọc sự kiện</h2>
+      <div className="flex justify-between items-center border-b pb-4">
+        <h2 className="text-xl font-bold text-gray-800">Bộ lọc sự kiện</h2>
         <button
           onClick={resetFilters}
-          className="text-red-500 hover:text-red-600 font-medium"
+          className="text-red-500 hover:text-red-700 font-semibold transition-colors duration-200"
         >
           Xóa lọc
         </button>
@@ -156,21 +188,21 @@ const FilterSidebar = () => {
 
       {/* Loại sự kiện */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-2">Loại sự kiện</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Loại sự kiện</h3>
+        <div className="space-y-3">
           {eventCategories.map((category) => (
-            <div key={category.id} className="flex items-center space-x-2">
+            <div key={category.id} className="flex items-center space-x-3">
               <input
                 id={category.id}
                 type="radio"
                 name="eventCategory"
-                checked={selectedCategories.includes(category.id)}
-                onChange={() => setSelectedCategories([category.id])}
+                checked={selectedCategories === category.id}
+                onChange={() => setSelectedCategories(category.id)}
                 className="w-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={category.id}
-                className="text-gray-600 cursor-pointer hover:text-orange-600"
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
               >
                 {category.label}
               </label>
@@ -181,10 +213,10 @@ const FilterSidebar = () => {
 
       {/* Hình thức sự kiện */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-2">Hình thức</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Hình thức</h3>
+        <div className="space-y-3">
           {eventTypes.map((type) => (
-            <div key={type.id} className="flex items-center space-x-2">
+            <div key={type.id} className="flex items-center space-x-3">
               <input
                 id={type.id}
                 type="radio"
@@ -195,7 +227,7 @@ const FilterSidebar = () => {
               />
               <label
                 htmlFor={type.id}
-                className="text-gray-600 cursor-pointer hover:text-orange-600"
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
               >
                 {type.label}
               </label>
@@ -206,21 +238,21 @@ const FilterSidebar = () => {
 
       {/* Thời gian tổ chức */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-2">Thời gian tổ chức</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Thời gian tổ chức</h3>
+        <div className="space-y-3">
           {eventTimes.map((time) => (
-            <div key={time.id} className="flex items-center space-x-2">
+            <div key={time.id} className="flex items-center space-x-3">
               <input
                 id={time.id}
                 type="radio"
                 name="eventTime"
                 checked={selectedEventTime === time.id}
                 onChange={() => setSelectedEventTime(time.id)}
-                className="aw-4 h-4 border-2 border-orange-500 accent-red-500"
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
               />
               <label
                 htmlFor={time.id}
-                className="text-gray-600 cursor-pointer hover:text-orange-600"
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
               >
                 {time.label}
               </label>
@@ -231,10 +263,10 @@ const FilterSidebar = () => {
 
       {/* Địa điểm tổ chức */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-2">Địa điểm tổ chức</h3>
-        <div className="space-y-2">
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Địa điểm tổ chức</h3>
+        <div className="space-y-3">
           {eventLocations.map((location) => (
-            <div key={location.id} className="flex items-center space-x-2">
+            <div key={location.id} className="flex items-center space-x-3">
               <input
                 id={location.id}
                 type="radio"
@@ -245,7 +277,7 @@ const FilterSidebar = () => {
               />
               <label
                 htmlFor={location.id}
-                className="text-gray-600 cursor-pointer hover:text-orange-600"
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
               >
                 {location.label}
               </label>
@@ -259,45 +291,54 @@ const FilterSidebar = () => {
 
 const SearchPage = () => {
   const [loading, setLoading] = useState(true);
+  const [events, setEvents] = useState([]); 
+  const location = useLocation();
 
   useEffect(() => {
+   
+    const initialEvents = location.state?.events || [];
+    setEvents(initialEvents);
     setTimeout(() => {
       setLoading(false);
     }, 250);
-  }, []);
+  }, [location.state]);
+
+  
+  const handleFilterChange = (filteredEvents) => {
+    setEvents(filteredEvents);
+  };
+
   return loading ? (
-    <h1></h1>
+    <h1>Loading...</h1>
   ) : (
     <>
       <Header />
-      <div class=" mx-auto px-6 py-4">
-        <nav class="text-sm text-orange-600 space-x-2 pt-2">
-          <a href="#" class="hover:underline">
+      <div className="mx-auto px-6 py-4">
+        <nav className="text-sm text-orange-600 space-x-2 pt-2">
+          <a href="#" className="hover:underline">
             Home
           </a>
           <span>/</span>
-          <a href="#" class="hover:underline">
+          <a href="#" className="hover:underline">
             Vietnam
           </a>
           <span>/</span>
-          <a href="#" class="hover:underline">
+          <a href="#" className="hover:underline">
             Ho Chi Minh
           </a>
           <span>/</span>
-          <span class="text-gray-500">Live Music Events</span>
+          <span className="text-gray-500">Live Music Events</span>
         </nav>
-        <h1 class="text-3xl font-bold text-gray-700 mt-4">
+        <h1 className="text-3xl font-bold text-gray-700 mt-4">
           Live music events in Ho Chi Minh, Vietnam
         </h1>
       </div>
       <div className="flex flex-col md:flex-row gap-2 p-5">
         <div className="w-full md:w-1/4">
-          <FilterSidebar />
+          <FilterSidebar onFilterChange={handleFilterChange} />
         </div>
-
         <div className="w-full md:w-3/4 overflow-y-auto">
-          <EventList event={eventData} />
-
+          <EventList events={events} /> {/* Truyền danh sách sự kiện từ state */}
           <Tags />
         </div>
       </div>
@@ -305,5 +346,6 @@ const SearchPage = () => {
     </>
   );
 };
+
 
 export default SearchPage;

@@ -4,7 +4,7 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
-  const [images, setImages] = useState(uploadedImages || []); // Đồng bộ với uploadedImages từ cha
+  const [images, setImages] = useState(uploadedImages || []);
   const [cropImage, setCropImage] = useState(null);
   const [showCropper, setShowCropper] = useState(false);
   const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -65,14 +65,14 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
     const croppedImg = await getCroppedImg(cropImage, croppedAreaPixels);
     const updatedImages = [...images, croppedImg];
     setImages(updatedImages);
-    setUploadedImages(updatedImages); // Truyền danh sách hình ảnh mới về cha
+    setUploadedImages(updatedImages); 
     setShowCropper(false);
-    setCropImage(null); // Reset cropImage sau khi lưu
-    setCroppedPreview(null); // Reset preview
+    setCropImage(null); 
+    setCroppedPreview(null);
   };
 
   const handleComplete = () => {
-    setUploadedImages(images); // Đảm bảo dữ liệu cuối cùng được gửi về cha
+    setUploadedImages(images);
     setShowUpload(false);
   };
 

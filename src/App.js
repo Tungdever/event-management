@@ -29,7 +29,7 @@ import EventPublishing from './pages/Event/EventPublishing';
 import Refund from './pages/Refund/refund'
 import RefundManagement from './pages/Refund/refund_management'
 import ViewProfile from './pages/Dashboard/ViewProfile';
-
+import Chat from './pages/ChatBox/ChatSocket';
 
 const eventData = {
   event_id: 1,
@@ -193,7 +193,8 @@ const MainLayout = () => {
   const isFullScreenPage = location.pathname === "/" 
   || location.pathname === "/detail" || location.pathname === "/search"|| location.pathname === "/test"
   || location.pathname === "/login" || location.pathname === "/signup"
-  || location.pathname === "/addTicket" || location.pathname === "/checkout" || location.pathname === "/refund" || location.pathname === "/eventpage";
+  || location.pathname === "/addTicket" || location.pathname === "/checkout"
+   || location.pathname === "/refund" || location.pathname === "/eventpage";
 
   return (
     <div className="w-full min-h-screen bg-while">
@@ -209,6 +210,7 @@ const MainLayout = () => {
         <Route path ="/myticket" element={<TicketList tickets={ticketData}/>}></Route>
         <Route path ="/refund" element={<Refund />}></Route>
         <Route path ="/eventpage" element={<EventPage />}></Route>
+        <Route path="/test" element={<Chat/>}/>
       </Routes>
 
       {!isFullScreenPage && (

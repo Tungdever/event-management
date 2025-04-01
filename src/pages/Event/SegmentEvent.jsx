@@ -23,7 +23,7 @@ const ImageUploader = ({ onImageUpload }) => {
         const response = await axios.post("http://localhost:8080/api/storage/upload", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        const publicId = response.data.replace("File uploaded: ", "").trim();
+        const publicId = response.data.trim();
         onImageUpload({ file, imageUrl, publicId }); 
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -152,9 +152,7 @@ const SectionEvent = ({ eventId }) => {
         <button className="text-red-500">Delete section</button>
       </div>
       <p className="text-gray-600 mb-6">
-        Add an itinerary, schedule, or lineup to your event. You can include a
-        time, a description of what will happen, and who will host or perform
-        during the event.
+        Add an itinerary, schedule, or lineup to your event. You can include a time, a description of what will happen, and who will host or perform during the event.
       </p>
       <div className="flex items-center mb-4">
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
@@ -190,7 +188,7 @@ const SectionEvent = ({ eventId }) => {
                     <img
                       src={`http://res.cloudinary.com/dho1vjupv/image/upload/${segment.speaker.speakerImage}`}
                       alt={segment.speaker.speakerName}
-                      className="w-12 h-12 rounded-full object-cover mr-3"
+                      className="w-12 h-12 rounded-full object-cover mr-3"  
                     />
                   )}
                   <p className="text-gray-500">
