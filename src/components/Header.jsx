@@ -136,7 +136,7 @@ const SearchBar = () => {
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -150,10 +150,10 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="bg-white shadow relative">
+    <div className="bg-white shadow fixed top-0 left-0 w-full z-10">
       <div className="w-full px-4 py-4 h-16 flex justify-between items-center">
         {/* Logo */}
-        <div className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300">
+        <div className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300" >
           Manage Event
         </div>
         <SearchBar />

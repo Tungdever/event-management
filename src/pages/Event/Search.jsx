@@ -312,7 +312,7 @@ const SearchPage = () => {
     <h1>Loading...</h1>
   ) : (
     <>
-      <Header />
+      
       <div className="mx-auto px-6 py-4">
         <nav className="text-sm text-orange-600 space-x-2 pt-2">
           <a href="#" className="hover:underline">

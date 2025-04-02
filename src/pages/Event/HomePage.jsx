@@ -12,7 +12,7 @@ import {
 } from "react-icons/fa";
 import EventListings from "../../components/EventListGrid";
 import ListEventScroll from "../../components/EventListScroll";
-
+import Loader from "../../components/Loading";
 const eventData =  [
   {
     id: 1,
@@ -302,9 +302,11 @@ const HomePage = () => {
     }, 250); 
   }, []);
   return (
-    loading ?<h1></h1> :
+    loading ?<div className="flex justify-center items-center h-screen">
+    <Loader />
+  </div> :
     <div>
-      <Header />
+      
       <SliderEvent />
       <Navbar />
       <ListEventScroll events={eventData} />
