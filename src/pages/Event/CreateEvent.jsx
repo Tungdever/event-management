@@ -6,7 +6,7 @@ import OverviewSection from "./OverviewSection";
 import Loader from "../../components/Loading";
 
 const EventForm = ({ event, setEvent, onNext }) => {
-  const [showOverview, setShowOverview] = useState(false); // Sửa tên hàm setter cho nhất quán
+  const [showOverview, setShowOverview] = useState(false); 
   const [loading, setLoading] = useState(true);
 
   // Hàm cập nhật eventLocation
@@ -16,7 +16,14 @@ const EventForm = ({ event, setEvent, onNext }) => {
       eventLocation: updatedLocation,
     }));
   };
+// Hàm cập nhật segment 
+const handleSegmentUpdate = (updatedSegments) => {
+  setEvent((prevEvent) => ({
+    ...prevEvent,
+    segment: updatedSegments,
+  }));
 
+};
   // Hàm cập nhật overviewContent
   const handleContentUpdate = (newContent) => {
     setEvent((prev) => ({
@@ -53,7 +60,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
     <div className="max-w-3xl mx-auto p-4">
       {/* Image Upload Section */}
       <UploadContainer
-        uploadedImages={event.uploadedImages || []} // Đảm bảo có giá trị mặc định
+        uploadedImages={event.uploadedImages || []}
         setUploadedImages={handleImagesUpdate}
       />
 
@@ -110,7 +117,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
         </div>
       )}
 
-      <SectionEvent  eventId={1}/>
+      <SectionEvent segmentData = {event.segment} onSegmentUpdate={handleSegmentUpdate}/>
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}

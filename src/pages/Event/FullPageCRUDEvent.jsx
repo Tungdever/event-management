@@ -29,43 +29,24 @@ const CRUDEvent = () => {
     validityDays: 7,
     uploadedImages: [],
     overviewContent: { text: "", media: [] },
-    tickets: [
-      {
-        eventId: "",
-        ticketId: "",
-        ticketName: "",
-        ticketType: "Paid",
-        price: "",
-        quantity: "",
-        startTime: "",
-        endTime: "",
-      },
-    ],
-    segment: [
-      {
-        segmentTitle: "",
-        speaker: {
-          speakerImage: "",
-          speakerName: "",
-          speakerDesc: "",
-        },
-
-        eventID: "",
-        segmentDesc: "",
-        startTime: "",
-        endTime: "",
-      },
-    ],
+    tickets: [],
+    segment: [],
   });
-
   const uploadFilesToCloudinary = async (files) => {
+    if (!files || (Array.isArray(files) && files.length === 0)) return [];
+  
     const uploadedIds = [];
-    const fileList = files.map((item) =>
-      typeof item === "object" && item.url ? item.url : item
-    );
-
+    const fileList = Array.isArray(files)
+      ? files.map((item) => (typeof item === "object" && item.url ? item.url : item))
+      : [typeof files === "object" && files.url ? files.url : files];
+  
     for (const file of fileList) {
       try {
+        if (typeof file === "string" && file.startsWith("http")) {
+          uploadedIds.push(file);
+          continue;
+        }
+  
         let blob;
         if (typeof file === "string" && file.startsWith("blob:")) {
           const response = await fetch(file);
@@ -77,77 +58,94 @@ const CRUDEvent = () => {
           console.warn("Invalid file type, skipping:", file);
           continue;
         }
-
+  
         const formData = new FormData();
         formData.append("file", blob);
-
-        const response = await fetch(
-          "http://localhost:8080/api/storage/upload",
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
+  
+        const response = await fetch("http://localhost:8080/api/storage/upload", {
+          method: "POST",
+          body: formData,
+        });
+  
         if (!response.ok) {
           const errorText = await response.text();
           throw new Error(`Upload failed: ${errorText}`);
         }
-
+  
         const result = await response.text();
-        const publicId = result[1];
+        const publicId = result;
         if (!publicId)
           throw new Error("Invalid public_id in response: " + result);
-
+  
         uploadedIds.push(publicId);
       } catch (error) {
         console.error("Error uploading file:", file, error);
         uploadedIds.push(null);
       }
     }
-
+  
     return uploadedIds.filter((id) => id !== null);
   };
 
-  const saveEventToDatabase = async (eventData) => {
-    const dataEvent = {
-      eventName: eventData.eventName || "",
-      eventDesc: eventData.eventDesc || "",
-      eventType: eventData.eventType || "",
-      eventHost: eventData.eventHost || "",
-      eventStatus: eventData.eventStatus || "public",
-      eventStart:
-        eventData.eventLocation.date && eventData.eventLocation.startTime
-          ? `${eventData.eventLocation.date} ${eventData.eventLocation.startTime}`
-          : "",
-      eventEnd:
-        eventData.eventLocation.date && eventData.eventLocation.endTime
-          ? `${eventData.eventLocation.date} ${eventData.eventLocation.endTime}`
-          : "",
-      eventLocation:
-        eventData.eventLocation.locationType === "online"
-          ? "Online"
-          : `${eventData.eventLocation.venueName || ""} ${
-              eventData.eventLocation.address || ""
-            } ${eventData.eventLocation.city || ""}`.trim(),
-      tags: eventData.tags.join("|"),
-      eventVisibility: eventData.eventVisibility || "public",
-      publishTime: eventData.publishTime || "now",
-      refunds: eventData.refunds || "no",
-      validityDays: eventData.validityDays || 7,
-      eventImages: eventData.uploadedImages || [],
-      textContent: eventData.overviewContent.text || "",
-      mediaContent:
-        eventData.overviewContent.media.map((item) => item.url) || [],
-    };
+  const handlePublish = async () => {
+    console.log("Publishing event:", event);
   
     try {
-      // Step 1: Save the event to the database
+      const isFile = (item) =>
+        item instanceof File ||
+        item instanceof Blob ||
+        (typeof item === "string" && item.startsWith("blob:"));
+  
+      // Giữ URL cũ và chỉ upload file mới
+      const existingImageIds =
+        event.uploadedImages?.filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+      const newImages = event.uploadedImages?.filter(isFile) || [];
+      const newImageIds = newImages.length > 0 ? await uploadFilesToCloudinary(newImages) : [];
+      const uploadedImageIds = [...existingImageIds, ...newImageIds];
+  
+      const existingMediaIds =
+        event.overviewContent?.media
+          ?.filter((item) => typeof item === "object" && item.url && item.url.startsWith("http"))
+          .map((item) => item.url) || [];
+      const newMedia = event.overviewContent?.media?.filter((item) =>
+        isFile(item) || (typeof item === "object" && isFile(item.url))
+      ) || [];
+      const newMediaIds = newMedia.length > 0 ? await uploadFilesToCloudinary(newMedia) : [];
+      const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
+  
+      const dataEvent = {
+        eventName: event.eventName || "",
+        eventDesc: event.eventDesc || "",
+        eventType: event.eventType || "",
+        eventHost: event.eventHost || "",
+        eventStatus: event.eventStatus || "public",
+        eventStart:
+          event.eventLocation.date && event.eventLocation.startTime
+            ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+            : "",
+        eventEnd:
+          event.eventLocation.date && event.eventLocation.endTime
+            ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+            : "",
+        eventLocation:
+          event.eventLocation.locationType === "online"
+            ? "Online"
+            : `${event.eventLocation.venueName || ""} ${
+                event.eventLocation.address || ""
+              } ${event.eventLocation.city || ""}`.trim(),
+        tags: event.tags?.join("|") || "",
+        eventVisibility: event.eventVisibility || "public",
+        publishTime: event.publishTime || "now",
+        refunds: event.refunds || "no",
+        validityDays: event.validityDays || 7,
+        eventImages: uploadedImageIds,
+        textContent: event.overviewContent?.text || "",
+        mediaContent: uploadedMediaIds,
+      };
+  
       const eventResponse = await fetch("http://localhost:8080/api/events/create", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataEvent),
       });
   
@@ -157,115 +155,98 @@ const CRUDEvent = () => {
       }
   
       const eventResult = await eventResponse.json();
-      const eventId = eventResult.eventId; // Assuming the API returns eventId
-      console.log("Event saved to database with ID:", eventId);
+      const eventId =  eventResult;
+      console.log("Event saved with ID:", eventId);
   
-      // Step 2: Save segments for the event
-      if (eventData.segment && eventData.segment.length > 0) {
-        const segmentData = eventData.segment.map((seg) => ({
-          ...seg,
-          eventID: eventId, // Assign the retrieved eventId
-        }));
+      if (event.segment?.length > 0) {
+        for (const segment of event.segment) {
+          const uploadedSpeakerId = segment?.speaker?.speakerImage
+            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
+            : null;
+          const segmentapi = {
+            segmentTitle: segment.segmentTitle || "",
+            speaker: segment.speaker
+              ? {
+                  speakerImage: uploadedSpeakerId || "",
+                  speakerName: segment.speaker.speakerName || "",
+                  speakerDesc: segment.speaker.speakerDesc || "",
+                }
+              : null,
+            segmentDesc: segment.segmentDesc || "",
+            startTime: `${event.eventLocation.date}T${segment.startTime || "00:00"}:00`,
+            endTime: `${event.eventLocation.date}T${segment.endTime || "00:00"}:00`,
+            eventID: eventId,
+          };
   
-        const segmentResponse = await fetch(
-          `http://localhost:8080/api/segment/${eventId}`,
-          {
+          console.log("Segment API:", segmentapi);
+          const segmentResponse = await fetch(`http://localhost:8080/api/segment/${eventId}`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(segmentData),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(segmentapi),
+          });
+  
+          if (!segmentResponse.ok) {
+            const errorText = await segmentResponse.text();
+            throw new Error(`Failed to save segment: ${errorText}`);
           }
-        );
-  
-        if (!segmentResponse.ok) {
-          const errorText = await segmentResponse.text();
-          throw new Error(`Failed to save segments: ${errorText}`);
         }
-  
-        const segmentResult = await segmentResponse.json();
-        console.log("Segments saved:", segmentResult);
+        console.log("All segments saved for event:", eventId);
       }
   
-      // Step 3: Save tickets for the event
-      if (eventData.tickets && eventData.tickets.length > 0) {
-        const ticketData = eventData.tickets.map((ticket) => ({
-          ...ticket,
-          eventId: eventId, // Assign the retrieved eventId
-        }));
+      if (event.tickets?.length > 0) {
+        for (const ticketData of event.tickets) {
+          const ticketapi = {
+            ticketName: ticketData.ticketName || "",
+            ticketType: ticketData.ticketType || "",
+            price: ticketData.price || 0,
+            quantity: ticketData.quantity || 0,
+            startTime: ticketData.startTime || "",
+            endTime: ticketData.endTime || "",
+          };
   
-        const ticketResponse = await fetch(
-          `http://localhost:8080/api/ticket/${eventId}`,
-          {
+          console.log("Ticket API:", ticketapi);
+          const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
             method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(ticketData),
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(ticketapi),
+          });
+  
+          if (!ticketResponse.ok) {
+            const errorText = await ticketResponse.text();
+            throw new Error(`Failed to save tickets: ${errorText}`);
           }
-        );
-  
-        if (!ticketResponse.ok) {
-          const errorText = await ticketResponse.text();
-          throw new Error(`Failed to save tickets: ${errorText}`);
         }
-  
-        const ticketResult = await ticketResponse.json();
-        console.log("Tickets saved:", ticketResult);
+        console.log("All tickets saved for event:", eventId);
       }
   
-      return { eventId, ...eventResult }; 
-    } catch (error) {
-      console.error("Error saving event to database:", error);
-      throw error;
-    }
-  };
-
-  const handlePublish = async () => {
-    try {
-      // Step 1: Upload files to Cloudinary
-      const uploadedImageIds = await uploadFilesToCloudinary(event.uploadedImages);
-      const uploadedMediaIds = await uploadFilesToCloudinary(event.overviewContent.media);
-  
-      if (uploadedImageIds.length === 0 && uploadedMediaIds.length === 0) {
-        throw new Error("No files were uploaded successfully.");
-      }
-  
-      // Step 2: Update event with public_ids from Cloudinary
       const updatedEvent = {
         ...event,
         uploadedImages: uploadedImageIds,
         overviewContent: {
           ...event.overviewContent,
           media: uploadedMediaIds.map((id, index) => ({
-            type: event.overviewContent.media[index]?.type || "image",
+            type:
+              (newMedia[index] || event.overviewContent?.media[index])?.type || "image",
             url: id,
           })),
         },
       };
       setEvent(updatedEvent);
   
-      // Step 3: Save event, segments, and tickets to database
-      const result = await saveEventToDatabase(updatedEvent);
-      const eventId = result.eventId;
-  
-      console.log("Event published and saved with ID:", eventId);
       alert(
-        `Event published successfully!\nEvent ID: ${eventId}\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}`
+        `Event published successfully!\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}, Event ID: ${eventId}`
       );
     } catch (error) {
       console.error("Failed to publish event:", error);
       alert(`Failed to process event: ${error.message}`);
     }
   };
-// Hàm nhận dữ liệu từ component con và cập nhật state
-const handleTicketsUpdate = (updatedTickets) => {
-  setEvent((prevEvent) => ({
-    ...prevEvent,
-    tickets: updatedTickets,
-  }));
-
-};
+  const handleTicketsUpdate = (updatedTickets) => {
+    setEvent((prevEvent) => ({
+      ...prevEvent,
+      tickets: updatedTickets,
+    }));
+  };
   const renderStepComponent = () => {
     switch (selectedStep) {
       case "build":
@@ -278,8 +259,12 @@ const handleTicketsUpdate = (updatedTickets) => {
         );
       case "tickets":
         return (
-          <AddTicket ticketData={event.tickets} onTicketsUpdate={handleTicketsUpdate} 
-          eventId={1} onNext={() => setSelectedStep("publish")} />
+          <AddTicket
+            ticketData={event.tickets}
+            onTicketsUpdate={handleTicketsUpdate}
+            eventId={1}
+            onNext={() => setSelectedStep("publish")}
+          />
         );
       case "publish":
         return (

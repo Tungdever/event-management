@@ -229,7 +229,6 @@ const MainLayout = () => {
             <Route path="/notification" element={<NotificationList notifications={notifications} />} />       
             <Route path ="/addticket" element={<AddTicket/>}>  </Route>
             <Route path="/task" element={<TaskBoard />} />
-            <Route path="/crudEvent" element={<CRUDEvent/>}></Route>
             <Route path="/sponsor" element={<Sponsor />} />
             <Route path="/speaker" element={<Speaker />} />
             <Route path="/session" element={<Session />} />

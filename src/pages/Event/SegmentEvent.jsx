@@ -13,22 +13,9 @@ const ImageUploader = ({ onImageUpload }) => {
         alert("Please upload an image file.");
         return;
       }
-      const imageUrl = URL.createObjectURL(file);
+      const imageUrl = URL.createObjectURL(file); 
       setSelectedFile(imageUrl);
-
-      // Upload ảnh lên Cloudinary qua API
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const response = await axios.post("http://localhost:8080/api/storage/upload", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        const publicId = response.data.trim();
-        onImageUpload({ file, imageUrl, publicId }); 
-      } catch (error) {
-        console.error("Error uploading image:", error);
-        alert("Failed to upload image.");
-      }
+      onImageUpload({ file, imageUrl });
     }
   };
 
@@ -60,8 +47,8 @@ const ImageUploader = ({ onImageUpload }) => {
     </div>
   );
 };
-const SectionEvent = ({ eventId }) => {
-  const [segments, setSegments] = useState([]);
+const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
+  const [segments, setSegments] = useState(segmentData || []);
   const [speakerImageData, setSpeakerImageData] = useState(null); 
   const [newSegment, setNewSegment] = useState({
     eventId: eventId || "",
@@ -91,7 +78,7 @@ const SectionEvent = ({ eventId }) => {
     setSpeakerImageData({ file, imageUrl, publicId });
   };
 
-  const handleAddSlot = async () => {
+  const handleAddSlot = () => {
     if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
       alert("Please fill in all required fields (Title, Start Time, End Time).");
       return;
@@ -101,48 +88,42 @@ const SectionEvent = ({ eventId }) => {
       return;
     }
 
-    setLoading(true);
-    const currentDate = new Date().toISOString().split("T")[0]; 
-    const postData = {
+    
+    const segmentToAdd = {
       segmentTitle: newSegment.segmentTitle,
       speaker: actor
         ? {
-           
-            speakerImage: speakerImageData?.publicId || "", 
+            speakerImage: speakerImageData?.imageUrl || "", 
             speakerName: newSegment.speakerName,
             speakerDesc: newSegment.speakerDesc,
           }
         : null,
-      eventID: eventId,
+      eventID: eventId || "",
       segmentDesc: newSegment.segmentDesc,
-      startTime: `${currentDate}T${newSegment.startTime}:00.000+00:00`,
-      endTime: `${currentDate}T${newSegment.endTime}:00.000+00:00`,
+      startTime: newSegment.startTime, 
+      endTime: newSegment.endTime,    
     };
 
-    try {
-      const response = await axios.post(`http://localhost:8080/api/segment/${eventId}`, postData);
-      alert("Segment added successfully!");
-      setSegments((prev) => [...prev, response.data]);
-      setNewSegment({
-        eventId: eventId || "",
-        segmentId: "",
-        segmentTitle: "",
-        segmentDesc: "",
-        speakerName: "",
-        speakerDesc: "",
-        startTime: "",
-        endTime: "",
-      });
-      setSpeakerImageData(null);
-      setDesc(false);
-      setActor(false);
-      setIsAdding(false);
-    } catch (error) {
-      console.error("Error adding segment:", error);
-      alert("Failed to add segment.");
-    } finally {
-      setLoading(false);
-    }
+    
+    const updatedSegments = [...segments, segmentToAdd];
+    setSegments(updatedSegments); 
+    onSegmentUpdate(updatedSegments); 
+    console.log(updatedSegments)
+    
+    setNewSegment({
+      eventId: eventId || "",
+      segmentId: "",
+      segmentTitle: "",
+      segmentDesc: "",
+      speakerName: "",
+      speakerDesc: "",
+      startTime: "",
+      endTime: "",
+    });
+    setSpeakerImageData(null);
+    setDesc(false);
+    setActor(false);
+    setIsAdding(false);
   };
 
   return (
@@ -152,7 +133,9 @@ const SectionEvent = ({ eventId }) => {
         <button className="text-red-500">Delete section</button>
       </div>
       <p className="text-gray-600 mb-6">
-        Add an itinerary, schedule, or lineup to your event. You can include a time, a description of what will happen, and who will host or perform during the event.
+        Add an itinerary, schedule, or lineup to your event. You can include a
+        time, a description of what will happen, and who will host or perform
+        during the event.
       </p>
       <div className="flex items-center mb-4">
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
@@ -168,27 +151,27 @@ const SectionEvent = ({ eventId }) => {
       </div>
 
       {/* Danh sách segments */}
-      {segments.map((segment, index) => (
-        <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
-          <div className="border-red-500 border-l-2 pl-4">
-            <div className="flex justify-between">
-              <span className="text-red-500">
-                {segment.startTime.split("T")[1].substring(0, 5)} -{" "}
-                {segment.endTime.split("T")[1].substring(0, 5)}
+      {segments.length > 0 && (
+        segments.map((segment, index) => (
+          <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
+            <div className="border-red-500 border-l-2 pl-4">
+              <div className="flex justify-between">
+                <span className="text-red-500">
+                  {segment.startTime} - {segment.endTime}
+                </span>
+                <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
+              </div>
+              <span className="font-semibold text-gray-500 text-xl py-2">
+                {segment.segmentTitle}
               </span>
-              <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
-            </div>
-            <span className="font-semibold text-gray-500 text-xl py-2">
-              {segment.segmentTitle}
-            </span>
-            <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
-            {segment.speaker && (
+              <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
+              {segment.speaker && (
                 <div className="flex items-center mt-2">
                   {segment.speaker.speakerImage && (
                     <img
-                      src={`http://res.cloudinary.com/dho1vjupv/image/upload/${segment.speaker.speakerImage}`}
+                      src={segment.speaker.speakerImage}
                       alt={segment.speaker.speakerName}
-                      className="w-12 h-12 rounded-full object-cover mr-3"  
+                      className="w-12 h-12 rounded-full object-cover mr-3"
                     />
                   )}
                   <p className="text-gray-500">
@@ -196,9 +179,10 @@ const SectionEvent = ({ eventId }) => {
                   </p>
                 </div>
               )}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      )}
 
       {/* Form thêm segment */}
       {isAdding && (
