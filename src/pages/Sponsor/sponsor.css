@@ -802,6 +802,13 @@
     transition: all 0.5s;
 }
 
+.sponsor-container .input-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+}
 .sponsor-container .input-field {
     width: 100%;
     padding: 8px;
