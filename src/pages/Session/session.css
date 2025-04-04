@@ -288,13 +288,14 @@
     line-height: 1.2;
 }
 
-.modal-body .row>*{
+.modal-body .row>* {
     flex-shrink: 0;
     padding-right: 12px;
     padding-left: 12px;
 
 }
-.row.align-items-center>*{
+
+.row.align-items-center>* {
     flex-shrink: 0;
     padding-right: 12px;
     padding-left: 12px;
@@ -704,7 +705,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
+    width: 3.3rem;
     height: 2rem;
     line-height: 2rem;
     font-size: 0.8rem;
@@ -798,7 +799,7 @@
     font-weight: 400;
     line-height: 1.6;
     border-radius: 5px;
-    padding: 8px 10px;
+    /* padding: 8px 10px; */
     height: 38px;
     transition: all 0.5s;
 }
@@ -983,7 +984,7 @@
 .session-container .file-name-icon {
     display: flex;
     align-items: center;
-    
+
 }
 
 .session-container .mb-0 {
@@ -1021,41 +1022,58 @@
     background: #03C95A;
     color: #FFF;
 }
+
 .session-container .badge.bg-pending {
     background: #fec107;
     color: #FFF;
 }
+
 .session-container .badge.bg-rejected {
     background: #E70D0D;
     color: #FFF;
 }
+
 .session-container .custom-content-1 {
     padding-bottom: .25rem;
     border-bottom: 1px solid #E5E7EB;
-    margin-bottom: 1.5rem ;
+    margin-bottom: 1.5rem;
 }
-.session-container .custom-row-1{
+
+.session-container .custom-row-1 {
     align-items: center;
 }
+
 .session-container .fs-12 {
     font-size: 0.75rem;
 }
+
 .session-container .text-gray-9 {
     color: #111827;
 }
+
 .speaker-card {
     border: 2px solid transparent;
     border-radius: 10px;
     cursor: pointer;
     transition: all 0.1s ease-in-out;
-  }
-  
-  .speaker-card:hover {
-    border-color: #007bff; /* Màu viền khi hover */
-    background-color: #e9f5ff; /* Màu nền khi hover */
-  }
-  
-  .speaker-card.selected {
-    border-color: #007bff; /* Màu viền khi được chọn */
-    background-color: #cce5ff; /* Màu nền khi được chọn */
-  }
+}
+
+.speaker-card:hover {
+    border-color: #007bff;
+    /* Màu viền khi hover */
+    background-color: #e9f5ff;
+    /* Màu nền khi hover */
+}
+
+.speaker-card.selected {
+    border-color: #007bff;
+    /* Màu viền khi được chọn */
+    background-color: #cce5ff;
+    /* Màu nền khi được chọn */
+}
+
+.input-datetime-picker {
+ 
+    padding: 10px;
+    border: 1px solid #ccc;
+}

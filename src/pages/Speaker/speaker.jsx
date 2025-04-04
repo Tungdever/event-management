@@ -559,7 +559,7 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_name && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_name}</p>}
+                    {empty.speaker_name && <p className="text-red-500 text-sm">{empty.speaker_name}</p>}
                   </div>
 
                   <div className="col-md-6">
@@ -571,7 +571,7 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_email && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_email}</p>}
+                    {empty.speaker_email && <p className="text-red-500 text-sm">{empty.speaker_email}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -582,15 +582,23 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_phone && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_phone}</p>}
+                    {empty.speaker_phone && <p className="text-red-500 text-sm">{empty.speaker_phone}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Social Media</label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSpeaker({ ...newSpeaker, speaker_social_media: e.target.value })
-                        } />
+                        <textarea
+                          className="input-field"
+                          onChange={(e) => {
+                            const updatedSocialMedia = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
+                            setNewSpeaker((prev) => ({
+                              ...prev,
+                              speaker_social_media: updatedSocialMedia
+                            }));
+                          }}
+                          style={{ whiteSpace: "pre-line", height: "60px", width: "100%" }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -603,7 +611,7 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_biography && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_biography}</p>}
+                    {empty.speaker_biography && <p className="text-red-500 text-sm mb-1">{empty.speaker_biography}</p>}
                   </div>
 
                   <div className="col-md-6">
@@ -615,7 +623,7 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_experience && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_experience}</p>}
+                    {empty.speaker_experience && <p className="text-red-500 text-sm ">{empty.speaker_experience}</p>}
                   </div>                 
                   <div className="col-md-6">
                     <div className="mb-3">
@@ -626,7 +634,7 @@ const Speaker = () => {
                         } />
                       </div>
                     </div>
-                    {empty.speaker_contract && <p className="text-red-500 text-sm mt-1 mb-1">{empty.speaker_contract}</p>}
+                    {empty.speaker_contract && <p className="text-red-500 text-sm ">{empty.speaker_contract}</p>}
                   </div>
                   <div className="col-md-6">
                     <div className="mb-3">

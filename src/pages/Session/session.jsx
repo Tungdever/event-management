@@ -95,41 +95,52 @@ const Session = () => {
   const [sessions, setSessions] = useState([
     {
       "session_id": "1",
-      "session_name": "Nguyễn Văn A",
-      "session_topic":"Trí tuệ nhân tạo trong kỷ nguyên mới",
+      "session_speaker_name": "Nguyễn Văn A",
+      "session_topic": "Trí tuệ nhân tạo trong kỷ nguyên mới",
       "session_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
       "session_presentation_time": ["18/03/2025 10:00 AM - 11:30 AM", "19/03/2025 14:00 AM - 15:00 AM", "20/03/2025 10:00 AM - 11:30 AM"],
       "session_presentation_materials": [
         "slides_ai_presentation.pdf",
         "ai_trends_2025.docx"
       ],
-      "session_status":"Upcoming"
+      "session_status": "Upcoming"
     },
     {
       "session_id": "1",
-      "session_name": "Nguyễn Văn A",
-      "session_topic":"Trí tuệ nhân tạo trong kỷ nguyên mới",
+      "session_speaker_name": "Nguyễn Văn A",
+      "session_topic": "Trí tuệ nhân tạo trong kỷ nguyên mới",
       "session_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
       "session_presentation_time": ["18/03/2025 10:00 AM - 11:30 AM", "19/03/2025 14:00 AM - 15:00 AM", "20/03/2025 10:00 AM - 11:30 AM"],
       "session_presentation_materials": [
         "slides_ai_presentation.pdf",
         "ai_trends_2025.docx"
       ],
-      "session_status":"Live"
+      "session_status": "Live"
     },
     {
       "session_id": "1",
-      "session_name": "Nguyễn Văn A",
-      "session_topic":"Trí tuệ nhân tạo trong kỷ nguyên mới",
+      "session_speaker_name": "Nguyễn Văn A",
+      "session_topic": "Trí tuệ nhân tạo trong kỷ nguyên mới",
       "session_photo": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
       "session_presentation_time": ["18/03/2025 10:00 AM - 11:30 AM", "19/03/2025 14:00 AM - 15:00 AM", "20/03/2025 10:00 AM - 11:30 AM"],
       "session_presentation_materials": [
         "slides_ai_presentation.pdf",
         "ai_trends_2025.docx"
       ],
-      "session_status":"Completed"
+      "session_status": "Completed"
     },
   ]);
+  const [newSession, setNewSession] = useState([
+    {
+      "session_id": "",
+      "session_speaker_name": "",
+      "session_topic": "",
+      "session_photo": "",
+      "session_presentation_time": [],
+      "session_presentation_materials": [],
+      "session_status": ""
+    }
+  ])
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.setFont("Times New Roman");
@@ -138,7 +149,7 @@ const Session = () => {
 
     const tableColumn = ["Name", "Level", "Email", "Contact", "Phone", "Website"];
     const tableRows = sessions.map((session) => [
-      session.session_name,
+      session.session_speaker_name,
       session.session_level,
       session.session_email,
       session.session_contact,
@@ -231,6 +242,56 @@ const Session = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  const [dateTimes, setDateTimes] = useState([{ date: "", startTime: "", endTime: "" }]);
+
+
+  // Hàm thêm input datetime-local
+  const handleDateTimeChange = (index, field, value) => {
+    const newDateTimes = [...dateTimes];
+    newDateTimes[index][field] = value;
+    setDateTimes(newDateTimes);
+  };
+
+  // Thêm một dòng mới
+  const addDateTime = () => {
+    setDateTimes([...dateTimes, { date: "", startTime: "", endTime: "" }]);
+  };
+
+  // Xóa dòng
+  const removeDateTime = (index) => {
+    setDateTimes(dateTimes.filter((_, i) => i !== index));
+  };
+  const addSessionHandle = (e) => {
+    e.preventDefault();
+
+    // Cập nhật thông tin speaker
+    const updatedSession = {
+        ...newSession,
+        session_speaker_name: selectedSpeaker?.speaker_name || "",
+        session_photo: selectedSpeaker?.speaker_photo || "",
+        session_presentation_time: dateTimes.map(dt => 
+            `${new Date(dt.date).toLocaleDateString("vi-VN")} ${dt.startTime} - ${dt.endTime}`
+        )
+    };
+
+    // Cập nhật danh sách session
+    setSessions([...sessions, updatedSession]);
+
+    
+
+    // Reset form
+    setNewSession({
+        session_topic: "",
+        session_status: "",
+        session_speaker_name: "",
+        session_photo: "",
+        session_presentation_time: []
+    });
+    setDateTimes([]); // Xóa danh sách thời gian đã chọn
+
+    // Đóng modal
+    document.querySelector("#add-session .btn-close").click();
+};
 
   return (
     <div className="session-container">
@@ -244,20 +305,109 @@ const Session = () => {
             <form>
               <div className="modal-body">
                 <div className="row">
-                  {/* Avatar và upload */}
-                  <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src={selectedSpeaker?.speaker_photo || ""} alt="img" />
+
+                  {/* Form input */}
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Topic <span className="required">*</span></label>
+                        <input type="email" className="input-field" onChange={(e) =>
+                          setNewSession({ ...newSession, session_topic: e.target.value })
+                        } />
                       </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload materials</div>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
+                    </div>
+                  </div>
+                  <div className="col-md-6">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Status<span className="required">*</span></label>
+                        <select
+                          className="input-field"
+                          value={newSession.session_status}
+                          onChange={(e) =>
+                            setNewSession({ ...newSession, session_status: e.target.value })
+                          }
+                        >
+                          <option value="">-- Select Status --</option>
+                          <option value="Confirmed">Confirmed</option>
+                          <option value="Pending">Pending</option>
+                          <option value="Rejected">Rejected</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="col-md-12">
+                    <div className="mb-3">
+                      <div className="form-group">
+                        <label className="form-label">Presentation Time<span className="required">*</span></label>
+                        <div className="input-datetime-picker">
+                          {dateTimes.map((dateTime, index) => (
+                            <div key={index} style={{ marginBottom: "10px" }}>
+                              <input
+                                type="date"
+                                value={dateTime.date}
+                                onChange={(e) => handleDateTimeChange(index, "date", e.target.value)}
+                                className="mr-6"
+                              />
+                              <input
+                                type="time"
+                                value={dateTime.startTime}
+                                onChange={(e) => handleDateTimeChange(index, "startTime", e.target.value)}
+                                className="mr-6"
+                              />
+                              <input
+                                type="time"
+                                value={dateTime.endTime}
+                                onChange={(e) => handleDateTimeChange(index, "endTime", e.target.value)}
+                              />
+                              <button type="button" className="ml-2 px-3 py-1 rounded hover:bg-gray-300" onClick={() => removeDateTime(index)} style={{ marginLeft: "10px" }}>
+                                <i class="ti ti-backspace text-red-500 [font-size:16px]"></i> Remove
+                              </button>
+                            </div>
+                          ))}
+                          <button type="button" className="mb-1 px-3 py-1 rounded hover:bg-gray-300" onClick={addDateTime}><i class="ti ti-copy-plus text-blue-500"></i> Add Date & Time</button>
+
+                          <h4>Selected Date & Time List:</h4>
+                          <ul>
+                            {dateTimes.map((dateTime, index) => (
+                              dateTime.date && dateTime.startTime && dateTime.endTime && (
+                                <li key={index}>
+                                  {new Date(dateTime.date).toLocaleDateString("vi-VN")} {dateTime.startTime} - {dateTime.endTime}
+                                </li>
+                              )
+                            ))}
+                          </ul>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
+                <button type="submit" className="btn btn-primary" onClick={addSessionHandle}>Add Session</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      <div className="modal fade" id="edit-session" tabindex="-1" aria-hidden="true">
+        <div className="modal-dialog modal-dialog-centered modal-lg" >
+          <div className="modal-content">
+            <div className="modal-header">
+              <h4 className="modal-title">Edit Session</h4>
+              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+              <div className="modal-body">
+                <div className="row">
+                  {/* Avatar và upload */}
+                  <div className="col-md-12">
+                    <div className="avatar-container d-flex justify-center">
+                      <div className="custom-avatar">
+                        <img src={selectedSession?.session_photo || ""} alt="img" />
+                      </div>                      
                     </div>
                   </div>
 
@@ -266,7 +416,7 @@ const Session = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" value={selectedSession?.session_speaker_name || ""} disabled/>
                       </div>
                     </div>
                   </div>
@@ -274,7 +424,7 @@ const Session = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Topic <span className="required">*</span></label>
-                        <input type="email" className="input-field" />
+                        <input type="email" className="input-field" value={selectedSession?.session_topic || ""} />
                       </div>
                     </div>
                   </div>
@@ -282,7 +432,18 @@ const Session = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Presentation Time<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <textarea
+                          className="input-field"
+                          value={selectedSession?.session_presentation_time?.join("\n") || ""}
+                          onChange={(e) => {
+                            const updateSession = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
+                            setSelectedSpeaker((prev) => ({
+                              ...prev,
+                              session_presentation_time: updateSession
+                            }));
+                          }}
+                          style={{ whiteSpace: "pre-line", minHeight: "80px", width: "100%" }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -290,22 +451,22 @@ const Session = () => {
                     <div className="mb-3">
                       <div className="form-group">
                         <label className="form-label">Status<span className="required">*</span></label>
-                        <input type="text" className="input-field" />
+                        <input type="text" className="input-field" value={selectedSession?.session_status || ""} />
                       </div>
                     </div>
                   </div>
-                 
+
                 </div>
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Add Session</button>
+                <button type="submit" className="btn btn-primary">Save changes</button>
               </div>
             </form>
           </div>
         </div>
       </div>
-      <div className="modal fade" id="choose-speaker" tabindex="-1" aria-hidden="true">
+      <div className="modal fade" id="choose-speaker" tabindex="-2" aria-hidden="true">
         <div className="modal-dialog modal-dialog-centered modal-lg" >
           <div className="modal-content">
             <div className="modal-header">
@@ -340,7 +501,7 @@ const Session = () => {
               </div>
               <div className="modal-footer">
                 <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-session">Continue</button>
+                <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-session">Continue</button>
               </div>
             </form>
           </div>
@@ -360,10 +521,10 @@ const Session = () => {
                     <div className="custom-body-header p-3">
                       <div className="file-name-icon">
                         <a href="#" className="custom-avatar-2">
-                          <img src={selectedSession.session_logo} className="img-fluid" alt="img"></img>
+                          <img src={selectedSession.session_photo} className="img-fluid" alt="img"></img>
                         </a>
                         <div>
-                          <p className="custom-text mb-0">{selectedSession.session_name}</p>
+                          <p className="custom-text mb-0">{selectedSession.session_speaker_name}</p>
                           <p>{selectedSession.session_email}</p>
                         </div>
                       </div>
@@ -374,14 +535,14 @@ const Session = () => {
 
                     </div>
                   </div>
-                  <div className="p-3">                   
+                  <div className="p-3">
                     <p className="custom-text">Presentation detail</p>
                     <div>
                       <div className="row align-items-center">
-                      <div className="col-md-4">
+                        <div className="col-md-4">
                           <div className="mb-3">
                             <p className="fs-12 mb-0">Speaker</p>
-                            <p className="text-gray-9">{selectedSession.session_name}</p>
+                            <p className="text-gray-9">{selectedSession.session_speaker_name}</p>
                           </div>
                         </div>
                         <div className="col-md-4">
@@ -393,14 +554,14 @@ const Session = () => {
                         <div className="col-md-4">
                           <div className="mb-3">
                             <p className="fs-12 mb-0">Time</p>
-                            <p className="text-gray-9">{selectedSession.session_presentation_time.join("\n")}</p>
+                            <p className="text-gray-9">{selectedSession.session_presentation_time?.join("\n") || ""}</p>
                           </div>
                         </div>
                         <div className="col-md-4">
                           <div className="mb-3">
                             <p className="fs-12 mb-0">Materials</p>
                             <p className="text-gray-9" style={{ whiteSpace: "pre-line" }}>
-                              {selectedSession.session_presentation_materials.join("\n")}
+                              {selectedSession.session_presentation_materials?.join("\n") || ""}
                             </p>
                           </div>
                         </div>
@@ -413,88 +574,7 @@ const Session = () => {
           </div>
         </div>
       </div>
-      <div className="modal fade" id="edit-session" tabindex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered modal-lg" >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit Session</h4>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form>
-              <div className="modal-body">
-              <div className="row">
-                  {/* Avatar và upload */}
-                  <div className="col-md-12">
-                    <div className="avatar-container">
-                      <div className="custom-avatar">
-                        <img src={selectedSpeaker?.speaker_photo || ""} alt="img" />
-                      </div>
-                      <div className="profile-upload">
-                        <div className="upload-title">Upload materials</div>
-                        <div className="upload-btn">
-                          <label htmlFor="upload-image">Upload</label>
-                          <input type="file" id="upload-image" />
-                          <a className="cancel-btn">Cancel</a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Form input */}
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSession?.session_name || ""}/>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Topic <span className="required">*</span></label>
-                        <input type="email" className="input-field" value={selectedSession?.session_topic || ""}/>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Presentation Time<span className="required">*</span></label>
-                        <textarea
-                          className="input-field"
-                          value={selectedSession?.session_presentation_time?.join("\n") || ""}
-                          onChange={(e) => {
-                            const updateSession = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
-                            setSelectedSpeaker((prev) => ({
-                              ...prev,
-                              session_presentation_time: updateSession
-                            }));
-                          }}
-                          style={{ whiteSpace: "pre-line", minHeight: "80px", width: "100%" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Status<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSession?.session_status || ""}/>
-                      </div>
-                    </div>
-                  </div>
-                 
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary">Save changes</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
       <div className="page-breadcrumb">
         <div my-auto mb-2>
           <h2 className="container-title">Session</h2>
@@ -592,14 +672,14 @@ const Session = () => {
                       </div>
                       <div className="ms-2">
                         <a href="#">
-                          <h6>{session.session_name}</h6>
+                          <h6>{session.session_speaker_name}</h6>
                         </a>
                       </div>
                     </div>
                   </td>
                   <td>{session.session_topic}</td>
-                  <td style={{ whiteSpace: "pre-line" }}>{session.session_presentation_materials.join("\n")}</td>
-                  <td style={{ whiteSpace: "pre-line" }}>{session.session_presentation_time.join("\n")}</td>
+                  <td style={{ whiteSpace: "pre-line" }}>{session.session_presentation_materials?.join("\n") || ""}</td>
+                  <td style={{ whiteSpace: "pre-line" }}>{session.session_presentation_time?.join("\n") || ""}</td>
                   <td>
                     <div className="table-action">
                       <button className="btn btn-detail" data-bs-toggle="modal" data-bs-target="#session-detail" onClick={() => setSelectedSession(session)} >
