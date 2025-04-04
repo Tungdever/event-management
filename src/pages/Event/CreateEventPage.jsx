@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import EventForm from "./CreateEvent";
+import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 
@@ -96,7 +96,7 @@ const CRUDEvent = () => {
         item instanceof Blob ||
         (typeof item === "string" && item.startsWith("blob:"));
   
-      // Giữ URL cũ và chỉ upload file mới
+      
       const existingImageIds =
         event.uploadedImages?.filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages?.filter(isFile) || [];
@@ -130,8 +130,8 @@ const CRUDEvent = () => {
         eventLocation:
           event.eventLocation.locationType === "online"
             ? "Online"
-            : `${event.eventLocation.venueName || ""} ${
-                event.eventLocation.address || ""
+            : `${event.eventLocation.venueName || "-"} ${
+                event.eventLocation.address || "-"
               } ${event.eventLocation.city || ""}`.trim(),
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",

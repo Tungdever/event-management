@@ -28,7 +28,7 @@ const Timeline = ({ segments }) => {
     <div className="my-6 flex-col justify-center items-center mx-16">
       {segments.map((segment, index) => (
         <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
-          <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap">
+          <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-4 py-2">
             {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
           </time>
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
@@ -227,7 +227,7 @@ const EventDetail = ({ eventIds }) => {
                   style={{ backgroundImage: `url(${imageUrl})` }}
                 ></div>
                 <img
-                  src={imageUrl}
+                  src={`${imageUrl}`}
                   alt={`Event Image ${index + 1}`}
                   className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
                 />
@@ -299,10 +299,32 @@ const EventDetail = ({ eventIds }) => {
                 <h2 className="text-2xl font-bold text-gray-800 mb-2">
                   Description
                 </h2>
-                <div className="text-gray-700 text-justify">
-                  <ReactMarkdown>
+                <div className="text-gray-700 text-justify mb-4">
                     {eventData.eventDesc || "No description available"}
-                  </ReactMarkdown>
+                    
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                  Over view
+                </h2>
+                <div className="text-gray-700 text-justify">
+                <p className="mb-4">{eventData.textContent || "No description available"}</p>
+                {eventData.mediaContent && eventData.mediaContent.length > 0 ? (
+                  
+                  eventData.mediaContent.map((mediaContent, index) => (
+                    <img
+                  src={`${mediaContent}`}
+                  alt={eventData.eventName}
+                  className="w-full h-full object-cover"
+                />
+                   ))
+                
+              ) : (
+                <img
+                  src="https://via.placeholder.com/300x150"
+                  alt="Default Event"
+                  className="w-full h-full object-cover"
+                />
+              )}
                 </div>
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Speaker</h2>

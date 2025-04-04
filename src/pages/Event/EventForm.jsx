@@ -11,6 +11,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật eventLocation
   const handleLocationUpdate = (updatedLocation) => {
+    console.log("cap nhat lan 2:", updatedLocation);
     setEvent((prevEvent) => ({
       ...prevEvent,
       eventLocation: updatedLocation,
@@ -47,7 +48,9 @@ const handleSegmentUpdate = (updatedSegments) => {
       [name]: value,
     }));
   };
-
+const debug =(e) =>{
+  console.log(e)
+}
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -121,6 +124,7 @@ const handleSegmentUpdate = (updatedSegments) => {
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
+        onChange={debug(event.eventLocation)}
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}

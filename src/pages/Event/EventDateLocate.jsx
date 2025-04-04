@@ -4,7 +4,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
   const [showDetail, setShowDetail] = useState(false);
   const [eventLocation, setEventLocation] = useState(locationData);
 
-  // Đồng bộ eventLocation khi locationData từ props thay đổi
+ 
   useEffect(() => {
     setEventLocation(locationData);
   }, [locationData]);
@@ -16,7 +16,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
         ...prevData,
         [name]: value,
       };
-      onLocationUpdate(updatedData); // Gửi dữ liệu mới về component cha
+      onLocationUpdate(updatedData); 
       return updatedData;
     });
   };
@@ -24,7 +24,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
   const handleLocationTypeChange = (type) => {
     setEventLocation((prevData) => {
       const updatedData = { ...prevData, locationType: type };
-      onLocationUpdate(updatedData); // Cập nhật về component cha
+      onLocationUpdate(updatedData); 
       return updatedData;
     });
   };

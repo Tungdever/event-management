@@ -29,6 +29,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
   // Đồng bộ tickets với ticketData khi ticketData thay đổi
   useEffect(() => {
     setTickets(ticketData || []);
+    console.log(tickets)
   }, [ticketData]);
 
   // Giả lập loading
@@ -110,7 +111,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
         <p className="text-gray-600 mb-6">
           Choose a ticket type or build a section with multiple ticket types.
         </p>
-        {!showOverview ? (
+        {!showOverview && tickets.length == 0 ? (
           <TicketTypeSelector onSelectType={handleTicketClick} />
         ) : (
           <TicketOverview

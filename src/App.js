@@ -1,6 +1,6 @@
 import "./App.css";
 import EventPage from "./pages/Event/EventPage";
-import EventDetail from "./pages/Event/Detail";
+import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
 import SearchPage from "./pages/Event/Search";
 import CalendarPage from "./pages/Dashboard/Calendar";
@@ -18,7 +18,7 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import Navbar from "./pages/Dashboard/Navbar";
 import Sidebar from "./pages/Dashboard/Sidebar";
 import EmployeeList from "./pages/Employee/EmployeeList";
-import EditEvent from "./pages/Event/EditEvent";
+
 import SignUp from "./pages/Auth/SignUp";
 import LoginForm from "./pages/Auth/LogIn";
 import NotificationList from "./pages/Dashboard/Notification";
@@ -28,16 +28,16 @@ import Speaker from "./pages/Speaker/speaker";
 import Session from "./pages/Session/session";
 import AddTicket from "./pages/Ticket/AddTicket";
 import ForgotPassword from "./pages/Auth/ForgotPass";
-import CRUDEvent from "./pages/Event/FullPageCRUDEvent";
+import CRUDEvent from "./pages/Event/CreateEventPage";
 import TicketList from "./pages/Ticket/MyTicket";
 import TaskBoard from "./pages/Employee/TaskDashboard";
 import EventPublishing from "./pages/Event/EventPublishing";
 import Refund from "./pages/Refund/refund";
 import RefundManagement from "./pages/Refund/refund_management";
 import ViewProfile from "./pages/Dashboard/ViewProfile";
-import Chat from "./pages/ChatBox/ChatSocket";
-import Header from "./components/Header";
 
+import Header from "./components/Header";
+import EditEvent from "./pages/Event/test";
 const eventData = {
   event_id: 1,
   event_desc: "Đêm nhạc Acoustic với các ca sĩ nổi tiếng",
@@ -247,7 +247,7 @@ const MainLayout = () => {
               <Route path="/myticket" element={<TicketList tickets={ticketData} />} />
               <Route path="/refund" element={<Refund />} />
               <Route path="/eventpage" element={<EventPage />} />
-              <Route path="/test" element={<Chat />} />
+              <Route path="/test" element={<EditEvent eventId={2}/>} />
             </Routes>
           </div>
         </>

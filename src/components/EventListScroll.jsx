@@ -79,7 +79,7 @@ const ListEventScroll = () => {
             <div className="w-full h-40 bg-gray-100 rounded-t-lg overflow-hidden">
               {event.eventImages && event.eventImages.length > 0 ? (
                 <img
-                  src={`http://res.cloudinary.com/dho1vjupv/image/upload/${event.eventImages[0]}`}
+                  src={`${event.eventImages[0]}`}
                   alt={event.eventName}
                   className="w-full h-full object-cover"
                 />

@@ -12,7 +12,7 @@ const SliderSpeaker = ({speakers}) => {
           >
             <img
               alt={speaker.speakerName}
-              src={`http://res.cloudinary.com/dho1vjupv/image/upload/${speaker.speakerImage}`}
+              src={`${speaker.speakerImage}`}
               className="absolute inset-0 h-full w-full object-cover opacity-75 transition-opacity group-hover:opacity-50"
             />
             <div className="relative p-2 sm:p-4 lg:p-6">
