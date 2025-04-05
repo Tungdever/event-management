@@ -9,7 +9,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Checkout from "../Ticket/CheckOut";
 import Loader from "../../components/Loading";
 import { useParams } from "react-router-dom";
-const Timeline = ({ segments }) => {
+const Timeline = ({ sessions }) => {
   const formatTime = (isoString) => {
     if (!isoString) return "N/A";
     const date = new Date(isoString);
@@ -18,29 +18,29 @@ const Timeline = ({ segments }) => {
     return `${hours}:${minutes}`;
   };
 
-  if (!segments || !Array.isArray(segments) || segments.length === 0) {
+  if (!sessions || !Array.isArray(sessions) || sessions.length === 0) {
     return (
-      <div className="my-6 mx-16 text-gray-600">No segments available</div>
+      <div className="my-6 mx-16 text-gray-600">No sessions available</div>
     );
   }
 
   return (
     <div className="my-6 flex-col justify-center items-center mx-16">
-      {segments.map((segment, index) => (
+      {sessions.map((session, index) => (
         <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
           <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-4 py-2">
-            {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
+            {formatTime(session.startTime)} - {formatTime(session.endTime)}
           </time>
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
             <div className="text-xl font-bold text-slate-900">
-              {segment.speaker?.speakerName || "Unknown Speaker"}
+              {session.speaker?.speakerName || "Unknown Speaker"}
             </div>
           </div>
           <p className="text-gray-600">
-            {segment.speaker?.speakerTitle || "No title"}
+            {session.speaker?.speakerTitle || "No title"}
           </p>
           <p className="text-lg font-bold text-indigo-700 mt-1">
-            "{segment.segmentTitle || "Untitled Segment"}"
+            "{session.sessionTitle || "Untitled Session"}"
           </p>
         </div>
       ))}
@@ -97,7 +97,7 @@ const EventDetail = ({ eventIds }) => {
   const { eventId } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [eventData, setEventData] = useState(null);
-  const [segmentData, setSegments] = useState(null);
+  const [sessionData, setSessions] = useState(null);
   const [speakers, setSpeakers] = useState([]);
   const [tickets, setTickets] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
@@ -134,21 +134,21 @@ const EventDetail = ({ eventIds }) => {
     }
   };
 
-  const fetchSegment = async (eventId) => {
+  const fetchSession = async (eventId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/segment/${eventId}/getSegment`
+        `http://localhost:8080/api/session/${eventId}/getSession`
       );
-      if (!response.ok) throw new Error("Failed to fetch segment");
+      if (!response.ok) throw new Error("Failed to fetch session");
       const data = await response.json();
-      setSegments(data);
+      setSessions(data);
       const speakerList = data
-        .map((segment) => segment.speaker)
+        .map((session) => session.speaker)
         .filter(Boolean);
       setSpeakers(speakerList);
     } catch (error) {
       setError(error.message);
-      console.error("Error fetching segment:", error);
+      console.error("Error fetching session:", error);
     }
   };
 
@@ -172,7 +172,7 @@ const EventDetail = ({ eventIds }) => {
       setError(null);
       await Promise.all([
         fetchEvent(eventId),
-        fetchSegment(eventId),
+        fetchSession(eventId),
         fetchTicket(eventId),
       ]);
       setTimeout(() => {
@@ -330,7 +330,7 @@ const EventDetail = ({ eventIds }) => {
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Speaker</h2>
               <SliderSpeaker speakers={speakers} />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Section</h2>
-              <Timeline segments={segmentData} />
+              <Timeline sessions={sessionData} />
               <div>
                 <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
                 <div className="flex flex-wrap gap-2">

@@ -30,7 +30,7 @@ const EditEvent = ({ eventId }) => {
     uploadedImages: [],
     overviewContent: { text: "", media: [] },
     tickets: [],
-    segment: [],
+    session: [],
   });
 
   
@@ -85,18 +85,18 @@ const EditEvent = ({ eventId }) => {
           startTime: ticket.startTime,
           endTime: ticket.endTime
         })),
-        segment: data.segment.map(seg => ({
-          segmentId: seg.segmentId,
-          segmentTitle: seg.segmentTitle,
+        session: data.session.map(ses => ({
+          sessionId: ses.sessionId,
+          sessionTitle: ses.sessionTitle,
           speaker: {
-            speakerId: seg.speaker.speakerId,
-            speakerImage: seg.speaker.speakerImage,
-            speakerName: seg.speaker.speakerName,
-            speakerDesc: seg.speaker.speakerDesc
+            speakerId: ses.speaker.speakerId,
+            speakerImage: ses.speaker.speakerImage,
+            speakerName: ses.speaker.speakerName,
+            speakerDesc: ses.speaker.speakerDesc
           },
-          segmentDesc: seg.segmentDesc,
-          startTime: seg.startTime.split('T')[1].slice(0, 5),
-          endTime: seg.endTime.split('T')[1].slice(0, 5)
+          sessionDesc: ses.sessionDesc,
+          startTime: ses.startTime.split('T')[1].slice(0, 5),
+          endTime: ses.endTime.split('T')[1].slice(0, 5)
         }))
       };
 
