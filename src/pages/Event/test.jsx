@@ -1,101 +1,200 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
+import EventForm from "./EventForm";
+import AddTicket from "../Ticket/AddTicket";
+import EventPublishing from "./EventPublishing";
 
-const TicketPopup = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
+const EditEvent = ({ eventId }) => { 
+  const [selectedStep, setSelectedStep] = useState("build");
+  const [event, setEvent] = useState({
+    eventName: "",
+    eventDesc: "",
+    eventType: "",
+    eventHost: "",
+    eventStatus: "",
+    eventStart: "",
+    eventEnd: "",
+    eventLocation: {
+      date: "",
+      startTime: "",
+      endTime: "",
+      locationType: "online",
+      venueName: "",
+      address: "",
+      city: "",
+    },
+    tags: [],
+    eventVisibility: "public",
+    publishTime: "now",
+    refunds: "yes",
+    validityDays: 7,
+    uploadedImages: [],
+    overviewContent: { text: "", media: [] },
+    tickets: [],
+    session: [],
+  });
 
-  return (
-    <div className="absolute top-12 right-0 bg-white shadow-lg rounded-lg p-4 w-64">
-      <button onClick={onClose} className="absolute text-gray-500 text-sm mb-2 right-2">X</button>
-      <div className="space-y-4">
-        {[
-          { icon: "ticket-alt", color: "blue", label: "Paid" },
-          { icon: "scissors", color: "purple", label: "Free" },
-         
-        ].map((item) => (
-          <div key={item.label} className="flex items-center space-x-2">
-            <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
-              <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
-            </div>
-            <span>{item.label}</span>
-          </div>
-        ))}
+  
+  useEffect(() => {
+    if (eventId) {
+      fetchEventData(eventId);
+    }
+  }, [eventId]);
 
-      </div>
-    </div>
-  );
-};
-
-const TicketsPage = () => {
-  const [isPopupOpen, setPopupOpen] = useState(false);
-
-  return (
-    <div className="max-w-7xl mx-auto p-4 flex">
-      {/* Left Side - Ticket List */}
-      <div className="w-2/3 pr-4">
-        <h1 className="text-3xl font-bold text-gray-900">Tickets</h1>
-        <nav className="flex space-x-4 border-b mt-4">
-          {["Admission", "Add-ons", "Promotions", "Holds", "Settings"].map((tab, index) => (
-            <a
-              key={index}
-              href="#"
-              className={`pb-2 ${index === 0 ? "text-blue-600 border-b-2 border-blue-600" : "text-gray-500 hover:text-gray-700"}`}
-            >
-              {tab}
-            </a>
-          ))}
-        </nav>
-        <div className="mt-6 bg-white shadow rounded-lg p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <i className="fas fa-bars text-gray-400 mr-4"></i>
-              <div>
-                <h2 className="text-lg font-semibold text-gray-900">Test Ticket Paid</h2>
-                <div className="flex items-center text-sm text-gray-500">
-                  <span className="text-green-500 mr-2">•</span>
-                  <span>On Sale</span>
-                  <span className="mx-2">•</span>
-                  <span>Ends Apr 16, 2025 at 10:00 AM</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-gray-500">Sold: 0/30</span>
-              <span className="text-gray-500">$2.00</span>
-              <i className="fas fa-ellipsis-v text-gray-500"></i>
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center text-gray-500">
-            <span>Event capacity</span>
-            <i className="fas fa-info-circle ml-2"></i>
-          </div>
-          <div className="text-blue-600">
-            <span>0 / 300</span>
-            <a href="#" className="ml-2">Edit capacity</a>
-          </div>
-        </div>
-      </div>
+  const fetchEventData = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch event data');
+      }
+      const data = await response.json();
       
-      {/* Right Side - Add Ticket Button & Popup */}
-      <div className="w-1/3 flex flex-col items-end">
-        <div className="relative top-4 right-4">
-          <button
-            onClick={() => setPopupOpen(!isPopupOpen)}
-            className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full"
-          >
-            Add Ticket <i className="fas fa-caret-down"></i>
-          </button>
-          <TicketPopup isOpen={isPopupOpen} onClose={() => setPopupOpen(false)} />
-        </div>
-      </div>
+      
+      const transformedEvent = {
+        eventName: data.event.eventName,
+        eventDesc: data.event.eventDesc,
+        eventType: data.event.eventType,
+        eventHost: data.event.eventHost,
+        eventStatus: data.event.eventStatus,
+        eventStart: data.event.eventStart,
+        eventEnd: data.event.eventEnd,
+        eventLocation: {
+          date: data.event.eventStart.split('T')[0],
+          startTime: data.event.eventStart.split('T')[1].slice(0, 5),
+          endTime: data.event.eventEnd.split('T')[1].slice(0, 5),
+          locationType: data.event.eventLocation.includes('www') ? 'online' : 'physical',
+          venueName: "",
+          address: data.event.eventLocation,
+          city: "",
+        },
+        tags: data.event.tags.split('|'),
+        eventVisibility: data.event.eventVisibility,
+        publishTime: data.event.publishTime,
+        refunds: data.event.refunds,
+        validityDays: data.event.validityDays,
+        uploadedImages: data.event.eventImages,
+        overviewContent: {
+          text: data.event.textContent,
+          media: data.event.mediaContent.map(url => ({ type: 'image', url }))
+        },
+        tickets: data.ticket.map(ticket => ({
+          ticketId: ticket.ticketId,
+          ticketName: ticket.ticketName,
+          ticketType: ticket.ticketType,
+          price: ticket.price,
+          quantity: ticket.quantity,
+          startTime: ticket.startTime,
+          endTime: ticket.endTime
+        })),
+        session: data.session.map(ses => ({
+          sessionId: ses.sessionId,
+          sessionTitle: ses.sessionTitle,
+          speaker: {
+            speakerId: ses.speaker.speakerId,
+            speakerImage: ses.speaker.speakerImage,
+            speakerName: ses.speaker.speakerName,
+            speakerDesc: ses.speaker.speakerDesc
+          },
+          sessionDesc: ses.sessionDesc,
+          startTime: ses.startTime.split('T')[1].slice(0, 5),
+          endTime: ses.endTime.split('T')[1].slice(0, 5)
+        }))
+      };
 
-      {/* Fixed Next Button */}
-      <div className="fixed bottom-4 right-4">
-        <button className="bg-orange-600 text-white px-6 py-3 rounded-lg">Next</button>
-      </div>
+      setEvent(transformedEvent);
+    } catch (error) {
+      console.error('Error fetching event data:', error);
+      alert('Failed to load event data');
+    }
+  };
+  const handleTicketsUpdate = (updatedTickets) => {
+    setEvent((prevEvent) => ({
+      ...prevEvent,
+      tickets: updatedTickets,
+    }));
+  };
+  const renderStepComponent = () => {
+    switch (selectedStep) {
+      case "build":
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            onNext={() => setSelectedStep("tickets")}
+          />
+        );
+      case "tickets":
+        return (
+          <AddTicket
+            ticketData={event.tickets}
+            onTicketsUpdate={handleTicketsUpdate}
+            eventId={1}
+            onNext={() => setSelectedStep("publish")}
+          />
+        );
+      case "publish":
+        return (
+          <EventPublishing
+            event={event}
+            setEvent={setEvent}
+            
+          />
+        );
+      default:
+        return <EventForm event={event} setEvent={setEvent} />;
+    }
+  };
+
+  return (
+    <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
+      <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
+        <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+          <h2 className="text-lg font-semibold">
+            {event.eventName || "Untitled Event"}
+          </h2>
+          <div className="flex items-center text-gray-500 mt-2">
+            <i className="far fa-calendar-alt mr-2"></i>
+            <span>
+              {event.eventLocation.date && event.eventLocation.startTime
+                ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
+                : "Date and time not set"}
+            </span>
+          </div>
+          <div className="flex items-center mt-4">
+            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
+              Draft <i className="fas fa-caret-down ml-1"></i>
+            </button>
+            <a href="#" className="text-blue-600">
+              Preview <i className="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+        </div>
+        <h3 className="text-lg font-semibold mb-2">Steps</h3>
+        <div className="space-y-2">
+          {["build", "tickets", "publish"].map((step) => (
+            <label
+              key={step}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="eventStep"
+                value={step}
+                checked={selectedStep === step}
+                onChange={() => setSelectedStep(step)}
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+              />
+              <span>
+                {step === "build" && "Build event page"}
+                {step === "tickets" && "Add tickets"}
+                {step === "publish" && "Publish"}
+              </span>
+            </label>
+          ))}
+        </div>
+      </aside>
+      <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
     </div>
   );
 };
 
-export default TicketsPage;
+export default EditEvent;

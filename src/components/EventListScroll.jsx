@@ -1,71 +1,147 @@
-import {
-  FaChevronLeft,
-  FaChevronRight,
-} from "react-icons/fa";
-import { useRef } from "react";
-const ListEventScroll = ({ events }) => {
-  const scrollRef = useRef(null);
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; 
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollAmount = direction === "left" ? -clientWidth : clientWidth;
-      scrollRef.current.scrollTo({
-        left: scrollLeft + scrollAmount,
-        behavior: "smooth",
-      });
+const ListEventScroll = () => {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+ 
+  const fetchAllEvent = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/events/all"); 
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+      const data = await response.json();
+      setEvents(data);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
     }
   };
+  // Hàm cắt ngắn chuỗi với dấu "..."
+  const truncateText = (text, maxLength) => {
+    if (!text || text.length <= maxLength) return text || "";
+    return text.substring(0, maxLength) + "...";
+  };
+  
+  useEffect(() => {
+    fetchAllEvent();
+  }, []);
+
+  
+  const handleEventClick = (eventId) => {
+    navigate(`/event/${eventId}`); 
+  };
+
+  
+  if (loading) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-gray-600">Loading events...</p>
+      </div>
+    );
+  }
+
+ 
+  if (error) {
+    return (
+      <div className="text-center p-4 text-red-600">
+        Error: {error}. Please try again later.
+      </div>
+    );
+  }
+
+ 
+  if (!events || events.length === 0) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-gray-600">No events available</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-8 py-4 relative">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-left">Upcoming Events</h2>
-        <div className="flex space-x-2">
-          <button
-            onClick={() => scroll("left")}
-            className="bg-white rounded-full p-2 shadow-sm border border-gray-200"
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Upcoming Events</h2>
+      <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+        {events.map((event) => (
+          <div
+            key={event.eventId}
+            onClick={() => handleEventClick(event.eventId)} 
+            className="max-w-[300px] min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg  hover:bg-gray-100 cursor-pointer transition-shadow cursor-pointer"
           >
-            <FaChevronLeft />
-          </button>
-          <button
-            onClick={() => scroll("right")}
-            className="bg-white rounded-full p-2 shadow-sm border border-gray-200"
-          >
-            <FaChevronRight />
-          </button>
-        </div>
-      </div>
-
-      <div className="relative">
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto space-x-4 pb-4 scroll-smooth"
-        >
-          {events.map((event, index) => (
-            <div key={index} className="flex-none w-72">
-              <div className="max-w-[300px] max-h-[500px]   min-h-[440px] bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 transition duration-300 hover:bg-gray-100 hover:border-gray-300 cursor-pointer">
-              <img src={event.image} alt={`Event poster for ${event.title}`} className="w-full h-48 object-cover" />
-      <div className="p-4">
-        <h2 className="text-lg font-semibold">{event.title}</h2>
-        <p className="text-gray-500">{event.date}</p>
-        <p className="text-gray-500">{event.location}</p>
-        <p className="text-gray-500">
-          {event.price !== "Free" ? `From ` : ""}
-          <span className="text-black">{event.price}</span>
-        </p>
-        <p className="text-gray-500">{event.organizer}</p>
-        <p className="text-gray-500">
-          <i className="fas fa-users"></i> {event.followers}
-        </p>
-      </div>
-              </div>
+            {/* Hình ảnh sự kiện */}
+            <div className="w-full h-40 bg-gray-100 rounded-t-lg overflow-hidden">
+              {event.eventImages && event.eventImages.length > 0 ? (
+                <img
+                  src={`${event.eventImages[0]}`}
+                  alt={event.eventName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src="https://via.placeholder.com/300x150"
+                  alt="Default Event"
+                  className="w-full h-full object-cover"
+                />
+              )}
             </div>
-          ))}
-        </div>
+
+            {/* Thông tin sự kiện */}
+            <div className="p-4">
+              <h3 className="text-lg font-semibold text-gray-900 truncate">
+              {truncateText(event.eventName, 25) || "Unnamed Event"}
+              </h3>
+              <p className="text-gray-600 text-sm mt-1 truncate">
+              {truncateText(event.eventDesc, 30) || "No description"}
+              </p>
+              <p className="text-gray-700 text-sm mt-2">
+                <span className="font-medium">Date:</span>{" "}
+                {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+              </p>
+              <p className="text-gray-700 text-sm">
+                <span className="font-medium">Time:</span>{" "}
+                {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}{" "}
+                -{" "}
+                {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <p className="text-gray-700 text-sm mt-1 truncate">
+                <span className="font-medium">Location:</span>{" "}
+                {truncateText(event.eventLocation, 25) || "No location"}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="px-4 pb-4 flex flex-wrap gap-2">
+              {event.tags && typeof event.tags === "string" ? (
+                event.tags.split("|").map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
+                  >
+                    {truncateText(tag.trim(), 10)}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-600 text-xs">No tags</span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
 };
 
-export default ListEventScroll
+export default ListEventScroll;
