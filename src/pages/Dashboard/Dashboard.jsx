@@ -3,7 +3,7 @@ import React, { useState ,useEffect,useRef} from "react";
 import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
 import { useNavigate, BrowserRouter as Router } from "react-router-dom";
 
-const EventsPage = ({ eventId }) => {
+const EventsPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Events');
   const [filterStatus, setFilterStatus] = useState('public'); 
@@ -36,7 +36,7 @@ const EventsPage = ({ eventId }) => {
   const handleActionClick = (action, eventId) => {
     if (action === 'Edit') {
       // navigate(`/event/${eventId}`);
-      navigate(`/test`);
+      navigate(`/event/detail/${eventId}`);
     }
     setPopupVisible(null);
     
@@ -169,8 +169,6 @@ const EventsPage = ({ eventId }) => {
     </div>
   );
 };
-
-
 
 const Dashboard = () => {
   return (

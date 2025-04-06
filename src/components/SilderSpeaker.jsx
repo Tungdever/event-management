@@ -2,7 +2,7 @@ import React from "react";
 
 const SliderSpeaker = ({speakers}) => {
   return (
-    <div className="w-[780px] overflow-x-auto my-10 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+    <div className=" ml-20 w-[780px] overflow-x-auto my-10 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
       <div className="flex gap-4 w-max ">
         {speakers.map((speaker) => (
           <a

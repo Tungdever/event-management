@@ -1,64 +1,74 @@
 import { useState } from "react";
-
 import { Link } from "react-router-dom";  
 import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
 import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
-const defaultMenuItems = [
+
+// Hàm helper để tạo menu items với eventId
+const createMenuItems = (eventId) => [
   {
     title: "Dashboard",
-    path: "/dashboard",
+    path: `/dashboard${eventId ? `/${eventId}` : ''}`,
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Event", path: "/test" }
+      { title: "Event", path: `/event/detail${eventId ? `/${eventId}` : ''}` }
     ]
-     
   },
   {
     title: "Events",
-    path: "/event",
+    path: `/event${eventId ? `/${eventId}` : ''}`,
     icon: <MdEvent />,
     submenu: [
-      ,
-      { title: "Sponsor", path: "/sponsor",sub_submenu :[
-        { title: "Create Sponsor", path: "/createSponsor" },
-        { title: "Edit Sponsor", path: "/editSponsor" },
-      ] },
-      { title: "Speaker", path: "/speaker",sub_submenu :[
-        { title: "Create Speaker", path: "/createSpeaker" },
-        { title: "Edit Speaker", path: "/editSpeaker" },
-      ] },
-      { title: "Session", path: "/session" ,sub_submenu :[
-        { title: "Create Section", path: "/createSection" },
-        { title: "Edit Section", path: "/editSection" },
-      ] },
-      
-     
-      { title: "Ticket", path: "/ticket" },
-     
+      { 
+        title: "Sponsor", 
+        path: `/sponsor${eventId ? `/${eventId}` : ''}`,
+        sub_submenu: [
+          { title: "Create Sponsor", path: `/createSponsor${eventId ? `/${eventId}` : ''}` },
+          { title: "Edit Sponsor", path: `/editSponsor${eventId ? `/${eventId}` : ''}` },
+        ]
+      },
+      { 
+        title: "Speaker", 
+        path: `/speaker${eventId ? `/${eventId}` : ''}`,
+        sub_submenu: [
+          { title: "Create Speaker", path: `/createSpeaker${eventId ? `/${eventId}` : ''}` },
+          { title: "Edit Speaker", path: `/editSpeaker${eventId ? `/${eventId}` : ''}` },
+        ]
+      },
+      { 
+        title: "Session", 
+        path: `/session${eventId ? `/${eventId}` : ''}`,
+        sub_submenu: [
+          { title: "Create Section", path: `/createSection${eventId ? `/${eventId}` : ''}` },
+          { title: "Edit Section", path: `/editSection${eventId ? `/${eventId}` : ''}` },
+        ]
+      },
+      { title: "Ticket", path: `/ticket${eventId ? `/${eventId}` : ''}` },
     ],
   },
   {
     title: "Team",
-    path: "/team",
+    path: `/team${eventId ? `/${eventId}` : ''}`,
     icon: <FaUsers />,
     submenu: [
-      { title: "Member", path: "/member" },
-      { title: "Task", path: "/task" },
-      
+      { title: "Member", path: `/member${eventId ? `/${eventId}` : ''}` },
+      { title: "Task", path: `/task${eventId ? `/${eventId}` : ''}` },
     ],
   },
-  
 ];
 
-const Sidebar = () => {
+const Sidebar = ({id}) => {
+  console.log(id)
+  const [eventId] = useState(id);
+  const menuItems = createMenuItems(eventId);
+  
   const [openMenus, setOpenMenus] = useState(
-    defaultMenuItems.reduce((acc, menu) => {
+    menuItems.reduce((acc, menu) => {
       acc[menu.title] = true;
       return acc;
     }, {})
   );
 
-  const [activeSubmenu, setActiveSubmenu] = useState(null); // Lưu trạng thái submenu đang active
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
   const toggleMenu = (menuTitle) => {
     setOpenMenus((prev) => ({
@@ -71,7 +81,7 @@ const Sidebar = () => {
     <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
       <h1 className="text-2xl font-bold text-orange-500 mb-8 mt-2">Management Event</h1>
       <ul>
-        {defaultMenuItems.map((menu) => (
+        {menuItems.map((menu) => (
           <SidebarItem
             key={menu.title}
             menu={menu}
@@ -104,7 +114,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
       </div>
       {menu.submenu && isOpen && (
         <ul className="mt-2 ml-2">
-          {menu.submenu.map((sub) => (
+          {menu.submenu.map((sub) => sub && (
             <li key={sub.title}>
               <Link
                 to={sub.path}
@@ -115,6 +125,20 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
               >
                 {sub.title}
               </Link>
+              {sub.sub_submenu && (
+                <ul className="mt-1 ml-4">
+                  {sub.sub_submenu.map((subSub) => (
+                    <li key={subSub.title}>
+                      <Link
+                        to={subSub.path}
+                        className="block px-2 py-1 text-[13px] text-gray-600 hover:text-[#0357AF] hover:bg-gray-100 rounded"
+                      >
+                        {subSub.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
