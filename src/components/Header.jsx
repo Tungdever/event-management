@@ -137,6 +137,14 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
+  const handleCreateEventClick = (e) => {
+    
+    navigate("/createEvent"); 
+  };
+  const handleHomepage = (e) => {
+    
+    navigate("/"); 
+  };
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -153,7 +161,8 @@ const Header = () => {
     <div className="bg-white shadow fixed top-0 left-0 w-full z-10">
       <div className="w-full px-4 py-4 h-16 flex justify-between items-center">
         {/* Logo */}
-        <div className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300" >
+        <div className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300"
+        onClick={handleHomepage} >
           Manage Event
         </div>
         <SearchBar />
@@ -166,8 +175,9 @@ const Header = () => {
           ].map((item, index) => (
             <a
               key={index}
-              href={"https://www.eventbrite.com/"}
+              
               className="flex flex-col items-center text-gray-500 text-[13px] font-medium px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
+              onClick={item.text === "Create event" ? handleCreateEventClick : null} 
             >
               <i className={`${item.icon} text-lg`}></i>
               {item.text}

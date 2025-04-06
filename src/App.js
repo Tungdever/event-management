@@ -35,7 +35,7 @@ import EventPublishing from "./pages/Event/EventPublishing";
 import Refund from "./pages/Refund/refund";
 import RefundManagement from "./pages/Refund/refund_management";
 import ViewProfile from "./pages/Dashboard/ViewProfile";
-
+import Sidebar2 from "./pages/Dashboard/Sidebar2";
 import Header from "./components/Header";
 import EditEvent from "./pages/Event/test";
 const eventData = {
@@ -219,22 +219,57 @@ const profileData = [
 const MainLayout = () => {
   const location = useLocation();
 
-  const isFullScreenPageWithHeader =
-    [
-      "/",
-      "/search",
-      "/checkout",
-      "/myticket",
-      "/refund",
-      "/eventpage",
-      "/test",
-    ].includes(location.pathname) || location.pathname.startsWith("/event/");
-
+  // Các trang chỉ hiển thị nội dung (auth pages)
   const isAuthPage = ["/login", "/signup", "/forgot"].includes(location.pathname);
+
+  // Các trang full screen với Header
+  const isFullScreenPageWithHeader = [
+    "/",
+    "/search",
+    "/checkout",
+    "/myticket",
+    "/refund",
+    "/eventpage",
+    
+    "/createEvent",
+  ].includes(location.pathname) || location.pathname.startsWith("/event/");
+
+  // Các trang chi tiết của event
+  const isDetailOfEvent = [
+    "/view",
+    "/dashboard/refund",
+    "/session",
+    "/speaker",
+    "/sponsor",
+    "/task",
+    "/addticket",
+    "/member",
+    "/editEvent",
+    "/ticket",
+    "/test",
+  ].includes(location.pathname);
+
+  // Các trang dashboard chung (không thuộc isFullScreenPageWithHeader, isAuthPage, hoặc isDetailOfEvent)
+  const isDashboardPage = !isFullScreenPageWithHeader && !isAuthPage && !isDetailOfEvent;
+
+  // Dữ liệu giả lập (thay bằng dữ liệu thực tế nếu cần)
+  const ticketData = [];
+  const notifications = [];
+  const profileData = [{}];
+  const employees = [];
 
   return (
     <div className="w-full min-h-screen bg-white">
-      {/* Các trang có Header */}
+      {/* 1. Các trang Auth không có Header hoặc Sidebar */}
+      {isAuthPage && (
+        <Routes>
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgot" element={<ForgotPassword />} />
+        </Routes>
+      )}
+
+      {/* 2. Các trang Full Screen với Header */}
       {isFullScreenPageWithHeader && (
         <>
           <Header />
@@ -247,43 +282,47 @@ const MainLayout = () => {
               <Route path="/myticket" element={<TicketList tickets={ticketData} />} />
               <Route path="/refund" element={<Refund />} />
               <Route path="/eventpage" element={<EventPage />} />
-              <Route path="/test" element={<EditEvent eventId={2}/>} />
+             
+              <Route path="/createEvent" element={<CRUDEvent />} />
             </Routes>
           </div>
         </>
       )}
 
-      {/* Các trang không có Header (auth pages) */}
-      {isAuthPage && (
-        <Routes>
-          <Route path="/login" element={<LoginForm />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/forgot" element={<ForgotPassword />} />
-        </Routes>
+      {/* 3. Các trang Dashboard chung với Navbar và Sidebar2 */}
+      {isDashboardPage && (
+        <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
+          <Navbar />
+          <Sidebar2 />
+          <Routes>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/chat" element={<ChatBox />} />
+            <Route path="/calendar" element={<CalendarPage />} />
+            <Route
+              path="/notification"
+              element={<NotificationList notifications={notifications} />}
+            />
+          </Routes>
+        </div>
       )}
 
-      {/* Các trang dashboard với Navbar và Sidebar */}
-      {!isFullScreenPageWithHeader && !isAuthPage && (
+      {/* 4. Các trang chi tiết của event với Navbar và Sidebar */}
+      {isDetailOfEvent && (
         <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
           <Navbar />
           <Sidebar />
           <Routes>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/ticket" element={<TicketDashboard />} />
-            <Route path="/chat" element={<ChatBox />} />
-            <Route path="/calendar" element={<CalendarPage />} />
-            <Route path="/createEvent" element={<CRUDEvent />} />
-            <Route path="/editEvent" element={<EditEvent />} />
-            <Route path="/publicEvent" element={<EventPublishing eventData={eventData} />} />
-            <Route path="/member" element={<EmployeeList employees={employees} />} />
-            <Route path="/notification" element={<NotificationList notifications={notifications} />} />
-            <Route path="/addticket" element={<AddTicket />} />
-            <Route path="/task" element={<TaskBoard />} />
-            <Route path="/sponsor" element={<Sponsor />} />
-            <Route path="/speaker" element={<Speaker />} />
-            <Route path="/session" element={<Session />} />
-            <Route path="/dashboard/refund" element={<RefundManagement />} />
             <Route path="/view" element={<ViewProfile infor={profileData[0]} />} />
+            <Route path="/dashboard/refund" element={<RefundManagement />} />
+            <Route path="/session" element={<Session />} />
+            <Route path="/speaker" element={<Speaker />} />
+            <Route path="/sponsor" element={<Sponsor />} />
+            <Route path="/task" element={<TaskBoard />} />
+            <Route path="/addticket" element={<AddTicket />} />
+            <Route path="/member" element={<EmployeeList employees={employees} />} />
+            <Route path="/editEvent" element={<EditEvent />} />
+            <Route path="/ticket" element={<TicketDashboard />} />
+             <Route path="/test" element={<EditEvent eventId={2} />} />
           </Routes>
         </div>
       )}

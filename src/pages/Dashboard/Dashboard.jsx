@@ -35,7 +35,8 @@ const EventsPage = ({ eventId }) => {
   };
   const handleActionClick = (action, eventId) => {
     if (action === 'Edit') {
-      navigate(`/event/${eventId}`);
+      // navigate(`/event/${eventId}`);
+      navigate(`/test`);
     }
     setPopupVisible(null);
     

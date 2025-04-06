@@ -112,10 +112,12 @@ const debug =(e) =>{
           </div>
 
           <div className="text-blue-500 flex items-center">
-            <i className="fas fa-bolt mr-2"></i>
-            <a href="#" className="font-semibold">
-              Suggest summary
-            </a>
+          <button
+            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg"
+            onClick={() => setShowOverview(false)}
+          >
+            Complete
+          </button>
           </div>
         </div>
       )}

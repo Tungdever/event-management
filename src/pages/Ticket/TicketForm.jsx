@@ -1,6 +1,7 @@
 import React from "react";
-
+import Loader from "../../components/Loading";
 const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel }) => {
+  
   return (
     <div
       className={`fixed top-0 right-0 h-full w-full lg:w-1/3 max-h-[700px] mt-[55px] border border-t-2 bg-white shadow-lg transform transition-transform duration-300 ease-in-out translate-x-0`}

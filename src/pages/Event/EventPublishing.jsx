@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
-
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -245,12 +246,16 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 bg-gray-100 p-3 rounded-lg ">
           <div className="bg-white p-4 rounded-[20px] shadow-md mb-4 text-[14px] relative">
-            <div className="flex items-center justify-center h-48 bg-gray-200 rounded-lg mb-4">
-              <img
-                src={event.uploadedImages[0]?.url || "default-image.jpg"}
-                alt={event.eventName}
-                className="h-full w-full object-cover rounded-lg"
-              />
+            <div className="flex items-center justify-center h-48 rounded-lg mb-4">
+            {event.uploadedImages.map((img, index) => (
+                    <div key={index} className="relative  mb-4">
+                      <img
+                        src={img}
+                        alt={`Uploaded ${index}`}
+                        className="w-[448px] h-[192px] object-cover rounded-[14px]"
+                      />
+                    </div>
+                  ))}
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {event.eventName || "Untitled Event"}

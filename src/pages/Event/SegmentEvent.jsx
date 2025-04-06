@@ -13,7 +13,7 @@ const ImageUploader = ({ onImageUpload }) => {
         alert("Please upload an image file.");
         return;
       }
-      const imageUrl = URL.createObjectURL(file); 
+      const imageUrl = URL.createObjectURL(file);
       setSelectedFile(imageUrl);
       onImageUpload({ file, imageUrl });
     }
@@ -47,9 +47,10 @@ const ImageUploader = ({ onImageUpload }) => {
     </div>
   );
 };
+
 const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const [segments, setSegments] = useState(segmentData || []);
-  const [speakerImageData, setSpeakerImageData] = useState(null); 
+  const [speakerImageData, setSpeakerImageData] = useState(null);
   const [newSegment, setNewSegment] = useState({
     eventId: eventId || "",
     segmentId: "",
@@ -63,9 +64,11 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const [desc, setDesc] = useState(false);
   const [actor, setActor] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // New state for editing mode
+  const [editIndex, setEditIndex] = useState(null); // Track the index of the segment being edited
   const [loading, setLoading] = useState(false);
 
-  // Xử lý thay đổi input
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewSegment((prevData) => ({
@@ -74,10 +77,11 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     }));
   };
 
-  const handleImageUpload = ({ file, imageUrl, publicId }) => {
-    setSpeakerImageData({ file, imageUrl, publicId });
+  const handleImageUpload = ({ file, imageUrl }) => {
+    setSpeakerImageData({ file, imageUrl });
   };
 
+  // Handle adding a new segment
   const handleAddSlot = () => {
     if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
       alert("Please fill in all required fields (Title, Start Time, End Time).");
@@ -88,28 +92,85 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
       return;
     }
 
-    
     const segmentToAdd = {
       segmentTitle: newSegment.segmentTitle,
       speaker: actor
         ? {
-            speakerImage: speakerImageData?.imageUrl || "", 
+            speakerImage: speakerImageData?.imageUrl || "",
             speakerName: newSegment.speakerName,
             speakerDesc: newSegment.speakerDesc,
           }
         : null,
       eventID: eventId || "",
       segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime, 
-      endTime: newSegment.endTime,    
+      startTime: newSegment.startTime,
+      endTime: newSegment.endTime,
     };
 
-    
     const updatedSegments = [...segments, segmentToAdd];
-    setSegments(updatedSegments); 
-    onSegmentUpdate(updatedSegments); 
-    console.log(updatedSegments)
-    
+    setSegments(updatedSegments);
+    onSegmentUpdate(updatedSegments);
+
+    resetForm();
+  };
+
+  // Handle editing an existing segment
+  const handleEditSegment = (index) => {
+    const segment = segments[index];
+    setNewSegment({
+      eventId: eventId || "",
+      segmentId: segment.segmentId || "",
+      segmentTitle: segment.segmentTitle || "",
+      segmentDesc: segment.segmentDesc || "",
+      speakerName: segment.speaker?.speakerName || "",
+      speakerDesc: segment.speaker?.speakerDesc || "",
+      startTime: segment.startTime || "",
+      endTime: segment.endTime || "",
+    });
+    setSpeakerImageData(segment.speaker?.speakerImage ? { imageUrl: segment.speaker.speakerImage } : null);
+    setDesc(!!segment.segmentDesc);
+    setActor(!!segment.speaker);
+    setIsEditing(true);
+    setEditIndex(index);
+    setIsAdding(true); // Show the form
+  };
+
+  // Handle saving the edited segment
+  const handleSaveEdit = () => {
+    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
+      alert("Please fill in all required fields (Title, Start Time, End Time).");
+      return;
+    }
+    if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
+      alert("Please fill in Speaker Name and Description.");
+      return;
+    }
+
+    const updatedSegment = {
+      segmentTitle: newSegment.segmentTitle,
+      speaker: actor
+        ? {
+            speakerImage: speakerImageData?.imageUrl || "",
+            speakerName: newSegment.speakerName,
+            speakerDesc: newSegment.speakerDesc,
+          }
+        : null,
+      eventID: eventId || "",
+      segmentDesc: newSegment.segmentDesc,
+      startTime: newSegment.startTime,
+      endTime: newSegment.endTime,
+    };
+
+    const updatedSegments = [...segments];
+    updatedSegments[editIndex] = updatedSegment;
+    setSegments(updatedSegments);
+    onSegmentUpdate(updatedSegments);
+
+    resetForm();
+  };
+
+  // Reset the form after adding or editing
+  const resetForm = () => {
     setNewSegment({
       eventId: eventId || "",
       segmentId: "",
@@ -124,18 +185,17 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     setDesc(false);
     setActor(false);
     setIsAdding(false);
+    setIsEditing(false);
+    setEditIndex(null);
   };
 
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Segment</h1>
-        <button className="text-red-500">Delete section</button>
       </div>
       <p className="text-gray-600 mb-6">
-        Add an itinerary, schedule, or lineup to your event. You can include a
-        time, a description of what will happen, and who will host or perform
-        during the event.
+        Add an itinerary, schedule, or lineup to your event. You can include a time, a description of what will happen, and who will host or perform during the event.
       </p>
       <div className="flex items-center mb-4">
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
@@ -151,7 +211,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
       </div>
 
       {/* Danh sách segments */}
-      {segments.length > 0 && (
+      {segments.length > 0 &&
         segments.map((segment, index) => (
           <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
             <div className="border-red-500 border-l-2 pl-4">
@@ -159,7 +219,10 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
                 <span className="text-red-500">
                   {segment.startTime} - {segment.endTime}
                 </span>
-                <i className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"></i>
+                <i
+                  className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"
+                  onClick={() => handleEditSegment(index)}
+                ></i>
               </div>
               <span className="font-semibold text-gray-500 text-xl py-2">
                 {segment.segmentTitle}
@@ -181,10 +244,9 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
               )}
             </div>
           </div>
-        ))
-      )}
+        ))}
 
-      {/* Form thêm segment */}
+      {/* Form thêm hoặc chỉnh sửa segment */}
       {isAdding && (
         <div className="p-4 border border-gray-300 rounded-lg">
           <div className="mb-4">
@@ -297,18 +359,10 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
           </div>
           <button
             className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg w-full"
-            onClick={handleAddSlot}
+            onClick={isEditing ? handleSaveEdit : handleAddSlot}
             disabled={loading}
           >
-            {loading ? "Saving..." : "Save Segment"}
-          </button>
-        </div>
-      )}
-
-      {!isAdding && (
-        <div className="bg-gray-100 p-4 rounded-lg text-center mt-4">
-          <button className="text-blue-600 w-full" onClick={() => setIsAdding(true)}>
-            + Add slot
+            {loading ? "Saving..." : isEditing ? "Save Changes" : "Save Segment"}
           </button>
         </div>
       )}

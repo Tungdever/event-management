@@ -9,48 +9,30 @@ const defaultMenuItems = [
     path: "/dashboard",
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Event", path: "/test" }
+      { title: "Manager", path: "/dashboard" },   
+      { title: "Chat", path: "/chat" ,icon: <MdChat /> },
+      { title: "Calendar", path: "/calendar",icon: <FaCalendarAlt /> }
     ]
-     
   },
   {
-    title: "Events",
-    path: "/event",
-    icon: <MdEvent />,
+    title: "Report",
+    path: "/report",
+    icon: <i class="fa-solid fa-chart-simple"></i>,
     submenu: [
-      ,
-      { title: "Sponsor", path: "/sponsor",sub_submenu :[
-        { title: "Create Sponsor", path: "/createSponsor" },
-        { title: "Edit Sponsor", path: "/editSponsor" },
-      ] },
-      { title: "Speaker", path: "/speaker",sub_submenu :[
-        { title: "Create Speaker", path: "/createSpeaker" },
-        { title: "Edit Speaker", path: "/editSpeaker" },
-      ] },
-      { title: "Session", path: "/session" ,sub_submenu :[
-        { title: "Create Section", path: "/createSection" },
-        { title: "Edit Section", path: "/editSection" },
-      ] },
-      
-     
-      { title: "Ticket", path: "/ticket" },
-     
-    ],
+      { title: "Manager", path: "/dashboard" },]
   },
   {
-    title: "Team",
-    path: "/team",
-    icon: <FaUsers />,
+    title: "Setting",
+    path: "/setting",
+    icon: <FaCogs />,
     submenu: [
-      { title: "Member", path: "/member" },
-      { title: "Task", path: "/task" },
-      
+      { title: "Profile", path: "/view" },
+      { title: "Notification", path: "/notification" },
     ],
   },
-  
 ];
 
-const Sidebar = () => {
+const Sidebar2 = () => {
   const [openMenus, setOpenMenus] = useState(
     defaultMenuItems.reduce((acc, menu) => {
       acc[menu.title] = true;
@@ -58,7 +40,7 @@ const Sidebar = () => {
     }, {})
   );
 
-  const [activeSubmenu, setActiveSubmenu] = useState(null); // Lưu trạng thái submenu đang active
+  const [activeSubmenu, setActiveSubmenu] = useState(null); 
 
   const toggleMenu = (menuTitle) => {
     setOpenMenus((prev) => ({
@@ -123,4 +105,4 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
   );
 };
 
-export default Sidebar;
+export default Sidebar2;
