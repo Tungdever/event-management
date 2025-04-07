@@ -3,9 +3,14 @@ import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useParams } from "react-router-dom";
+import {
+  BrowserRouter as Router,
 
+  useLocation,
+} from "react-router-dom";
 const EditEvent = () => {
-  const { eventId } = useParams(); 
+  const location = useLocation();
+  const eventId = location.state?.eventId || undefined;
   const [selectedStep, setSelectedStep] = useState("build");
   const [event, setEvent] = useState({
     eventName: "",
@@ -258,7 +263,7 @@ const EditEvent = () => {
       // Tạo JSON payload theo cấu trúc yêu cầu
       const payload = {
         event: {
-          eventId: event.eventId || 2,
+          eventId: eventId || null,
           eventName: event.eventName || "",
           eventDesc: event.eventDesc || "",
           eventType: event.eventType || "Conference",

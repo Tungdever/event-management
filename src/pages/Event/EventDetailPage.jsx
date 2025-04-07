@@ -315,6 +315,7 @@ const EventDetail = () => {
     };
 
     fetchAllData();
+    window.scrollTo(0, 0); // Thêm dòng này để cuộn về đầu trang
   }, [eventId]);
 
   const handleQuantityChange = (ticketId, maxQuantity, delta) => {
