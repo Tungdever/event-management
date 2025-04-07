@@ -39,11 +39,12 @@ import Sidebar2 from "./pages/Dashboard/Sidebar2";
 import Header from "./components/Header";
 import EditEvent from "./pages/Event/EditEventPage"
 import { useParams } from "react-router-dom";
-const MainLayout = () => {
-  const { eventId } = useParams();
-  const location = useLocation();
 
-  // Các trang chỉ hiển thị nội dung (auth pages)
+const MainLayout = () => {
+  const location = useLocation();
+  const eventId = location.state?.eventId || undefined;
+
+  // Các trang auth
   const isAuthPage = ["/login", "/signup", "/forgot"].includes(location.pathname);
 
   // Các trang full screen với Header
@@ -54,30 +55,33 @@ const MainLayout = () => {
     "/myticket",
     "/refund",
     "/eventpage",
-    
     "/createEvent",
   ].includes(location.pathname) || location.pathname.startsWith("/event/");
 
-  // Các trang chi tiết của event
-  const isDetailOfEvent = [
-    "/view",
+  // Các base path của trang chi tiết sự kiện (xóa "")
+  const eventDetailBasePaths = [
+    "/dashboard/view",
     "/dashboard/refund",
-    "/session",
-    "/speaker",
-    "/sponsor",
-    "/task",
-    "/addticket",
-    "/member",
-    "/editEvent",
-    "/ticket",
-    "/test",
+    "/dashboard/session",
+    "/dashboard/speaker",
+    "/dashboard/sponsor",
+    "/dashboard/task",
+    "/dashboard/addticket",
+    "/dashboard/member",
+    "/dashboard/editEvent",
+    "/dashboard/ticket",
+    "/dashboard/test",
+  ];
 
-  ].includes(location.pathname) || location.pathname.startsWith("/event/detail");
+  // Kiểm tra xem pathname có thuộc nhóm chi tiết sự kiện không
+  const isDetailOfEvent = !isAuthPage && !isFullScreenPageWithHeader && eventDetailBasePaths.some((path) =>
+    location.pathname.startsWith(path) || location.pathname.startsWith("/dashboard/event/detail")
+  );
 
-  // Các trang dashboard chung (không thuộc isFullScreenPageWithHeader, isAuthPage, hoặc isDetailOfEvent)
+  // Các trang dashboard chung
   const isDashboardPage = !isFullScreenPageWithHeader && !isAuthPage && !isDetailOfEvent;
 
-  // Dữ liệu giả lập (thay bằng dữ liệu thực tế nếu cần)
+  // Dữ liệu giả lập
   const ticketData = [];
   const notifications = [];
   const profileData = [{}];
@@ -85,7 +89,7 @@ const MainLayout = () => {
 
   return (
     <div className="w-full min-h-screen bg-white">
-      {/* 1. Các trang Auth không có Header hoặc Sidebar */}
+      {/* 1. Auth Pages */}
       {isAuthPage && (
         <Routes>
           <Route path="/login" element={<LoginForm />} />
@@ -94,7 +98,7 @@ const MainLayout = () => {
         </Routes>
       )}
 
-      {/* 2. Các trang Full Screen với Header */}
+      {/* 2. Full Screen Pages with Header */}
       {isFullScreenPageWithHeader && (
         <>
           <Header />
@@ -107,14 +111,13 @@ const MainLayout = () => {
               <Route path="/myticket" element={<TicketList tickets={ticketData} />} />
               <Route path="/refund" element={<Refund />} />
               <Route path="/eventpage" element={<EventPage />} />
-             
               <Route path="/createEvent" element={<CRUDEvent />} />
             </Routes>
           </div>
         </>
       )}
 
-      {/* 3. Các trang Dashboard chung với Navbar và Sidebar2 */}
+      {/* 3. Dashboard Pages */}
       {isDashboardPage && (
         <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
           <Navbar />
@@ -131,29 +134,41 @@ const MainLayout = () => {
         </div>
       )}
 
-      {/* 4. Các trang chi tiết của event với Navbar và Sidebar */}
+      {/* 4. Event Detail Pages */}
       {isDetailOfEvent && (
         <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
           <Navbar />
-          <Sidebar id = {eventId} />
+          <Sidebar id={eventId} />
           <Routes>
-            <Route path="/view" element={<ViewProfile infor={profileData[0]} />} />
+            <Route path="/dashboard/view" element={<ViewProfile infor={profileData[0]} />} />
+            <Route path="/dashboard/view/:eventId" element={<ViewProfile infor={profileData[0]} />} />
             <Route path="/dashboard/refund" element={<RefundManagement />} />
-            <Route path="/session" element={<Session />} />
-            <Route path="/speaker" element={<Speaker />} />
-            <Route path="/sponsor" element={<Sponsor />} />
-            <Route path="/task" element={<TaskBoard />} />
-            <Route path="/addticket" element={<AddTicket />} />
-            <Route path="/member" element={<EmployeeList employees={employees} />} />
-            <Route path="/ticket" element={<TicketDashboard />} />
-             <Route path="/event/detail/:eventId" element={<EditEvent />} />
+            <Route path="/dashboard/refund/:eventId" element={<RefundManagement />} />
+            <Route path="/dashboard/session" element={<Session />} />
+            <Route path="/dashboard/session/:eventId" element={<Session />} />
+            <Route path="/dashboard/speaker" element={<Speaker />} />
+            <Route path="/dashboard/speaker/:eventId" element={<Speaker />} />
+            <Route path="/dashboard/sponsor" element={<Sponsor />} />
+            <Route path="/dashboard/sponsor/:eventId" element={<Sponsor />} />
+            <Route path="/dashboard/task" element={<TaskBoard />} />
+            <Route path="/dashboard/task/:eventId" element={<TaskBoard />} />
+            <Route path="/dashboard/addticket" element={<AddTicket />} />
+            <Route path="/dashboard/addticket/:eventId" element={<AddTicket />} />
+            <Route path="/dashboard/member" element={<EmployeeList employees={employees} />} />
+            <Route path="/dashboard/member/:eventId" element={<EmployeeList employees={employees} />} />
+            <Route path="/dashboard/editEvent" element={<EditEvent />} />
+            <Route path="/dashboard/editEvent/:eventId" element={<EditEvent />} />
+            <Route path="/dashboard/ticket" element={<TicketDashboard />} />
+            <Route path="/dashboard/ticket/:eventId" element={<TicketDashboard />} />
+            <Route path="/dashboard/test" element={<div>Test Page</div>} />
+            <Route path="/dashboard/test/:eventId" element={<div>Test Page</div>} />
+            <Route path="/dashboard/event/detail/:eventId" element={<EditEvent />} />
           </Routes>
         </div>
       )}
     </div>
   );
 };
-
 function App() {
   return (
     <Router>

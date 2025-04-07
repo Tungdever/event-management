@@ -36,7 +36,7 @@ const EventsPage = () => {
   const handleActionClick = (action, eventId) => {
     if (action === 'Edit') {
       // navigate(`/event/${eventId}`);
-      navigate(`/event/detail/${eventId}`);
+      navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
     }
     setPopupVisible(null);
     

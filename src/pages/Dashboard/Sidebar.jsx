@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";  
-import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
-import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
+import { Link, useNavigate, useLocation } from "react-router-dom";  
+import { FaChevronDown, FaTachometerAlt, FaUsers } from "react-icons/fa"; 
+import { MdEvent } from "react-icons/md";
 
 // Hàm helper để tạo menu items với eventId
 const createMenuItems = (eventId) => [
@@ -10,54 +10,51 @@ const createMenuItems = (eventId) => [
     path: `/dashboard${eventId ? `/${eventId}` : ''}`,
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Event", path: `/event/detail${eventId ? `/${eventId}` : ''}` }
+      { title: "Event", path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}` }
     ]
   },
   {
     title: "Events",
-    path: `/event${eventId ? `/${eventId}` : ''}`,
+    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
     icon: <MdEvent />,
     submenu: [
       { 
         title: "Sponsor", 
-        path: `/sponsor${eventId ? `/${eventId}` : ''}`,
-        sub_submenu: [
-          { title: "Create Sponsor", path: `/createSponsor${eventId ? `/${eventId}` : ''}` },
-          { title: "Edit Sponsor", path: `/editSponsor${eventId ? `/${eventId}` : ''}` },
-        ]
+        path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
       },
       { 
         title: "Speaker", 
-        path: `/speaker${eventId ? `/${eventId}` : ''}`,
-        sub_submenu: [
-          { title: "Create Speaker", path: `/createSpeaker${eventId ? `/${eventId}` : ''}` },
-          { title: "Edit Speaker", path: `/editSpeaker${eventId ? `/${eventId}` : ''}` },
-        ]
+        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
       },
       { 
         title: "Session", 
-        path: `/session${eventId ? `/${eventId}` : ''}`,
-        sub_submenu: [
-          { title: "Create Section", path: `/createSection${eventId ? `/${eventId}` : ''}` },
-          { title: "Edit Section", path: `/editSection${eventId ? `/${eventId}` : ''}` },
-        ]
+        path: `/dashboard/session${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
       },
-      { title: "Ticket", path: `/ticket${eventId ? `/${eventId}` : ''}` },
+      { 
+        title: "Ticket", 
+        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+      },
     ],
   },
   {
     title: "Team",
-    path: `/team${eventId ? `/${eventId}` : ''}`,
+    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
     icon: <FaUsers />,
     submenu: [
-      { title: "Member", path: `/member${eventId ? `/${eventId}` : ''}` },
-      { title: "Task", path: `/task${eventId ? `/${eventId}` : ''}` },
+      { 
+        title: "Member", 
+        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+      },
+      { 
+        title: "Task", 
+        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+      },
     ],
   },
 ];
 
-const Sidebar = ({id}) => {
-  console.log(id)
+const Sidebar = ({ id }) => {
+  console.log("day la id duoc truyen " + id);
   const [eventId] = useState(id);
   const menuItems = createMenuItems(eventId);
   
@@ -97,16 +94,27 @@ const Sidebar = ({id}) => {
 };
 
 const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClick = (path) => {
+    // Truyền lại eventId qua state để duy trì khi điều hướng
+    navigate(path, { state: { eventId: location.state?.eventId || menu.path.split('/').pop() } });
+    if (!menu.submenu) setActiveSubmenu(menu.title);
+  };
+
   return (
     <li className="mb-2">
       <div
         className={`flex justify-between items-center px-2 py-2 rounded-lg cursor-pointer transition-all duration-300 
         text-[14px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
-        onClick={menu.submenu ? onClick : null}
+        onClick={menu.submenu ? onClick : () => handleClick(menu.path)}
       >
         <div className="flex items-center">
           {menu.icon && <span className="mr-2 text-[16px]">{menu.icon}</span>}
-          <Link to={menu.path}>{menu.title}</Link>
+          <Link to={menu.path} onClick={(e) => { e.preventDefault(); handleClick(menu.path); }}>
+            {menu.title}
+          </Link>
         </div>
         {menu.submenu && (
           <FaChevronDown size={12} className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -121,7 +129,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
                 className={`block px-2 ml-2 py-2 rounded-lg transition-all text-[14px] 
                 ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
                 hover:bg-gray-100 hover:text-[#0357AF]`}
-                onClick={() => setActiveSubmenu(sub.title)}
+                onClick={(e) => { e.preventDefault(); handleClick(sub.path); }}
               >
                 {sub.title}
               </Link>
@@ -132,6 +140,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
                       <Link
                         to={subSub.path}
                         className="block px-2 py-1 text-[13px] text-gray-600 hover:text-[#0357AF] hover:bg-gray-100 rounded"
+                        onClick={(e) => { e.preventDefault(); handleClick(subSub.path); }}
                       >
                         {subSub.title}
                       </Link>
