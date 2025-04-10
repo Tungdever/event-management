@@ -5,37 +5,54 @@ import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 
 const LocationDropdown = ({ onLocationChange }) => {
-  const [selected, setSelected] = useState("Ho Chi Minh");
+  const [selected, setSelected] = useState("ho-chi-minh"); 
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
-  const locations = ["Ho Chi Minh", "Hanoi", "Da Nang"];
+ 
+  const locations = [
+    { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
+    { slug: "ha-noi", name: "Hà Nội" },
+    { slug: "da-nang", name: "Đà Nẵng" },
+  ];
 
-  
-  const handleSelectCity = (city) => {
-    setSelected(city);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelectCity = (citySlug) => {
+    setSelected(citySlug);
     setIsOpen(false);
-    onLocationChange(city); 
+    onLocationChange(citySlug);
   };
 
   return (
-    <div className="relative flex items-center px-4">
+    <div className="relative flex items-center px-4" ref={dropdownRef}>
       <FaMapMarkerAlt className="text-gray-500 cursor-pointer" />
       <div
         className="relative ml-2 text-gray-500 text-sm cursor-pointer flex items-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="px-3 py-2">{selected}</span>
+        <span className="px-3 py-2">
+          {locations.find((loc) => loc.slug === selected)?.name || selected}
+        </span>
         <FaChevronDown className="ml-2 text-gray-400" />
       </div>
       {isOpen && (
         <div className="absolute top-full left-8 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-          {locations.map((city, index) => (
+          {locations.map((city) => (
             <div
-              key={index}
+              key={city.slug}
               className="p-2 text-gray-700 text-sm hover:bg-orange-200 cursor-pointer transition"
-              onClick={() => handleSelectCity(city)}
+              onClick={() => handleSelectCity(city.slug)}
             >
-              {city}
+              {city.name}
             </div>
           ))}
         </div>
@@ -47,8 +64,7 @@ const LocationDropdown = ({ onLocationChange }) => {
 const SearchBar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("Ho Chi Minh");
-  const [searchType, setSearchType] = useState("eventName"); // Mặc định tìm theo tên sự kiện
+  const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh"); 
   const [searchHistory, setSearchHistory] = useState([
     "Music Festival",
     "Tech Conference",
@@ -66,49 +82,42 @@ const SearchBar = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Hàm gọi API searchEvents
+  // Hàm gọi API searchEventsByNameAndCity
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       alert("Please enter a search term");
       return;
     }
-  
+
     try {
       const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-      let apiUrl = `http://localhost:8080/api/events/search?term=${encodeURIComponent(normalizedSearchTerm)}&type=${searchType}`;
-  
-      if (searchType === "city") {
-        const normalizedLocation = selectedLocation.toLowerCase().replace(/\s+/g, "-");
-        apiUrl = `http://localhost:8080/api/events/search?term=${encodeURIComponent(normalizedLocation)}&type=city`;
-      }
+      const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${encodeURIComponent(normalizedSearchTerm)}&city=${encodeURIComponent(selectedLocation)}`;
       console.log("Fetching URL:", apiUrl);
-  
+
       const response = await fetch(apiUrl, {
         headers: {
           "Accept": "application/json",
         },
       });
       console.log("Response status:", response.status);
-  
-      const responseText = await response.text(); // Lấy dữ liệu thô
+
+      const responseText = await response.text();
       console.log("Raw response:", responseText);
-  
+
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.status} - ${responseText}`);
       }
-  
-      const data = JSON.parse(responseText); // Parse thủ công để kiểm soát lỗi
+
+      const data = JSON.parse(responseText);
       console.log("Parsed data:", data);
-  
-      if (!searchHistory.includes(searchTerm) && searchType !== "city") {
+
+      if (!searchHistory.includes(searchTerm)) {
         setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
       }
-  
+
       navigate("/search", { state: { events: data } });
     } catch (error) {
       console.error("Error fetching events:", error.message);
@@ -123,27 +132,17 @@ const SearchBar = () => {
     }
   };
 
-  // Danh sách các loại tìm kiếm
-  const searchTypes = [
-    { value: "eventName", label: "Event Name" },
-    { value: "city", label: "City" },
-    { value: "venueName", label: "Venue Name" },
-    { value: "eventTag", label: "Tag" },
-    { value: "eventType", label: "Event Type" },
-    { value: "eventHost", label: "Host" },
-  ];
-
   return (
     <div
       className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]"
       ref={searchRef}
     >
       {/* Input tìm kiếm */}
-      <div className="flex items-center px-4 w-[300px]">
+      <div className="flex items-center px-4 w-[260px]">
         <i className="fas fa-search text-gray-500"></i>
         <input
           type="text"
-          placeholder={`Search by ${searchTypes.find(t => t.value === searchType)?.label || "Event Name"}`}
+          placeholder="Search events by name"
           className="ml-2 outline-none text-gray-500 w-full"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -152,23 +151,8 @@ const SearchBar = () => {
         />
       </div>
 
-      {/* Dropdown chọn loại tìm kiếm */}
-      <div className="flex items-center px-2">
-        <select
-          value={searchType}
-          onChange={(e) => setSearchType(e.target.value)}
-          className="outline-none text-gray-500 bg-transparent"
-        >
-          {searchTypes.map((type) => (
-            <option key={type.value} value={type.value}>
-              {type.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
       {/* Lịch sử tìm kiếm */}
-      {showHistory && searchType !== "city" && (
+      {showHistory && (
         <div className="absolute top-full left-10 w-[286px] bg-white border rounded shadow-lg z-50">
           {searchHistory.map((item, index) => (
             <div
@@ -186,15 +170,11 @@ const SearchBar = () => {
         </div>
       )}
 
-      {/* Dropdown chọn location (chỉ hiển thị nếu searchType là city) */}
-      {searchType === "city" && (
-        <>
-          <div className="border-l border-gray-300 h-6 mx-4"></div>
-          <div className="relative flex items-center px-4">
-            <LocationDropdown onLocationChange={setSelectedLocation} />
-          </div>
-        </>
-      )}
+      {/* Dropdown chọn location */}
+      <div className="border-l border-gray-300 h-6 mx-4"></div>
+      <div className="relative flex items-center px-4">
+        <LocationDropdown onLocationChange={setSelectedLocation} />
+      </div>
 
       {/* Nút tìm kiếm */}
       <button

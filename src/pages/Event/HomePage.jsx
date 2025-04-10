@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import Header from "../../components/Header";
-
 import SliderEvent from "../../components/SliderEvent";
 import Footer from "../../components/Footer";
 import { useRef } from "react";

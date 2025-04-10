@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
-import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {

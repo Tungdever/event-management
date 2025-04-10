@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";  
-import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
-import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
+import { FaChevronDown, FaTachometerAlt, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
+import {  MdChat } from "react-icons/md";
 const defaultMenuItems = [
   {
     title: "Dashboard",
@@ -17,7 +17,7 @@ const defaultMenuItems = [
   {
     title: "Report",
     path: "/report",
-    icon: <i class="fa-solid fa-chart-simple"></i>,
+    icon: <i className="fa-solid fa-chart-simple"></i>,
     submenu: [
       { title: "Order", path: "/order" },]
   },

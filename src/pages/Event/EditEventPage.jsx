@@ -2,15 +2,13 @@ import React, { useState, useEffect } from "react";
 import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
-import { useParams } from "react-router-dom";
 import {
-  BrowserRouter as Router,
-
   useLocation,
 } from "react-router-dom";
 const EditEvent = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
+  //console.log("eventId cho edit"+ eventId)
   const [selectedStep, setSelectedStep] = useState("build");
   const [event, setEvent] = useState({
     eventName: "",
@@ -49,69 +47,77 @@ const EditEvent = () => {
 
   const fetchEventData = async (id) => {
     try {
+      //console.log("Fetching event with ID:", id);
       const response = await fetch(`http://localhost:8080/api/events/edit/${id}`);
       if (!response.ok) {
-        throw new Error('Failed to fetch event data');
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch event data: ${response.status} - ${errorText}`);
       }
       const data = await response.json();
-      
-      
+      //console.log("Raw data:", data);
+     
+      if (!data || !data.event) {
+        throw new Error("Invalid event data received");
+      }
+  
       const transformedEvent = {
-        eventName: data.event.eventName,
-        eventDesc: data.event.eventDesc,
-        eventType: data.event.eventType,
-        eventHost: data.event.eventHost,
-        eventStatus: data.event.eventStatus,
-        eventStart: data.event.eventStart,
-        eventEnd: data.event.eventEnd,
+        eventName: data.event.eventName || "",
+        eventDesc: data.event.eventDesc || "",
+        eventType: data.event.eventType || "",
+        eventHost: data.event.eventHost || "",
+        eventStatus: data.event.eventStatus || "",
+        eventStart: data.event.eventStart || "",
+        eventEnd: data.event.eventEnd || "",
         eventLocation: {
-          date: data.event.eventStart.split('T')[0], 
-          startTime: data.event.eventStart.split('T')[1].slice(0, 5),
-          endTime: data.event.eventEnd.split('T')[1].slice(0, 5),
-          locationType: data.event.eventLocation.locationType || "venue", 
-          venueName: data.event.eventLocation.venueName || "", 
-          venueSlug: data.event.eventLocation.venueSlug || "", 
-          address: data.event.eventLocation.address || "", 
-          city: data.event.eventLocation.city || "",
+          date: data.event.eventStart?.split("T")[0] || "",
+          startTime: data.event.eventStart?.split("T")[1]?.slice(0, 5) || "",
+          endTime: data.event.eventEnd?.split("T")[1]?.slice(0, 5) || "",
+          locationType: data.event.eventLocation?.locationType || "venue",
+          venueName: data.event.eventLocation?.venueName || "",
+          venueSlug: data.event.eventLocation?.venueSlug || "",
+          address: data.event.eventLocation?.address || "",
+          city: data.event.eventLocation?.city || "",
         },
-        tags: data.event.tags.split('|'),
-        eventVisibility: data.event.eventVisibility,
-        publishTime: data.event.publishTime,
-        refunds: data.event.refunds,
-        validityDays: data.event.validityDays,
-        uploadedImages: data.event.eventImages,
+        tags: data.event.tags ? data.event.tags.split("|") : [],
+        eventVisibility: data.event.eventVisibility || "public",
+        publishTime: data.event.publishTime || "now",
+        refunds: data.event.refunds || "yes",
+        validityDays: data.event.validityDays || 7,
+        uploadedImages: data.event.eventImages || [],
         overviewContent: {
-          text: data.event.textContent,
-          media: data.event.mediaContent.map(url => ({ type: 'image', url }))
+          text: data.event.textContent || "",
+          media: data.event.mediaContent?.map((url) => ({ type: "image", url })) || [],
         },
-        tickets: data.ticket.map(ticket => ({
-          ticketId: ticket.ticketId,
-          ticketName: ticket.ticketName,
-          ticketType: ticket.ticketType,
-          price: ticket.price,
-          quantity: ticket.quantity,
-          startTime: ticket.startTime,
-          endTime: ticket.endTime
-        })),
-        segment: data.segment.map(seg => ({
-          segmentId: seg.segmentId,
-          segmentTitle: seg.segmentTitle,
-          speaker: {
-            speakerId: seg.speaker.speakerId,
-            speakerImage: seg.speaker.speakerImage,
-            speakerName: seg.speaker.speakerName,
-            speakerDesc: seg.speaker.speakerDesc
-          },
-          segmentDesc: seg.segmentDesc,
-          startTime: seg.startTime.split('T')[1].slice(0, 5),
-          endTime: seg.endTime.split('T')[1].slice(0, 5)
-        }))
+        tickets: data.ticket?.map((ticket) => ({
+          ticketId: ticket.ticketId || null,
+          ticketName: ticket.ticketName || "",
+          ticketType: ticket.ticketType || "",
+          price: ticket.price || 0,
+          quantity: ticket.quantity || 0,
+          startTime: ticket.startTime || "",
+          endTime: ticket.endTime || "",
+        })) || [],
+        segment: data.segment?.map((seg) => ({
+          segmentId: seg.segmentId || null,
+          segmentTitle: seg.segmentTitle || "",
+          speaker: seg.speaker
+            ? {
+                speakerId: seg.speaker.speakerId || null,
+                speakerImage: seg.speaker.speakerImage || "",
+                speakerName: seg.speaker.speakerName || "",
+                speakerDesc: seg.speaker.speakerDesc || "",
+              }
+            : null,
+          segmentDesc: seg.segmentDesc || "",
+          startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
+          endTime: seg.endTime?.split("T")[1]?.slice(0, 5) || "",
+        })) || [],
       };
-
+  
       setEvent(transformedEvent);
     } catch (error) {
-      console.error('Error fetching event data:', error);
-      alert('Failed to load event data');
+      console.error("Error fetching event data:", error);
+      alert(`Failed to load event data: ${error.message}`);
     }
   };
 
@@ -265,13 +271,16 @@ const EditEvent = () => {
             event.eventLocation.date && event.eventLocation.endTime
               ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
               : "2025-04-05T14:06:00",
-          eventLocation:
-            event.eventLocation.locationType === "online"
-              ? "Online"
-              : `${event.eventLocation.venueName || "-"} ${
-                  event.eventLocation.address || "-"
-                } ${event.eventLocation.city || ""}`.trim(),
-          tags: event.tags?.join("|") || "",
+              eventLocation: {
+                date: event.eventStart.split('T')[0], 
+                startTime: event.eventStart.split('T')[1].slice(0, 5),
+                endTime: event.eventEnd.split('T')[1].slice(0, 5),
+                locationType: event.eventLocation.locationType || "venue", 
+                venueName: event.eventLocation.venueName || "", 
+                venueSlug: event.eventLocation.venueSlug || "", 
+                address: event.eventLocation.address || "", 
+                city: event.eventLocation.city || "",
+              },
           eventVisibility: event.eventVisibility || "public",
           publishTime: event.publishTime || "now",
           refunds: event.refunds || "yes",
@@ -279,6 +288,7 @@ const EditEvent = () => {
           eventImages: eventImages,
           textContent: event.overviewContent?.text || "",
           mediaContent: mediaContent,
+          tags: event.tags?.join("|") || "",
         },
         ticket: ticketData,
         segment: segmentData,

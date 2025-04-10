@@ -47,9 +47,7 @@ const handleSegmentUpdate = (updatedSegments) => {
       [name]: value,
     }));
   };
-const debug =(e) =>{
-  console.log(e)
-}
+
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -125,7 +123,7 @@ const debug =(e) =>{
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
-        onChange={debug(event.eventLocation)}
+       
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}

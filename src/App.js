@@ -4,7 +4,7 @@ import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
 import SearchPage from "./pages/Event/Search";
 import CalendarPage from "./pages/Dashboard/Calendar";
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Routes,
@@ -31,20 +31,18 @@ import ForgotPassword from "./pages/Auth/ForgotPass";
 import CRUDEvent from "./pages/Event/CreateEventPage";
 import TicketList from "./pages/Ticket/MyTicket";
 import TaskBoard from "./pages/Employee/TaskDashboard";
-import EventPublishing from "./pages/Event/EventPublishing";
 import Refund from "./pages/Refund/refund";
 import RefundManagement from "./pages/Refund/refund_management";
 import ViewProfile from "./pages/Dashboard/ViewProfile";
 import Sidebar2 from "./pages/Dashboard/Sidebar2";
 import Header from "./components/Header";
 import EditEvent from "./pages/Event/EditEventPage"
-import { useParams } from "react-router-dom";
 import EventGrid from "./pages/Event/PageViewAll";
 
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
-  const navigate = useNavigate();
+  
   // Các trang auth
   const isAuthPage = ["/login", "/signup", "/forgot"].includes(location.pathname);
 

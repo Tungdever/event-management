@@ -54,7 +54,7 @@ const createMenuItems = (eventId) => [
 ];
 
 const Sidebar = ({ id }) => {
-  console.log("day la id duoc truyen " + id);
+ 
   const [eventId] = useState(id);
   const menuItems = createMenuItems(eventId);
   

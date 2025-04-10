@@ -1,7 +1,7 @@
 
 import React, { useState ,useEffect,useRef} from "react";
 import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
-import { useNavigate, BrowserRouter as Router } from "react-router-dom";
+import { useNavigate} from "react-router-dom";
 
 const EventsPage = () => {
   const navigate = useNavigate();

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { FaList, FaUser } from "react-icons/fa";
 import axios from "axios";
 
@@ -242,7 +242,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const loadSegments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/segment/${eventId}`);
+      const response = await axios.get(`http://localhost:8080/api/segment/${eventId}/getSegment`);
       setSegments(response.data);
       onSegmentUpdate(response.data);
     } catch (error) {
@@ -395,7 +395,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
         if (response.ok) {
           alert("Delete segment successful");
-          await loadSegments();
+          
         } else {
           alert("Failed to delete segment");
         }
@@ -406,10 +406,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     }
   };
 
-  // Load segments on component mount
-  useEffect(() => {
-    loadSegments();
-  }, [eventId]);
+ 
 
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
