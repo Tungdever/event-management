@@ -68,23 +68,11 @@ const EditEvent = () => {
           date: data.event.eventStart.split('T')[0], 
           startTime: data.event.eventStart.split('T')[1].slice(0, 5),
           endTime: data.event.eventEnd.split('T')[1].slice(0, 5),
-          locationType: data.event.eventLocation === "online" ? "online" : "venue",
-          ...(data.event.eventLocation === "online"
-            ? {
-                venueName: "",
-                address: "",
-                city: "",
-              }
-            : (() => {
-                const [venueName, address, city] = data.event.eventLocation
-                  .split("-")
-                  .map((part) => part.trim());
-                return {
-                  venueName: venueName || "",
-                  address: address || "",
-                  city: city || "",
-                };
-              })()),
+          locationType: data.event.eventLocation.locationType || "venue", 
+          venueName: data.event.eventLocation.venueName || "", 
+          venueSlug: data.event.eventLocation.venueSlug || "", 
+          address: data.event.eventLocation.address || "", 
+          city: data.event.eventLocation.city || "",
         },
         tags: data.event.tags.split('|'),
         eventVisibility: data.event.eventVisibility,

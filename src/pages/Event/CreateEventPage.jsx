@@ -127,12 +127,13 @@ const CRUDEvent = () => {
           event.eventLocation.date && event.eventLocation.endTime
             ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
             : "",
-        eventLocation:
-          event.eventLocation.locationType === "online"
-            ? "Online"
-            : `${event.eventLocation.venueName || "-"} ${
-                event.eventLocation.address || "-"
-              } ${event.eventLocation.city || ""}`.trim(),
+        eventLocation: {
+          locationType: event.eventLocation.locationType || "online",
+          venueName: event.eventLocation.venueName || "",
+          venueSlug: event.eventLocation.venueSlug || "",
+          address: event.eventLocation.address || "",
+          city: event.eventLocation.city || "",
+        },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
         publishTime: event.publishTime || "now",

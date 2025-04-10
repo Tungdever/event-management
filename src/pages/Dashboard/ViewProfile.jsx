@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import EditProfile from "./EditProfile";
 
 const ViewProfile = ({infor}) => {
+    console.log(infor)
       const [openEdit, setOpenEdit] = useState(false);
     
       const handleEditClick = () => {

@@ -1,71 +1,9 @@
 import { useState, useEffect } from "react";
-
+import { useLocation } from "react-router-dom";
 import EventList from "../../components/EventListSearch";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import { useLocation } from "react-router-dom";
-const eventData = [
-  {
-    event_id: 1,
-    event_name: "Acoustic Night 2025",
-    event_image:
-      "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-    event_host: "Công ty Âm Nhạc XYZ",
-    event_location: "Nhà hát Thành phố, TP.HCM",
-    event_status: "Sắp diễn ra",
-    event_type: "Concert",
-    event_start: "2025-03-15T19:00:00",
-    event_end: "2025-03-15T22:00:00",
-  },
-  {
-    event_id: 2,
-    event_name: "Acoustic Night 2025",
-    event_image:
-      "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-    event_host: "Công ty Âm Nhạc XYZ",
-    event_location: "Nhà hát Thành phố, TP.HCM",
-    event_status: "Sắp diễn ra",
-    event_type: "Concert",
-    event_start: "2025-03-15T19:00:00",
-    event_end: "2025-03-15T22:00:00",
-  },
-  {
-    event_id: 3,
-    event_name: "Acoustic Night 2025",
-    event_image:
-      "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-    event_host: "Công ty Âm Nhạc XYZ",
-    event_location: "Nhà hát Thành phố, TP.HCM",
-    event_status: "Sắp diễn ra",
-    event_type: "Concert",
-    event_start: "2025-03-15T19:00:00",
-    event_end: "2025-03-15T22:00:00",
-  },
-  {
-    event_id: 4,
-    event_name: "Acoustic Night 2025",
-    event_image:
-      "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-    event_host: "Công ty Âm Nhạc XYZ",
-    event_location: "Nhà hát Thành phố, TP.HCM",
-    event_status: "Sắp diễn ra",
-    event_type: "Concert",
-    event_start: "2025-03-15T19:00:00",
-    event_end: "2025-03-15T22:00:00",
-  },
-  {
-    event_id: 5,
-    event_name: "Acoustic Night 2025",
-    event_image:
-      "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
-    event_host: "Công ty Âm Nhạc XYZ",
-    event_location: "Nhà hát Thành phố, TP.HCM",
-    event_status: "Sắp diễn ra",
-    event_type: "Concert",
-    event_start: "2025-03-15T19:00:00",
-    event_end: "2025-03-15T22:00:00",
-  },
-];
+
 const Tags = () => {
   const tags = [
     "Online Events",
@@ -99,11 +37,11 @@ const Tags = () => {
 };
 
 const FilterSidebar = ({ onFilterChange }) => {
-  const [selectedCategories, setSelectedCategories] = useState("concert"); 
+  const [selectedCategories, setSelectedCategories] = useState("concert");
   const [selectedEventType, setSelectedEventType] = useState("all-types");
   const [selectedEventTime, setSelectedEventTime] = useState("all-times");
-  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
-  const [eventData, setEventData] = useState([]); 
+  const [selectedEventLocation, setSelectedEventLocation] =
+    useState("all-locations");
 
   const eventCategories = [
     { id: "conference", label: "Hội nghị" },
@@ -138,44 +76,48 @@ const FilterSidebar = ({ onFilterChange }) => {
   // Hàm gọi API dựa trên filter
   const fetchEvents = async (endpoint, param) => {
     try {
-      const response = await fetch(`/api/events${endpoint}?${param}`);
+      const response = await fetch(
+        `http://localhost:8080/api/events${endpoint}?${param}`
+      );
       if (!response.ok) throw new Error("Failed to fetch events");
       const data = await response.json();
-      setEventData(data); 
-      onFilterChange(data); 
+      onFilterChange(data); // Gọi callback để cập nhật danh sách sự kiện
     } catch (error) {
       console.error("Error fetching events:", error);
     }
   };
 
-  
   useEffect(() => {
-    
     if (selectedCategories && selectedCategories !== "all-categories") {
       fetchEvents("/search/tags", `tag=${selectedCategories}`);
     } else if (selectedEventType && selectedEventType !== "all-types") {
       fetchEvents("/search/type", `type=${selectedEventType}`);
     } else if (selectedEventTime && selectedEventTime !== "all-times") {
-     
-      const today = new Date().toISOString().split("T")[0]; 
+      const today = new Date().toISOString().split("T")[0];
       fetchEvents("/search/date", `date=${today}`);
-    } else if (selectedEventLocation && selectedEventLocation !== "all-locations") {
+    } else if (
+      selectedEventLocation &&
+      selectedEventLocation !== "all-locations"
+    ) {
       fetchEvents("/search/location", `location=${selectedEventLocation}`);
     }
-  }, [selectedCategories, selectedEventType, selectedEventTime, selectedEventLocation]);
+  }, [
+    selectedCategories,
+    selectedEventType,
+    selectedEventTime,
+    selectedEventLocation,
+  ]);
 
   const resetFilters = () => {
     setSelectedCategories("all-categories");
     setSelectedEventType("all-types");
     setSelectedEventTime("all-times");
     setSelectedEventLocation("all-locations");
-    setEventData([]); 
-    onFilterChange([]); 
+    onFilterChange([]); // Reset danh sách sự kiện
   };
 
   return (
     <div className="w-full bg-white p-6 rounded-lg shadow-lg space-y-8 h-[900px] overflow-y-auto border border-gray-200">
-      {/* Header */}
       <div className="flex justify-between items-center border-b pb-4">
         <h2 className="text-xl font-bold text-gray-800">Bộ lọc sự kiện</h2>
         <button
@@ -186,9 +128,10 @@ const FilterSidebar = ({ onFilterChange }) => {
         </button>
       </div>
 
-      {/* Loại sự kiện */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Loại sự kiện</h3>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">
+          Loại sự kiện
+        </h3>
         <div className="space-y-3">
           {eventCategories.map((category) => (
             <div key={category.id} className="flex items-center space-x-3">
@@ -211,7 +154,6 @@ const FilterSidebar = ({ onFilterChange }) => {
         </div>
       </div>
 
-      {/* Hình thức sự kiện */}
       <div>
         <h3 className="font-semibold text-gray-700 mb-3 text-lg">Hình thức</h3>
         <div className="space-y-3">
@@ -236,9 +178,10 @@ const FilterSidebar = ({ onFilterChange }) => {
         </div>
       </div>
 
-      {/* Thời gian tổ chức */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Thời gian tổ chức</h3>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">
+          Thời gian tổ chức
+        </h3>
         <div className="space-y-3">
           {eventTimes.map((time) => (
             <div key={time.id} className="flex items-center space-x-3">
@@ -261,9 +204,10 @@ const FilterSidebar = ({ onFilterChange }) => {
         </div>
       </div>
 
-      {/* Địa điểm tổ chức */}
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Địa điểm tổ chức</h3>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">
+          Địa điểm tổ chức
+        </h3>
         <div className="space-y-3">
           {eventLocations.map((location) => (
             <div key={location.id} className="flex items-center space-x-3">
@@ -291,61 +235,63 @@ const FilterSidebar = ({ onFilterChange }) => {
 
 const SearchPage = () => {
   const [loading, setLoading] = useState(true);
-  const [events, setEvents] = useState([]); 
+  const [events, setEvents] = useState([]);
   const location = useLocation();
 
   useEffect(() => {
-   
+    // Lấy dữ liệu events từ state được truyền từ SearchBar
     const initialEvents = location.state?.events || [];
     setEvents(initialEvents);
-    setTimeout(() => {
-      setLoading(false);
-    }, 250);
+    setLoading(false); // Không cần setTimeout vì dữ liệu đã có từ state
   }, [location.state]);
-
-  
+  console.log(events)
   const handleFilterChange = (filteredEvents) => {
     setEvents(filteredEvents);
   };
 
-  return loading ? (
-    <h1>Loading...</h1>
-  ) : (
+  return (
     <>
-      
-      <div className="mx-auto px-6 py-4">
-        <nav className="text-sm text-orange-600 space-x-2 pt-2">
-          <a href="#" className="hover:underline">
-            Home
-          </a>
-          <span>/</span>
-          <a href="#" className="hover:underline">
-            Vietnam
-          </a>
-          <span>/</span>
-          <a href="#" className="hover:underline">
-            Ho Chi Minh
-          </a>
-          <span>/</span>
-          <span className="text-gray-500">Live Music Events</span>
-        </nav>
-        <h1 className="text-3xl font-bold text-gray-700 mt-4">
-          Live music events in Ho Chi Minh, Vietnam
-        </h1>
-      </div>
-      <div className="flex flex-col md:flex-row gap-2 p-5">
-        <div className="w-full md:w-1/4">
-          <FilterSidebar onFilterChange={handleFilterChange} />
+      <Header />
+      {loading ? (
+        <h1 className="text-center text-2xl mt-10">Loading...</h1>
+      ) : (
+        <div className="mx-auto px-6 py-4">
+          <nav className="text-sm text-orange-600 space-x-2 pt-2">
+            <a href="#" className="hover:underline">
+              Home
+            </a>
+            <span>/</span>
+            <a href="#" className="hover:underline">
+              Vietnam
+            </a>
+            <span>/</span>
+            <a href="#" className="hover:underline">
+              Ho Chi Minh
+            </a>
+            <span>/</span>
+            <span className="text-gray-500">Live Music Events</span>
+          </nav>
+          <h1 className="text-3xl font-bold text-gray-700 mt-4">
+            Live music events in Ho Chi Minh, Vietnam
+          </h1>
+          <div className="flex flex-col md:flex-row gap-2 p-5">
+            <div className="w-full md:w-1/4">
+              <FilterSidebar onFilterChange={handleFilterChange} />
+            </div>
+            <div className="w-full md:w-3/4 overflow-y-auto">
+              {events.length > 0 ? (
+                <EventList event={events} />
+              ) : (
+                <p className="text-gray-500">Không tìm thấy sự kiện nào.</p>
+              )}
+              <Tags />
+            </div>
+          </div>
         </div>
-        <div className="w-full md:w-3/4 overflow-y-auto">
-          <EventList events={events} /> {/* Truyền danh sách sự kiện từ state */}
-          <Tags />
-        </div>
-      </div>
+      )}
       <Footer />
     </>
   );
 };
-
 
 export default SearchPage;

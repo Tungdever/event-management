@@ -20,7 +20,7 @@ const EventList = ({ event }) => {
           >
             {/* Hình ảnh sự kiện */}
             <img
-              src={eventItem.eventImages && eventItem.eventImages.length > 0 ? `http://res.cloudinary.com/dho1vjupv/image/upload/${eventItem.eventImages[0]}` : "https://via.placeholder.com/150"} // Lấy ảnh đầu tiên hoặc ảnh placeholder
+              src={eventItem.eventImages && eventItem.eventImages.length > 0 ? `${eventItem.eventImages[0]}` : "https://via.placeholder.com/150"} // Lấy ảnh đầu tiên hoặc ảnh placeholder
               alt={eventItem.eventName}
               className="w-44 h-24 object-cover rounded-lg"
               onError={(e) => (e.target.src = "https://via.placeholder.com/150")} // Xử lý lỗi ảnh
@@ -33,7 +33,7 @@ const EventList = ({ event }) => {
               <p className="text-sm font-medium text-red-500">{eventItem.eventType}</p>
               <p className="text-sm text-gray-600">{eventItem.eventHost}</p>
               <div className="flex items-center text-sm text-gray-600 mt-1">
-                <FaUserFriends className="mr-1 text-blue-500" /> {eventItem.eventLocation}
+                <FaUserFriends className="mr-1 text-blue-500" /> {eventItem.eventLocation.venueName}
               </div>
             </div>
 

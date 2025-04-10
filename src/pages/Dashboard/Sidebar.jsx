@@ -15,39 +15,39 @@ const createMenuItems = (eventId) => [
   },
   {
     title: "Events",
-    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
+    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`,
     icon: <MdEvent />,
     submenu: [
       { 
         title: "Sponsor", 
-        path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
+        path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
       },
       { 
         title: "Speaker", 
-        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
+        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`, 
       },
       { 
         title: "Session", 
-        path: `/dashboard/session${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
+        path: `/dashboard/session${eventId ? `/${eventId}` : ''}`,
       },
       { 
         title: "Ticket", 
-        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`
       },
     ],
   },
   {
     title: "Team",
-    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`, // Thêm /dashboard
+    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`,
     icon: <FaUsers />,
     submenu: [
       { 
         title: "Member", 
-        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` 
       },
       { 
         title: "Task", 
-        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` // Thêm /dashboard
+        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` 
       },
     ],
   },
@@ -64,7 +64,7 @@ const Sidebar = ({ id }) => {
       return acc;
     }, {})
   );
-
+  const navigate = useNavigate();
   const [activeSubmenu, setActiveSubmenu] = useState(null);
 
   const toggleMenu = (menuTitle) => {
@@ -73,10 +73,13 @@ const Sidebar = ({ id }) => {
       [menuTitle]: !prev[menuTitle],
     }));
   };
-
+  const handleHomepage = (e) => {
+    
+    navigate("/"); 
+  };
   return (
     <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-orange-500 mb-8 mt-2">Management Event</h1>
+      <h1 className="text-xl font-bold text-orange-500 mb-8 mt-2 hover:cursor-pointer" onClick={handleHomepage}>Management Event</h1>
       <ul>
         {menuItems.map((menu) => (
           <SidebarItem

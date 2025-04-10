@@ -160,7 +160,7 @@ const EventInfo = ({ eventData }) => (
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Location</h2>
       <div className="text-gray-700">
         <i className="bi bi-geo-alt pr-[10px]"></i>
-        {eventData.eventLocation || "No location specified"}
+        {eventData.eventLocation.venueName +" "+ eventData.eventLocation.address +" "+ eventData.eventLocation.city || "No location specified"}
       </div>
     </div>
   </div>

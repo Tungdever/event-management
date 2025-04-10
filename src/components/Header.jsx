@@ -48,6 +48,7 @@ const SearchBar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("Ho Chi Minh");
+  const [searchType, setSearchType] = useState("eventName"); // Mặc định tìm theo tên sự kiện
   const [searchHistory, setSearchHistory] = useState([
     "Music Festival",
     "Tech Conference",
@@ -57,6 +58,7 @@ const SearchBar = () => {
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);
 
+  // Xử lý click ngoài để ẩn lịch sử tìm kiếm
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -69,42 +71,105 @@ const SearchBar = () => {
     };
   }, []);
 
-
+  // Hàm gọi API searchEvents
   const handleSearch = async () => {
+    if (!searchTerm.trim()) {
+      alert("Please enter a search term");
+      return;
+    }
+  
     try {
-      const response = await fetch(
-        `/api/events/search/name-and-location?name=${encodeURIComponent(searchTerm)}&location=${encodeURIComponent(selectedLocation)}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
+      const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+      let apiUrl = `http://localhost:8080/api/events/search?term=${encodeURIComponent(normalizedSearchTerm)}&type=${searchType}`;
+  
+      if (searchType === "city") {
+        const normalizedLocation = selectedLocation.toLowerCase().replace(/\s+/g, "-");
+        apiUrl = `http://localhost:8080/api/events/search?term=${encodeURIComponent(normalizedLocation)}&type=city`;
       }
-      const data = await response.json();
-      // Navigate đến /search và truyền data qua state
+      console.log("Fetching URL:", apiUrl);
+  
+      const response = await fetch(apiUrl, {
+        headers: {
+          "Accept": "application/json",
+        },
+      });
+      console.log("Response status:", response.status);
+  
+      const responseText = await response.text(); // Lấy dữ liệu thô
+      console.log("Raw response:", responseText);
+  
+      if (!response.ok) {
+        throw new Error(`Failed to fetch events: ${response.status} - ${responseText}`);
+      }
+  
+      const data = JSON.parse(responseText); // Parse thủ công để kiểm soát lỗi
+      console.log("Parsed data:", data);
+  
+      if (!searchHistory.includes(searchTerm) && searchType !== "city") {
+        setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
+      }
+  
       navigate("/search", { state: { events: data } });
     } catch (error) {
-      console.error("Error fetching events:", error);
-      // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo
+      console.error("Error fetching events:", error.message);
+      alert(`Failed to search events: ${error.message}`);
     }
   };
+
+  // Xử lý khi nhấn Enter
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
+
+  // Danh sách các loại tìm kiếm
+  const searchTypes = [
+    { value: "eventName", label: "Event Name" },
+    { value: "city", label: "City" },
+    { value: "venueName", label: "Venue Name" },
+    { value: "eventTag", label: "Tag" },
+    { value: "eventType", label: "Event Type" },
+    { value: "eventHost", label: "Host" },
+  ];
 
   return (
     <div
       className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]"
       ref={searchRef}
     >
-      <div className="flex items-center px-4 w-[380px]">
+      {/* Input tìm kiếm */}
+      <div className="flex items-center px-4 w-[300px]">
         <i className="fas fa-search text-gray-500"></i>
         <input
           type="text"
-          placeholder="Search events"
+          placeholder={`Search by ${searchTypes.find(t => t.value === searchType)?.label || "Event Name"}`}
           className="ml-2 outline-none text-gray-500 w-full"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setShowHistory(true)}
+          onKeyPress={handleKeyPress}
         />
       </div>
-      {showHistory && (
-        <div className="absolute top-full left-10 w-[366px] bg-white border rounded shadow-lg z-50">
+
+      {/* Dropdown chọn loại tìm kiếm */}
+      <div className="flex items-center px-2">
+        <select
+          value={searchType}
+          onChange={(e) => setSearchType(e.target.value)}
+          className="outline-none text-gray-500 bg-transparent"
+        >
+          {searchTypes.map((type) => (
+            <option key={type.value} value={type.value}>
+              {type.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Lịch sử tìm kiếm */}
+      {showHistory && searchType !== "city" && (
+        <div className="absolute top-full left-10 w-[286px] bg-white border rounded shadow-lg z-50">
           {searchHistory.map((item, index) => (
             <div
               key={index}
@@ -112,6 +177,7 @@ const SearchBar = () => {
               onClick={() => {
                 setSearchTerm(item);
                 setShowHistory(false);
+                handleSearch();
               }}
             >
               {item}
@@ -119,13 +185,21 @@ const SearchBar = () => {
           ))}
         </div>
       )}
-      <div className="border-l border-gray-300 h-6 mx-4"></div>
-      <div className="relative flex items-center px-4">
-        <LocationDropdown onLocationChange={setSelectedLocation} />
-      </div>
+
+      {/* Dropdown chọn location (chỉ hiển thị nếu searchType là city) */}
+      {searchType === "city" && (
+        <>
+          <div className="border-l border-gray-300 h-6 mx-4"></div>
+          <div className="relative flex items-center px-4">
+            <LocationDropdown onLocationChange={setSelectedLocation} />
+          </div>
+        </>
+      )}
+
+      {/* Nút tìm kiếm */}
       <button
         className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
-        onClick={handleSearch} // Gọi hàm handleSearch thay vì navigate trực tiếp
+        onClick={handleSearch}
       >
         <i className="fas fa-search"></i>
       </button>

@@ -86,7 +86,7 @@ const ProfileDropdown = () => {
       <ul className="absolute right-0 mt-2 w-40 py-1.5 bg-white rounded-md shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 pt-2 pointer-events-auto">
         <li>
           <a href="#" className="block px-4 py-2 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-200">
-            Profile
+           Main dashboard
           </a>
         </li>
         <li>

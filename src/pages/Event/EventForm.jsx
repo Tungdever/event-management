@@ -11,7 +11,6 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật eventLocation
   const handleLocationUpdate = (updatedLocation) => {
-    console.log("cap nhat lan 2:", updatedLocation);
     setEvent((prevEvent) => ({
       ...prevEvent,
       eventLocation: updatedLocation,

@@ -1,5 +1,5 @@
 import { useState } from "react";
-
+import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";  
 import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
 import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
@@ -19,7 +19,7 @@ const defaultMenuItems = [
     path: "/report",
     icon: <i class="fa-solid fa-chart-simple"></i>,
     submenu: [
-      { title: "Manager", path: "/dashboard" },]
+      { title: "Order", path: "/order" },]
   },
   {
     title: "Setting",
@@ -39,7 +39,7 @@ const Sidebar2 = () => {
       return acc;
     }, {})
   );
-
+  const navigate = useNavigate();
   const [activeSubmenu, setActiveSubmenu] = useState(null); 
 
   const toggleMenu = (menuTitle) => {
@@ -48,10 +48,13 @@ const Sidebar2 = () => {
       [menuTitle]: !prev[menuTitle],
     }));
   };
-
+  const handleHomepage = (e) => {
+    
+    navigate("/"); 
+  };
   return (
     <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-orange-500 mb-8 mt-2">Management Event</h1>
+      <h1 className="text-[24px] font-bold text-orange-500 mb-8 mt-2 hover:cursor-pointer" onClick={handleHomepage}>Management Event</h1>
       <ul>
         {defaultMenuItems.map((menu) => (
           <SidebarItem

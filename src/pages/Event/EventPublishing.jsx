@@ -320,17 +320,17 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
               <option value="Conference">Conference</option>
               {/* Thêm các tùy chọn khác nếu cần */}
             </select>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               <select className="w-full p-2 border border-gray-300 rounded-lg">
                 <option value="103">Music</option>
-                {/* Thêm các tùy chọn khác nếu cần */}
+               
               </select>
               <select className="w-full p-2 border border-gray-300 rounded-lg">
                 <option value="4001">TV</option>
                 <option value="4002">Film</option>
-                {/* Thêm các tùy chọn khác nếu cần */}
+                
               </select>
-            </div>
+            </div> */}
           </div>
           <div>
             <h3 className="text-gray-900 font-semibold mb-2">Tags</h3>

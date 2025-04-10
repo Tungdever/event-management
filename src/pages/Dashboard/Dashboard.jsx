@@ -130,7 +130,7 @@ const EventsPage = () => {
                 )}
                 <div>
                   <h3 className="text-[16px] font-semibold">{event.eventName}</h3>
-                  <p className="text-gray-600">{event.eventLocation}</p>
+                  <p className="text-gray-600">{event.eventLocation.venueName}</p>
                   <p className="text-gray-600">{event.eventType}</p>
                 </div>
               </div>
