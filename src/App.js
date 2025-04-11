@@ -2,7 +2,7 @@ import "./App.css";
 import EventPage from "./pages/Event/EventPage";
 import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
-import SearchPage from "./pages/Event/Search";
+import SearchPage from "./pages/Event/SearchPage";
 import CalendarPage from "./pages/Dashboard/Calendar";
 import React from "react";
 import {
@@ -38,7 +38,7 @@ import Sidebar2 from "./pages/Dashboard/Sidebar2";
 import Header from "./components/Header";
 import EditEvent from "./pages/Event/EditEventPage"
 import EventGrid from "./pages/Event/PageViewAll";
-
+import SearchByType from "./pages/Event/SearchPageByType";
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
@@ -56,7 +56,8 @@ const MainLayout = () => {
     "/eventpage",
     "/createEvent",
     "/all-event",
-  ].includes(location.pathname) || location.pathname.startsWith("/event/");
+    
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by");
 
   // Các base path của trang chi tiết sự kiện (xóa "")
   const eventDetailBasePaths = [
@@ -519,6 +520,7 @@ const MainLayout = () => {
               <Route path="/eventpage" element={<EventPage />} />
               <Route path="/createEvent" element={<CRUDEvent />} />
               <Route path="/all-event" element={<EventGrid events={eventsList} onEventClick={handleEventClick} />}/>
+              <Route path="/list-event-search-by/:categoryName" element={<SearchByType  />}/>
             </Routes>
           </div>
         </>

@@ -11,7 +11,7 @@ import {
 import EventListings from "../../components/EventListGrid";
 import ListEventScroll from "../../components/EventListScroll";
 import Loader from "../../components/Loading";
-const eventData =  [
+const eventData = [
   {
     id: 1,
     title: "2025 EB-5 & Global Immigration Expo Vietnam",
@@ -20,7 +20,8 @@ const eventData =  [
     price: "$3,405.80",
     organizer: "Uglobal Immigration Magazine/EB5 Investors Magazine",
     followers: "1k followers",
-    image: "https://storage.googleapis.com/a1aa/image/7Ayi17NC009F_mgUBPq9U6d7dzejFLR_aA_t4fengnY.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/7Ayi17NC009F_mgUBPq9U6d7dzejFLR_aA_t4fengnY.jpg",
   },
   {
     id: 2,
@@ -30,7 +31,8 @@ const eventData =  [
     price: "Free",
     organizer: "Reactor School",
     followers: "74 followers",
-    image: "https://storage.googleapis.com/a1aa/image/CRYJ9pmm-EoCg4hN2hn0yVXPJHmT4SjvqQZDqwgSce8.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/CRYJ9pmm-EoCg4hN2hn0yVXPJHmT4SjvqQZDqwgSce8.jpg",
   },
   {
     id: 3,
@@ -40,7 +42,8 @@ const eventData =  [
     price: "Free",
     organizer: "INBC Global",
     followers: "33 followers",
-    image: "https://storage.googleapis.com/a1aa/image/hwWfrUORRiBUJ749Um2ZrzVqZ7nqFnG-acijHPDNehk.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/hwWfrUORRiBUJ749Um2ZrzVqZ7nqFnG-acijHPDNehk.jpg",
   },
   {
     id: 4,
@@ -50,7 +53,8 @@ const eventData =  [
     price: "$25.64",
     organizer: "Luật sư PHẠM THÀNH LONG",
     followers: "8k followers",
-    image: "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
   },
   {
     id: 5,
@@ -60,7 +64,8 @@ const eventData =  [
     price: "$25.64",
     organizer: "Luật sư PHẠM THÀNH LONG",
     followers: "8k followers",
-    image: "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
   },
   {
     id: 6,
@@ -70,7 +75,8 @@ const eventData =  [
     price: "$25.64",
     organizer: "Luật sư PHẠM THÀNH LONG",
     followers: "8k followers",
-    image: "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
+    image:
+      "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
   },
 ];
 const Navbar = () => {
@@ -162,46 +168,56 @@ const Navbar = () => {
 
 const destinations = [
   {
-    "name": "Hà Nội",
-    "image": "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api"
+    name: "Hà Nội",
+    image:
+      "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api",
   },
   {
-    "name": "Đà Nẵng",
-    "image": "https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api"
+    name: "Đà Nẵng",
+    image:
+      "https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api",
   },
   {
-    "name": "Hội An",
-    "image": "https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api"
+    name: "Hội An",
+    image:
+      "https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api",
   },
   {
-    "name": "Nha Trang",
-    "image": "https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api"
+    name: "Nha Trang",
+    image:
+      "https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api",
   },
   {
-    "name": "Đà Lạt",
-    "image": "https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api"
+    name: "Đà Lạt",
+    image:
+      "https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api",
   },
   {
-    "name": "Huế",
-    "image": "https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api"
+    name: "Huế",
+    image:
+      "https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api",
   },
   {
-    "name": "Phú Quốc",
-    "image": "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api"
+    name: "Phú Quốc",
+    image:
+      "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api",
   },
   {
-    "name": "Sa Pa",
-    "image": "https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api"
+    name: "Sa Pa",
+    image:
+      "https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api",
   },
   {
-    "name": "Cần Thơ",
-    "image": "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api"
+    name: "Cần Thơ",
+    image:
+      "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api",
   },
   {
-    "name": "Hải Phòng",
-    "image": "https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api"
-  }
-]
+    name: "Hải Phòng",
+    image:
+      "https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api",
+  },
+];
 
 const popularCities = [
   "Hà Nội",
@@ -216,9 +232,8 @@ const popularCities = [
   "Cần Thơ",
   "Hải Phòng",
   "Vũng Tàu",
-  "Quy Nhơn"
+  "Quy Nhơn",
 ];
-
 
 const TopDestinations = () => {
   const scrollRef = useRef(null);
@@ -237,7 +252,7 @@ const TopDestinations = () => {
   return (
     <div className="bg-gray-50 text-gray-900 container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">
-        Top destinations in Viet Nam 
+        Top destinations in Viet Nam
       </h1>
       <div className="relative">
         <div
@@ -297,18 +312,18 @@ const HomePage = () => {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 250); 
+    }, 250);
   }, []);
-  return (
-    loading ?<div className="flex justify-center items-center h-screen">
-    <Loader />
-  </div> :
+  return loading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) : (
     <div>
-      
       <SliderEvent />
       <Navbar />
       <ListEventScroll events={eventData} />
-      <EventListings/>
+      <EventListings />
       <TopDestinations />
       <Footer />
     </div>
