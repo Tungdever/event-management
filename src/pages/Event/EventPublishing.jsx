@@ -317,6 +317,10 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
             >
               <option value="">Select Type</option>
               <option value="Conference">Conference</option>
+              <option value="Performing">Performing</option>
+              <option value="Holidays">Holidays</option>
+              <option value="Food & Drink">Food & Drink</option>
+              <option value="Business">Business</option>
               {/* Thêm các tùy chọn khác nếu cần */}
             </select>
             {/* <div className="flex gap-4">

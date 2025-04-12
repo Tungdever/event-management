@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-// Danh sách thành phố mẫu (có thể tách ra file riêng)
+
 const vietnamCities = [
   { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
   { slug: "ha-noi", name: "Hà Nội" },
   { slug: "da-nang", name: "Đà Nẵng" },
   { slug: "nha-trang", name: "Nha Trang" },
-  // Thêm các thành phố khác nếu cần...
+ 
 ];
 
 const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
@@ -20,7 +20,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
     venueSlug: "",
     address: "",
     city: "",
-    ...locationData, // Ghi đè giá trị mặc định bằng dữ liệu truyền vào
+    ...locationData, 
   });
 
   useEffect(() => {
@@ -58,12 +58,15 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
         [name]: value,
       };
 
-      // Tạo venueSlug khi venueName thay đổi
+      
       if (name === "venueName") {
         updatedData.venueSlug = normalizeVenueName(value);
       }
+      // if(name==="city"){
+      //   updatedData.city = vietnamCities.find((c) => c.name === name);
+      // }
 
-      onLocationUpdate(updatedData); // Gửi toàn bộ object lên parent
+      onLocationUpdate(updatedData); 
       return updatedData;
     });
   };

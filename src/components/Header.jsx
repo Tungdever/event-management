@@ -84,7 +84,16 @@ const SearchBar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
+  const normalizeVenueName = (name) => {
+    return name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   // Hàm gọi API searchEventsByNameAndCity
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -93,15 +102,12 @@ const SearchBar = () => {
     }
 
     try {
-      const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+      const normalizedSearchTerm = normalizeVenueName(searchTerm)
+      console.log("input search "+ normalizedSearchTerm +" city "+ selectedLocation)
       const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${encodeURIComponent(normalizedSearchTerm)}&city=${encodeURIComponent(selectedLocation)}`;
       console.log("Fetching URL:", apiUrl);
 
-      const response = await fetch(apiUrl, {
-        headers: {
-          "Accept": "application/json",
-        },
-      });
+      const response = await fetch(apiUrl);
       console.log("Response status:", response.status);
 
       const responseText = await response.text();
@@ -118,7 +124,7 @@ const SearchBar = () => {
         setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
       }
 
-      navigate("/search", { state: { events: data } });
+      navigate("/search", { state: { events: data, searchTerm:normalizedSearchTerm } });
     } catch (error) {
       console.error("Error fetching events:", error.message);
       alert(`Failed to search events: ${error.message}`);
@@ -199,6 +205,35 @@ const Header = () => {
     
     navigate("/"); 
   };
+  const handleLike = (e) =>{
+    navigate("/event-like")
+  }
+  const handleMyTicket = (e) =>{
+    navigate("/myticket")
+  }
+
+  const menuItems = [
+    { icon: "bi-calendar4-event", text: "Create event", action: handleCreateEventClick },
+    { icon: "bi-heart", text: "Likes", action: handleLike },
+    { icon: "bi-question-circle", text: "Help", action: null },
+  ];
+       
+  const handleDashboard = (e) =>{
+    navigate("/dashboard")
+  }
+  const handleLogout = (e) =>{
+    navigate("/logout")
+  }
+  const menuPopup = [
+    {title: "Browse events",action: null},
+    {title: "Manage my events",action: handleDashboard},
+    {title: "Liked",action: null},
+    {title: "Tickets ",action: handleMyTicket},
+    {title: "Following",action: null},
+    {title: "Account settings",action: null},
+    {title: "Log out",action: handleLogout},
+  ]
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -222,21 +257,16 @@ const Header = () => {
         <SearchBar />
         {/* Navigation Menu */}
         <div className="flex items-center gap-6 mx-4">
-          {[
-            { icon: "bi-calendar4-event", text: "Create event" },
-            { icon: "bi bi-heart", text: "Likes" },
-            { icon: "bi bi-question-circle", text: "Help" },
-          ].map((item, index) => (
-            <a
-              key={index}
-              
-              className="flex flex-col items-center text-gray-500 text-[13px] font-medium px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
-              onClick={item.text === "Create event" ? handleCreateEventClick : null} 
-            >
-              <i className={`${item.icon} text-lg`}></i>
-              {item.text}
-            </a>
-          ))}
+          {menuItems.map((item, index) => (
+              <a
+                key={index}
+                className="flex flex-col items-center text-gray-500 text-[13px] font-medium px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
+                onClick={item.action}
+              >
+                <i className={`${item.icon} text-lg`}></i>
+                {item.text}
+              </a>
+            ))}
           {/* User Profile */}
           <div
             className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer"
@@ -252,22 +282,13 @@ const Header = () => {
                 className="absolute right-0 top-full mt-2 w-[205px] bg-white border rounded shadow-lg z-50"
                 onMouseLeave={() => setIsMenuOpen(false)}
               >
-                {[
-                  "Browse events",
-                  "Manage my events",
-                  "Tickets (0)",
-                  "Liked",
-                  "Following",
-                  "Interests",
-                  "Account settings",
-                  "Log out",
-                ].map((item, index) => (
+                {menuPopup.map((item, index) => (
                   <a
                     key={index}
-                    href="/dashboard"
                     className="block pl-4 pr-10 py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[14px]"
+                    onClick={item.action}
                   >
-                    {item}
+                    {item.title}
                   </a>
                 ))}
               </div>

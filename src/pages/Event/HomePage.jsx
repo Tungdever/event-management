@@ -11,6 +11,7 @@ import {
 import EventListings from "../../components/EventListGrid";
 import ListEventScroll from "../../components/EventListScroll";
 import Loader from "../../components/Loading";
+import { useNavigate } from "react-router-dom";
 const eventData = [
   {
     id: 1,
@@ -79,6 +80,20 @@ const eventData = [
       "https://storage.googleapis.com/a1aa/image/Hrz4249BwevqLxiKfv8yiZx-T2Exu_I0LKlYB24ge_c.jpg",
   },
 ];
+const popularCities = [
+  { key: "ho-chi-minh", name: "Tp.Hồ Chí Minh" , image: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg",},
+  { key: "ha-noi", name: "Hà Nội" , image: "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api",},
+  { key: "da-nang", name: "Đà Nẵng",image:"https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api", },
+  { key: "hoi-an", name: "Hội An" ,image:"https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api",},
+  { key: "nha-trang", name: "Nha Trang",image:"https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api", },
+  { key: "da-lat", name: "Đà Lạt",image:"https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api", },
+  { key: "hue", name: "Huế" ,image:"https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api",},
+  { key: "phu-quoc", name: "Phú Quốc" ,image: "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api",},
+  { key: "sa-pa", name: "Sa Pa",image:"https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api", },
+  { key: "can-tho", name: "Cần Thơ",image: "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api", },
+  { key: "haiphong", name: "Hải Phòng",image:"https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api", },
+
+];
 const Navbar = () => {
   const [selectedLocation, setSelectedLocation] = useState("Hồ Chí Minh");
   const [selectedMenu, setSelectedMenu] = useState("All");
@@ -91,7 +106,6 @@ const Navbar = () => {
     "Cần Thơ",
     "Hải Phòng",
   ];
-
   return (
     <div className="bg-white w-full max-w-[1280px] mx-auto px-6 py-2">
       {/* Location Section */}
@@ -166,78 +180,9 @@ const Navbar = () => {
   );
 };
 
-const destinations = [
-  {
-    name: "Hà Nội",
-    image:
-      "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api",
-  },
-  {
-    name: "Đà Nẵng",
-    image:
-      "https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api",
-  },
-  {
-    name: "Hội An",
-    image:
-      "https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api",
-  },
-  {
-    name: "Nha Trang",
-    image:
-      "https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api",
-  },
-  {
-    name: "Đà Lạt",
-    image:
-      "https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api",
-  },
-  {
-    name: "Huế",
-    image:
-      "https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api",
-  },
-  {
-    name: "Phú Quốc",
-    image:
-      "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api",
-  },
-  {
-    name: "Sa Pa",
-    image:
-      "https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api",
-  },
-  {
-    name: "Cần Thơ",
-    image:
-      "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api",
-  },
-  {
-    name: "Hải Phòng",
-    image:
-      "https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api",
-  },
-];
-
-const popularCities = [
-  "Hà Nội",
-  "Hồ Chí Minh",
-  "Đà Nẵng",
-  "Hội An",
-  "Nha Trang",
-  "Đà Lạt",
-  "Huế",
-  "Phú Quốc",
-  "Sa Pa",
-  "Cần Thơ",
-  "Hải Phòng",
-  "Vũng Tàu",
-  "Quy Nhơn",
-];
-
 const TopDestinations = () => {
   const scrollRef = useRef(null);
-
+  const navigate = useNavigate()
   const scroll = (direction) => {
     if (scrollRef.current) {
       const { scrollLeft, clientWidth } = scrollRef.current;
@@ -248,7 +193,17 @@ const TopDestinations = () => {
       });
     }
   };
+  
+  const handleSearchByCity = async(city) =>{
+    try{
+      const cityName = city.trim().toLowerCase()
+      const response = await fetch(`http://localhost:8080/api/events/search-by-city/${cityName}`)
+      const listevent = await response.json();
+      navigate("/search", { state: { events: listevent } });
+    }catch(error){
 
+    }
+  }
   return (
     <div className="bg-gray-50 text-gray-900 container mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">
@@ -259,7 +214,7 @@ const TopDestinations = () => {
           ref={scrollRef}
           className="flex overflow-x-auto space-x-4 pb-4 scroll-smooth"
         >
-          {destinations.map((dest, index) => (
+          {popularCities.map((dest, index) => (
             <div key={index} className="flex-none w-64">
               <div className="relative">
                 <img
@@ -294,10 +249,10 @@ const TopDestinations = () => {
         {popularCities.map((city, index) => (
           <a
             key={index}
-            href="#"
+            onClick={()=> handleSearchByCity(city.key)}
             className="bg-white rounded-full px-4 py-2 shadow-sm text-gray-900 flex items-center space-x-2"
           >
-            <span>Things to do in {city}</span>
+            <span>Things to do in {city.name}</span>
             <FaExternalLinkAlt />
           </a>
         ))}

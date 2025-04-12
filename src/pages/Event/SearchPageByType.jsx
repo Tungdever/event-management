@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
+import Footer from "../../components/Footer";
 
-// Hàm rút gọn văn bản
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -18,22 +18,21 @@ const SearchByType = () => {
   const [isLoading, setIsLoading] = useState(false);
   const eventsPerPage = 4;
 
-  // Cập nhật displayedEvents khi events thay đổi
   useEffect(() => {
     if (events && events.length > 0) {
-      const initialEvents = events.slice(0, eventsPerPage * 2); // Hiển thị 8 sự kiện ban đầu (2 trang)
+      const initialEvents = events.slice(0, eventsPerPage * 2);
       setDisplayedEvents(initialEvents);
-      setPage(3); // Bắt đầu từ trang 3 (vì đã hiển thị 2 trang)
+      setPage(3);
     } else {
       setDisplayedEvents([]);
       setPage(1);
     }
+    window.scrollTo(0, 0);
   }, [events]);
 
-  // Xử lý View More
   const handleViewMore = () => {
     setIsLoading(true);
-   
+
     setTimeout(() => {
       const startIndex = displayedEvents.length;
       const endIndex = startIndex + eventsPerPage;
@@ -41,15 +40,25 @@ const SearchByType = () => {
       setDisplayedEvents((prev) => [...prev, ...newEvents]);
       setPage((prevPage) => prevPage + 1);
       setIsLoading(false);
-    }, 500); 
+    }, 500);
   };
-
 
   const handleEventClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
 
-  return (
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 250);
+  }, []);
+  return loading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) : (
     <div className="container mx-auto px-8 py-4 relative">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">
         {categoryName
@@ -111,7 +120,8 @@ const SearchByType = () => {
                   </p>
                   <p className="text-gray-700 text-sm mt-1 truncate">
                     <span className="font-medium">Địa điểm:</span>{" "}
-                    {truncateText(event.eventLocation.city, 25) || "Không có địa điểm"}
+                    {truncateText(event.eventLocation.city, 25) ||
+                      "Không có địa điểm"}
                   </p>
                 </div>
 
@@ -151,6 +161,7 @@ const SearchByType = () => {
           )}
         </>
       )}
+      <Footer/>
     </div>
   );
 };

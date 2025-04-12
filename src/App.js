@@ -53,7 +53,7 @@ const MainLayout = () => {
     "/checkout",
     "/myticket",
     "/refund",
-    "/eventpage",
+    "/event-like",
     "/createEvent",
     "/all-event",
     
@@ -86,8 +86,76 @@ const MainLayout = () => {
   const isDashboardPage = !isFullScreenPageWithHeader && !isAuthPage && !isDetailOfEvent;
 
   // Dữ liệu giả lập
-  const ticketData = [];
-  const notifications = [];
+
+  const notifications = [
+    {
+      id: 1,
+      name: "Trần Minh Khôi",
+      message: "đã mời bạn tham gia sự kiện 'Hội Thảo Công Nghệ 4.0'.",
+      time: "2 giờ trước",
+      mutualFriends: "5 người bạn cũng tham gia.",
+      image: "https://storage.googleapis.com/a1aa/image/RO9a_Km3MzmI6eXhXAX_iepBq_xtGzHYV9VobLWk4Bg.jpg",
+      hasActions: true,
+    },
+    {
+      id: 2,
+      name: "Nguyễn Hoàng Anh",
+      message: "đã xác nhận tham dự sự kiện 'Diễn Đàn Khởi Nghiệp 2025'.",
+      time: "5 giờ trước",
+      image: "https://storage.googleapis.com/a1aa/image/zikBlWLojSoSRz55uD4rJDkt03syxPihqxo11KJOrzc.jpg",
+      hasActions: false,
+    },
+    {
+      id: 3,
+      name: "Hệ thống",
+      message: "Sự kiện 'Hội Nghị Trí Tuệ Nhân Tạo' sẽ diễn ra vào ngày mai. Hãy đảm bảo bạn đã đăng ký tham dự.",
+      time: "Hôm qua",
+      image: "https://storage.googleapis.com/a1aa/image/VFzmkOIbebjne3na3F1tAR2DJWjNF1drwnptDa7QyLc.jpg",
+      hasActions: false,
+    },
+    {
+      id: 4,
+      name: "Lê Thanh Huy",
+      message: "đã gửi cho bạn lời mời làm diễn giả tại sự kiện 'Xu Hướng Công Nghệ Tương Lai'.",
+      time: "2 ngày trước",
+      mutualFriends: "3 diễn giả khác cũng tham gia.",
+      image: "https://storage.googleapis.com/a1aa/image/vQRA-hLZMfFnSRwIJxjyrqnfSO2-Zeuv5EobX8PifwA.jpg",
+      hasActions: true,
+    },
+    {
+      id: 5,
+      name: "Ban Tổ Chức",
+      message: "Vé tham dự sự kiện 'Hội Thảo Lãnh Đạo Trẻ' của bạn đã được xác nhận.",
+      time: "3 ngày trước",
+      image: "https://storage.googleapis.com/a1aa/image/RO9a_Km3MzmI6eXhXAX_iepBq_xtGzHYV9VobLWk4Bg.jpg",
+      hasActions: false,
+    },
+    {
+      id: 6,
+      name: "Trần Quang Dũng",
+      message: "đã gửi cho bạn lời mời kết nối để cùng tham gia 'Hội Thảo Kinh Tế Toàn Cầu'.",
+      time: "4 ngày trước",
+      mutualFriends: "2 người bạn chung.",
+      image: "https://storage.googleapis.com/a1aa/image/zikBlWLojSoSRz55uD4rJDkt03syxPihqxo11KJOrzc.jpg",
+      hasActions: true,
+    },
+    {
+      id: 7,
+      name: "Hệ thống",
+      message: "Bạn đã được thêm vào danh sách khách mời của sự kiện 'Hội Nghị Blockchain 2025'.",
+      time: "5 ngày trước",
+      image: "https://storage.googleapis.com/a1aa/image/VFzmkOIbebjne3na3F1tAR2DJWjNF1drwnptDa7QyLc.jpg",
+      hasActions: false,
+    },
+    {
+      id: 8,
+      name: "Nguyễn Phương Thảo",
+      message: "đã bình luận về bài đăng của bạn trong sự kiện 'Tọa Đàm Đổi Mới Sáng Tạo'.",
+      time: "6 ngày trước",
+      image: "https://storage.googleapis.com/a1aa/image/vQRA-hLZMfFnSRwIJxjyrqnfSO2-Zeuv5EobX8PifwA.jpg",
+      hasActions: false,
+    },
+  ];
   const profileData = [
     {
       fullName: "Michael Johnson",
@@ -515,9 +583,9 @@ const MainLayout = () => {
               <Route path="/event/:eventId" element={<EventDetail />} />
               <Route path="/search" element={<SearchPage />} />
               <Route path="/checkout" element={<Checkout />} />
-              <Route path="/myticket" element={<TicketList tickets={ticketData} />} />
+              <Route path="/myticket" element={<TicketList />} />
               <Route path="/refund" element={<Refund />} />
-              <Route path="/eventpage" element={<EventPage />} />
+              <Route path="/event-like" element={<EventPage />} />
               <Route path="/createEvent" element={<CRUDEvent />} />
               <Route path="/all-event" element={<EventGrid events={eventsList} onEventClick={handleEventClick} />}/>
               <Route path="/list-event-search-by/:categoryName" element={<SearchByType  />}/>

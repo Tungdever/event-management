@@ -5,12 +5,12 @@ const EventPage = () => {
 
     const events = {
         favorite: [
-            { id: 1, name: "Tech Conference 2025", date: "20/05/2025", location: "Hà Nội", image: "https://via.placeholder.com/150" },
-            { id: 2, name: "AI Summit 2025", date: "10/06/2025", location: "TP.HCM", image: "https://via.placeholder.com/150" },
+            { id: 1, name: "Tech Conference 2025", date: "20/05/2025", location: "Hà Nội", image: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg" },
+            { id: 2, name: "AI Summit 2025", date: "10/06/2025", location: "TP.HCM", image: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg" },
         ],
         watched: [
-            { id: 3, name: "Blockchain Expo", date: "05/03/2025", location: "Đà Nẵng", viewedAt: "12/03/2025 14:30", image: "https://via.placeholder.com/150" },
-            { id: 4, name: "Startup Demo Day", date: "12/04/2025", location: "Hải Phòng", viewedAt: "15/04/2025 09:15", image: "https://via.placeholder.com/150" },
+            { id: 3, name: "Blockchain Expo", date: "05/03/2025", location: "Đà Nẵng", viewedAt: "12/03/2025 14:30", image: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg" },
+            { id: 4, name: "Startup Demo Day", date: "12/04/2025", location: "Hải Phòng", viewedAt: "15/04/2025 09:15", image: "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg" },
         ],
     };
 

@@ -166,13 +166,14 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(true);
   const [events, setEvents] = useState([]);
   const location = useLocation();
-
+  const [searchTitle, setSearchTitle] = useState(location.state?.searchTerm || "");
   useEffect(() => {
     // Lấy dữ liệu events từ state được truyền từ SearchBar
     const initialEvents = location.state?.events || [];
     setEvents(initialEvents);
+    window.scrollTo(0, 0);
   }, [location.state]);
-  console.log(events);
+  //console.log(events);
   const handleFilterChange = (filteredEvents) => {
     setEvents(filteredEvents);
   };
@@ -202,10 +203,12 @@ const SearchPage = () => {
           Ho Chi Minh
         </a>
         <span>/</span>
-        <span className="text-gray-500">Live Music Events</span>
+        <span className="text-gray-500">Events</span>
       </nav>
       <h1 className="text-3xl font-bold text-gray-700 mt-4">
-        Live music events in Ho Chi Minh, Vietnam
+      {searchTitle
+          ? `Upcoming Events for ${searchTitle}`
+          : "Upcoming Events"}
       </h1>
       <div className="flex flex-col md:flex-row gap-2 p-5">
         <div className="w-full md:w-1/4">
