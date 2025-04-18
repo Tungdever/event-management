@@ -50,8 +50,8 @@ const updateTickets = (prev, ticketId, newCount) => {
 };
 
 // Component: Timeline
-const Timeline = ({ segments }) => {
-  if (!segments?.length) {
+const Timeline = ({ sessions }) => {
+  if (!sessions?.length) {
     return (
       <div className="my-6 mx-16 text-gray-600">No sessions available</div>
     );
@@ -59,7 +59,7 @@ const Timeline = ({ segments }) => {
 
   return (
     <div className="my-6 flex-col justify-center items-center mx-16 ml-[100px]">
-      {segments.map((segment, index) => (
+      {sessions.map((session, index) => (
         <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
           <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-4 py-2">
             {formatTime(session.startTime)} - {formatTime(session.endTime)}
@@ -283,16 +283,16 @@ const EventDetail = () => {
       setLoading(true);
       setError(null);
       try {
-        const [event, segments, tickets] = await Promise.all([
+        const [event, sessions, tickets] = await Promise.all([
           fetchData(
             `http://localhost:8080/api/events/${eventId}`,
             setEventData,
             "Failed to fetch event"
           ),
           fetchData(
-            `http://localhost:8080/api/segment/${eventId}/getSegment`,
-            setSegments,
-            "Failed to fetch segment"
+            `http://localhost:8080/api/session/${eventId}/getSession`,
+            setSessions,
+            "Failed to fetch session"
           ),
           fetchData(
             `http://localhost:8080/api/ticket/list/${eventId}`,
@@ -301,9 +301,9 @@ const EventDetail = () => {
           ),
         ]);
 
-        if (segments) {
-          const speakerList = segments
-            .map((segment) => segment.speaker)
+        if (sessions) {
+          const speakerList = sessions
+            .map((session) => session.speaker)
             .filter(Boolean);
           setSpeakers(speakerList);
         }
@@ -403,7 +403,7 @@ const EventDetail = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-2 ">
                 Section
               </h2>
-              <Timeline segments={segmentData} />
+              <Timeline sessions={sessionData} />
               <div>
                 <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
                 <div className="flex flex-wrap gap-2">

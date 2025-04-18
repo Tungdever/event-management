@@ -53,10 +53,10 @@ const ImageUploader = ({ onImageUpload }) => {
   );
 };
 
-const SegmentFormPopup = ({ 
+const SessionFormPopup = ({ 
   isOpen, 
   onClose, 
-  newSegment, 
+  newSession, 
   handleChange, 
   handleImageUpload, 
   desc, 
@@ -79,10 +79,10 @@ const SegmentFormPopup = ({
           <input
             className="w-full p-2 border border-gray-300 rounded-lg"
             type="text"
-            id="segmentTitle"
+            id="sessionTitle"
             placeholder="Title"
-            name="segmentTitle"
-            value={newSegment.segmentTitle}
+            name="sessionTitle"
+            value={newSession.sessionTitle}
             onChange={handleChange}
           />
         </div>
@@ -96,7 +96,7 @@ const SegmentFormPopup = ({
               type="time"
               id="start-time"
               name="startTime"
-              value={newSegment.startTime}
+              value={newSession.startTime}
               onChange={handleChange}
             />
           </div>
@@ -109,7 +109,7 @@ const SegmentFormPopup = ({
               type="time"
               id="end-time"
               name="endTime"
-              value={newSegment.endTime}
+              value={newSession.endTime}
               onChange={handleChange}
             />
           </div>
@@ -131,12 +131,12 @@ const SegmentFormPopup = ({
               <textarea
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 rows="3"
-                name="segmentDesc"
-                value={newSegment.segmentDesc}
+                name="sessionDesc"
+                value={newSession.sessionDesc}
                 onChange={handleChange}
               />
               <div className="text-right text-gray-400 text-xs">
-                {newSegment.segmentDesc.length} / 1000
+                {newSession.sessionDesc.length} / 1000
               </div>
             </div>
           )}
@@ -159,13 +159,13 @@ const SegmentFormPopup = ({
                   id="speakerName"
                   placeholder="Speaker Name"
                   name="speakerName"
-                  value={newSegment.speakerName}
+                  value={newSession.speakerName}
                   onChange={handleChange}
                 />
-                {newSegment.speakerImage ? (
+                {newSession.speakerImage ? (
                   <div className="relative">
                     <img
-                      src={newSegment.speakerImage}
+                      src={newSession.speakerImage}
                       alt="Speaker"
                       className="w-[50px] h-[50px] rounded-full object-cover"
                     />
@@ -188,11 +188,11 @@ const SegmentFormPopup = ({
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
                 rows="3"
                 name="speakerDesc"
-                value={newSegment.speakerDesc}
+                value={newSession.speakerDesc}
                 onChange={handleChange}
               />
               <div className="text-right text-gray-400 text-xs">
-                {newSegment.speakerDesc.length} / 1000
+                {newSession.speakerDesc.length} / 1000
               </div>
             </div>
           )}
@@ -210,7 +210,7 @@ const SegmentFormPopup = ({
             onClick={onSave}
             disabled={loading}
           >
-            {loading ? "Saving..." : isEditing ? "Save Changes" : "Save Segment"}
+            {loading ? "Saving..." : isEditing ? "Save Changes" : "Save Session"}
           </button>
         </div>
       </div>
@@ -218,9 +218,9 @@ const SegmentFormPopup = ({
   );
 };
 
-const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
-  const [segments, setSegments] = useState(segmentData || []);
-  const [newSegment, setNewSegment] = useState({
+const SectionEvent = ({ eventId, sessionData, onSessionUpdate }) => {
+  const [sessions, setSessions] = useState(sessionData || []);
+  const [newSession, setNewSession] = useState({
     eventId: eventId || "",
     sessionId: "",
     sessionTitle: "",
@@ -238,15 +238,15 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Load segments from API
-  const loadSegments = async () => {
+  // Load sessions from API
+  const loadSessions = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/segment/${eventId}/getSegment`);
-      setSegments(response.data);
-      onSegmentUpdate(response.data);
+      const response = await axios.get(`http://localhost:8080/api/session/${eventId}/getSession`);
+      setSessions(response.data);
+      onSessionUpdate(response.data);
     } catch (error) {
-      console.error("Error loading segments:", error);
+      console.error("Error loading sessions:", error);
     } finally {
       setLoading(false);
     }
@@ -262,13 +262,13 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   };
 
   const handleImageUpload = (data) => {
-    setNewSegment((prevData) => ({
+    setNewSession((prevData) => ({
       ...prevData,
       speakerImage: data ? data.imageUrl : "" // Update speakerImage directly
     }));
   };
 
-  // Handle adding a new segment
+  // Handle adding a new session
   const handleAddSlot = () => {
     if (!newSession.sessionTitle || !newSession.startTime || !newSession.endTime) {
       alert("Please fill in all required fields (Title, Start Time, End Time).");
@@ -279,91 +279,91 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
       return;
     }
 
-    const segmentToAdd = {
-      segmentTitle: newSegment.segmentTitle,
+    const sessionToAdd = {
+      sessionTitle: newSession.sessionTitle,
       speaker: actor
         ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
+            speakerImage: newSession.speakerImage,
+            speakerName: newSession.speakerName,
+            speakerDesc: newSession.speakerDesc,
           }
         : null,
       eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
+      sessionDesc: newSession.sessionDesc,
+      startTime: newSession.startTime,
+      endTime: newSession.endTime,
       isLocal: true
     };
 
-    const updatedSegments = [...segments, segmentToAdd];
-    setSegments(updatedSegments);
-    onSegmentUpdate(updatedSegments);
+    const updatedSessions = [...sessions, sessionToAdd];
+    setSessions(updatedSessions);
+    onSessionUpdate(updatedSessions);
     resetForm();
   };
 
-  // Handle editing an existing segment
-  const handleEditSegment = (index) => {
-    const segment = segments[index];
-    setNewSegment({
+  // Handle editing an existing session
+  const handleEditSession = (index) => {
+    const session = sessions[index];
+    setNewSession({
       eventId: eventId || "",
-      segmentId: segment.segmentId || "",
-      segmentTitle: segment.segmentTitle || "",
-      segmentDesc: segment.segmentDesc || "",
-      speakerName: segment.speaker?.speakerName || "",
-      speakerDesc: segment.speaker?.speakerDesc || "",
-      speakerImage: segment.speaker?.speakerImage || "", // Include speakerImage
-      startTime: segment.startTime || "",
-      endTime: segment.endTime || "",
+      sessionId: session.sessionId || "",
+      sessionTitle: session.sessionTitle || "",
+      sessionDesc: session.sessionDesc || "",
+      speakerName: session.speaker?.speakerName || "",
+      speakerDesc: session.speaker?.speakerDesc || "",
+      speakerImage: session.speaker?.speakerImage || "", // Include speakerImage
+      startTime: session.startTime || "",
+      endTime: session.endTime || "",
     });
-    setDesc(!!segment.segmentDesc);
-    setActor(!!segment.speaker);
+    setDesc(!!session.sessionDesc);
+    setActor(!!session.speaker);
     setIsEditing(true);
     setEditIndex(index);
     setIsAdding(true);
   };
 
-  // Handle saving the edited segment
+  // Handle saving the edited session
   const handleSaveEdit = () => {
-    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
+    if (!newSession.sessionTitle || !newSession.startTime || !newSession.endTime) {
       alert("Please fill in all required fields (Title, Start Time, End Time).");
       return;
     }
-    if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
+    if (actor && (!newSession.speakerName || !newSession.speakerDesc)) {
       alert("Please fill in Speaker Name and Description.");
       return;
     }
 
-    const updatedSegment = {
-      segmentId: newSegment.segmentId,
-      segmentTitle: newSegment.segmentTitle,
+    const updatedSession = {
+      sessionId: newSession.sessionId,
+      sessionTitle: newSession.sessionTitle,
       speaker: actor
         ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
+            speakerImage: newSession.speakerImage,
+            speakerName: newSession.speakerName,
+            speakerDesc: newSession.speakerDesc,
           }
         : null,
       eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
-      isLocal: segments[editIndex]?.isLocal
+      sessionDesc: newSession.sessionDesc,
+      startTime: newSession.startTime,
+      endTime: newSession.endTime,
+      isLocal: sessions[editIndex]?.isLocal
     };
 
-    const updatedSegments = [...segments];
-    updatedSegments[editIndex] = updatedSegment;
-    setSegments(updatedSegments);
-    onSegmentUpdate(updatedSegments);
+    const updatedSessions = [...sessions];
+    updatedSessions[editIndex] = updatedSession;
+    setSessions(updatedSessions);
+    onSessionUpdate(updatedSessions);
     resetForm();
   };
 
   // Reset the form after adding or editing
   const resetForm = () => {
-    setNewSegment({
+    setNewSession({
       eventId: eventId || "",
-      segmentId: "",
-      segmentTitle: "",
-      segmentDesc: "",
+      sessionId: "",
+      sessionTitle: "",
+      sessionDesc: "",
       speakerName: "",
       speakerDesc: "",
       speakerImage: "", // Reset speakerImage
@@ -377,31 +377,31 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     setEditIndex(null);
   };
 
-  // Handle deleting a segment
-  const handleDeleteSegment = async (index) => {
-    const segmentToDelete = segments[index];
+  // Handle deleting a session
+  const handleDeleteSession = async (index) => {
+    const sessionToDelete = sessions[index];
     
-    if (segmentToDelete.isLocal) {
-      const updatedSegments = segments.filter((_, i) => i !== index);
-      setSegments(updatedSegments);
-      onSegmentUpdate(updatedSegments);
-      alert("Delete segment successful");
+    if (sessionToDelete.isLocal) {
+      const updatedSessions = sessions.filter((_, i) => i !== index);
+      setSessions(updatedSessions);
+      onSessionUpdate(updatedSessions);
+      alert("Delete session successful");
     } 
-    else if (segmentToDelete.segmentId) {
+    else if (sessionToDelete.sessionId) {
       try {
-        const response = await fetch(`http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`, {
+        const response = await fetch(`http://localhost:8080/api/session/delete/${sessionToDelete.sessionId}`, {
           method: "DELETE",
         });
 
         if (response.ok) {
-          alert("Delete segment successful");
+          alert("Delete session successful");
           
         } else {
-          alert("Failed to delete segment");
+          alert("Failed to delete session");
         }
       } catch (error) {
-        console.error("Error deleting segment:", error);
-        alert("An error occurred while deleting the segment");
+        console.error("Error deleting session:", error);
+        alert("An error occurred while deleting the session");
       }
     }
   };
@@ -411,7 +411,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-semibold">Segment</h1>
+        <h1 className="text-2xl font-semibold">Session</h1>
       </div>
       <p className="text-gray-600 mb-6">
         Add an itinerary, schedule, or lineup to your event. You can include a time, a description of what will happen, and who will host or perform during the event.
@@ -429,9 +429,9 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
         </button>
       </div>
 
-      {/* Danh sách segments */}
-      {segments.length > 0 &&
-        segments.map((segment, index) => (
+      {/* Danh sách sessions */}
+      {sessions.length > 0 &&
+        sessions.map((session, index) => (
           <div key={index} className="bg-red-50 p-4 rounded-lg mb-6">
             <div className="border-red-500 border-l-2 pl-4">
               <div className="flex justify-between">
@@ -441,11 +441,11 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
                 <div className="space-x-2">
                   <i
                     className="fa-solid fa-pencil hover:text-blue-600 hover:cursor-pointer"
-                    onClick={() => handleEditSegment(index)}
+                    onClick={() => handleEditSession(index)}
                   ></i>
                   <i
                     className="fa-solid fa-trash hover:text-red-600 hover:cursor-pointer"
-                    onClick={() => handleDeleteSegment(index)}
+                    onClick={() => handleDeleteSession(index)}
                   ></i>
                 </div>
               </div>
@@ -472,10 +472,10 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
         ))}
 
       {/* Popup form */}
-      <SegmentFormPopup
+      <SessionFormPopup
         isOpen={isAdding}
         onClose={resetForm}
-        newSegment={newSegment}
+        newSession={newSession}
         handleChange={handleChange}
         handleImageUpload={handleImageUpload}
         desc={desc}
