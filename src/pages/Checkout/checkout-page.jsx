@@ -2,9 +2,12 @@ import React from 'react'
 import "../Checkout/checkout-page.css"
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 const CheckoutPage = (props) => {
   const [selected, setSelected] = useState("option5");
   const [isOption2Expanded, setIsOption2Expanded] = useState(false);
+  const location = useLocation();
+  const checkoutData = location.state;
   return (
     <div className="checkout-page-container">
       <div className="checkout-page-checkout-page">
@@ -15,7 +18,6 @@ const CheckoutPage = (props) => {
             <span className=" checkout-page-text checkout__option-text1">Google Pay</span>
             <i className="checkout__option-icon bi bi-chevron-right"></i>
           </div>
-
           {/* Nhấn để mở hoặc đóng */}
           <div className="checkout__option2" onClick={() => setIsOption2Expanded(!isOption2Expanded)}>
             <span className="checkout-page-text checkout__option-text2">Debit Card</span>
@@ -47,12 +49,10 @@ const CheckoutPage = (props) => {
               <span className="checkout-page-text checkout__option-text4">Add New Cards</span>
             </div>
           </motion.div>
-        
           <div className="checkout__option7">
             <i class="bi bi-plus-circle"></i>
             <span className="checkout-page-text checkout__option-text7">Add New Method</span>
           </div>
-
         </div>
         <div className="checkout-page-column2">
           <div className="checkout-page-group1">
@@ -63,9 +63,9 @@ const CheckoutPage = (props) => {
             />
             <div className="checkout-page-group2">
               <span className="checkout-page-tile">
-                She Is Women's Conference 2025 - BLOOM
+                {checkoutData.eventName}
               </span>
-              <span className="checkout-page-text-title-price checkout-page-price">66.00 VND</span>
+              <span className="checkout-page-text-title-price checkout-page-price">{checkoutData.amount}</span>
             </div>
           </div>
 
@@ -76,28 +76,33 @@ const CheckoutPage = (props) => {
           <div className="checkout-page-group4">
             <span className="checkout-page-text checkout-page-text-detail">Payment Details</span>
             <div className="checkout-page-group5">
-              <div className="checkout-page-group6">
-                <span className="checkout-page-text checkout-page-text-price">Price</span>
-                <span className="checkout-page-text checkout-page-text-price-detail">$66.00</span>
-              </div>
-              <div className="checkout-page-group6">
-                <span className="checkout-page-text checkout-page-text-quality">Quantity</span>
-                <span className="checkout-page-text checkout-page-text-quality-detail">1</span>
-              </div>
-              <div className="checkout-page-group7">
-                <span className="checkout-page-text checkout-page-text-total">Total</span>
-                <span className="checkout-page-text checkout-page-text-total-detail">$66.00</span>
-              </div>
+              {checkoutData.tickets &&
+                checkoutData.tickets.map((ticket, index) => {
+                  const total = ticket.price * ticket.quantity;
+                  return (
+                    <div key={index}>
+                      <div className="checkout-page-group6">
+                        <span className="checkout-page-text checkout-page-text-price">Price</span>
+                        <span className="checkout-page-text checkout-page-text-price-detail">${ticket.price.toFixed(2)}</span>
+                      </div>
+                      <div className="checkout-page-group6">
+                        <span className="checkout-page-text checkout-page-text-quality">Quantity</span>
+                        <span className="checkout-page-text checkout-page-text-quality-detail">{ticket.quantity}</span>
+                      </div>
+                      <div className="checkout-page-group7">
+                        <span className="checkout-page-text checkout-page-text-total">Total</span>
+                        <span className="checkout-page-text checkout-page-text-total-detail">${total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
-
-
           </div>
           <div className="checkout-page-btn-pay">
             <a href="#" className="checkout-page-btn-pay">Pay Now</a>
           </div>
         </div>
       </div>
-
     </div>
   )
 }

@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
-const Checkout = ({ onClose, selectedTickets }) => {
-  
+const Checkout = ({ onClose, selectedTickets, eventData }) => {
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
-
   const totalPrice = selectedTickets.reduce(
     (sum, ticket) => sum + ticket.price * ticket.quantity,
     0
@@ -16,6 +13,14 @@ const Checkout = ({ onClose, selectedTickets }) => {
       setLoading(false);
     }, 200); 
   }, []);
+  const checkoutHandle = () => {
+    const checkoutData = {
+      amount: totalPrice,
+      tickets: selectedTickets,
+      eventName: eventData.eventName,
+    };
+    navigate("/checkout", {state: checkoutData});
+  }
   return (
     loading ?<Loader/> : 
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
@@ -55,12 +60,7 @@ const Checkout = ({ onClose, selectedTickets }) => {
 
         <button
           className="bg-blue-600 text-white w-full py-2 rounded-lg hover:bg-blue-700 mt-4"
-          onClick={() => {
-
-            console.log("Proceed to payment:", selectedTickets);
-            onClose();
-            navigate("/checkout")
-          }}
+          onClick={checkoutHandle}
         >
           Proceed to Payment
         </button>

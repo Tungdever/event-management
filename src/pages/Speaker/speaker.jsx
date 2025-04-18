@@ -9,8 +9,9 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import "../../fonts/Times New Roman";
+import axios from "axios";
 const Speaker = () => {
-
+  const eid = 1;
   const [selectedLevel, setSelectedLevel] = useState("Select level");
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
@@ -28,232 +29,8 @@ const Speaker = () => {
 
   // =====================================================================
   // danh sách diễn giả
-  const [speakers, setSpeakers] = useState([
-    {
-      "speakerId": "1",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Confirmed",
-
-    },
-    {
-      "speakerId": "2",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ]
-      ,
-      "speakerStatus": "Pending",
-
-    },
-    {
-      "speakerId": "3",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "4",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "5",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-    },
-    {
-      "speakerId": "6",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "7",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "8",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "8",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "9",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "10",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "11",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "12",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-    {
-      "speakerId": "13",
-      "speakerName": "Nguyễn Văn A",
-      "speakerImage": "https://smarthr.dreamstechnologies.com/laravel/template/public/build/img/profiles/avatar-30.jpg",
-      "speakerEmail": "nguyenvana@gmail.com",
-      "speakerPhone": "0123456789",
-      "speakerDesc": "Nguyễn Văn A là chuyên gia trong lĩnh vực AI và đã diễn thuyết tại nhiều hội nghị công nghệ lớn.",
-
-      "speakerExperience": "10 năm kinh nghiệm trong ngành AI",
-      "speakerSocialMedia": [
-        "linkedin: https://linkedin.com/in/nguyenvana",
-        "twitter: https://twitter.com/nguyenvana"
-      ],
-      "speakerStatus": "Rejected",
-
-    },
-  ]);
+  
+  const [speakers, setSpeakers] = useState([]);
   const [newSpeaker, setNewSpeaker] = useState([
     {
       "speakerId": "",
@@ -268,6 +45,15 @@ const Speaker = () => {
       "speakerStatus": "",
     },
   ]);
+  useEffect(() => {
+    axios
+      .get(`http://localhost:8080/api/v1/myevent/${eid}/speaker`)
+      .then((response) => {
+        setSpeakers(response.data.data);
+      })
+      .catch((error) => console.error("Lỗi:", error));
+  }, []);
+  console.log(speakers);
   // =====================================================================
   // Thống kê 
   const totalSpeakers = speakers.length;
@@ -377,7 +163,7 @@ const Speaker = () => {
       return;
     }
     const formData = new FormData();
-    Object.entries(selectedSponsor).forEach(([key, value]) => {
+    Object.entries(selectedSpeaker).forEach(([key, value]) => {
       if (value) {
         if (value instanceof File) {
           formData.append(key, value);
@@ -409,7 +195,15 @@ const Speaker = () => {
       console.error("Lỗi tải file:", error);
     }
   };
-  const handleDeleteSpeaker = (selectedSpeaker) => {
+  const handleDeleteSpeaker = async (selectedSpeaker) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/v1/myevent/${eid}/speaker/${selectedSpeaker.speakerId}`,        
+      );
+      console.log("Upload thành công:", response.data);      
+    } catch (error) {
+      console.error("Lỗi tải file:", error);
+    }
     const updatedSpeakers = speakers.filter(speaker => speaker.speakerId !== selectedSpeaker.speakerId);
     setSpeakers(updatedSpeakers);
     setSelectedSpeaker(null);
@@ -719,9 +513,9 @@ const Speaker = () => {
                         <label className="form-label">Social Media</label>
                         <textarea
                           className="input-field"
-                          value={selectedSpeaker?.speakerSocialMedia?.join("\n") || ""}
+                          value={selectedSpeaker?.speakerSocialMedia || ""}
                           onChange={(e) => {
-                            const updatedSocialMedia = e.target.value.split("\n"); // Chuyển từng dòng thành mảng
+                            const updatedSocialMedia = e.target.value; // Chuyển từng dòng thành mảng
                             setSelectedSpeaker((prev) => ({
                               ...prev,
                               speakerSocialMedia: updatedSocialMedia
@@ -836,7 +630,7 @@ const Speaker = () => {
                         <div className="mb-3">
                           <p className="fs-12 mb-0">Social Media</p>
                           <p className="text-gray-9" style={{ whiteSpace: "pre-line" }}>
-                            {selectedSpeaker.speakerSocialMedia.join("\n")}
+                            {selectedSpeaker.speakerSocialMedia}
                           </p>
                         </div>
                       </div>
