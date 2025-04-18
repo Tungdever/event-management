@@ -1,36 +1,94 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+
+const vietnamCities = [
+  { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
+  { slug: "ha-noi", name: "Hà Nội" },
+  { slug: "da-nang", name: "Đà Nẵng" },
+  { slug: "nha-trang", name: "Nha Trang" },
+ 
+];
 
 const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
   const [showDetail, setShowDetail] = useState(false);
-  const [eventLocation, setEventLocation] = useState(locationData);
+  const [eventLocation, setEventLocation] = useState({
+    date: "",
+    startTime: "",
+    endTime: "",
+    locationType: "venue",
+    venueName: "",
+    venueSlug: "",
+    address: "",
+    city: "",
+    ...locationData, 
+  });
 
- 
   useEffect(() => {
-    setEventLocation(locationData);
+    setEventLocation({
+      date: "",
+      startTime: "",
+      endTime: "",
+      locationType: "venue",
+      venueName: "",
+      venueSlug: "",
+      address: "",
+      city: "",
+      ...locationData,
+    });
   }, [locationData]);
 
+  // Hàm chuẩn hóa venueName thành slug
+  const normalizeVenueName = (name) => {
+    return name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+
+  // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEventLocation((prevData) => {
-      const updatedData = {
+      let updatedData = {
         ...prevData,
         [name]: value,
       };
+
+      
+      if (name === "venueName") {
+        updatedData.venueSlug = normalizeVenueName(value);
+      }
+      // if(name==="city"){
+      //   updatedData.city = vietnamCities.find((c) => c.name === name);
+      // }
+
       onLocationUpdate(updatedData); 
       return updatedData;
     });
   };
 
+  // Xử lý thay đổi loại địa điểm (venue/online)
   const handleLocationTypeChange = (type) => {
     setEventLocation((prevData) => {
       const updatedData = { ...prevData, locationType: type };
-      onLocationUpdate(updatedData); 
+      onLocationUpdate(updatedData);
       return updatedData;
     });
   };
 
+  // Xử lý khi nhấn Complete
   const handleComplete = () => {
     setShowDetail(false);
+  };
+
+  // Lấy tên thành phố để hiển thị
+  const getCityDisplayName = (slug) => {
+    const city = vietnamCities.find((c) => c.slug === slug);
+    return city ? city.name : slug;
   };
 
   return (
@@ -123,14 +181,19 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                     <label className="block text-gray-700 mb-2">
                       City <span className="text-red-500">*</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="city"
                       value={eventLocation.city}
                       onChange={handleChange}
-                      placeholder="City"
                       className="w-full px-4 py-2 border rounded-md"
-                    />
+                    >
+                      <option value="">Select a city</option>
+                      {vietnamCities.map((city) => (
+                        <option key={city.slug} value={city.slug}>
+                          {city.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                 </div>
               </form>
@@ -156,19 +219,26 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
             <div className="flex items-start">
               <i className="far fa-calendar-alt text-xl mr-2"></i>
               <div>
-                <p className="font-medium">{eventLocation.date}</p>
+                <p className="font-medium">{eventLocation.date || "Not set"}</p>
                 <p className="text-gray-500">
-                  {eventLocation.startTime} - {eventLocation.endTime}
+                  {eventLocation.startTime && eventLocation.endTime
+                    ? `${eventLocation.startTime} - ${eventLocation.endTime}`
+                    : "Time not set"}
                 </p>
               </div>
             </div>
             <div className="flex items-start ml-[90px]">
               <i className="fas fa-map-marker-alt text-xl mr-2"></i>
               <div>
-                {eventLocation.locationType !== "online" && (
+                {eventLocation.locationType === "online" ? (
+                  <p className="font-medium">Online Event</p>
+                ) : (
                   <p className="font-medium">
-                    {eventLocation.venueName}, {eventLocation.address},{" "}
-                    {eventLocation.city}
+                    {eventLocation.venueName
+                      ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(
+                          eventLocation.city
+                        )}`
+                      : "Location not set"}
                   </p>
                 )}
               </div>

@@ -1,9 +1,9 @@
 
 import React, { useState ,useEffect,useRef} from "react";
 import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
-import { useNavigate, BrowserRouter as Router } from "react-router-dom";
-
-const EventsPage = ({ eventId }) => {
+import { useNavigate} from "react-router-dom";
+import Loader from "../../components/Loading";
+const EventsPage = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('Events');
   const [filterStatus, setFilterStatus] = useState('public'); 
@@ -14,9 +14,7 @@ const EventsPage = ({ eventId }) => {
   const togglePopup = (id) => setPopupVisible(popupVisible === id ? null : id);
   const popupRef = useRef(null);
   useEffect(() => {
-    
       fetchEventData();
-   
   }, []);
 
   const fetchEventData = async () => {
@@ -35,7 +33,8 @@ const EventsPage = ({ eventId }) => {
   };
   const handleActionClick = (action, eventId) => {
     if (action === 'Edit') {
-      navigate(`/event/${eventId}`);
+      // navigate(`/event/${eventId}`);
+      navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
     }
     setPopupVisible(null);
     
@@ -54,7 +53,18 @@ const EventsPage = ({ eventId }) => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-  return (
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 250);
+  }, []);
+  return loading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) :(
     <div className="container mx-auto p-6">
       <h1 className="text-4xl font-bold text-[#202C4B]">Events</h1>
       <div className="flex items-center mt-6">
@@ -129,7 +139,7 @@ const EventsPage = ({ eventId }) => {
                 )}
                 <div>
                   <h3 className="text-[16px] font-semibold">{event.eventName}</h3>
-                  <p className="text-gray-600">{event.eventLocation}</p>
+                  <p className="text-gray-600">{event.eventLocation.venueName}</p>
                   <p className="text-gray-600">{event.eventType}</p>
                 </div>
               </div>
@@ -168,8 +178,6 @@ const EventsPage = ({ eventId }) => {
     </div>
   );
 };
-
-
 
 const Dashboard = () => {
   return (

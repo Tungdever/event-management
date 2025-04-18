@@ -75,9 +75,18 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
     setUploadedImages(images);
     setShowUpload(false);
   };
+  // Hàm xóa ảnh
+  const handleDeleteImage = (indexToDelete) => {
+    const updatedImages = images.filter((_, index) => index !== indexToDelete);
+    setImages(updatedImages);
+    setUploadedImages(updatedImages);
+    if (updatedImages.length === 0) {
+      setShowUpload(false); // Nếu không còn ảnh, quay lại giao diện mặc định
+    }
+  };
 
   return (
-    <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
+<div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <h1 className="text-2xl font-semibold mb-4">Add images</h1>
 
       <div className="mb-6">
@@ -109,14 +118,21 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
           • Recommended image size: 2160 x 1080px • Maximum file size: 10MB •
           Supported image files: JPEG, PNG
         </p>
-        <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4 flex-wrap">
           {images.map((img, index) => (
-            <img
-              key={index}
-              src={img}
-              alt="Uploaded"
-              className="w-24 h-24 object-cover rounded-md"
-            />
+            <div key={index} className="relative">
+              <img
+                src={img}
+                alt="Uploaded"
+                className="w-24 h-24 object-cover rounded-md"
+              />
+              <button
+                onClick={() => handleDeleteImage(index)}
+                className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+              >
+                X
+              </button>
+            </div>
           ))}
         </div>
       </div>
@@ -131,7 +147,6 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
       {showCropper && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg max-w-5xl min-h-3xl w-full flex">
-            {/* Khu vực Crop */}
             <div className="w-2/3 pr-4 border-r">
               <h2 className="text-lg font-semibold mb-4">Adjust Image</h2>
               <div className="relative w-full h-[400px]">
@@ -148,7 +163,6 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
               </div>
             </div>
 
-            {/* Khu vực Xem trước */}
             <div className="w-1/3 pl-4">
               <h2 className="text-lg font-semibold mb-4">Preview</h2>
               <div className="flex flex-col items-center gap-4">
@@ -190,30 +204,37 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
   );
 };
 
-const UploadedImagesSlider = ({ images }) => {
+const UploadedImagesSlider = ({ images, onEdit }) => {
   return (
-    <Carousel autoPlay infiniteLoop showThumbs={false}>
-      {images.map((img, index) => (
-        <div key={index} className="relative max-w-[710px] min-h-[400px] mb-4">
-          <img
-            src={img}
-            alt={`Uploaded ${index}`}
-            className="w-full h-[400px] object-cover"
-          />
-        </div>
-      ))}
-    </Carousel>
+    <div
+      className="cursor-pointer"
+      onClick={onEdit} // Khi nhấp vào, gọi hàm onEdit để hiển thị UploadMedia
+    >
+      <Carousel autoPlay infiniteLoop showThumbs={false}>
+        {images.map((img, index) => (
+          <div key={index} className="relative max-w-[710px] min-h-[400px] mb-4">
+            <img
+              src={img}
+              alt={`Uploaded ${index}`}
+              className="w-full h-[400px] object-cover"
+            />
+          </div>
+        ))}
+      </Carousel>
+    </div>
   );
 };
 
 const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
   const [showUpload, setShowUpload] = useState(false);
-
+  const handleEditImages = () => {
+    setShowUpload(true); // Hiển thị giao diện UploadMedia khi nhấp vào slider
+  };
   return (
     <div>
       {!showUpload ? (
         uploadedImages.length > 0 ? (
-          <UploadedImagesSlider images={uploadedImages} />
+          <UploadedImagesSlider images={uploadedImages} onEdit={handleEditImages} />
         ) : (
           <div
             className="relative bg-gray-200 rounded-lg overflow-hidden mb-6 max-w-[710px] min-h-[400px] flex items-center justify-center cursor-pointer"

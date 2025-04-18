@@ -1,70 +1,71 @@
 import { useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";  
+import { FaChevronDown, FaTachometerAlt, FaUsers } from "react-icons/fa"; 
+import { MdEvent } from "react-icons/md";
 
-import { Link } from "react-router-dom";  
-import { FaChevronDown, FaTachometerAlt, FaUsers, FaCogs, FaCalendarAlt } from "react-icons/fa"; 
-import { MdEvent, MdChat, MdAttachMoney } from "react-icons/md";
-const defaultMenuItems = [
+// Hàm helper để tạo menu items với eventId
+const createMenuItems = (eventId) => [
   {
     title: "Dashboard",
-    path: "/dashboard",
+    path: `/dashboard${eventId ? `/${eventId}` : ''}`,
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Manager", path: "/dashboard" },]
+      { title: "Event", path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}` }
+    ]
   },
   {
     title: "Events",
-    path: "/event",
+    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`,
     icon: <MdEvent />,
     submenu: [
-      ,
-      { title: "Sponsor", path: "/sponsor",sub_submenu :[
-        { title: "Create Sponsor", path: "/createSponsor" },
-        { title: "Edit Sponsor", path: "/editSponsor" },
-      ] },
-      { title: "Speaker", path: "/speaker",sub_submenu :[
-        { title: "Create Speaker", path: "/createSpeaker" },
-        { title: "Edit Speaker", path: "/editSpeaker" },
-      ] },
-      { title: "Session", path: "/session" ,sub_submenu :[
-        { title: "Create Section", path: "/createSection" },
-        { title: "Edit Section", path: "/editSection" },
-      ] },
-      { title: "Attendee", path: "/attendee" },
-      { title: "Chat", path: "/chat" ,icon: <MdChat /> },
-      { title: "Ticket", path: "/ticket" },
-     
+      { 
+        title: "Sponsor", 
+        path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
+      },
+      { 
+        title: "Speaker", 
+        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`, 
+      },
+      { 
+        title: "Session", 
+        path: `/dashboard/session${eventId ? `/${eventId}` : ''}`,
+      },
+      { 
+        title: "Ticket", 
+        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`
+      },
     ],
   },
   {
     title: "Team",
-    path: "/team",
+    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`,
     icon: <FaUsers />,
     submenu: [
-      { title: "Member", path: "/member" },
-      { title: "Task", path: "/task" },
-      { title: "Calendar", path: "/calendar",icon: <FaCalendarAlt /> },
-    ],
-  },
-  {
-    title: "Setting",
-    path: "/setting",
-    icon: <FaCogs />,
-    submenu: [
-      { title: "Profile", path: "/view" },
-      { title: "Notification", path: "/notification" },
+      { 
+        title: "Member", 
+        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` 
+      },
+      { 
+        title: "Task", 
+        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` 
+      },
     ],
   },
 ];
 
-const Sidebar = () => {
+const Sidebar = ({ id }) => {
+ 
+  const [eventId] = useState(id);
+  const menuItems = createMenuItems(eventId);
+  
   const [openMenus, setOpenMenus] = useState(
-    defaultMenuItems.reduce((acc, menu) => {
+    menuItems.reduce((acc, menu) => {
       acc[menu.title] = true;
       return acc;
     }, {})
   );
-
-  const [activeSubmenu, setActiveSubmenu] = useState(null); // Lưu trạng thái submenu đang active
+  const navigate = useNavigate();
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
   const toggleMenu = (menuTitle) => {
     setOpenMenus((prev) => ({
@@ -72,12 +73,15 @@ const Sidebar = () => {
       [menuTitle]: !prev[menuTitle],
     }));
   };
-
+  const handleHomepage = (e) => {
+    
+    navigate("/"); 
+  };
   return (
     <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
-      <h1 className="text-2xl font-bold text-orange-500 mb-8 mt-2">Management Event</h1>
+      <h1 className="text-xl font-bold text-orange-500 mb-8 mt-2 hover:cursor-pointer" onClick={handleHomepage}>Management Event</h1>
       <ul>
-        {defaultMenuItems.map((menu) => (
+        {menuItems.map((menu) => (
           <SidebarItem
             key={menu.title}
             menu={menu}
@@ -93,16 +97,27 @@ const Sidebar = () => {
 };
 
 const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClick = (path) => {
+    // Truyền lại eventId qua state để duy trì khi điều hướng
+    navigate(path, { state: { eventId: location.state?.eventId || menu.path.split('/').pop() } });
+    if (!menu.submenu) setActiveSubmenu(menu.title);
+  };
+
   return (
     <li className="mb-2">
       <div
         className={`flex justify-between items-center px-2 py-2 rounded-lg cursor-pointer transition-all duration-300 
         text-[14px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
-        onClick={menu.submenu ? onClick : null}
+        onClick={menu.submenu ? onClick : () => handleClick(menu.path)}
       >
         <div className="flex items-center">
           {menu.icon && <span className="mr-2 text-[16px]">{menu.icon}</span>}
-          <Link to={menu.path}>{menu.title}</Link>
+          <Link to={menu.path} onClick={(e) => { e.preventDefault(); handleClick(menu.path); }}>
+            {menu.title}
+          </Link>
         </div>
         {menu.submenu && (
           <FaChevronDown size={12} className={`ml-2 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -110,17 +125,32 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
       </div>
       {menu.submenu && isOpen && (
         <ul className="mt-2 ml-2">
-          {menu.submenu.map((sub) => (
+          {menu.submenu.map((sub) => sub && (
             <li key={sub.title}>
               <Link
                 to={sub.path}
                 className={`block px-2 ml-2 py-2 rounded-lg transition-all text-[14px] 
                 ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
                 hover:bg-gray-100 hover:text-[#0357AF]`}
-                onClick={() => setActiveSubmenu(sub.title)}
+                onClick={(e) => { e.preventDefault(); handleClick(sub.path); }}
               >
                 {sub.title}
               </Link>
+              {sub.sub_submenu && (
+                <ul className="mt-1 ml-4">
+                  {sub.sub_submenu.map((subSub) => (
+                    <li key={subSub.title}>
+                      <Link
+                        to={subSub.path}
+                        className="block px-2 py-1 text-[13px] text-gray-600 hover:text-[#0357AF] hover:bg-gray-100 rounded"
+                        onClick={(e) => { e.preventDefault(); handleClick(subSub.path); }}
+                      >
+                        {subSub.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>

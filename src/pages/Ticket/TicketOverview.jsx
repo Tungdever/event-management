@@ -1,13 +1,12 @@
 import React from "react";
 
-const TicketOverview = ({ tickets, onAddTicket, onSaveAll }) => {
-  
+const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket }) => {
   return (
     <div className="max-w-7xl mx-auto p-4 flex">
       <div className="w-2/3 pr-4">
-        {tickets.map((ticket, ticketId) => (
+        {tickets.map((ticket, index) => (
           <div
-            key={ticketId}
+            key={index} // Nếu ticket có ticketId thì dùng ticket.ticketId thay index
             className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
           >
             <div className="mb-4">
@@ -29,7 +28,10 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll }) => {
                   <span className="mx-2">•</span>
                   <span>Ends at {ticket.endTime}</span>
                 </div>
-                <i className="fa-solid fa-pen-to-square hover:text-blue-600 hover:cursor-pointer"></i>
+                <i
+                  className="fa-solid fa-pen-to-square hover:text-blue-600 hover:cursor-pointer"
+                  onClick={() => onEditTicket(ticket)} // Gọi hàm edit khi click
+                ></i>
               </div>
             </div>
           </div>

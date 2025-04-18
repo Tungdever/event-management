@@ -11,7 +11,6 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật eventLocation
   const handleLocationUpdate = (updatedLocation) => {
-    console.log("cap nhat lan 2:", updatedLocation);
     setEvent((prevEvent) => ({
       ...prevEvent,
       eventLocation: updatedLocation,
@@ -48,9 +47,7 @@ const handleSessionUpdate = (updatedSessions) => {
       [name]: value,
     }));
   };
-const debug =(e) =>{
-  console.log(e)
-}
+
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -112,10 +109,12 @@ const debug =(e) =>{
           </div>
 
           <div className="text-blue-500 flex items-center">
-            <i className="fas fa-bolt mr-2"></i>
-            <a href="#" className="font-semibold">
-              Suggest summary
-            </a>
+          <button
+            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg"
+            onClick={() => setShowOverview(false)}
+          >
+            Complete
+          </button>
           </div>
         </div>
       )}
@@ -124,7 +123,7 @@ const debug =(e) =>{
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
-        onChange={debug(event.eventLocation)}
+       
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}

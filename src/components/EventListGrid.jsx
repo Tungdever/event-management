@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-  FaExternalLinkAlt,
-} from "react-icons/fa";
+
 const events = [
   {
     id: 1,
@@ -95,7 +91,7 @@ const EventListings = () => {
        <h2 className="text-2xl font-bold text-left mb-4">Events in Ho Chi Minh City</h2>
         <div className="flex space-x-1 justify-center items-center text-[13px] hover:cursor-pointer hover:text-blue-800">
          <span className="">View more </span>
-         <i class="bi bi-chevron-right text-[12px]"></i>
+         <i className="bi bi-chevron-right text-[12px]"></i>
          
         </div>
         

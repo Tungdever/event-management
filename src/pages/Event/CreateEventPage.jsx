@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
@@ -127,12 +127,13 @@ const CRUDEvent = () => {
           event.eventLocation.date && event.eventLocation.endTime
             ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
             : "",
-        eventLocation:
-          event.eventLocation.locationType === "online"
-            ? "Online"
-            : `${event.eventLocation.venueName || "-"} ${
-                event.eventLocation.address || "-"
-              } ${event.eventLocation.city || ""}`.trim(),
+        eventLocation: {
+          locationType: event.eventLocation.locationType || "online",
+          venueName: event.eventLocation.venueName || "",
+          venueSlug: event.eventLocation.venueSlug || "",
+          address: event.eventLocation.address || "",
+          city: event.eventLocation.city || "",
+        },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
         publishTime: event.publishTime || "now",
@@ -156,7 +157,7 @@ const CRUDEvent = () => {
   
       const eventResult = await eventResponse.json();
       const eventId =  eventResult;
-      console.log("Event saved with ID:", eventId);
+      //console.log("Event saved with ID:", eventId);
   
       if (event.session?.length > 0) {
         for (const session of event.session) {
@@ -204,7 +205,7 @@ const CRUDEvent = () => {
             endTime: ticketData.endTime || "",
           };
   
-          console.log("Ticket API:", ticketapi);
+          //console.log("Ticket API:", ticketapi);
           const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -216,7 +217,7 @@ const CRUDEvent = () => {
             throw new Error(`Failed to save tickets: ${errorText}`);
           }
         }
-        console.log("All tickets saved for event:", eventId);
+        //console.log("All tickets saved for event:", eventId);
       }
   
       const updatedEvent = {

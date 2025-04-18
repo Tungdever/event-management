@@ -118,7 +118,8 @@ const ListEventScroll = () => {
               </p>
               <p className="text-gray-700 text-sm mt-1 truncate">
                 <span className="font-medium">Location:</span>{" "}
-                {truncateText(event.eventLocation, 25) || "No location"}
+                {/* {truncateText(event.eventLocation, 25) || "No location"} */}
+                {event.eventLocation.venueName +" "+ event.eventLocation.address +" "+ event.eventLocation.city}
               </p>
             </div>
 

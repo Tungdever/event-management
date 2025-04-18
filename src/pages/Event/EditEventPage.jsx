@@ -1,279 +1,411 @@
-import { useState, useEffect } from "react";
-
-
-const EventzillaSettings =()=> {
-  const [branding, setBranding] = useState("no");
-  const [listEvent, setListEvent] = useState(false);
-  const [viewOtherEvents, setViewOtherEvents] = useState(false);
-  const [inviteOnly, setInviteOnly] = useState(false);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log({ branding, listEvent, viewOtherEvents, inviteOnly });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="p-4 ">
-      <div className="mb-4">
-        <h2 className="text-xl font-semibold mb-4">Remove Eventzilla Branding</h2>
-        <p className="text-gray-700 mb-4">
-          By enabling this setting, you can remove the Eventzilla brand from your event registration flow and all associated collateral.
-        </p>
-        <div className="mb-4">
-          <p className="text-gray-700 mb-2">Would you like to remove Eventzilla brand from your event registration flow?</p>
-          <div className="flex items-center mb-2">
-            <input
-              type="radio"
-              id="remove-branding-no"
-              name="remove-branding"
-              className="mr-2"
-              checked={branding === "no"}
-              onChange={() => setBranding("no")}
-            />
-            <label htmlFor="remove-branding-no" className="text-gray-700">No</label>
-          </div>
-          <div className="flex items-center">
-            <input
-              type="radio"
-              id="remove-branding-yes"
-              name="remove-branding"
-              className="mr-2"
-              checked={branding === "yes"}
-              onChange={() => setBranding("yes")}
-            />
-            <label htmlFor="remove-branding-yes" className="text-gray-700">Yes</label>
-          </div>
-        </div>
-        <div className="mb-4">
-          <input
-            type="checkbox"
-            id="list-event"
-            className="mr-2"
-            checked={listEvent}
-            onChange={() => setListEvent(!listEvent)}
-          />
-          <label htmlFor="list-event" className="text-gray-700">
-            List this event publicly in Eventzilla and its partner directories for increased exposure.
-          </label>
-        </div>
-        <div className="mb-4">
-          <input
-            type="checkbox"
-            id="view-other-events"
-            className="mr-2"
-            checked={viewOtherEvents}
-            onChange={() => setViewOtherEvents(!viewOtherEvents)}
-          />
-          <label htmlFor="view-other-events" className="text-gray-700">
-            Display view other events link on the event page
-          </label>
-        </div>
-        <div className="mb-4">
-          <input
-            type="checkbox"
-            id="invite-only"
-            className="mr-2"
-            checked={inviteOnly}
-            onChange={() => setInviteOnly(!inviteOnly)}
-          />
-          <label htmlFor="invite-only" className="text-gray-700">Invite only event</label>
-        </div>
-      </div>
-     
-    </form>
-  );
-}
-
-export default function EventForm() {
-  const [formData, setFormData] = useState({
+import React, { useState, useEffect } from "react";
+import EventForm from "./EventForm";
+import AddTicket from "../Ticket/AddTicket";
+import EventPublishing from "./EventPublishing";
+import {
+  useLocation,
+} from "react-router-dom";
+const EditEvent = () => {
+  const location = useLocation();
+  const eventId = location.state?.eventId || undefined;
+  //console.log("eventId cho edit"+ eventId)
+  const [selectedStep, setSelectedStep] = useState("build");
+  const [event, setEvent] = useState({
     eventName: "",
-    eventType: "Conference",
-    eventLanguage: "English",
-    eventCurrency: "U.S. Dollars ($)",
-    eventTimezone: "(GMT-0500) United States (New York) Time",
-    eventStarts: "",
-    eventStartTime: "",
-    eventEnds: "",
-    eventEndTime: "",
-    recurringSchedule: false,
-    countdownDisplay: false,
-    eventHost: "Trung Hà",
-    organizerDescription: "",
-    eventDescription: "zzzzz",
-    removeBranding: "No",
-    listEvent: false,
-    viewOtherEvents: false,
-    inviteOnly: false,
+    eventDesc: "",
+    eventType: "",
+    eventHost: "",
+    eventStatus: "",
+    eventStart: "",
+    eventEnd: "",
+    eventLocation: {
+      date: "",
+      startTime: "",
+      endTime: "",
+      locationType: "online",
+      venueName: "",
+      address: "",
+      city: "",
+    },
+    tags: [],
+    eventVisibility: "public",
+    publishTime: "now",
+    refunds: "yes",
+    validityDays: 7,
+    uploadedImages: [],
+    overviewContent: { text: "", media: [] },
+    tickets: [],
+    segment: [],
   });
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: type === "checkbox" ? checked : value,
+  
+  useEffect(() => {
+    if (eventId) {
+      fetchEventData(eventId);
+    }
+  }, [eventId]);
+
+  const fetchEventData = async (id) => {
+    try {
+      //console.log("Fetching event with ID:", id);
+      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to fetch event data: ${response.status} - ${errorText}`);
+      }
+      const data = await response.json();
+      //console.log("Raw data:", data);
+     
+      if (!data || !data.event) {
+        throw new Error("Invalid event data received");
+      }
+  
+      const transformedEvent = {
+        eventName: data.event.eventName || "",
+        eventDesc: data.event.eventDesc || "",
+        eventType: data.event.eventType || "",
+        eventHost: data.event.eventHost || "",
+        eventStatus: data.event.eventStatus || "",
+        eventStart: data.event.eventStart || "",
+        eventEnd: data.event.eventEnd || "",
+        eventLocation: {
+          date: data.event.eventStart?.split("T")[0] || "",
+          startTime: data.event.eventStart?.split("T")[1]?.slice(0, 5) || "",
+          endTime: data.event.eventEnd?.split("T")[1]?.slice(0, 5) || "",
+          locationType: data.event.eventLocation?.locationType || "venue",
+          venueName: data.event.eventLocation?.venueName || "",
+          venueSlug: data.event.eventLocation?.venueSlug || "",
+          address: data.event.eventLocation?.address || "",
+          city: data.event.eventLocation?.city || "",
+        },
+        tags: data.event.tags ? data.event.tags.split("|") : [],
+        eventVisibility: data.event.eventVisibility || "public",
+        publishTime: data.event.publishTime || "now",
+        refunds: data.event.refunds || "yes",
+        validityDays: data.event.validityDays || 7,
+        uploadedImages: data.event.eventImages || [],
+        overviewContent: {
+          text: data.event.textContent || "",
+          media: data.event.mediaContent?.map((url) => ({ type: "image", url })) || [],
+        },
+        tickets: data.ticket?.map((ticket) => ({
+          ticketId: ticket.ticketId || null,
+          ticketName: ticket.ticketName || "",
+          ticketType: ticket.ticketType || "",
+          price: ticket.price || 0,
+          quantity: ticket.quantity || 0,
+          startTime: ticket.startTime || "",
+          endTime: ticket.endTime || "",
+        })) || [],
+        segment: data.segment?.map((seg) => ({
+          segmentId: seg.segmentId || null,
+          segmentTitle: seg.segmentTitle || "",
+          speaker: seg.speaker
+            ? {
+                speakerId: seg.speaker.speakerId || null,
+                speakerImage: seg.speaker.speakerImage || "",
+                speakerName: seg.speaker.speakerName || "",
+                speakerDesc: seg.speaker.speakerDesc || "",
+              }
+            : null,
+          segmentDesc: seg.segmentDesc || "",
+          startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
+          endTime: seg.endTime?.split("T")[1]?.slice(0, 5) || "",
+        })) || [],
+      };
+  
+      setEvent(transformedEvent);
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+      alert(`Failed to load event data: ${error.message}`);
+    }
+  };
+
+  const uploadFilesToCloudinary = async (files) => {
+    if (!files || (Array.isArray(files) && files.length === 0)) return [];
+  
+    const uploadedIds = [];
+    const fileList = Array.isArray(files)
+      ? files.map((item) => (typeof item === "object" && item.url ? item.url : item))
+      : [typeof files === "object" && files.url ? files.url : files];
+  
+    for (const file of fileList) {
+      try {
+        if (typeof file === "string" && file.startsWith("http")) {
+          uploadedIds.push(file);
+          continue;
+        }
+  
+        let blob;
+        if (typeof file === "string" && file.startsWith("blob:")) {
+          const response = await fetch(file);
+          if (!response.ok) throw new Error(`Failed to fetch blob: ${file}`);
+          blob = await response.blob();
+        } else if (file instanceof File || file instanceof Blob) {
+          blob = file;
+        } else {
+          console.warn("Invalid file type, skipping:", file);
+          continue;
+        }
+  
+        const formData = new FormData();
+        formData.append("file", blob);
+  
+        const response = await fetch("http://localhost:8080/api/storage/upload", {
+          method: "POST",
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Upload failed: ${errorText}`);
+        }
+  
+        const result = await response.text();
+        const publicId = result;
+        if (!publicId)
+          throw new Error("Invalid public_id in response: " + result);
+  
+        uploadedIds.push(publicId);
+      } catch (error) {
+        console.error("Error uploading file:", file, error);
+        uploadedIds.push(null);
+      }
+    }
+  
+    return uploadedIds.filter((id) => id !== null);
+  };
+
+  const handleEdit = async (event) => {
+    console.log("Editing event:", event);
+  
+    try {
+      const isFile = (item) =>
+        item instanceof File ||
+        item instanceof Blob ||
+        (typeof item === "string" && item.startsWith("blob:"));
+  
+      // Xử lý eventImages
+      const existingImageIds =
+        event.uploadedImages?.filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+      const newImages = event.uploadedImages?.filter(isFile) || [];
+      const newImageIds = newImages.length > 0 ? await uploadFilesToCloudinary(newImages) : [];
+      const eventImages = [...existingImageIds, ...newImageIds];
+  
+      // Xử lý mediaContent
+      const existingMediaIds =
+        event.overviewContent?.media
+          ?.filter((item) => typeof item === "object" && item.url && item.url.startsWith("http"))
+          .map((item) => item.url) || [];
+      const newMedia = event.overviewContent?.media?.filter((item) =>
+        isFile(item) || (typeof item === "object" && isFile(item.url))
+      ) || [];
+      const newMediaIds = newMedia.length > 0 ? await uploadFilesToCloudinary(newMedia) : [];
+      const mediaContent = [...existingMediaIds, ...newMediaIds];
+  
+      // Xử lý tickets
+      const ticketData = [];
+      if (event.tickets?.length > 0) {
+        for (const ticket of event.tickets) {
+          ticketData.push({
+            ticketId: ticket.ticketId || null, // Nếu không có ticketId thì để null
+            ticketName: ticket.ticketName || "",
+            ticketType: ticket.ticketType || "Paid",
+            price: ticket.price || 0,
+            quantity: ticket.quantity || 0,
+            startTime: ticket.startTime || "", // Đảm bảo định dạng ISO
+            endTime: ticket.endTime || "", // Đảm bảo định dạng ISO
+          });
+        }
+      }
+  
+      // Xử lý segments
+      const segmentData = [];
+      if (event.segment?.length > 0) {
+        for (const segment of event.segment) {
+          const uploadedSpeakerImage = segment?.speaker?.speakerImage
+            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
+            : segment.speaker?.speakerImage || null;
+  
+          segmentData.push({
+            segmentId: segment.segmentId || null, // Nếu không có segmentId thì để null
+            segmentTitle: segment.segmentTitle || "",
+            speaker: segment.speaker
+              ? {
+                  speakerId: segment.speaker.speakerId || null,
+                  speakerImage: uploadedSpeakerImage || "",
+                  speakerName: segment.speaker.speakerName || "",
+                  speakerEmail: segment.speaker.speakerEmail || null,
+                  speakerTitle: segment.speaker.speakerTitle || null,
+                  speakerPhone: segment.speaker.speakerPhone || null,
+                  speakerAddress: segment.speaker.speakerAddress || null,
+                  speakerDesc: segment.speaker.speakerDesc || "",
+                }
+              : null,
+            eventID: event.eventId || null,
+            segmentDesc: segment.segmentDesc || "",
+            startTime: segment.startTime
+              ? `${event.eventLocation.date}T${segment.startTime}:00`
+              : "2025-04-05T12:10:00.000+00:00", // Giá trị mặc định nếu thiếu
+            endTime: segment.endTime
+              ? `${event.eventLocation.date}T${segment.endTime}:00`
+              : "2025-04-05T17:06:00.000+00:00", // Giá trị mặc định nếu thiếu
+          });
+        }
+      }
+  
+      // Tạo JSON payload theo cấu trúc yêu cầu
+      const payload = {
+        event: {
+          eventId: eventId || null,
+          eventName: event.eventName || "",
+          eventDesc: event.eventDesc || "",
+          eventType: event.eventType || "Conference",
+          eventHost: event.eventHost || "OFFICE",
+          eventStatus: event.eventStatus || "public",
+          eventStart:
+            event.eventLocation.date && event.eventLocation.startTime
+              ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+              : "2025-04-05T12:10:00",
+          eventEnd:
+            event.eventLocation.date && event.eventLocation.endTime
+              ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+              : "2025-04-05T14:06:00",
+              eventLocation: {
+                date: event.eventStart.split('T')[0], 
+                startTime: event.eventStart.split('T')[1].slice(0, 5),
+                endTime: event.eventEnd.split('T')[1].slice(0, 5),
+                locationType: event.eventLocation.locationType || "venue", 
+                venueName: event.eventLocation.venueName || "", 
+                venueSlug: event.eventLocation.venueSlug || "", 
+                address: event.eventLocation.address || "", 
+                city: event.eventLocation.city || "",
+              },
+          eventVisibility: event.eventVisibility || "public",
+          publishTime: event.publishTime || "now",
+          refunds: event.refunds || "yes",
+          validityDays: event.validityDays || 7,
+          eventImages: eventImages,
+          textContent: event.overviewContent?.text || "",
+          mediaContent: mediaContent,
+          tags: event.tags?.join("|") || "",
+        },
+        ticket: ticketData,
+        segment: segmentData,
+      };
+  
+      // Gửi request PUT đến API
+      const response = await fetch("http://localhost:8080/api/events/edit", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to edit event: ${errorText}`);
+      }
+  
+      const result = await response.json();
+      console.log("Event edited successfully:", result);
+      alert("Event edited successfully!");
+  
+    } catch (error) {
+      console.error("Failed to edit event:", error);
+      alert(`Failed to edit event: ${error.message}`);
+    }
+  };
+  const handleTicketsUpdate = (updatedTickets) => {
+    setEvent((prevEvent) => ({
+      ...prevEvent,
+      tickets: updatedTickets,
     }));
   };
-  const [loading, setLoading] = useState(true);
+  const renderStepComponent = () => {
+    switch (selectedStep) {
+      case "build":
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            onNext={() => setSelectedStep("tickets")}
+          />
+        );
+      case "tickets":
+        return (
+          <AddTicket
+            ticketData={event.tickets}
+            onTicketsUpdate={handleTicketsUpdate}
+         
+            onNext={() => setSelectedStep("publish")}
+          />
+        );
+      case "publish":
+        return (
+          <EventPublishing
+            event={event}
+            setEvent={setEvent}
+            onPublish={() => handleEdit(event)}
+          />
+        );
+      default:
+        return <EventForm event={event} setEvent={setEvent} />;
+    }
+  };
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 250); 
-  }, []);
   return (
-    loading ?<h1></h1> :  <div className=" max-w-4xl mx-auto p-6 bg-white shadow-md mt-10">
-      <h1 className="text-2xl font-semibold mb-6">Event title and description</h1>
-      <p className="text-gray-600 mb-4">
-        Fields marked <span className="text-red-500">*</span> are Required
-      </p>
-      <form>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Event name <span className="text-red-500">*</span>
-          </label>
-          <input
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            type="text"
-            name="eventName"
-            value={formData.eventName}
-            onChange={handleChange}
-            placeholder="Title of your event (example: Tech conference 2024)"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Event type *</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="eventType"
-            value={formData.eventType}
-            onChange={handleChange}
-          >
-            <option>Conference 1</option>
-            <option>Conference 2</option>
-            <option>Conference 3</option>
-            <option>Conference 4</option>
-            <option>Conference 5</option>
-            <option>Conference 6</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Event Language</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="eventLanguage"
-            value={formData.eventLanguage}
-            onChange={handleChange}
-          >
-            <option>English</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">
-            Specify a different currency for this event (Optional)
-          </label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="eventCurrency"
-            value={formData.eventCurrency}
-            onChange={handleChange}
-          >
-            <option>U.S. Dollars ($)</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Time zone where the event happens</label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="eventTimezone"
-            value={formData.eventTimezone}
-            onChange={handleChange}
-          >
-            <option>(GMT-0500) United States (New York) Time</option>
-          </select>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Event starts *</label>
-          <div className="flex space-x-2">
-            <input
-              className="w-1/2 px-3 py-2 border border-gray-300 rounded-md"
-              type="date"
-              name="eventStarts"
-              value={formData.eventStarts}
-              onChange={handleChange}
-            />
-            <input
-              className="w-1/4 px-3 py-2 border border-gray-300 rounded-md"
-              type="time"
-              name="eventStartTime"
-              value={formData.eventStartTime}
-              onChange={handleChange}
-            />
+    <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
+      <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
+        <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+          <h2 className="text-lg font-semibold">
+            {event.eventName || "Untitled Event"}
+          </h2>
+          <div className="flex items-center text-gray-500 mt-2">
+            <i className="far fa-calendar-alt mr-2"></i>
+            <span>
+              {event.eventLocation.date && event.eventLocation.startTime
+                ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
+                : "Date and time not set"}
+            </span>
+          </div>
+          <div className="flex items-center mt-4">
+            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
+              Draft <i className="fas fa-caret-down ml-1"></i>
+            </button>
+            <a href="#" className="text-blue-600">
+              Preview <i className="fas fa-external-link-alt"></i>
+            </a>
           </div>
         </div>
-
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Event ends *</label>
-          <div className="flex space-x-2">
-            <input
-              className="w-1/2 px-3 py-2 border border-gray-300 rounded-md"
-              type="date"
-              name="eventEnds"
-              value={formData.eventEnds}
-              onChange={handleChange}
-            />
-            <input
-              className="w-1/4 px-3 py-2 border border-gray-300 rounded-md"
-              type="time"
-              name="eventEndTime"
-              value={formData.eventEndTime}
-              onChange={handleChange}
-            />
-          </div>
+        <h3 className="text-lg font-semibold mb-2">Steps</h3>
+        <div className="space-y-2">
+          {["build", "tickets", "publish"].map((step) => (
+            <label
+              key={step}
+              className="flex items-center space-x-2 cursor-pointer"
+            >
+              <input
+                type="radio"
+                name="eventStep"
+                value={step}
+                checked={selectedStep === step}
+                onChange={() => setSelectedStep(step)}
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+              />
+              <span>
+                {step === "build" && "Build event page"}
+                {step === "tickets" && "Add tickets"}
+                {step === "publish" && "Publish"}
+              </span>
+            </label>
+          ))}
         </div>
-
-        <div className="mb-4">
-          <input
-            type="checkbox"
-            name="recurringSchedule"
-            checked={formData.recurringSchedule}
-            onChange={handleChange}
-            className="mr-2"
-          />
-          <label className="text-gray-700">This event has a recurring schedule</label>
-        
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Organizer description *</label>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="Organizer Description"
-            value={formData.organizerDescription}
-            onChange={handleChange}
-            rows="5"
-          ></textarea>
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-medium mb-2">Event description *</label>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            name="eventDescription"
-            value={formData.eventDescription}
-            onChange={handleChange}
-            rows="5"
-          ></textarea>
-        </div>
-   
-        <div className="flex justify-end">
-          <button type="submit" className="px-6 py-2 bg-blue-500 text-white rounded-md">
-            Save Changes
-          </button>
-        </div>
-      </form>
+      </aside>
+      <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
     </div>
   );
-}
+};
+
+export default EditEvent;
