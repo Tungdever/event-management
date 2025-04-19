@@ -8,7 +8,7 @@ import {
 const EditEvent = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
-  //console.log("eventId cho edit"+ eventId)
+  const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
   const [event, setEvent] = useState({
     eventName: "",
@@ -47,14 +47,18 @@ const EditEvent = () => {
 
   const fetchEventData = async (id) => {
     try {
-      //console.log("Fetching event with ID:", id);
-      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`);
+      
+      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+      },
+    });
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch event data: ${response.status} - ${errorText}`);
       }
       const data = await response.json();
-      //console.log("Raw data:", data);
      
       if (!data || !data.event) {
         throw new Error("Invalid event data received");
@@ -151,7 +155,7 @@ const EditEvent = () => {
         const formData = new FormData();
         formData.append("file", blob);
   
-        const response = await fetch("http://localhost:8080/api/storage/upload", {
+        const response = await fetch("http://localhost:8080/api/storage/upload",{
           method: "POST",
           body: formData,
         });
@@ -208,18 +212,18 @@ const EditEvent = () => {
       if (event.tickets?.length > 0) {
         for (const ticket of event.tickets) {
           ticketData.push({
-            ticketId: ticket.ticketId || null, // Nếu không có ticketId thì để null
+            ticketId: ticket.ticketId || null, 
             ticketName: ticket.ticketName || "",
             ticketType: ticket.ticketType || "Paid",
             price: ticket.price || 0,
             quantity: ticket.quantity || 0,
-            startTime: ticket.startTime || "", // Đảm bảo định dạng ISO
-            endTime: ticket.endTime || "", // Đảm bảo định dạng ISO
+            startTime: ticket.startTime || "", 
+            endTime: ticket.endTime || "",
           });
         }
       }
   
-      // Xử lý segments
+      
       const segmentData = [];
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
@@ -228,7 +232,7 @@ const EditEvent = () => {
             : segment.speaker?.speakerImage || null;
   
           segmentData.push({
-            segmentId: segment.segmentId || null, // Nếu không có segmentId thì để null
+            segmentId: segment.segmentId || null,
             segmentTitle: segment.segmentTitle || "",
             speaker: segment.speaker
               ? {
@@ -246,15 +250,15 @@ const EditEvent = () => {
             segmentDesc: segment.segmentDesc || "",
             startTime: segment.startTime
               ? `${event.eventLocation.date}T${segment.startTime}:00`
-              : "2025-04-05T12:10:00.000+00:00", // Giá trị mặc định nếu thiếu
+              : "2025-04-05T12:10:00.000+00:00", 
             endTime: segment.endTime
               ? `${event.eventLocation.date}T${segment.endTime}:00`
-              : "2025-04-05T17:06:00.000+00:00", // Giá trị mặc định nếu thiếu
+              : "2025-04-05T17:06:00.000+00:00", 
           });
         }
       }
   
-      // Tạo JSON payload theo cấu trúc yêu cầu
+      
       const payload = {
         event: {
           eventId: eventId || null,
@@ -294,12 +298,13 @@ const EditEvent = () => {
         segment: segmentData,
       };
   
-      // Gửi request PUT đến API
+      
       const response = await fetch("http://localhost:8080/api/events/edit", {
-        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-        },
+          Authorization: `Bearer ${token}`,
+      },
+        method: "PUT",
         body: JSON.stringify(payload),
       });
   

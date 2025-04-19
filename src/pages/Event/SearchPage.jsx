@@ -10,8 +10,7 @@ const FilterSidebar = () => {
   const [selectedCategories, setSelectedCategories] = useState("all-types");
   const [selectedEventType, setSelectedEventType] = useState("all-types");
   const [selectedEventTime, setSelectedEventTime] = useState("all-times");
-  const [selectedEventLocation, setSelectedEventLocation] =
-    useState("all-locations");
+  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
 
   const eventCategories = [
     { id: "all-types", label: "All types" },

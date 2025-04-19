@@ -9,7 +9,7 @@ import TicketPopup from "./TicketPopup";
 // Hàm chuyển đổi định dạng ISO sang yyyy-MM-dd
 const formatDateForInput = (isoDate) => {
   if (!isoDate) return "";
-  return isoDate.split("T")[0]; // Lấy phần yyyy-MM-dd từ chuỗi ISO
+  return isoDate.split("T")[0];
 };
 
 const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
@@ -102,8 +102,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
   const handleEditTicket = (ticket) => {
     setEditingTicket({
       ...ticket,
-      startTime: formatDateForInput(ticket.startTime), // Chuyển đổi định dạng
-      endTime: formatDateForInput(ticket.endTime), // Chuyển đổi định dạng
+      startTime: formatDateForInput(ticket.startTime),
+      endTime: formatDateForInput(ticket.endTime), 
     });
     setTypeTicket(ticket.ticketType);
     setShowForm(true);

@@ -12,6 +12,7 @@ import EventListings from "../../components/EventListGrid";
 import ListEventScroll from "../../components/EventListScroll";
 import Loader from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth/AuthProvider";
 const eventData = [
   {
     id: 1,
@@ -197,7 +198,7 @@ const TopDestinations = () => {
   const handleSearchByCity = async(city) =>{
     try{
       const cityName = city.trim().toLowerCase()
-      const response = await fetch(`http://localhost:8080/api/events/search-by-city/${cityName}`)
+      const response = await fetch(`http://localhost:8080/api/events/search/by-city/${cityName}`)
       const listevent = await response.json();
       navigate("/search", { state: { events: listevent } });
     }catch(error){
@@ -263,7 +264,7 @@ const TopDestinations = () => {
 
 const HomePage = () => {
   const [loading, setLoading] = useState(true);
-
+  const { user } = useAuth();
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -275,6 +276,17 @@ const HomePage = () => {
     </div>
   ) : (
     <div>
+      {/* <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">
+        {user ? `Welcome, ${user.email}` : 'Welcome to Event Management'}
+      </h1>
+      {user && user.roles.includes('ROLE_ADMIN') && (
+        <p className="text-blue-600 mb-4">
+          You have admin privileges. <a href="/dashboard" className="underline">Go to Dashboard</a>
+        </p>
+      )}
+     
+    </div> */}
       <SliderEvent />
       <Navbar />
       <ListEventScroll events={eventData} />
