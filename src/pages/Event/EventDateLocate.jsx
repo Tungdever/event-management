@@ -62,9 +62,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
       if (name === "venueName") {
         updatedData.venueSlug = normalizeVenueName(value);
       }
-      // if(name==="city"){
-      //   updatedData.city = vietnamCities.find((c) => c.name === name);
-      // }
+      
 
       onLocationUpdate(updatedData); 
       return updatedData;

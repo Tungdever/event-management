@@ -20,15 +20,21 @@ const formatTime = (isoString) => {
 
 // Helper: Fetch dữ liệu từ API
 const fetchData = async (url, setData, errorMsg) => {
+  const token = localStorage.getItem("token");
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+    },
+  });
     if (!response.ok) throw new Error(errorMsg);
     const data = await response.json();
     setData(data);
     return data;
   } catch (error) {
     console.error(errorMsg, error);
-    throw error; // Ném lỗi để xử lý trong useEffect
+    throw error;
   }
 };
 
@@ -81,7 +87,7 @@ const Timeline = ({ sessions }) => {
   );
 };
 
-// Component: OrganizedBy
+
 const OrganizedBy = () => (
   <div className="mt-8 mb-4">
     <h2 className="text-2xl font-bold mb-4">Organized by</h2>
@@ -123,7 +129,7 @@ const OrganizedBy = () => (
   </div>
 );
 
-// Component: EventInfo
+
 const EventInfo = ({ eventData }) => (
   <div className="flex-1 ">
     <div className="text-gray-500 mb-2">
@@ -166,7 +172,7 @@ const EventInfo = ({ eventData }) => (
   </div>
 );
 
-// Component: OverviewContent
+
 const OverviewContent = ({ eventData }) => (
   <div className="mb-6 flex-1">
     <h2 className="text-2xl font-bold text-gray-800 mb-2">Description</h2>
@@ -198,7 +204,7 @@ const OverviewContent = ({ eventData }) => (
   </div>
 );
 
-// Component: TicketSelector
+
 const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,}) => (
   <div className="  w-[500px] bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10">
     <div className="mb-4 p-4 border-[3px] border-blue-800 rounded-lg w-[380px]">
@@ -266,8 +272,8 @@ const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,})
   </div>
 );
 
-// Main Component: EventDetail
 const EventDetail = () => {
+  const token = localStorage.getItem("token");
   const { eventId } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [eventData, setEventData] = useState(null);
@@ -310,7 +316,7 @@ const EventDetail = () => {
       } catch (err) {
         setError(err.message);
       } finally {
-        setTimeout(() => setLoading(false), 500); // Delay để UX tốt hơn
+        setTimeout(() => setLoading(false), 500); 
       }
     };
 

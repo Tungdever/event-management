@@ -1,7 +1,11 @@
 import { FaBell, FaEnvelope } from "react-icons/fa";
 import { RiMenuLine } from "react-icons/ri";
-
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from "../Auth/api";
+import { useAuth } from "../Auth/AuthProvider";
 const Navbar = () => {
+  
   return (
     <div className="py-2 px-6 bg-[#f8f4f3] flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30">
       <button type="button" className="text-xl text-gray-900 font-semibold">
@@ -16,7 +20,7 @@ const Navbar = () => {
           placeholder="Search..."
         />
       </div>
-
+      
       <ul className="ml-auto flex items-center space-x-6">
         <Dropdown icon={<FaBell />} count={5}>
           <NotificationItem title="New order" description="from a user" />
@@ -67,21 +71,38 @@ const NotificationItem = ({ title, description }) => {
 };
 
 const ProfileDropdown = () => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await api.logout();
+      logout();
+      alert('Logged out successfully');
+      navigate('/login');
+    } catch (error) {
+      alert('Logout failed: ' + (error.msg || 'Server error'));
+    }
+  };
   return (
     <div className="relative group">
-      <button className="flex items-center">
-        <img
-          className="w-8 h-8 rounded-full"
-          src="https://laravelui.spruko.com/tailwind/ynex/build/assets/images/faces/9.jpg"
-          alt="Profile"
-        />
-        <div className="ml-2">
-          <h2 className="text-sm font-semibold text-gray-800 hover:text-blue-500 transition-all duration-200">
-            Trung Ho
-          </h2>
-          <p className="text-xs text-gray-500">Organizer</p>
+      <div className="flex items-center space-x-4">
+          {user ? (
+            <>
+            <i className="fa-solid fa-user text-lg"></i>
+              <span className="text-[12px]">{user.email}</span>
+              {user.roles.includes('ROLE_ADMIN') && (
+                <a href="/dashboard" className="text-white hover:underline">Admin Dashboard</a>
+              )}
+             
+            </>
+          ) : (
+            <>
+              <a href="/login" className="text-white hover:underline">Login</a>
+              <a href="/signup" className="text-white hover:underline">Sign Up</a>
+            </>
+          )}
         </div>
-      </button>
 
       <ul className="absolute right-0 mt-2 w-40 py-1.5 bg-white rounded-md shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 pt-2 pointer-events-auto">
         <li>
@@ -95,7 +116,7 @@ const ProfileDropdown = () => {
           </a>
         </li>
         <li>
-          <a href="#" className="block px-4 py-2 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-200">
+          <a href="#" className="block px-4 py-2 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-200" onClick={handleLogout}>
             Log Out
           </a>
         </li>

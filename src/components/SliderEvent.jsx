@@ -31,7 +31,7 @@ const CategoriesGrid = ({categories}) => {
       categoryName = categoryName.trim().toLowerCase();
       //console.log(categoryName)
       const response = await fetch(
-        `http://localhost:8080/api/events/search-by-type/${categoryName}`
+        `http://localhost:8080/api/events/search/by-type/${categoryName}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch event data");

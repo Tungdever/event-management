@@ -9,7 +9,7 @@ const EventsPage = () => {
   const [filterStatus, setFilterStatus] = useState('public'); 
   const [events, setEvents] = useState([]); 
   const [popupVisible, setPopupVisible] = useState(null);
-
+  const token = localStorage.getItem("token");
   const handleTabClick = (tab) => setActiveTab(tab);
   const togglePopup = (id) => setPopupVisible(popupVisible === id ? null : id);
   const popupRef = useRef(null);
@@ -19,7 +19,12 @@ const EventsPage = () => {
 
   const fetchEventData = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/events/all`);
+      const response = await fetch(`http://localhost:8080/api/events/all`,{
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
       if (!response.ok) {
         throw new Error('Failed to fetch event data');
       }

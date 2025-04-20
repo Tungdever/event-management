@@ -6,11 +6,16 @@ const ListEventScroll = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("token");
  
   const fetchAllEvent = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/all"); 
+      const response = await fetch("http://localhost:8080/api/events/all", {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }

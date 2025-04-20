@@ -1,89 +1,31 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
-
+import Loader from "../../components/Loading";
 // Hàm rút gọn văn bản
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
 
-// Component Loader
-const Loader = () => {
-  return (
-    <StyledLoaderWrapper>
-      <div className="loader">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 66 66"
-          height="100px"
-          width="100px"
-          className="spinner"
-        >
-          <circle
-            stroke="url(#gradient)"
-            r={20}
-            cy={33}
-            cx={33}
-            strokeWidth={1}
-            fill="transparent"
-            className="path"
-          />
-          <linearGradient id="gradient">
-            <stop stopOpacity={1} stopColor="#fe0000" offset="0%" />
-            <stop stopOpacity={0} stopColor="#af3dff" offset="100%" />
-          </linearGradient>
-        </svg>
-      </div>
-    </StyledLoaderWrapper>
-  );
-};
-
-const StyledLoaderWrapper = styled.div`
-  .loader {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  .spinner {
-    width: 100px;
-    height: 100px;
-    position: relative;
-    animation: rotation 0.75s linear infinite;
-    border-radius: 100em;
-  }
-
-  .path {
-    stroke-dasharray: 100;
-    stroke-dashoffset: 20;
-    stroke-linecap: round;
-  }
-
-  @keyframes rotation {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
 
 const EventGrid = ({ events, onEventClick }) => {
   const [displayedEvents, setDisplayedEvents] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const eventsPerPage = 4; // Tải 6 sự kiện mỗi lần
+  const eventsPerPage = 4;
 
-  // Khởi tạo danh sách ban đầu với 12 sự kiện
+  
   useEffect(() => {
-    const initialEvents = events.slice(0, 8); // Lấy 12 sự kiện đầu tiên
+    const initialEvents = events.slice(0, 8); 
     setDisplayedEvents(initialEvents);
-    setPage(3); // Bắt đầu từ trang 3 vì đã tải 12 sự kiện (2 trang đầu)
+    setPage(3); 
   }, [events]);
 
   // Xử lý khi nhấp vào View More
   const handleViewMore = () => {
     setIsLoading(true);
 
-    // Hiển thị Loader trong 2 giây trước khi tải dữ liệu mới
+    
     setTimeout(() => {
       const startIndex = (page - 1) * eventsPerPage;
       const endIndex = startIndex + eventsPerPage;
@@ -91,7 +33,7 @@ const EventGrid = ({ events, onEventClick }) => {
       setDisplayedEvents(newEvents);
       setPage((prevPage) => prevPage + 1);
       setIsLoading(false);
-    }, 1000); // Delay 2 giây
+    }, 1000); 
   };
 
   return (

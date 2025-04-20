@@ -8,7 +8,7 @@ import {
 const EditEvent = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
-  //console.log("eventId cho edit"+ eventId)
+  const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
   const [event, setEvent] = useState({
     eventName: "",
@@ -47,14 +47,18 @@ const EditEvent = () => {
 
   const fetchEventData = async (id) => {
     try {
-      //console.log("Fetching event with ID:", id);
-      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`);
+      
+      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+      },
+    });
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`Failed to fetch event data: ${response.status} - ${errorText}`);
       }
       const data = await response.json();
-      //console.log("Raw data:", data);
      
       if (!data || !data.event) {
         throw new Error("Invalid event data received");
@@ -151,7 +155,7 @@ const EditEvent = () => {
         const formData = new FormData();
         formData.append("file", blob);
   
-        const response = await fetch("http://localhost:8080/api/storage/upload", {
+        const response = await fetch("http://localhost:8080/api/storage/upload",{
           method: "POST",
           body: formData,
         });
@@ -208,13 +212,13 @@ const EditEvent = () => {
       if (event.tickets?.length > 0) {
         for (const ticket of event.tickets) {
           ticketData.push({
-            ticketId: ticket.ticketId || null, // Nếu không có ticketId thì để null
+            ticketId: ticket.ticketId || null, 
             ticketName: ticket.ticketName || "",
             ticketType: ticket.ticketType || "Paid",
             price: ticket.price || 0,
             quantity: ticket.quantity || 0,
-            startTime: ticket.startTime || "", // Đảm bảo định dạng ISO
-            endTime: ticket.endTime || "", // Đảm bảo định dạng ISO
+            startTime: ticket.startTime || "", 
+            endTime: ticket.endTime || "",
           });
         }
       }
@@ -254,7 +258,7 @@ const EditEvent = () => {
         }
       }
   
-      // Tạo JSON payload theo cấu trúc yêu cầu
+      
       const payload = {
         event: {
           eventId: eventId || null,
@@ -294,12 +298,13 @@ const EditEvent = () => {
         session: sessionData,
       };
   
-      // Gửi request PUT đến API
+      
       const response = await fetch("http://localhost:8080/api/events/edit", {
-        method: "PUT",
         headers: {
           "Content-Type": "application/json",
-        },
+          Authorization: `Bearer ${token}`,
+      },
+        method: "PUT",
         body: JSON.stringify(payload),
       });
   

@@ -225,11 +225,7 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
     }, 500);
   }, []);
 
-  const handlePublish = () => {
-    // Logic để xuất bản sự kiện (gửi API hoặc xử lý dữ liệu)
-    console.log("Publishing event:", event);
-    alert("Event published successfully!");
-  };
+  
 
   return loading ? (
     <Loader />

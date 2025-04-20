@@ -32,6 +32,7 @@ const CRUDEvent = () => {
     tickets: [],
     session: [],
   });
+  const token = localStorage.getItem("token");
   const uploadFilesToCloudinary = async (files) => {
     if (!files || (Array.isArray(files) && files.length === 0)) return [];
   
@@ -62,7 +63,7 @@ const CRUDEvent = () => {
         const formData = new FormData();
         formData.append("file", blob);
   
-        const response = await fetch("http://localhost:8080/api/storage/upload", {
+        const response = await fetch("http://localhost:8080/api/storage/upload",{
           method: "POST",
           body: formData,
         });
@@ -145,8 +146,11 @@ const CRUDEvent = () => {
       };
   
       const eventResponse = await fetch("http://localhost:8080/api/events/create", {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(dataEvent),
       });
   
@@ -179,12 +183,15 @@ const CRUDEvent = () => {
             eventID: eventId,
           };
   
-          console.log("Session API:", sessionapi);
-          const sessionResponse = await fetch(`http://localhost:8080/api/session/${eventId}`, {
+          //console.log("Segment API:", segmentapi);
+          const segmentResponse = await fetch(`http://localhost:8080/api/segment/${eventId}`, {
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(sessionapi),
-          });
+            body: JSON.stringify(segmentapi),
+        });
   
           if (!sessionResponse.ok) {
             const errorText = await sessionResponse.text();
@@ -207,8 +214,11 @@ const CRUDEvent = () => {
   
           //console.log("Ticket API:", ticketapi);
           const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+              },
             method: "POST",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(ticketapi),
           });
   
