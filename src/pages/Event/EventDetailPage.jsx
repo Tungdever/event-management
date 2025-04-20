@@ -56,30 +56,30 @@ const updateTickets = (prev, ticketId, newCount) => {
 };
 
 // Component: Timeline
-const Timeline = ({ sessions }) => {
-  if (!sessions?.length) {
+const Timeline = ({ segments }) => {
+  if (!segments?.length) {
     return (
-      <div className="my-6 mx-16 text-gray-600">No sessions available</div>
+      <div className="my-6 mx-16 text-gray-600">No segments available</div>
     );
   }
 
   return (
     <div className="my-6 flex-col justify-center items-center mx-16 ml-[100px]">
-      {sessions.map((session, index) => (
+      {segments.map((segment, index) => (
         <div key={index} className="relative pl-8 sm:pl-32 py-6 group">
           <time className="absolute -left-5 translate-y-0.5 inline-flex items-center text-xs font-semibold uppercase min-w-max h-6 mb-3 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-4 py-2">
-            {formatTime(session.startTime)} - {formatTime(session.endTime)}
+            {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
           </time>
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-2 sm:before:left-0 before:h-full before:px-px before:bg-slate-300 sm:before:ml-[6.5rem] before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-2 sm:after:left-0 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-[6.5rem] after:-translate-x-1/2 after:translate-y-1.5">
             <div className="text-xl font-bold text-slate-900">
-              {session.speaker?.speakerName || "Unknown Speaker"}
+              {segment.speaker?.speakerName || "Unknown Speaker"}
             </div>
           </div>
           <p className="text-gray-600">
-            {session.speaker?.speakerTitle || "No title"}
+            {segment.speaker?.speakerTitle || "No title"}
           </p>
           <p className="text-lg font-bold text-indigo-700 mt-1">
-            "{session.sessionTitle || "Untitled Session"}"
+            "{segment.segmentTitle || "Untitled Segment"}"
           </p>
         </div>
       ))}
@@ -277,7 +277,7 @@ const EventDetail = () => {
   const { eventId } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [eventData, setEventData] = useState(null);
-  const [sessionData, setSessions] = useState(null);
+  const [segmentData, setSegments] = useState(null);
   const [speakers, setSpeakers] = useState([]);
   const [tickets, setTickets] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
@@ -289,16 +289,16 @@ const EventDetail = () => {
       setLoading(true);
       setError(null);
       try {
-        const [event, sessions, tickets] = await Promise.all([
+        const [event, segments, tickets] = await Promise.all([
           fetchData(
             `http://localhost:8080/api/events/${eventId}`,
             setEventData,
             "Failed to fetch event"
           ),
           fetchData(
-            `http://localhost:8080/api/session/${eventId}/getSession`,
-            setSessions,
-            "Failed to fetch session"
+            `http://localhost:8080/api/segment/${eventId}/getSegment`,
+            setSegments,
+            "Failed to fetch segment"
           ),
           fetchData(
             `http://localhost:8080/api/ticket/list/${eventId}`,
@@ -307,9 +307,9 @@ const EventDetail = () => {
           ),
         ]);
 
-        if (sessions) {
-          const speakerList = sessions
-            .map((session) => session.speaker)
+        if (segments) {
+          const speakerList = segments
+            .map((segment) => segment.speaker)
             .filter(Boolean);
           setSpeakers(speakerList);
         }
@@ -409,7 +409,7 @@ const EventDetail = () => {
               <h2 className="text-2xl font-bold text-gray-800 mb-2 ">
                 Section
               </h2>
-              <Timeline sessions={sessionData} />
+              <Timeline segments={segmentData} />
               <div>
                 <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
                 <div className="flex flex-wrap gap-2">

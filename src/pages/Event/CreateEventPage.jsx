@@ -30,7 +30,7 @@ const CRUDEvent = () => {
     uploadedImages: [],
     overviewContent: { text: "", media: [] },
     tickets: [],
-    session: [],
+    segment: [],
   });
   const token = localStorage.getItem("token");
   const uploadFilesToCloudinary = async (files) => {
@@ -163,23 +163,23 @@ const CRUDEvent = () => {
       const eventId =  eventResult;
       //console.log("Event saved with ID:", eventId);
   
-      if (event.session?.length > 0) {
-        for (const session of event.session) {
-          const uploadedSpeakerId = session?.speaker?.speakerImage
-            ? (await uploadFilesToCloudinary([session.speaker.speakerImage]))[0]
+      if (event.segment?.length > 0) {
+        for (const segment of event.segment) {
+          const uploadedSpeakerId = segment?.speaker?.speakerImage
+            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
             : null;
-          const sessionapi = {
-            sessionTitle: session.sessionTitle || "",
-            speaker: session.speaker
+          const segmentapi = {
+            segmentTitle: segment.segmentTitle || "",
+            speaker: segment.speaker
               ? {
                   speakerImage: uploadedSpeakerId || "",
-                  speakerName: session.speaker.speakerName || "",
-                  speakerDesc: session.speaker.speakerDesc || "",
+                  speakerName: segment.speaker.speakerName || "",
+                  speakerDesc: segment.speaker.speakerDesc || "",
                 }
               : null,
-            sessionDesc: session.sessionDesc || "",
-            startTime: `${event.eventLocation.date}T${session.startTime || "00:00"}:00`,
-            endTime: `${event.eventLocation.date}T${session.endTime || "00:00"}:00`,
+            segmentDesc: segment.segmentDesc || "",
+            startTime: `${event.eventLocation.date}T${segment.startTime || "00:00"}:00`,
+            endTime: `${event.eventLocation.date}T${segment.endTime || "00:00"}:00`,
             eventID: eventId,
           };
   
@@ -193,12 +193,12 @@ const CRUDEvent = () => {
             body: JSON.stringify(segmentapi),
         });
   
-          if (!sessionResponse.ok) {
-            const errorText = await sessionResponse.text();
-            throw new Error(`Failed to save session: ${errorText}`);
+          if (!segmentResponse.ok) {
+            const errorText = await segmentResponse.text();
+            throw new Error(`Failed to save segment: ${errorText}`);
           }
         }
-        console.log("All sessions saved for event:", eventId);
+        console.log("All segments saved for event:", eventId);
       }
   
       if (event.tickets?.length > 0) {

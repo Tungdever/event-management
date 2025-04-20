@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import SectionEvent from "./SessionEvent";
+import SectionEvent from "./SegmentEvent";
 import UploadContainer from "./UploadImg";
 import DatetimeLocation from "./EventDateLocate";
 import OverviewSection from "./OverviewSection";
@@ -16,11 +16,11 @@ const EventForm = ({ event, setEvent, onNext }) => {
       eventLocation: updatedLocation,
     }));
   };
-// Hàm cập nhật session 
-const handleSessionUpdate = (updatedSessions) => {
+// Hàm cập nhật segment 
+const handleSegmentUpdate = (updatedSegments) => {
   setEvent((prevEvent) => ({
     ...prevEvent,
-    session: updatedSessions,
+    segment: updatedSegments,
   }));
 
 };
@@ -119,7 +119,7 @@ const handleSessionUpdate = (updatedSessions) => {
         </div>
       )}
 
-      <SectionEvent sessionData = {event.session} onSessionUpdate={handleSessionUpdate}/>
+      <SectionEvent segmentData = {event.segment} onSegmentUpdate={handleSegmentUpdate}/>
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
