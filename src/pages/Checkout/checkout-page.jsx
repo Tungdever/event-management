@@ -3,6 +3,9 @@ import "../Checkout/checkout-page.css"
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import VNPAY from "../../assets/VNPAY.jpeg";
+import momo from "../../assets/MoMo.png";
+
 const CheckoutPage = (props) => {
   const [selected, setSelected] = useState("option5");
   const [isOption2Expanded, setIsOption2Expanded] = useState(false);
@@ -14,45 +17,21 @@ const CheckoutPage = (props) => {
         <div className="checkout-page-column1">
           <span className="checkout-page-text-title">Payment Method</span>
 
-          <div className="checkout__option1">
-            <span className=" checkout-page-text checkout__option-text1">Google Pay</span>
-            <i className="checkout__option-icon bi bi-chevron-right"></i>
+          <div className="checkout__option1 focus:border-blue-500">
+            <div className='flex'>
+              <img className="mr-1" src={momo} alt="Visa" width="25" />
+              <span className=" checkout-page-text checkout__option-text1">MoMo</span>
+            </div>            
           </div>
           {/* Nhấn để mở hoặc đóng */}
-          <div className="checkout__option2" onClick={() => setIsOption2Expanded(!isOption2Expanded)}>
-            <span className="checkout-page-text checkout__option-text2">Debit Card</span>
-            <i className={`bi ${isOption2Expanded ? "bi-chevron-up" : "bi-chevron-down"}`}></i>
+          <div className="checkout__option2 focus:border-blue-500">
+            <div className='flex'>
+              <img className="mr-1" src={VNPAY} alt="Visa" width="80px" />
+              <span className="checkout-page-text checkout__option-text2">VNPAY</span>
+            </div>
+           
           </div>
-          <motion.div
-            className="checkout__option3"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: isOption2Expanded ? "auto" : 0, opacity: isOption2Expanded ? 1 : 0 }}
-            transition={{ duration: 0.4, ease: "easeInOut" }}
-          >
-            <div className="checkout__option5" onClick={() => setSelected("option5")}>
-              <div>
-                <img className="master-card" src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" width="25" />
-                <span className="checkout-page-text checkout__option-text5">Axim Bank</span>
-              </div>
-              <input type="radio" className="option" checked={selected === "option5"} readOnly />
-            </div>
-
-            <div className="checkout__option6" onClick={() => setSelected("option6")}>
-              <div>
-                <img className="visa" src="https://upload.wikimedia.org/wikipedia/commons/0/04/Visa.svg" alt="Visa" width="25" />
-                <span className="checkout-page-text checkout__option-text6">HDFC Bank</span>
-              </div>
-              <input type="radio" className="option" checked={selected === "option6"} readOnly />
-            </div>
-            <div className="checkout__option4">
-              <i class="bi bi-plus-circle"></i>
-              <span className="checkout-page-text checkout__option-text4">Add New Cards</span>
-            </div>
-          </motion.div>
-          <div className="checkout__option7">
-            <i class="bi bi-plus-circle"></i>
-            <span className="checkout-page-text checkout__option-text7">Add New Method</span>
-          </div>
+        
         </div>
         <div className="checkout-page-column2">
           <div className="checkout-page-group1">
@@ -66,6 +45,7 @@ const CheckoutPage = (props) => {
                 {checkoutData.eventName}
               </span>
               <span className="checkout-page-text-title-price checkout-page-price">{checkoutData.amount}</span>
+
             </div>
           </div>
 
