@@ -12,6 +12,7 @@ import "../../fonts/Times New Roman";
 import axios from "axios";
 import { ConciergeBell } from "lucide-react";
 const Sponsor = () => {
+  const eid = 1;
   const [selectedLevel, setSelectedLevel] = useState("Select level");
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
@@ -54,7 +55,7 @@ const Sponsor = () => {
   });
   useEffect(() => {
     axios
-      .get("http://localhost:8080/api/v1/myevent/sponsor?eid=1")
+      .get(`http://localhost:8080/api/v1/myevent/${eid}/sponsor`)
       .then((response) => {
         setSponsors(response.data.data);
       })
@@ -153,7 +154,7 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/v1/myevent/sponsor?eid=1",
+        `http://localhost:8080/api/v1/myevent/${eid}/sponsor`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -198,7 +199,7 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.put(
-        "http://localhost:8080/api/v1/myevent/sponsor?eid=1",
+        `http://localhost:8080/api/v1/myevent/${eid}/sponsor`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -221,7 +222,15 @@ const Sponsor = () => {
     }
 
   };
-  const handleDeleteSponsor = (selectedSponsor) => {
+  const handleDeleteSponsor = async (selectedSponsor) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/v1/myevent/${eid}/sponsor/${selectedSponsor.sponsorId}`,        
+      );
+      console.log("Upload thành công:", response.data);      
+    } catch (error) {
+      console.error("Lỗi tải file:", error);
+    }
     const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsorId !== selectedSponsor.sponsorId);
     setSponsors(updatedSponsors);
     setSelectedSponsor(null);
@@ -765,7 +774,7 @@ const Sponsor = () => {
                             <p className="text-gray-9">{selectedSponsor.sponsorEndDate}</p>
                           </div>
                         </div>
-                      </div>                      
+                      </div>
                     </div>
                   </div>
                 </>
@@ -1289,7 +1298,7 @@ const Sponsor = () => {
                         <i className="ti ti-eye"></i>
                       </button>
 
-                      <button className="btn btn-edit" data-bs-toggle="modal" data-bs-target="#edit-sponsor" onClick={() => {setSelectedSponsor(sponsor);console.log(selectedSponsor)}}>
+                      <button className="btn btn-edit" data-bs-toggle="modal" data-bs-target="#edit-sponsor" onClick={() => { setSelectedSponsor(sponsor); console.log(selectedSponsor) }}>
                         <i className="ti ti-pencil"></i>
                       </button>
                       <button className="btn btn-delete" onClick={() => handleDeleteSponsor(sponsor)}>

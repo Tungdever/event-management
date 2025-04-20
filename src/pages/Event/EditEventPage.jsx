@@ -35,7 +35,7 @@ const EditEvent = () => {
     uploadedImages: [],
     overviewContent: { text: "", media: [] },
     tickets: [],
-    segment: [],
+    session: [],
   });
 
   
@@ -97,9 +97,9 @@ const EditEvent = () => {
           startTime: ticket.startTime || "",
           endTime: ticket.endTime || "",
         })) || [],
-        segment: data.segment?.map((seg) => ({
-          segmentId: seg.segmentId || null,
-          segmentTitle: seg.segmentTitle || "",
+        session: data.session?.map((seg) => ({
+          sessionId: seg.sessionId || null,
+          sessionTitle: seg.sessionTitle || "",
           speaker: seg.speaker
             ? {
                 speakerId: seg.speaker.speakerId || null,
@@ -108,7 +108,7 @@ const EditEvent = () => {
                 speakerDesc: seg.speaker.speakerDesc || "",
               }
             : null,
-          segmentDesc: seg.segmentDesc || "",
+          sessionDesc: seg.sessionDesc || "",
           startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
           endTime: seg.endTime?.split("T")[1]?.slice(0, 5) || "",
         })) || [],
@@ -219,36 +219,36 @@ const EditEvent = () => {
         }
       }
   
-      // Xử lý segments
-      const segmentData = [];
-      if (event.segment?.length > 0) {
-        for (const segment of event.segment) {
-          const uploadedSpeakerImage = segment?.speaker?.speakerImage
-            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
-            : segment.speaker?.speakerImage || null;
+      // Xử lý sessions
+      const sessionData = [];
+      if (event.session?.length > 0) {
+        for (const session of event.session) {
+          const uploadedSpeakerImage = session?.speaker?.speakerImage
+            ? (await uploadFilesToCloudinary([session.speaker.speakerImage]))[0]
+            : session.speaker?.speakerImage || null;
   
-          segmentData.push({
-            segmentId: segment.segmentId || null, // Nếu không có segmentId thì để null
-            segmentTitle: segment.segmentTitle || "",
-            speaker: segment.speaker
+          sessionData.push({
+            sessionId: session.sessionId || null, // Nếu không có sessionId thì để null
+            sessionTitle: session.sessionTitle || "",
+            speaker: session.speaker
               ? {
-                  speakerId: segment.speaker.speakerId || null,
+                  speakerId: session.speaker.speakerId || null,
                   speakerImage: uploadedSpeakerImage || "",
-                  speakerName: segment.speaker.speakerName || "",
-                  speakerEmail: segment.speaker.speakerEmail || null,
-                  speakerTitle: segment.speaker.speakerTitle || null,
-                  speakerPhone: segment.speaker.speakerPhone || null,
-                  speakerAddress: segment.speaker.speakerAddress || null,
-                  speakerDesc: segment.speaker.speakerDesc || "",
+                  speakerName: session.speaker.speakerName || "",
+                  speakerEmail: session.speaker.speakerEmail || null,
+                  speakerTitle: session.speaker.speakerTitle || null,
+                  speakerPhone: session.speaker.speakerPhone || null,
+                  speakerAddress: session.speaker.speakerAddress || null,
+                  speakerDesc: session.speaker.speakerDesc || "",
                 }
               : null,
             eventID: event.eventId || null,
-            segmentDesc: segment.segmentDesc || "",
-            startTime: segment.startTime
-              ? `${event.eventLocation.date}T${segment.startTime}:00`
+            sessionDesc: session.sessionDesc || "",
+            startTime: session.startTime
+              ? `${event.eventLocation.date}T${session.startTime}:00`
               : "2025-04-05T12:10:00.000+00:00", // Giá trị mặc định nếu thiếu
-            endTime: segment.endTime
-              ? `${event.eventLocation.date}T${segment.endTime}:00`
+            endTime: session.endTime
+              ? `${event.eventLocation.date}T${session.endTime}:00`
               : "2025-04-05T17:06:00.000+00:00", // Giá trị mặc định nếu thiếu
           });
         }
@@ -291,7 +291,7 @@ const EditEvent = () => {
           tags: event.tags?.join("|") || "",
         },
         ticket: ticketData,
-        segment: segmentData,
+        session: sessionData,
       };
   
       // Gửi request PUT đến API
