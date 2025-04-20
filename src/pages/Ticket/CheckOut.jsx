@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
-import { useNavigate } from "react-router-dom";
+import {
+  
+  useNavigate
+} from 'react-router-dom';
+
 const Checkout = ({ onClose, selectedTickets, eventData }) => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
