@@ -4,6 +4,7 @@ import { Client } from "@stomp/stompjs";
 
 const ChatBox = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -18,8 +19,8 @@ const ChatBox = () => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
-        setCurrentUserEmail(payload.email || null);
-        console.log(currentUserEmail)
+        setCurrentUserEmail(payload.sub || null);
+        setCurrentUserId(payload.userId || null);
       } catch (e) {
         setError("Invalid token");
         console.error("Error decoding token:", e);
@@ -31,17 +32,17 @@ const ChatBox = () => {
 
   // Tải danh sách người dùng
   useEffect(() => {
-    if (currentUserEmail) {
+    if (currentUserEmail && currentUserId) {
       const fetchUsers = async () => {
         try {
-          // Giả lập API /api/users
+          const token = localStorage.getItem("token");
           const response = [
-            { id: 1, email: "alice@example.com", name: "Alice", status: "Online" },
-            { id: 2, email: "bob@example.com", name: "Bob", status: "Offline" },
+            { id: 1, email: "trung123@gmail.com", name: "trung123@gmail.com", status: "Online" },
+            { id: 2, email: "trungho.234416@gmail.com", name: "trungho.234416@gmail.com", status: "Offline" },
           ];
           // Loại trừ người dùng hiện tại
           const filteredUsers = response.filter(
-            (user) => user.email !== currentUserEmail
+            (user) => user.id !== currentUserId
           );
           setUsers(filteredUsers);
           setSelectedUser(filteredUsers[0] || null);
@@ -52,7 +53,7 @@ const ChatBox = () => {
       };
       fetchUsers();
     }
-  }, [currentUserEmail]);
+  }, [currentUserEmail, currentUserId]);
 
   // Kết nối WebSocket
   useEffect(() => {
