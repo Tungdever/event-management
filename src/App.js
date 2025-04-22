@@ -45,6 +45,10 @@ import ReportPage from "./pages/AdminBoard/ReportPage";
 import UserPage from "./pages/AdminBoard/UserPage";
 import RolePage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
+import { WebSocketProvider } from "./pages/ChatBox/WebSocketContext";
+
+import ChatBox2 from "./pages/ChatBox/ChatSocket";
+
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
@@ -135,12 +139,16 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
       {/* 3. Dashboard Pages */}
       {isDashboardPage && (
+        <WebSocketProvider>
+
+        
         <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
           <Navbar />
           <Sidebar2 />
           <Routes>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/chat" element={<ChatBox />} />
+            <Route path="/chat2" element={<ChatBox2 />} />
             <Route path="/calendar" element={<CalendarPage />} />
             <Route
               path="/notification"
@@ -149,6 +157,7 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             <Route path="/view" element={<ViewProfile  />} />
           </Routes>
         </div>
+        </WebSocketProvider>
       )}
 
       {/* 4. Event Detail Pages */}
