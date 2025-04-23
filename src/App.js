@@ -48,13 +48,14 @@ import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
 import { WebSocketProvider } from "./pages/ChatBox/WebSocketContext";
 
 import ChatBox2 from "./pages/ChatBox/ChatSocket";
+import EventSignup from "./pages/Auth/EventSignUp";
 
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
   
   // Các trang auth
-  const isAuthPage = ["/login", "/signup", "/forgot"].includes(location.pathname);
+  const isAuthPage = ["/login", "/signup", "/forgot","/event-signup"].includes(location.pathname);
 
   // Các trang full screen với Header
   const isFullScreenPageWithHeader = [
@@ -113,6 +114,7 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/forgot" element={<ForgotPassword />} />
+          <Route path="/event-signup" element={<EventSignup />} />
         </Routes>
       )}
 

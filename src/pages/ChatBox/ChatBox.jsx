@@ -1,44 +1,91 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useWebSocket } from './WebSocketContext';
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from "react";
+import { useWebSocket } from "./WebSocketContext";
+import axios from "axios";
 
 const ChatBox = () => {
   const { stompClient } = useWebSocket();
-  const [users, setUsers] = useState([
-    { userId: 2, email: 'trung@gmail.com', name: 'User Two' },
-    { userId: 3, email: 'trung123@gmail.com', name: 'User Three' },
-  ]); // Giả lập danh sách người dùng
+  const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const [inputMessage, setInputMessage] = useState("");
   const messagesEndRef = useRef(null);
-  const currentUser = { userId: 5, email: 'trungho002002002@gmail.com' }; // Giả lập người dùng hiện tại
+  const [currentUser, setCurrentUser] = useState({ userId: "", email: "" });
+  const token = localStorage.getItem("token");
 
-  // Log thông tin người dùng hiện tại khi component được mount
+  // Lấy thông tin người dùng từ token
   useEffect(() => {
-    console.log('Current user:', currentUser.email);
+    
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        const user = {
+          userId: payload.userId,
+          email: payload.sub,
+        };
+        setCurrentUser(user || null);
+        console.log("email"+ payload.sub +  "  id "+ payload.userId )
+      } catch (e) {
+       
+        console.error("Error decoding token:", e);
+      }
+    } 
   }, []);
+
+  // Tải danh sách người dùng
+  const fetchUser = async (userId) => {
+    try {
+      console.log("current user"+ currentUser)
+      const response = await fetch(
+        `http://localhost:8080/chat/${userId}/list-chat`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          method:"GET"
+        }
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch users");
+      }
+      const listUser = await response.json();
+      const formattedUsers = listUser.map((user) => ({
+        userId: user.userId,
+        email: user.email,
+        name: user.name || "Unknown",
+      }));
+      setUsers(formattedUsers);
+    } catch (error) {
+      alert("Failed to load chatted users. Please try again.");
+    }
+  };
+
+  useEffect(() => {
+    if (currentUser.userId) {
+      
+      fetchUser(currentUser.userId, token);
+    } else {
+      console.warn("Cannot fetch users: Missing userId ");
+    }
+  }, [currentUser.userId]);
 
   // Cuộn đến tin nhắn mới nhất
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   // Lấy lịch sử trò chuyện khi chọn người dùng
   useEffect(() => {
     if (selectedUser) {
-      console.log('Fetching chat history for users:', {
-        currentUserId: currentUser.userId,
-        selectedUserId: selectedUser.userId,
-      });
       axios
-        .get(`http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`)
+        .get(
+          `http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`
+        )
         .then((response) => {
-          console.log('Chat history response:', response.data);
           setMessages(response.data);
         })
         .catch((error) => {
-          console.error('Error fetching chat history:', error);
+          console.error("Error fetching chat history:", error);
         });
     }
   }, [selectedUser]);
@@ -46,33 +93,29 @@ const ChatBox = () => {
   // Đăng ký nhận tin nhắn WebSocket
   useEffect(() => {
     if (stompClient) {
-      console.log('Subscribing to WebSocket for email:', currentUser.email);
-      console.log('stompClient status:', stompClient.connected ? 'Connected' : 'Not connected');
-      const subscription = stompClient.subscribe(`/user/${currentUser.email}/chat`, (message) => {
-        console.log('Received WebSocket message:', message.body);
-        const receivedMessage = JSON.parse(message.body);
-        console.log('Parsed received message:', receivedMessage);
-        setMessages((prevMessages) => [...prevMessages, receivedMessage]);
-      });
+      const subscription = stompClient.subscribe(
+        `/user/${currentUser.email}/chat`,
+        (message) => {
+          const receivedMessage = JSON.parse(message.body);
+          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+        }
+      );
 
       return () => {
-        console.log('Unsubscribing from WebSocket for email:', currentUser.email);
         subscription?.unsubscribe();
       };
     } else {
-      console.log('stompClient is not initialized');
+      console.log("stompClient is not initialized");
     }
   }, [stompClient]);
 
   // Cuộn đến tin nhắn mới nhất khi danh sách tin nhắn thay đổi
   useEffect(() => {
-    console.log('Messages updated:', messages);
     scrollToBottom();
   }, [messages]);
 
   // Gửi tin nhắn
   const sendMessage = () => {
-    console.log('Attempting to send message. Input:', inputMessage, 'Selected user:', selectedUser, 'stompClient:', !!stompClient);
     if (inputMessage.trim() && selectedUser && stompClient) {
       const messageDTO = {
         content: inputMessage,
@@ -80,12 +123,11 @@ const ChatBox = () => {
         recipientEmail: selectedUser.email,
         timestamp: new Date().toISOString(),
       };
-      console.log('Sending MessageDTO:', messageDTO);
-      stompClient.send('/app/chat', {}, JSON.stringify(messageDTO));
-      console.log('Message sent to /app/chat');
-      setInputMessage('');
+      console.log(messageDTO)
+      stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
+      setInputMessage("");
     } else {
-      console.log('Cannot send message. Missing:', {
+      console.log("Cannot send message. Missing:", {
         inputMessage: !inputMessage.trim(),
         selectedUser: !selectedUser,
         stompClient: !stompClient,
@@ -95,8 +137,7 @@ const ChatBox = () => {
 
   // Xử lý nhấn Enter để gửi tin nhắn
   const handleKeyPress = (e) => {
-    if (e.key === 'Enter') {
-      console.log('Enter key pressed. Triggering sendMessage');
+    if (e.key === "Enter") {
       sendMessage();
     }
   };
@@ -113,10 +154,9 @@ const ChatBox = () => {
             <div
               key={user.userId}
               className={`p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
-                selectedUser?.userId === user.userId ? 'bg-gray-200' : ''
+                selectedUser?.userId === user.userId ? "bg-gray-200" : ""
               }`}
               onClick={() => {
-                console.log('Selected user:', user);
                 setSelectedUser(user);
               }}
             >
@@ -141,7 +181,9 @@ const ChatBox = () => {
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
                 {selectedUser.name[0]}
               </div>
-              <h2 className="ml-3 text-lg font-semibold">{selectedUser.name}</h2>
+              <h2 className="ml-3 text-lg font-semibold">
+                {selectedUser.name}
+              </h2>
             </div>
 
             {/* Khu vực hiển thị tin nhắn */}
@@ -150,14 +192,16 @@ const ChatBox = () => {
                 <div
                   key={index}
                   className={`mb-4 flex ${
-                    msg.senderEmail === currentUser.email ? 'justify-end' : 'justify-start'
+                    msg.senderEmail === currentUser.email
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
                   <div
                     className={`max-w-xs p-3 rounded-lg ${
                       msg.senderEmail === currentUser.email
-                        ? 'bg-blue-500 text-white'
-                        : 'bg-white text-gray-800 border border-gray-200'
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-gray-800 border border-gray-200"
                     }`}
                   >
                     <p>{msg.content}</p>
@@ -177,7 +221,6 @@ const ChatBox = () => {
                   type="text"
                   value={inputMessage}
                   onChange={(e) => {
-                    console.log('Input message changed:', e.target.value);
                     setInputMessage(e.target.value);
                   }}
                   onKeyPress={handleKeyPress}
@@ -186,7 +229,6 @@ const ChatBox = () => {
                 />
                 <button
                   onClick={() => {
-                    console.log('Send button clicked');
                     sendMessage();
                   }}
                   className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
