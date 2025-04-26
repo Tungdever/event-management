@@ -71,7 +71,7 @@ const ListEventScroll = () => {
   }
 
   return (
-    <div className="container mx-auto px-8 py-4 relative">
+    <div className="w-full max-w-[1280px]  mx-auto px-8 py-4 relative">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Upcoming Events</h2>
       <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
         {events.map((event) => (

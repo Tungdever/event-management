@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import { api } from "../pages/Auth/api";
+
 const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
@@ -74,7 +75,6 @@ const SearchBar = () => {
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);
 
-  // Xử lý click ngoài để ẩn lịch sử tìm kiếm
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -84,6 +84,7 @@ const SearchBar = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
   const normalizeVenueName = (name) => {
     return name
       .normalize("NFD")
@@ -94,7 +95,7 @@ const SearchBar = () => {
       .replace(/\s+/g, " ")
       .trim();
   };
-  // Hàm gọi API searchEventsByNameAndCity
+
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
       alert("Please enter a search term");
@@ -103,29 +104,16 @@ const SearchBar = () => {
 
     try {
       const normalizedSearchTerm = normalizeVenueName(searchTerm);
-      console.log(
-        "input search " + normalizedSearchTerm + " city " + selectedLocation
-      );
       const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${encodeURIComponent(
         normalizedSearchTerm
       )}&city=${encodeURIComponent(selectedLocation)}`;
-      console.log("Fetching URL:", apiUrl);
 
       const response = await fetch(apiUrl);
-      console.log("Response status:", response.status);
-
-      const responseText = await response.text();
-      console.log("Raw response:", responseText);
-
       if (!response.ok) {
-        throw new Error(
-          `Failed to fetch events: ${response.status} - ${responseText}`
-        );
+        throw new Error(`Failed to fetch events: ${response.status}`);
       }
 
-      const data = JSON.parse(responseText);
-      console.log("Parsed data:", data);
-
+      const data = await response.json();
       if (!searchHistory.includes(searchTerm)) {
         setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
       }
@@ -139,7 +127,6 @@ const SearchBar = () => {
     }
   };
 
-  // Xử lý khi nhấn Enter
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
       handleSearch();
@@ -151,7 +138,6 @@ const SearchBar = () => {
       className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]"
       ref={searchRef}
     >
-      {/* Input tìm kiếm */}
       <div className="flex items-center px-4 w-[260px]">
         <i className="fas fa-search text-gray-500"></i>
         <input
@@ -164,8 +150,6 @@ const SearchBar = () => {
           onKeyPress={handleKeyPress}
         />
       </div>
-
-      {/* Lịch sử tìm kiếm */}
       {showHistory && (
         <div className="absolute top-full left-10 w-[286px] bg-white border rounded shadow-lg z-50">
           {searchHistory.map((item, index) => (
@@ -183,14 +167,10 @@ const SearchBar = () => {
           ))}
         </div>
       )}
-
-      {/* Dropdown chọn location */}
       <div className="border-l border-gray-300 h-6 mx-4"></div>
       <div className="relative flex items-center px-4">
         <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
-
-      {/* Nút tìm kiếm */}
       <button
         className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
         onClick={handleSearch}
@@ -205,53 +185,54 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
-  const { user ,logout} = useAuth();
-  const handleCreateEventClick = (e) => {
+  const { user, logout } = useAuth();
+
+  const handleCreateEventClick = () => {
     navigate("/createEvent");
   };
-  const handleHomepage = (e) => {
+  const handleHomepage = () => {
     navigate("/");
   };
-  const handleLike = (e) => {
+  const handleLike = () => {
     navigate("/event-like");
   };
-  const handleMyTicket = (e) => {
+  const handleMyTicket = () => {
     navigate("/myticket");
   };
-
-  const menuItems = [
-    {
-      icon: "bi-calendar4-event",
-      text: "Create event",
-      action: handleCreateEventClick,
-    },
-    { icon: "bi-heart", text: "Likes", action: handleLike },
-    { icon: "bi-question-circle", text: "Help", action: null },
-  ];
-
-  const handleDashboard = (e) => {
+  const handleDashboard = () => {
     navigate("/dashboard");
   };
   const handleLogout = async () => {
     try {
       await api.logout();
       logout();
-      alert('Logged out successfully');
-      navigate('/login');
+      alert("Logged out successfully");
+      navigate("/login");
     } catch (error) {
-      alert('Logout failed: ' + (error.msg || 'Server error'));
+      alert("Logout failed: " + (error.msg || "Server error"));
     }
   };
 
+  const menuItems = [
+    { icon: "bi-calendar4-event", text: "Create event", action: handleCreateEventClick },
+    { icon: "bi-heart", text: "Likes", action: handleLike },
+    { icon: "bi-question-circle", text: "Help", action: null },
+  ];
+
   const menuPopup = [
-    { title: "Browse events", action: null },
-    { title: "Manage my events", action: handleDashboard },
+    { title: "Browse events", action: null, roles: ["ORGANIZER"] },
+    { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
     { title: "Liked", action: null },
-    { title: "Tickets ", action: handleMyTicket },
+    { title: "Tickets", action: handleMyTicket },
     { title: "Following", action: null },
     { title: "Account settings", action: null },
     { title: "Log out", action: handleLogout },
   ];
+
+  // Lọc menuPopup dựa trên vai trò
+  const filteredMenuPopup = menuPopup.filter(
+    (item) => !item.roles || item.roles.includes(user?.primaryRole)
+  );
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -260,15 +241,12 @@ const Header = () => {
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div className="bg-white shadow fixed top-0 left-0 w-full z-10">
       <div className="w-full px-4 py-4 h-16 flex justify-between items-center">
-        {/* Logo */}
         <div
           className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300"
           onClick={handleHomepage}
@@ -276,7 +254,6 @@ const Header = () => {
           Manage Event
         </div>
         <SearchBar />
-        {/* Navigation Menu */}
         <div className="flex items-center gap-6 mx-4">
           {menuItems.map((item, index) => (
             <a
@@ -288,7 +265,6 @@ const Header = () => {
               {item.text}
             </a>
           ))}
-          {/* User Profile */}
           <div
             className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -305,7 +281,7 @@ const Header = () => {
                     className="absolute right-0 top-full mt-2 w-[205px] bg-white border rounded shadow-lg z-50"
                     onMouseLeave={() => setIsMenuOpen(false)}
                   >
-                    {menuPopup.map((item, index) => (
+                    {filteredMenuPopup.map((item, index) => (
                       <a
                         key={index}
                         className="block pl-4 pr-10 py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[14px]"

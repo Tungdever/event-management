@@ -104,7 +104,7 @@ const handleSegmentUpdate = (updatedSegments) => {
               />
             </label>
             <div className="text-right text-gray-600 mt-1">
-              {(event.eventDesc || "").length} / 140
+              {(event.eventDesc || "").length} / 2000
             </div>
           </div>
 

@@ -206,7 +206,7 @@ const TopDestinations = () => {
     }
   }
   return (
-    <div className="bg-gray-50 text-gray-900 container mx-auto p-4">
+    <div className="bg-gray-50 text-gray-900 w-full max-w-[1280px]  mx-auto p-4">
       <h1 className="text-2xl font-bold text-center mb-6">
         Top destinations in Viet Nam
       </h1>

@@ -86,7 +86,7 @@ const EventCard = ({ event}) => {
 
 const EventListings = () => {
   return (
-    <div className=" container mx-auto p-4">
+    <div className=" w-full max-w-[1280px]  mx-auto p-4">
        <div className="flex items-center justify-between mb-4">
        <h2 className="text-2xl font-bold text-left mb-4">Events in Ho Chi Minh City</h2>
         <div className="flex space-x-1 justify-center items-center text-[13px] hover:cursor-pointer hover:text-blue-800">

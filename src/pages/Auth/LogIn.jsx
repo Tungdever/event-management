@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from './api';
 import { useAuth } from './AuthProvider';
+import { jwtDecode } from 'jwt-decode';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -14,15 +15,27 @@ const LoginForm = () => {
     e.preventDefault();
     try {
       const response = await api.login(email, password);
-      if (response.statusCode === 200) {
-        login(response.data); // Lưu token và decode
-        alert('Login successful');
-        navigate('/');
-      } else {
-        setError(response.msg || 'Login failed');
-      }
+      
+      // Lấy token từ response.data
+      const token = response.data;
+      if (!token) throw new Error('No token received');
+
+      // Decode token
+      const decoded = jwtDecode(token);
+      
+      // Gọi hàm login từ AuthProvider để lưu token và thông tin người dùng
+      login(token, decoded);
+
+      // Xác định vai trò chính
+      const primaryRole = decoded.roles.includes('ROLE_ADMIN') ? 'ADMIN' :
+                         decoded.roles.includes('ROLE_ORGANIZER') ? 'ORGANIZER' : 'ATTENDEE';
+      
+      // Điều hướng theo vai trò
+      if (primaryRole === 'ADMIN') navigate('/admin');
+      else if (primaryRole === 'ORGANIZER') navigate('/dashboard');
+      else navigate('/');
     } catch (error) {
-      setError(error.msg || 'Login failed');
+      setError(error.msg || error.message || 'Login failed');
     }
   };
 
