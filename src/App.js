@@ -45,6 +45,8 @@ import ReportPage from "./pages/AdminBoard/ReportPage";
 import UserPage from "./pages/AdminBoard/UserPage";
 import RolePage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
+import PaymentResult from "./pages/Checkout/PaymentResult"
+import MyBooking from "./pages/Booking/MyBooking";
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
@@ -62,7 +64,8 @@ const MainLayout = () => {
     "/event-like",
     "/createEvent",
     "/all-event",
-    
+    "/payment-result",
+    "/mybooking"
   ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by");
 
   // Các base path của trang chi tiết sự kiện
@@ -128,6 +131,9 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
               <Route path="/createEvent" element={<CRUDEvent />} />
               <Route path="/all-event" element={<EventGrid onEventClick={handleEventClick} />}/>
               <Route path="/list-event-search-by/:categoryName" element={<SearchByType  />}/>
+              <Route path="/payment-result" element={<PaymentResult  />}/>
+              <Route path="/mybooking" element={<MyBooking  />}/>
+              
             </Routes>
           </div>
         </>

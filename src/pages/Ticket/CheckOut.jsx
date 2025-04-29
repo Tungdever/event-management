@@ -21,8 +21,9 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
     const checkoutData = {
       amount: totalPrice,
       tickets: selectedTickets,
-      eventName: eventData.eventName,
+      eventData: eventData,
     };
+    localStorage.setItem('eventCheckout', window.location.href);
     navigate("/checkout", {state: checkoutData});
   }
   return (

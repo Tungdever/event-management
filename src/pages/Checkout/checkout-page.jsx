@@ -1,85 +1,139 @@
 import React from 'react'
 import "../Checkout/checkout-page.css"
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import axios from 'axios';
+import { useLocation, useNavigate } from "react-router-dom";
 import VNPAY from "../../assets/VNPAY.jpeg";
 import momo from "../../assets/MoMo.png";
 
 const CheckoutPage = (props) => {
-  const [selected, setSelected] = useState("option5");
-  const [isOption2Expanded, setIsOption2Expanded] = useState(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const checkoutData = location.state;
+  const total = checkoutData?.tickets?.reduce((sum, ticket) => {
+    return sum + ticket.price * ticket.quantity;
+  }, 0);
+  const [method, setMethod] = useState("MoMo");
+  const handleClick = (method) => {
+    setMethod(method);
+  };
+  const checkoutHandle = async () => {
+    const token = localStorage.getItem('token'); // 'token' là tên của key trong localStorage
+    let userId;
+    if (token) {
+      // Giải mã phần payload của JWT (tách payload khỏi token)
+      const payload = token.split('.')[1]; // Token thường có cấu trúc: [header].[payload].[signature]
+      // Giải mã Base64 (JWT payload là một chuỗi Base64)
+      const decodedPayload = JSON.parse(atob(payload));
+      // Lấy giá trị userId từ payload
+      userId = decodedPayload.userId;
+    } else {
+      console.log("Token không tồn tại trong localStorage");
+    }
+    const tickets = checkoutData?.tickets?.reduce((acc, ticket) => {
+      acc[ticket.ticketId] = ticket.quantity;
+      return acc;
+    }, {});
+    const data = {
+      "orderInfo": checkoutData?.eventData.eventName,
+      "amount": total,
+      "userId": userId,
+      "tickets": tickets
+    }
+    if (method === "MoMo") {
+      try {
+        const response = await axios.post('http://localhost:8080/api/payment/create-momo', data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data.payUrl);
+        window.location.href = response.data.payUrl;
+      } catch (error) {
+        throw error;
+      }
+    }
+    else {
+      try {
+        const response = await axios.post('http://localhost:8080/api/payment/create-vnpay', data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+        console.log(response.data.paymentUrl);
+        window.location.href = response.data.paymentUrl;
+      } catch (error) {
+        throw error;
+      }
+    }
+  };
   return (
     <div className="checkout-page-container">
-      <div className="checkout-page-checkout-page">
-        <div className="checkout-page-column1">
-          <span className="checkout-page-text-title">Payment Method</span>
-
-          <div className="checkout__option1 focus:border-blue-500">
-            <div className='flex'>
+      <div className="flex flex-wrap max-w-[950px] bg-white rounded-[12px] p-5 gap-[60px]">
+        <div className="flex flex-col flex-1 min-w-[500px]">
+          <span className="font-normal text-black text-[25px] mb-[25px]">Payment Method</span>
+          <div className="flex items-center justify-between p-[15px] rounded-[8px] border border-[#e8e9eb] cursor-pointer mb-[15px] hover:border-blue-500 focus:outline-none focus:border-blue-500" tabindex="0" onClick={() => handleClick("MoMo")}>
+            <div className="flex">
               <img className="mr-1" src={momo} alt="Visa" width="25" />
-              <span className=" checkout-page-text checkout__option-text1">MoMo</span>
-            </div>            
+              <span>MoMo</span>
+            </div>
           </div>
+
           {/* Nhấn để mở hoặc đóng */}
-          <div className="checkout__option2 focus:border-blue-500">
+          <div className="flex items-center justify-between p-[15px] rounded-[8px] border border-[#e8e9eb] cursor-pointer mb-[15px] hover:border-blue-500 focus:outline-none focus:border-blue-500" tabindex="0" onClick={() => handleClick("VNPAY")}>
             <div className='flex'>
               <img className="mr-1" src={VNPAY} alt="Visa" width="80px" />
-              <span className="checkout-page-text checkout__option-text2">VNPAY</span>
+              <span>VNPAY</span>
             </div>
-           
+
           </div>
-        
+
         </div>
-        <div className="checkout-page-column2">
-          <div className="checkout-page-group1">
+        <div className="flex-1 bg-[#f5f8ff] rounded-[12px] p-5">
+          <div className="flex flex-col items-center gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
             <img
-              src=""
+              src={checkoutData?.eventData.eventImages}
               alt="img"
-              className="checkout-page-img"
             />
-            <div className="checkout-page-group2">
-              <span className="checkout-page-tile">
-                {checkoutData.eventName}
+            <div className="flex flex-col items-start bg-white">
+              <span>
+                {checkoutData?.eventData.eventName}
               </span>
-              <span className="checkout-page-text-title-price checkout-page-price">{checkoutData.amount}</span>
+              <span className="checkout-page-text-title-price checkout-page-price">{checkoutData?.eventData.amount}</span>
 
             </div>
           </div>
 
-          <div className="checkout-page-group3">
-            <span className="checkout-page-text checkout-page-text-offers">Offers</span>
-            <span className="checkout-page-text checkout-page-btn-add-code">Add Code</span>
+          <div className="flex items-center justify-between gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
+            <span>Offers</span>
+            <span className="mr-0.5 text-[#408BFC] border-b border-dashed border-[#408BFC] cursor-pointer">Add Code</span>
           </div>
-          <div className="checkout-page-group4">
-            <span className="checkout-page-text checkout-page-text-detail">Payment Details</span>
-            <div className="checkout-page-group5">
-              {checkoutData.tickets &&
-                checkoutData.tickets.map((ticket, index) => {
-                  const total = ticket.price * ticket.quantity;
+          <div className="flex flex-col items-start justify-start gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
+            <span className="checkout-page-text-detail">Payment Details</span>
+            <div className="w-full flex flex-col items-start justify-start bg-white rounded-[10px] mb-2.5">
+              {checkoutData?.tickets &&
+                checkoutData?.tickets.map((ticket, index) => {
+                  const s = ticket.price * ticket.quantity;
                   return (
-                    <div key={index}>
-                      <div className="checkout-page-group6">
-                        <span className="checkout-page-text checkout-page-text-price">Price</span>
-                        <span className="checkout-page-text checkout-page-text-price-detail">${ticket.price.toFixed(2)}</span>
-                      </div>
-                      <div className="checkout-page-group6">
-                        <span className="checkout-page-text checkout-page-text-quality">Quantity</span>
-                        <span className="checkout-page-text checkout-page-text-quality-detail">{ticket.quantity}</span>
-                      </div>
-                      <div className="checkout-page-group7">
-                        <span className="checkout-page-text checkout-page-text-total">Total</span>
-                        <span className="checkout-page-text checkout-page-text-total-detail">${total.toFixed(2)}</span>
+                    <div key={index} className="w-full">
+                      <div className="flex w-full items-center justify-between bg-white py-1.5">
+                        <span>{ticket.ticketName} x{ticket.quantity}</span>
+                        <span className="text-right w-24">${s?.toFixed(2)}</span>
                       </div>
                     </div>
                   );
                 })}
+              <div className="mt-2.5 flex w-full items-center justify-between bg-white border-t border-[#E7E9EB] pt-2">
+                <span className="font-semibold">Total</span>
+                <span className="text-right w-24 font-semibold">${total?.toFixed(2)}</span>
+              </div>
             </div>
+
           </div>
-          <div className="checkout-page-btn-pay">
-            <a href="#" className="checkout-page-btn-pay">Pay Now</a>
+          <div className="flex items-start justify-center p-1.5 bg-[#408BFC] text-white no-underline rounded-[10px] cursor-pointer" onClick={checkoutHandle}>
+            Pay Now
           </div>
         </div>
       </div>
