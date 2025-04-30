@@ -6,6 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
   const navigate = useNavigate();
 
   const checkToken = () => {
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
             userId: decoded.userId,
             roles: decoded.roles || [],
             permissions: decoded.permissions || [],
-            primaryRole: getPrimaryRole(decoded.roles || [])
+            primaryRole: getPrimaryRole(decoded.roles || []),
           });
         } else {
           localStorage.removeItem('token');
@@ -35,6 +36,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setUser(null);
     }
+    setIsLoading(false); // Đặt isLoading thành false sau khi kiểm tra token
   };
 
   useEffect(() => {
@@ -51,8 +53,9 @@ export const AuthProvider = ({ children }) => {
       userId: decoded.userId,
       roles: decoded.roles || [],
       permissions: decoded.permissions || [],
-      primaryRole: getPrimaryRole(decoded.roles || [])
+      primaryRole: getPrimaryRole(decoded.roles || []),
     });
+    setIsLoading(false);
   };
 
   const logout = () => {
@@ -69,7 +72,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

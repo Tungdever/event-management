@@ -103,7 +103,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     setEditingTicket({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
-      endTime: formatDateForInput(ticket.endTime), 
+      endTime: formatDateForInput(ticket.endTime),
     });
     setTypeTicket(ticket.ticketType);
     setShowForm(true);
@@ -164,27 +164,26 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
           }}
         />
       </main>
-      {showForm && 
-          <TicketForm
-            newTicket={
-              editingTicket
-                ? {
-                    ...editingTicket,
-                    startTime: formatDateForInput(editingTicket.startTime),
-                    endTime: formatDateForInput(editingTicket.endTime),
-                  }
-                : newTicket
-            }
-            typeTicket={typeTicket}
-            onChange={handleChange}
-            onSave={editingTicket ? handleUpdateTicket : handleSaveTicket}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingTicket(null);
-            }}
-          />
- 
-      }
+      {showForm && (
+        <TicketForm
+          newTicket={
+            editingTicket
+              ? {
+                  ...editingTicket,
+                  startTime: formatDateForInput(editingTicket.startTime),
+                  endTime: formatDateForInput(editingTicket.endTime),
+                }
+              : newTicket
+          }
+          typeTicket={typeTicket}
+          onChange={handleChange}
+          onSave={editingTicket ? handleUpdateTicket : handleSaveTicket}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingTicket(null);
+          }}
+        />
+      )}
     </div>
   );
 };

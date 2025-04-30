@@ -29,7 +29,7 @@ export const WebSocketProvider = ({ children }) => {
       console.log("Connected to WebSocket");
       client.subscribe(`/user/${userId}/specific`, (message) => {
         const parsedMessage = JSON.parse(message.body);
-        console.log("Received notification: ", parsedMessage);
+        //console.log("Received notification: ", parsedMessage);
 
         // Hiển thị thông báo
         toast.info(<CustomToast title="Thông báo mới" message={parsedMessage.message || "Bạn có một thông báo mới!"} />, {

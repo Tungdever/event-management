@@ -33,7 +33,7 @@ const ChatBubble = ({ currentUser }) => {
         const formattedUsers = listUser.map((user) => ({
           userId: user.userId,
           email: user.email,
-          name: user.name || "Unknown",
+          name: user.fullName || "Unknown",
         }));
         setUsers(formattedUsers);
       } catch (error) {

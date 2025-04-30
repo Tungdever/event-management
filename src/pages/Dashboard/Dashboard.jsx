@@ -3,8 +3,13 @@ import React, { useState ,useEffect,useRef} from "react";
 import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
 import { useNavigate} from "react-router-dom";
 import Loader from "../../components/Loading";
+import { useAuth } from "../Auth/AuthProvider";
+
+
+
 const EventsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('Events');
   const [filterStatus, setFilterStatus] = useState('public'); 
   const [events, setEvents] = useState([]); 
@@ -19,7 +24,8 @@ const EventsPage = () => {
 
   const fetchEventData = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/events/all`,{
+      //console.log(user.email)
+      const response = await fetch(`http://localhost:8080/api/events/get-all-event-by-org/${user.email}`,{
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,

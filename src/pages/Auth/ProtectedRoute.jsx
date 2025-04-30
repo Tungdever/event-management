@@ -3,7 +3,11 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from './AuthProvider';
 
 const RoleBasedRouteGroup = ({ children, allowedRoles, requiresAuth = true }) => {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>; 
+  }
 
   if (requiresAuth && !user) {
     return <Navigate to="/login" replace />;

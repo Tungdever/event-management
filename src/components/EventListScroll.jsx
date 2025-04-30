@@ -1,6 +1,7 @@
+import Loader from "./Loading";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; 
-
+import { Link } from "react-router-dom";
 const ListEventScroll = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -43,11 +44,17 @@ const ListEventScroll = () => {
     navigate(`/event/${eventId}`); 
   };
 
+  const handlePageAll = () =>{
+    setLoading(true); 
+    setTimeout(() => {
+      navigate("/all-event"); 
+    },250);
+  };
   
   if (loading) {
     return (
       <div className="text-center p-4">
-        <p className="text-gray-600">Loading events...</p>
+        <Loader/>
       </div>
     );
   }
@@ -72,7 +79,15 @@ const ListEventScroll = () => {
 
   return (
     <div className="w-full max-w-[1280px]  mx-auto px-8 py-4 relative">
+      <div className="flex justify-between">
       <h2 className="text-2xl font-bold text-gray-800 mb-4">Upcoming Events</h2>
+      <div className="flex items-center gap-2 hover:cursor-pointer hover:text-red-500" onClick={handlePageAll}>
+      <p className="text-[15px] text-gray-600 hover:text-red-500">
+        View all event
+      </p>
+      <i className="fa-solid fa-circle-chevron-right "></i>
+    </div>
+      </div>
       <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
         {events.map((event) => (
           <div

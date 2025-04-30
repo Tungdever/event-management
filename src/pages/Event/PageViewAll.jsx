@@ -1,44 +1,96 @@
 import { useState, useEffect } from "react";
-import styled from "styled-components";
 import Loader from "../../components/Loading";
+import Footer from "../../components/Footer";
 // Hàm rút gọn văn bản
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
 
-
-const EventGrid = ({ events, onEventClick }) => {
+const AllEvent = ({ onEventClick }) => {
+  const [events, setEvents] = useState([]);
   const [displayedEvents, setDisplayedEvents] = useState([]);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const eventsPerPage = 4;
+  const token = localStorage.getItem("token");
 
-  
+  const fetchAllEvents = async () => {
+    if (!token) {
+      setError("Không tìm thấy token xác thực");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      const response = await fetch("http://localhost:8080/api/events/all", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Không thể tải danh sách sự kiện");
+      }
+      const data = await response.json();
+      setEvents(data);
+      setDisplayedEvents(data.slice(0, eventsPerPage)); // Hiển thị trang đầu tiên
+    } catch (error) {
+      setError(error.message);
+      console.error("Lỗi khi tải sự kiện:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const initialEvents = events.slice(0, 8); 
-    setDisplayedEvents(initialEvents);
-    setPage(3); 
-  }, [events]);
+    fetchAllEvents();
+  }, []);
 
-  // Xử lý khi nhấp vào View More
   const handleViewMore = () => {
+    if (displayedEvents.length >= events.length) return;
+
     setIsLoading(true);
 
-    
     setTimeout(() => {
-      const startIndex = (page - 1) * eventsPerPage;
+      const startIndex = page * eventsPerPage;
       const endIndex = startIndex + eventsPerPage;
-      const newEvents = events.slice(0, endIndex);
-      setDisplayedEvents(newEvents);
+      const newEvents = events.slice(startIndex, endIndex);
+      setDisplayedEvents((prevEvents) => [...prevEvents, ...newEvents]);
       setPage((prevPage) => prevPage + 1);
       setIsLoading(false);
-    }, 1000); 
+    }, 400); // Hiển thị Loader trong 0.4 giây
   };
+
+  if (isLoading && displayedEvents.length === 0) {
+    return (
+      <div className="text-center p-4">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-4 text-red-600">
+        Lỗi: {error}. Vui lòng thử lại sau.
+      </div>
+    );
+  }
+
+  if (events.length === 0) {
+    return (
+      <div className="text-center p-4 text-gray-600">
+        Không có sự kiện nào để hiển thị.
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-8 py-4 relative">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Upcoming Events</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">All event</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {displayedEvents.map((event) => (
           <div
@@ -66,10 +118,10 @@ const EventGrid = ({ events, onEventClick }) => {
             {/* Thông tin sự kiện */}
             <div className="p-4">
               <h3 className="text-lg font-semibold text-gray-900 truncate">
-                {truncateText(event.eventName, 25) || "Unnamed Event"}
+                {truncateText(event.eventName, 25) || "Sự kiện không tên"}
               </h3>
               <p className="text-gray-600 text-sm mt-1 truncate">
-                {truncateText(event.eventDesc, 30) || "No description"}
+                {truncateText(event.eventDesc, 30) || "Không có mô tả"}
               </p>
               <p className="text-gray-700 text-sm mt-2">
                 <span className="font-medium">Ngày:</span>{" "}
@@ -89,7 +141,7 @@ const EventGrid = ({ events, onEventClick }) => {
               </p>
               <p className="text-gray-700 text-sm mt-1 truncate">
                 <span className="font-medium">Địa điểm:</span>{" "}
-                {truncateText(event.eventLocation, 25) || "Không có địa điểm"}
+                {truncateText(event.eventLocation?.city, 25) || "Không có địa điểm"}
               </p>
             </div>
 
@@ -112,7 +164,7 @@ const EventGrid = ({ events, onEventClick }) => {
         ))}
       </div>
 
-      {/* Hiển thị nút View More hoặc Loader */}
+      {/* Nút View More hoặc Loader */}
       {displayedEvents.length < events.length && (
         <div className="flex justify-center mt-6">
           {isLoading ? (
@@ -122,13 +174,14 @@ const EventGrid = ({ events, onEventClick }) => {
               onClick={handleViewMore}
               className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
             >
-              Xem thêm
+              View More
             </button>
           )}
         </div>
       )}
+      <Footer/>
     </div>
   );
 };
 
-export default EventGrid;
+export default AllEvent;

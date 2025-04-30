@@ -6,7 +6,9 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Checkout from "../Ticket/CheckOut";
 import Loader from "../../components/Loading";
 import { useParams } from "react-router-dom";
-
+import ListEventScroll from "../../components/EventListScroll";
+import { useAuth } from "../Auth/AuthProvider";
+import axios from "axios";
 // Helper: Định dạng thời gian
 const formatTime = (isoString) => {
   if (!isoString) return "N/A";
@@ -26,8 +28,8 @@ const fetchData = async (url, setData, errorMsg) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-    },
-  });
+      },
+    });
     if (!response.ok) throw new Error(errorMsg);
     const data = await response.json();
     setData(data);
@@ -39,9 +41,11 @@ const fetchData = async (url, setData, errorMsg) => {
 };
 
 // Helper: Tính số lượng mới
-const calculateNewCount = (current, delta, max) => {
+const calculateNewCount = (current, delta, max, ticketType) => {
   const updated = current + delta;
   if (updated < 0) return 0;
+  // For free tickets, max quantity is 1
+  if (ticketType === "Free" && updated > 1) return 1;
   if (updated > max) return max;
   return updated;
 };
@@ -54,7 +58,6 @@ const updateTickets = (prev, ticketId, newCount) => {
   }
   return { ...prev, [ticketId]: newCount };
 };
-
 
 const Timeline = ({ segments }) => {
   if (!segments?.length) {
@@ -87,10 +90,31 @@ const Timeline = ({ segments }) => {
   );
 };
 
+const OrganizedBy = () => {
+const {user} = useAuth();
+const [userData, setUserData] = useState([]);
+const token = localStorage.getItem('token')
+useEffect(() => { 
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`,{
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+        },
+    });
+      setUserData(response.data);
 
-const OrganizedBy = () => (
-  <div className="mt-8 mb-4">
-    <h2 className="text-2xl font-bold mb-4">Organized by</h2>
+    } catch (err) {
+      console.error("Lỗi khi lấy dữ liệu người dùng:", err);
+
+    }
+  };
+  fetchUserData();
+}, []);
+  return(
+    <div className="mt-8 mb-4">
+    <h2 className="text-2xl font-bold mb-4">Organize</h2>
     <div className="bg-gray-50 p-6 rounded-lg shadow">
       <div className="flex items-center mb-4">
         <img
@@ -99,62 +123,35 @@ const OrganizedBy = () => (
           className="w-12 h-12 rounded-full mr-4"
         />
         <div>
-          <h3 className="text-xl font-semibold">ShareWell</h3>
+          <h3 className="text-xl font-semibold">{userData.organizer?.organizerName || "N/A"}</h3>
           <div className="text-gray-600">
             <span className="mr-4">
-              <strong>4.8k</strong> followers
+              <strong>Location</strong> {userData.organizer?.organizerAddress || "N/A"}
             </span>
             <span>
-              <strong>13.4k</strong> attendees hosted
+              <strong>Phone</strong> {userData.organizer?.organizerPhone || "N/A"}
             </span>
           </div>
         </div>
       </div>
       <p className="text-gray-700 mb-4">
-        Welcome! ShareWell is a warm and welcoming peer-to-peer community for
-        mental wellness...
+      {userData.organizer?.organizerDesc || "N/A"}
       </p>
-      <a href="#" className="text-blue-600">
-        View more
-      </a>
-      <div className="flex justify-end mt-4">
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-full mr-2">
-          Contact
-        </button>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-full">
-          Follow
-        </button>
-      </div>
+     
     </div>
   </div>
-);
-
+   )
+};
 
 const EventInfo = ({ eventData }) => (
-  <div className="flex-1 ">
+  <div className="flex-1">
     <div className="text-gray-500 mb-2">
       {new Date(eventData.eventStart).toDateString()}
     </div>
     <h1 className="text-5xl font-bold text-blue-900 mb-4">
       {eventData.eventName || "Unnamed Event"}
     </h1>
-    <section className="mt-6 flex justify-between items-center bg-gray-100 p-4 rounded-lg mb-4">
-      <div className="flex items-center space-x-4">
-        <img
-          src="https://storage.googleapis.com/a1aa/image/iulMqkOeKR6SAOm-Zs8J1VIWV9rNEcpFiteM_nMV1hs.jpg"
-          alt="Logo of ShareWell"
-          className="w-12 h-12 rounded-full mr-4"
-        />
-        <div>
-          <p className="text-gray-900 font-semibold">
-            By {eventData.eventHost || "Unknown Host"}
-          </p>
-        </div>
-      </div>
-      <button className="bg-blue-600 text-white px-4 py-2 rounded-lg">
-        Follow
-      </button>
-    </section>
+    <OrganizedBy />
     <div className="mb-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Date and Time</h2>
       <div className="text-gray-700">
@@ -166,12 +163,15 @@ const EventInfo = ({ eventData }) => (
       <h2 className="text-2xl font-bold text-gray-800 mb-2">Location</h2>
       <div className="text-gray-700">
         <i className="bi bi-geo-alt pr-[10px]"></i>
-        {eventData.eventLocation.venueName +" "+ eventData.eventLocation.address +" "+ eventData.eventLocation.city || "No location specified"}
+        {eventData.eventLocation.venueName +
+          " " +
+          eventData.eventLocation.address +
+          " " +
+          eventData.eventLocation.city || "No location specified"}
       </div>
     </div>
   </div>
 );
-
 
 const OverviewContent = ({ eventData }) => (
   <div className="mb-6 flex-1">
@@ -204,9 +204,8 @@ const OverviewContent = ({ eventData }) => (
   </div>
 );
 
-
-const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,}) => (
-  <div className="  w-[500px] bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10">
+const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }) => (
+  <div className="w-[500px] bg-white border border-gray-200 rounded-lg p-6 shadow mt-4 mr-16 ml-10">
     <div className="mb-4 p-4 border-[3px] border-blue-800 rounded-lg w-[380px]">
       {!tickets ? (
         <p className="text-gray-700 text-[14px]">Loading tickets...</p>
@@ -226,14 +225,23 @@ const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,})
                   </p>
                   <p className="text-gray-700 text-[14px]">
                     {ticket.price} USD
+                    {ticket.ticketType === "Free" && (
+                      <span className="text-gray-500 text-[12px] ml-2">(Max 1 ticket)</span>
+                    )}
                   </p>
                 </div>
                 <div className="flex items-center space-x-3">
                   <button
                     className="bg-gray-200 text-gray-600 px-3 py-1 rounded hover:bg-gray-300 transition"
                     onClick={() =>
-                      onQuantityChange(ticket.ticketId, ticket.quantity, -1)
+                      onQuantityChange(
+                        ticket.ticketId,
+                        ticket.quantity,
+                        -1,
+                        ticket.ticketType
+                      )
                     }
+                    disabled={(selectedTickets[ticket.ticketId] || 0) === 0}
                   >
                     -
                   </button>
@@ -243,7 +251,17 @@ const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,})
                   <button
                     className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition"
                     onClick={() =>
-                      onQuantityChange(ticket.ticketId, ticket.quantity, 1)
+                      onQuantityChange(
+                        ticket.ticketId,
+                        ticket.quantity,
+                        1,
+                        ticket.ticketType
+                      )
+                    }
+                    disabled={
+                      (selectedTickets[ticket.ticketId] || 0) >= ticket.quantity ||
+                      (ticket.ticketType === "Free" &&
+                        (selectedTickets[ticket.ticketId] || 0) >= 1)
                     }
                   >
                     +
@@ -251,11 +269,7 @@ const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,})
                 </div>
               </div>
               <div className="text-gray-700 text-[12px]">
-                {/* <p>
-                  Start: {new Date(ticket.startTime).toLocaleString("vi-VN")}
-                </p>
-                <p>End: {new Date(ticket.endTime).toLocaleString("vi-VN")}</p> */}
-                <p> Amount:  {ticket.quantity}</p>
+                <p>Amount: {ticket.quantity}</p>
               </div>
             </div>
           ))}
@@ -271,6 +285,7 @@ const TicketSelector = ({tickets, selectedTickets, onQuantityChange, onSelect,})
     </button>
   </div>
 );
+
 
 const EventDetail = () => {
   const token = localStorage.getItem("token");
@@ -316,7 +331,7 @@ const EventDetail = () => {
       } catch (err) {
         setError(err.message);
       } finally {
-        setTimeout(() => setLoading(false), 500); 
+        setTimeout(() => setLoading(false), 500);
       }
     };
 
@@ -324,10 +339,10 @@ const EventDetail = () => {
     window.scrollTo(0, 0);
   }, [eventId]);
 
-  const handleQuantityChange = (ticketId, maxQuantity, delta) => {
+  const handleQuantityChange = (ticketId, maxQuantity, delta, ticketType) => {
     setSelectedTickets((prev) => {
       const currentCount = prev[ticketId] || 0;
-      const newCount = calculateNewCount(currentCount, delta, maxQuantity);
+      const newCount = calculateNewCount(currentCount, delta, maxQuantity, ticketType);
       return updateTickets(prev, ticketId, newCount);
     });
   };
@@ -406,9 +421,7 @@ const EventDetail = () => {
               <OverviewContent eventData={eventData} />
               <h2 className="text-2xl font-bold text-gray-800 mb-2">Speaker</h2>
               <SliderSpeaker speakers={speakers} />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2 ">
-                Section
-              </h2>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">Section</h2>
               <Timeline segments={segmentData} />
               <div>
                 <h2 className="text-2xl font-bold mb-4 mt-4">Tags</h2>
@@ -425,9 +438,9 @@ const EventDetail = () => {
                   )}
                 </div>
               </div>
-              <OrganizedBy />
+              
             </div>
-
+              
             <TicketSelector
               tickets={tickets}
               selectedTickets={selectedTickets}
@@ -443,6 +456,7 @@ const EventDetail = () => {
           selectedTickets={getSelectedTicketsData()}
         />
       )}
+      <ListEventScroll/>
       <Footer />
     </>
   );

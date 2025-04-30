@@ -35,7 +35,7 @@ import ViewProfile from "./pages/Dashboard/ViewProfile";
 import Sidebar2 from "./pages/Dashboard/Sidebar2";
 import Header from "./components/Header";
 import EditEvent from "./pages/Event/EditEventPage";
-import EventGrid from "./pages/Event/PageViewAll";
+import AllEvent from "./pages/Event/PageViewAll";
 import SearchByType from "./pages/Event/SearchPageByType";
 import { AuthProvider } from "./pages/Auth/AuthProvider";
 import DashboardPage from "./pages/AdminBoard/DashboardPage";
@@ -55,6 +55,7 @@ const MainLayout = () => {
   const { user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const eventId = location.state?.eventId || undefined;
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -128,7 +129,7 @@ const MainLayout = () => {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/event/:eventId" element={<EventDetail />} />
                 <Route path="/search" element={<SearchPage />} />
-                <Route path="/all-event" element={<EventGrid onEventClick={handleEventClick} />} />
+                <Route path="/all-event" element={<AllEvent onEventClick={handleEventClick} />} />
                 <Route path="/list-event-search-by/:categoryName" element={<SearchByType />} />
                 <Route
                   path="/checkout"
@@ -236,7 +237,7 @@ const MainLayout = () => {
         {isDetailOfEvent && !isAuthPage && !isFullScreenPageWithHeader && !isAdminPage && (
           <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
             <Navbar />
-            <Sidebar />
+            <Sidebar id={eventId}  />
             <Routes>
               <Route
                 path="/dashboard/view/:eventId"

@@ -57,8 +57,25 @@ const PublishSettings = ({
   validityDays,
   setValidityDays,
 }) => {
+  const [selectedDate, setSelectedDate] = useState(""); 
   const handleChange = (event) => {
     setValidityDays(event.target.value);
+  };
+
+  const handlePublishTimeChange = (value) => {
+    if (value === "now") {
+      setPublishTime(new Date().toISOString()); 
+    } else {
+      setPublishTime(selectedDate || "");
+    }
+  };
+
+  const handleDateChange = (event) => {
+    const dateValue = event.target.value;
+    setSelectedDate(dateValue); 
+    if (publishTime === "later") {
+      setPublishTime(dateValue ? `${dateValue}T00:00:00.000Z` : ""); 
+    }
   };
 
   return (
@@ -177,8 +194,8 @@ const PublishSettings = ({
                 <input
                   type="radio"
                   name="publish_time"
-                  checked={publishTime === "now"}
-                  onChange={() => setPublishTime("now")}
+                  checked={publishTime !== "later"}
+                  onChange={() => handlePublishTimeChange("now")}
                   className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Publish now</span>
@@ -190,7 +207,7 @@ const PublishSettings = ({
                   type="radio"
                   name="publish_time"
                   checked={publishTime === "later"}
-                  onChange={() => setPublishTime("later")}
+                  onChange={() => handlePublishTimeChange("later")}
                   className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
                 />
                 <span className="text-base">Schedule for later</span>
@@ -200,21 +217,22 @@ const PublishSettings = ({
               <div className="flex space-x-2 mb-4">
                 <label className="block text-gray-700 text-[13px]">
                   Start date *
-                  <input type="date" className="w-full border rounded-md p-2" />
-                </label>
-                <label className="block text-gray-700 text-[13px]">
-                  Start time
-                  <input type="time" className="w-full border rounded-md p-2" />
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                    className="w-full border rounded-md p-2"
+                  />
                 </label>
               </div>
             )}
           </div>
         </div>
       </div>
-      
     </div>
   );
 };
+
 
 const EventPublishing = ({ event, setEvent,onPublish }) => {
   const [loading, setLoading] = useState(true);

@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
-
+import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loading";
 const CRUDEvent = () => {
   const [selectedStep, setSelectedStep] = useState("build");
+  const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate()
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -89,6 +92,7 @@ const CRUDEvent = () => {
   };
 
   const handlePublish = async () => {
+    setIsLoading(true);
     console.log("Publishing event:", event);
   
     try {
@@ -137,7 +141,7 @@ const CRUDEvent = () => {
         },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
-        publishTime: event.publishTime || "now",
+        publishTime: event.publishTime || new Date().toISOString(),
         refunds: event.refunds || "no",
         validityDays: event.validityDays || 7,
         eventImages: uploadedImageIds,
@@ -242,11 +246,13 @@ const CRUDEvent = () => {
           })),
         },
       };
+      
       setEvent(updatedEvent);
-  
+      setIsLoading(false);
       alert(
         `Event published successfully!\nUploaded Images: ${uploadedImageIds.length}, Media: ${uploadedMediaIds.length}, Event ID: ${eventId}`
       );
+      navigate('/')
     } catch (error) {
       console.error("Failed to publish event:", error);
       alert(`Failed to process event: ${error.message}`);
@@ -291,7 +297,11 @@ const CRUDEvent = () => {
   };
 
   return (
-    <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
+    <>
+    {isLoading ? (
+        <Loader /> 
+      ) : (
+        <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
       <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
           <h2 className="text-lg font-semibold">
@@ -340,6 +350,8 @@ const CRUDEvent = () => {
       </aside>
       <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
     </div>
+      )}
+    </>
   );
 };
 

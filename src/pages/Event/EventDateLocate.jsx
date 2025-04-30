@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 
-
 const vietnamCities = [
   { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
   { slug: "ha-noi", name: "Hà Nội" },
   { slug: "da-nang", name: "Đà Nẵng" },
   { slug: "nha-trang", name: "Nha Trang" },
- 
 ];
 
 const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
@@ -20,8 +18,27 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
     venueSlug: "",
     address: "",
     city: "",
-    ...locationData, 
+    ...locationData,
   });
+  useEffect(() => {
+    
+    const dateBegin = localStorage.getItem("dateBegin");
+    if (dateBegin) {
+      // Kiểm tra xem dateBegin có hợp lệ không
+      const isValidDate = !isNaN(new Date(dateBegin).getTime());
+      if (isValidDate) {
+        setEventLocation((prevData) => {
+          const updatedData = {
+            ...prevData,
+            date: dateBegin,
+          };
+          onLocationUpdate(updatedData);
+          return updatedData;
+        });
+        localStorage.removeItem("dateBegin"); 
+      }
+    }
+  }, []);
 
   useEffect(() => {
     setEventLocation({
@@ -49,6 +66,22 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
       .trim();
   };
 
+  // Kiểm tra xem các trường bắt buộc có hợp lệ không
+  const isFormValid = () => {
+    const hasDate = eventLocation.date && eventLocation.date.trim() !== "";
+    const hasStartTime = eventLocation.startTime && eventLocation.startTime.trim() !== "";
+    const hasEndTime = eventLocation.endTime && eventLocation.endTime.trim() !== "";
+    
+    if (eventLocation.locationType === "venue") {
+      const hasVenueName = eventLocation.venueName && eventLocation.venueName.trim() !== "";
+      const hasAddress = eventLocation.address && eventLocation.address.trim() !== "";
+      const hasCity = eventLocation.city && eventLocation.city.trim() !== "";
+      return hasDate && hasStartTime && hasEndTime && hasVenueName && hasAddress && hasCity;
+    }
+    
+    return hasDate && hasStartTime && hasEndTime;
+  };
+
   // Xử lý thay đổi input
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -58,13 +91,11 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
         [name]: value,
       };
 
-      
       if (name === "venueName") {
         updatedData.venueSlug = normalizeVenueName(value);
       }
-      
 
-      onLocationUpdate(updatedData); 
+      onLocationUpdate(updatedData);
       return updatedData;
     });
   };
@@ -80,7 +111,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
 
   // Xử lý khi nhấn Complete
   const handleComplete = () => {
-    setShowDetail(false);
+    if (isFormValid()) {
+      setShowDetail(false);
+    }
   };
 
   // Lấy tên thành phố để hiển thị
@@ -95,29 +128,44 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
         <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
           <h1 className="text-2xl font-bold mb-6">Date and Location</h1>
           <div className="mb-6">
-            <label className="block text-gray-700">Date and time</label>
+            <label className="block text-gray-700">Date and time <span className="text-red-500">*</span></label>
             <div className="flex space-x-4">
-              <input
-                type="date"
-                name="date"
-                value={eventLocation.date}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-2 mt-1"
-              />
-              <input
-                type="time"
-                name="startTime"
-                value={eventLocation.startTime}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-2 mt-1"
-              />
-              <input
-                type="time"
-                name="endTime"
-                value={eventLocation.endTime}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg p-2 mt-1"
-              />
+              <div className="w-full">
+                <input
+                  type="date"
+                  name="date"
+                  value={eventLocation.date}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg p-2 mt-1"
+                />
+                {!eventLocation.date && (
+                  <p className="text-red-500 text-sm mt-1">Date is required</p>
+                )}
+              </div>
+              <div className="w-full">
+                <input
+                  type="time"
+                  name="startTime"
+                  value={eventLocation.startTime}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg p-2 mt-1"
+                />
+                {!eventLocation.startTime && (
+                  <p className="text-red-500 text-sm mt-1">Start time is required</p>
+                )}
+              </div>
+              <div className="w-full">
+                <input
+                  type="time"
+                  name="endTime"
+                  value={eventLocation.endTime}
+                  onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg p-2 mt-1"
+                />
+                {!eventLocation.endTime && (
+                  <p className="text-red-500 text-sm mt-1">End time is required</p>
+                )}
+              </div>
             </div>
           </div>
           <label className="block text-gray-700 mb-2">Location</label>
@@ -160,6 +208,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                     placeholder="Venue Name"
                     className="w-full px-4 py-2 border rounded-md"
                   />
+                  {!eventLocation.venueName && (
+                    <p className="text-red-500 text-sm mt-1">Venue name is required</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                   <div>
@@ -174,6 +225,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                       placeholder="Address"
                       className="w-full px-4 py-2 border rounded-md"
                     />
+                    {!eventLocation.address && (
+                      <p className="text-red-500 text-sm mt-1">Address is required</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-gray-700 mb-2">
@@ -192,14 +246,20 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                         </option>
                       ))}
                     </select>
+                    {!eventLocation.city && (
+                      <p className="text-red-500 text-sm mt-1">City is required</p>
+                    )}
                   </div>
                 </div>
               </form>
             </div>
           )}
           <button
-            className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg"
+            className={`mt-4 px-6 py-2 rounded-lg ${
+              isFormValid() ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
             onClick={handleComplete}
+            disabled={!isFormValid()}
           >
             Complete
           </button>

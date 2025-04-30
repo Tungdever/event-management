@@ -5,7 +5,217 @@ import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import { api } from "../pages/Auth/api";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Typography,
+} from '@mui/material'; 
+const UpgradeOrganizerDialog = ({ open, onClose }) => {
+  const { user } = useAuth();
+  const token = localStorage.getItem('token'); 
+  const [showForm, setShowForm] = useState(false); 
+  const [formData, setFormData] = useState({
+    organizerName: '',
+    organizerAddress: '',
+    organizerWebsite: '',
+    organizerPhone: '',
+    organizerDesc:''
+  });
+  const [errors, setErrors] = useState({
+    organizerName: '',
+    organizerAddress: '',
+    organizerWebsite: '',
+    organizerPhone: '',
+    organizerDesc:''
+  });
 
+  const handleConfirm = () => {
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setShowForm(false);
+    onClose();
+  };
+
+  
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+  
+    setErrors((prev) => ({ ...prev, [name]: '' }));
+  };
+
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = {
+      organizerName: '',
+      organizerAddress: '',
+      organizerWebsite: '',
+      organizerPhone: '',
+      organizerDesc:'',
+    };
+
+    if (!formData.organizerName.trim()) {
+      newErrors.organizerName = 'Organizer name is required';
+      isValid = false;
+    }
+    if (!formData.organizerAddress.trim()) {
+      newErrors.organizerAddress = 'Organizer address is required';
+      isValid = false;
+    }
+    if (!formData.organizerWebsite.trim()) {
+      newErrors.organizerWebsite = 'Organizer website is required';
+      isValid = false;
+    }
+    if (!formData.organizerPhone.trim()) {
+      newErrors.organizerPhone = 'Organizer phone is required';
+      isValid = false;
+    } 
+    if (!formData.organizerDesc.trim()) {
+      newErrors.organizerDesc = 'Organizer description is required';
+      isValid = false;
+    } else if (!/^\+?\d{10,15}$/.test(formData.organizerPhone)) {
+      newErrors.organizerPhone = 'Invalid phone number';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  
+  const handleUpToOrganize = async () => {
+    if (!validateForm()) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/auth/user/upgrade-organizer/${user.email}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      if (response.ok) {
+        alert('Upgrade request sent successfully!');
+        setShowForm(false);
+        onClose(); 
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to upgrade: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error upgrading to organizer:', error);
+      alert('An error occurred while upgrading. Please try again.');
+    }
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      {!showForm ? (
+        <>
+          <DialogTitle>Upgrade to Organizer</DialogTitle>
+          <DialogContent>
+            <Typography>
+              Do you want to upgrade your account to an Organizer role?
+            </Typography>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancel} color="primary">
+              No
+            </Button>
+            <Button onClick={handleConfirm} color="primary" variant="contained">
+              Yes
+            </Button>
+          </DialogActions>
+        </>
+      ) : (
+        <>
+          <DialogTitle>Organizer Information</DialogTitle>
+          <DialogContent>
+            <TextField
+              fullWidth
+              label="Organizer Name"
+              name="organizerName"
+              value={formData.organizerName}
+              onChange={handleInputChange}
+              error={!!errors.organizerName}
+              helperText={errors.organizerName}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Organizer Address"
+              name="organizerAddress"
+              value={formData.organizerAddress}
+              onChange={handleInputChange}
+              error={!!errors.organizerAddress}
+              helperText={errors.organizerAddress}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Organizer Website"
+              name="organizerWebsite"
+              value={formData.organizerWebsite}
+              onChange={handleInputChange}
+              error={!!errors.organizerWebsite}
+              helperText={errors.organizerWebsite}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Organizer Phone"
+              name="organizerPhone"
+              value={formData.organizerPhone}
+              onChange={handleInputChange}
+              error={!!errors.organizerPhone}
+              helperText={errors.organizerPhone}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Organizer Description"
+              name="organizerDesc"
+              value={formData.organizerDesc}
+              onChange={handleInputChange}
+              error={!!errors.organizerDesc}
+              helperText={errors.organizerDesc}
+              margin="normal"
+              required
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCancel} color="primary">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleUpToOrganize}
+              color="primary"
+              variant="contained"
+            >
+              Up to Organizer
+            </Button>
+          </DialogActions>
+        </>
+      )}
+    </Dialog>
+  );
+};
 const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
@@ -183,6 +393,7 @@ const SearchBar = () => {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
   const menuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -227,6 +438,7 @@ const Header = () => {
     { title: "Following", action: null },
     { title: "Account settings", action: null },
     { title: "Log out", action: handleLogout },
+    {title:"Up to Organizer",action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"]}
   ];
 
   // Lọc menuPopup dựa trên vai trò
@@ -265,6 +477,10 @@ const Header = () => {
               {item.text}
             </a>
           ))}
+          <UpgradeOrganizerDialog
+        open={openUpgradeDialog}
+        onClose={() => setOpenUpgradeDialog(false)}
+      />
           <div
             className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
