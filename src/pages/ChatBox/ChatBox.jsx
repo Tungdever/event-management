@@ -125,6 +125,7 @@ const ChatBox = () => {
       const timer = setTimeout(() => {
         stompClient.send("/app/typing", {}, JSON.stringify(typingDTO));
       }, 500);
+     
       return () => clearTimeout(timer);
     }
     if (stompClient && selectedUser) {

@@ -413,6 +413,9 @@ const Header = () => {
   const handleDashboard = () => {
     navigate("/dashboard");
   };
+  const handleNoti = () => {
+    navigate("/notification");
+  };
   const handleLogout = async () => {
     try {
       await api.logout();
@@ -427,16 +430,15 @@ const Header = () => {
   const menuItems = [
     { icon: "bi-calendar4-event", text: "Create event", action: handleCreateEventClick },
     { icon: "bi-heart", text: "Likes", action: handleLike },
-    { icon: "bi-question-circle", text: "Help", action: null },
+    { icon: "bi bi-bell", text: "Noti", action: handleNoti },
   ];
 
   const menuPopup = [
-    { title: "Browse events", action: null, roles: ["ORGANIZER"] },
+   
     { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
-    { title: "Liked", action: null },
+   
     { title: "Tickets", action: handleMyTicket },
-    { title: "Following", action: null },
-    { title: "Account settings", action: null },
+  
     { title: "Log out", action: handleLogout },
     {title:"Up to Organizer",action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"]}
   ];

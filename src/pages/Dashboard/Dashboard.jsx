@@ -43,7 +43,7 @@ const EventsPage = () => {
     }
   };
   const handleActionClick = (action, eventId) => {
-    if (action === 'Edit') {
+    if (action === 'Edit event') {
       // navigate(`/event/${eventId}`);
       navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
     }
@@ -165,7 +165,7 @@ const EventsPage = () => {
                 />
                 {popupVisible === event.eventId && (
                   <div ref={popupRef} className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                    {['Copy Event', 'Copy Link', 'Edit', 'Delete'].map((action) => (
+                    {[ 'Edit event', 'Delete event'].map((action) => (
                       <div
                         key={action}
                         className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"

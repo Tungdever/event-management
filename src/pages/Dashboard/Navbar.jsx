@@ -7,29 +7,29 @@ import { useAuth } from "../Auth/AuthProvider";
 const Navbar = () => {
   
   return (
-    <div className="py-2 px-6 bg-[#f8f4f3] flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30">
+    <div className="py-2 px-6 bg-[#f8f4f3] flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30 h-[45px]">
       <button type="button" className="text-xl text-gray-900 font-semibold">
         <RiMenuLine />
       </button>
 
       {/* Ô tìm kiếm */}
-      <div className="ml-6 relative flex-grow">
+      {/* <div className="ml-6 relative flex-grow">
         <input
           type="text"
           className="w-full max-w-xs py-2 px-4 bg-gray-50 outline-none border border-gray-300 rounded-md text-sm focus:border-blue-500"
           placeholder="Search..."
         />
-      </div>
+      </div> */}
       
       <ul className="ml-auto flex items-center space-x-6">
-        <Dropdown icon={<FaBell />} count={5}>
+        {/* <Dropdown icon={<FaBell />} count={5}>
           <NotificationItem title="New order" description="from a user" />
           <NotificationItem title="System update" description="Check your dashboard" />
         </Dropdown>
         <Dropdown icon={<FaEnvelope />} count={2}>
           <NotificationItem title="John Doe" description="Hello there!" />
           <NotificationItem title="Jane Smith" description="Meeting at 3 PM" />
-        </Dropdown>
+        </Dropdown> */}
         <ProfileDropdown />
       </ul>
     </div>
@@ -91,9 +91,9 @@ const ProfileDropdown = () => {
             <>
             <i className="fa-solid fa-user text-lg"></i>
               <span className="text-[12px]">{user.email}</span>
-              {user.roles.includes('ROLE_ADMIN') && (
+              {/* {user.roles.includes('ROLE_ADMIN') && (
                 <a href="/dashboard" className="text-white hover:underline">Admin Dashboard</a>
-              )}
+              )} */}
              
             </>
           ) : (

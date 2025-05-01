@@ -277,20 +277,20 @@ const EventForm = ({ event, setEvent, onNext }) => {
       </div>
 
       {/* CSS tùy chỉnh cho ProseMirror */}
-      <style jsx>{`
-        .ProseMirror {
-          min-height: 100px !important;
-          padding: 8px;
-          border: none !important;
-          outline: none !important;
-          box-shadow: none !important;
-        }
-        .ProseMirror:focus {
-          border: none !important;
-          outline: none !important;
-          box-shadow: none !important;
-        }
-      `}</style>
+          <style>{`
+      .ProseMirror {
+        min-height: 100px !important;
+        padding: 8px;
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+      .ProseMirror:focus {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+      }
+    `}</style>
     </div>
   );
 };

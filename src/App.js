@@ -53,7 +53,7 @@ import ChatBubble from "./pages/ChatBox/ChatBubble";
 const MainLayout = () => {
   const location = useLocation();
   const { user } = useAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Mặc định mở sidebar
 
   const eventId = location.state?.eventId || undefined;
   const toggleSidebar = () => {
@@ -177,9 +177,8 @@ const MainLayout = () => {
         )}
 
         {isDashboardPage && !isAuthPage && !isFullScreenPageWithHeader && !isAdminPage && (
-          <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
+          <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all">
             <Navbar />
-            {/* {user && (user.primaryRole === "ORGANIZER" ? <Sidebar /> : <Sidebar2 />)} */}
             <Sidebar2 />
             <Routes>
               <Route
@@ -235,9 +234,9 @@ const MainLayout = () => {
         )}
 
         {isDetailOfEvent && !isAuthPage && !isFullScreenPageWithHeader && !isAdminPage && (
-          <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all h-screen">
+          <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all">
             <Navbar />
-            <Sidebar id={eventId}  />
+            <Sidebar id={eventId} />
             <Routes>
               <Route
                 path="/dashboard/view/:eventId"
@@ -332,53 +331,54 @@ const MainLayout = () => {
         )}
 
         {isAdminPage && !isAuthPage && (
-          <div className="flex">
+          <div className="relative min-h-screen">
             <SidebarAdminBoard
               isSidebarOpen={isSidebarOpen}
               toggleSidebar={toggleSidebar}
             />
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col lg:ml-64">
               <Navbar />
-              <Routes>
-                <Route
-                  path="/admin"
-                  element={
-                    <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                      <DashboardPage />
-                    </RoleBasedRouteGroup>
-                  }
-                />
-                <Route
-                  path="/admin/report"
-                  element={
-                    <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                      <ReportPage />
-                    </RoleBasedRouteGroup>
-                  }
-                />
-                <Route
-                  path="/admin/user"
-                  element={
-                    <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                      <UserPage />
-                    </RoleBasedRouteGroup>
-                  }
-                />
-                <Route
-                  path="/admin/role"
-                  element={
-                    <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                      <RolePage />
-                    </RoleBasedRouteGroup>
-                  }
-                />
-              </Routes>
+              <main className="flex-1 overflow-y-auto">
+                <Routes>
+                  <Route
+                    path="/admin"
+                    element={
+                      <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
+                        <DashboardPage />
+                      </RoleBasedRouteGroup>
+                    }
+                  />
+                  <Route
+                    path="/admin/report"
+                    element={
+                      <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
+                        <ReportPage />
+                      </RoleBasedRouteGroup>
+                    }
+                  />
+                  <Route
+                    path="/admin/user"
+                    element={
+                      <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
+                        <UserPage />
+                      </RoleBasedRouteGroup>
+                    }
+                  />
+                  <Route
+                    path="/admin/role"
+                    element={
+                      <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
+                        <RolePage />
+                      </RoleBasedRouteGroup>
+                    }
+                  />
+                </Routes>
+              </main>
             </div>
           </div>
         )}
 
-        {/* Hiển thị ChatBubble trên tất cả các trang trừ trang xác thực */}
-        {user && !isAuthPage && <ChatBubble currentUser={user} />}
+        {user && !isAuthPage && !isDashboardPage && !isAdminPage && <ChatBubble currentUser={user} />}
       </div>
     </WebSocketProvider>
   );

@@ -4,10 +4,15 @@ import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
+import { useAuth } from "../Auth/AuthProvider";
+import { useWebSocket } from "../ChatBox/WebSocketContext";
+import { toast } from "react-toastify";
 const CRUDEvent = () => {
   const [selectedStep, setSelectedStep] = useState("build");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate()
+  const { user} = useAuth();
+  const { stompClient } = useWebSocket();
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -27,7 +32,7 @@ const CRUDEvent = () => {
     },
     tags: [],
     eventVisibility: "public",
-    publishTime: "now",
+    publishTime: new Date().toISOString(),
     refunds: "yes",
     validityDays: 7,
     uploadedImages: [],
@@ -165,8 +170,25 @@ const CRUDEvent = () => {
   
       const eventResult = await eventResponse.json();
       const eventId =  eventResult;
-      //console.log("Event saved with ID:", eventId);
-  
+
+      if (stompClient && stompClient.connected && user?.userId) {
+        const notification = {
+          title: "Sự kiện mới",
+          message: `Bạn đã tạo sự kiện ${event.eventName} thành công!`,
+          userId: user.userId,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        };
+
+        stompClient.send("/app/private", {}, JSON.stringify(notification));
+      } else {
+        console.error("WebSocket not connected or userId missing");
+        toast.error("Không thể gửi thông báo. Kết nối WebSocket không sẵn sàng.");
+      }
+
+      setTimeout(() => {
+        navigate('/');
+      }, 300);
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
           const uploadedSpeakerId = segment?.speaker?.speakerImage

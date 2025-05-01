@@ -155,7 +155,7 @@ const ViewProfile = () => {
                     </li>
                   </ul>
                 </div>
-                <div>
+                {/* <div>
                   <div className="flex items-center space-x-2 font-semibold text-gray-900 leading-8 mb-3">
                     <span className="text-green-500">
                       <svg
@@ -190,12 +190,12 @@ const ViewProfile = () => {
                       <div className="text-gray-500 text-xs">Tháng 3/2020 - Hiện tại</div>
                     </li>
                   </ul>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
           {/* Thẻ bạn bè */}
-          <div className="bg-white p-3 hover:shadow">
+          {/* <div className="bg-white p-3 hover:shadow">
             <div className="flex items-center space-x-3 font-semibold text-gray-900 text-xl leading-8">
               <span className="text-green-500">
                 <svg
@@ -251,7 +251,7 @@ const ViewProfile = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
       {openEdit && (

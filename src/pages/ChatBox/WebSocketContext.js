@@ -7,64 +7,74 @@ import "react-toastify/dist/ReactToastify.css";
 const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
-  const [stompClient, setStompClient] = useState(null);
-  const CustomToast = ({ title, message }) => (
-    <div>
-      <strong>{title}</strong>
-      <div>{message}</div>
-    </div>
-  );
-  useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws");
-    const client = Stomp.over(socket);
-    const token = localStorage.getItem("token");
-    let payload
-    let userId
-    if(token){
-      payload = JSON.parse(atob(token.split(".")[1]));
-      userId = payload.userId;
-    }
-   
-    client.connect({}, () => {
-      console.log("Connected to WebSocket");
-      client.subscribe(`/user/${userId}/specific`, (message) => {
-        const parsedMessage = JSON.parse(message.body);
-        //console.log("Received notification: ", parsedMessage);
+    const [stompClient, setStompClient] = useState(null);
 
-        // Hiển thị thông báo
-        toast.info(<CustomToast title="Thông báo mới" message={parsedMessage.message || "Bạn có một thông báo mới!"} />, {
-          position: "bottom-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-      });
-      setStompClient(client);
-    });
+    const CustomToast = ({ title, message }) => (
+        <div>
+            <strong>{title}</strong>
+            <div>{message}</div>
+        </div>
+    );
 
-    return () => {
-      if (client) {
-        client.disconnect(() => console.log("Disconnected from WebSocket"));
-      }
-    };
-  }, []);
+    useEffect(() => {
+        const socket = new SockJS("http://localhost:8080/ws");
+        const client = Stomp.over(socket);
+        const token = localStorage.getItem("token");
+        let userId;
 
-  const subscribe = (destination, callback) => {
-    if (stompClient) {
-      return stompClient.subscribe(destination, callback);
-    }
-    console.error("stompClient is not initialized");
-  };
+        if (token) {
+            try {
+                const payload = JSON.parse(atob(token.split(".")[1]));
+                userId = payload.userId;
+            } catch (e) {
+                console.error("Error decoding token:", e);
+            }
+        }
 
-  return (
-    <WebSocketContext.Provider value={{ stompClient }}>
-      {children}
-      <ToastContainer /> {/* Đảm bảo ToastContainer được render */}
-    </WebSocketContext.Provider>
-  );
+        client.connect(
+            {},
+            () => {
+                console.log("Connected to WebSocket");
+                if (userId) {
+                    client.subscribe(`/user/${userId}/specific`, (message) => {
+                        const parsedMessage = JSON.parse(message.body);
+                        toast.info(
+                            <CustomToast
+                                title={parsedMessage.title || "Thông báo mới"}
+                                message={parsedMessage.message || "Bạn có một thông báo mới!"}
+                            />,
+                            {
+                                position: "bottom-right",
+                                autoClose: 5000,
+                                hideProgressBar: false,
+                                closeOnClick: true,
+                                pauseOnHover: true,
+                                draggable: true,
+                            }
+                        );
+                    });
+                }
+                setStompClient(client);
+            },
+            (error) => {
+                console.error("WebSocket connection failed:", error);
+                toast.error("Không thể kết nối đến server thông báo. Vui lòng thử lại sau.");
+            }
+        );
+
+        return () => {
+            if (client) {
+                client.disconnect(() => console.log("Disconnected from WebSocket"));
+            }
+        };
+    }, []);
+
+    return (
+        <WebSocketContext.Provider value={{ stompClient }}>
+            {children}
+            <ToastContainer />
+        </WebSocketContext.Provider>
+    );
 };
 
 export const useWebSocket = () => useContext(WebSocketContext);

@@ -32,7 +32,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
             ...prevData,
             date: dateBegin,
           };
-          onLocationUpdate(updatedData);
+          //onLocationUpdate(updatedData);
           return updatedData;
         });
         localStorage.removeItem("dateBegin"); 
@@ -40,19 +40,6 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
     }
   }, []);
 
-  useEffect(() => {
-    setEventLocation({
-      date: "",
-      startTime: "",
-      endTime: "",
-      locationType: "venue",
-      venueName: "",
-      venueSlug: "",
-      address: "",
-      city: "",
-      ...locationData,
-    });
-  }, [locationData]);
 
   // Hàm chuẩn hóa venueName thành slug
   const normalizeVenueName = (name) => {

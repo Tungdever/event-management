@@ -289,7 +289,7 @@ const HomePage = () => {
     </div> */}
       <SliderEvent />
       <Navbar />
-      <ListEventScroll events={eventData} />
+      <ListEventScroll  />
       <EventListings />
       <TopDestinations />
       <Footer />
