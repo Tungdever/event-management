@@ -73,6 +73,7 @@ const MainLayout = () => {
     "/event-like",
     "/createEvent",
     "/all-event",
+    "/notification"
   ].includes(location.pathname) ||
     location.pathname.startsWith("/event/") ||
     location.pathname.startsWith("/list-event-search-by");
@@ -118,6 +119,7 @@ const MainLayout = () => {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgot" element={<ForgotPassword />} />
             <Route path="/event-signup" element={<EventSignup />} />
+
           </Routes>
         )}
 
@@ -171,15 +173,24 @@ const MainLayout = () => {
                     </RoleBasedRouteGroup>
                   }
                 />
+                <Route
+                path="/notification"
+                element={
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                    <NotificationList />
+                  </RoleBasedRouteGroup>
+                }
+              />
               </Routes>
             </div>
           </>
         )}
 
         {isDashboardPage && !isAuthPage && !isFullScreenPageWithHeader && !isAdminPage && (
-          <div className="w-full md:w-[calc(100%-256px)] md:ml-64 min-h-screen transition-all">
-            <Navbar />
-            <Sidebar2 />
+          <div className="flex flex-col md:flex-row min-h-screen">
+          <Sidebar2 isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+          <div className="w-full md:w-[calc(100%-224px)] lg:w-[calc(100%-256px)] md:ml-56 lg:ml-64 min-h-screen transition-all">
+            <Navbar toggleSidebar={toggleSidebar} />
             <Routes>
               <Route
                 path="/dashboard"
@@ -213,14 +224,14 @@ const MainLayout = () => {
                   </RoleBasedRouteGroup>
                 }
               />
-              <Route
+              {/* <Route
                 path="/notification"
                 element={
                   <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
                     <NotificationList />
                   </RoleBasedRouteGroup>
                 }
-              />
+              /> */}
               <Route
                 path="/view"
                 element={
@@ -231,6 +242,7 @@ const MainLayout = () => {
               />
             </Routes>
           </div>
+        </div>
         )}
 
         {isDetailOfEvent && !isAuthPage && !isFullScreenPageWithHeader && !isAdminPage && (

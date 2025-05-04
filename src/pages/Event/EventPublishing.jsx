@@ -48,10 +48,7 @@ const TagsInput = ({ tags, setTags }) => {
 };
 
 const PublishSettings = ({
-  eventVisibility,
-  setEventVisibility,
-  publishTime,
-  setPublishTime,
+
   refunds,
   setRefunds,
   validityDays,
@@ -164,15 +161,15 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
         <div className="flex-1 bg-gray-100 p-3 rounded-lg ">
           <div className="bg-white p-4 rounded-[20px] shadow-md mb-4 text-[14px] relative">
             <div className="flex items-center justify-center h-48 rounded-lg mb-4">
-            {event.uploadedImages.map((img, index) => (
-                    <div key={index} className="relative  mb-4">
-                      <img
-                        src={img}
-                        alt={`Uploaded ${index}`}
-                        className="w-[448px] h-[192px] object-cover rounded-[14px]"
-                      />
-                    </div>
-                  ))}
+            {event.uploadedImages?.length > 0 && (
+                <div className="relative mb-4">
+                  <img
+                    src={URL.createObjectURL(event.uploadedImages[0])}
+                    alt="Uploaded Event Image"
+                    className="w-[448px] h-[192px] object-cover rounded-[14px]"
+                  />
+                </div>
+              )}
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {event.eventName || "Untitled Event"}

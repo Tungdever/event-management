@@ -15,6 +15,8 @@ const EventForm = ({ event, setEvent, onNext }) => {
   const [loading, setLoading] = useState(true);
   const [pasteError, setPasteError] = useState('');
 
+  
+
   // Khởi tạo Tiptap editor
   const editor = useEditor({
     extensions: [

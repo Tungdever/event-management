@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useWebSocket } from "./WebSocketContext";
 import axios from "axios";
+import { FaBars } from "react-icons/fa";
 
 const ChatBox = () => {
   const { stompClient } = useWebSocket();
@@ -9,9 +10,14 @@ const ChatBox = () => {
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [typingStatus, setTypingStatus] = useState({});
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const [currentUser, setCurrentUser] = useState({ userId: "", email: "" });
   const token = localStorage.getItem("token");
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen((prev) => !prev);
+  };
 
   // Get current user from token
   useEffect(() => {
@@ -125,7 +131,7 @@ const ChatBox = () => {
       const timer = setTimeout(() => {
         stompClient.send("/app/typing", {}, JSON.stringify(typingDTO));
       }, 500);
-     
+
       return () => clearTimeout(timer);
     }
     if (stompClient && selectedUser) {
@@ -153,6 +159,7 @@ const ChatBox = () => {
         isRead: false,
       };
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
+      setMessages((prevMessages) => [...prevMessages, messageDTO]);
       setInputMessage("");
     }
   };
@@ -162,27 +169,50 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex flex-col sm:flex-row h-screen bg-gray-100">
+      {/* Hamburger menu for mobile */}
+      <button
+        className="sm:hidden p-2 text-gray-600 bg-white border-b border-gray-200 fixed top-0 left-0 z-50"
+        onClick={toggleSidebar}
+      >
+        <FaBars className="text-lg" />
+      </button>
+
       {/* Left sidebar: User list */}
-      <div className="w-1/4 bg-white border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">Messages</h2>
+      <div
+        className={`fixed sm:static top-0 left-0 h-screen bg-white border-r border-gray-200 transition-transform duration-300 z-40
+          w-full sm:w-1/3 lg:w-1/4 max-w-[280px] sm:max-w-none
+          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
+      >
+        <div className="p-3 sm:p-4 border-b border-gray-200">
+          <h2 className="text-base sm:text-lg lg:text-lg font-semibold">
+            Messages
+          </h2>
         </div>
-        <div className="overflow-y-auto h-full">
+        <div className="overflow-y-auto h-[calc(100%-60px)] sm:h-full">
           {users.map((user) => (
             <div
               key={user.userId}
-              className={`p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
+              className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
                 selectedUser?.userId === user.userId ? "bg-gray-200" : ""
               }`}
-              onClick={() => setSelectedUser(user)}
+              onClick={() => {
+                setSelectedUser(user);
+                setIsSidebarOpen(false);
+              }}
             >
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+              <div
+                className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
+              >
                 {user.name[0]}
               </div>
-              <div className="ml-3">
-                <p className="font-medium">{user.name}</p>
-                <p className="text-sm text-gray-500">{user.email}</p>
+              <div className="ml-2 sm:ml-3">
+                <p className="font-medium text-sm sm:text-base truncate">
+                  {user.name}
+                </p>
+                <p className="text-xs sm:text-sm text-gray-500 truncate">
+                  {user.email}
+                </p>
               </div>
             </div>
           ))}
@@ -190,30 +220,34 @@ const ChatBox = () => {
       </div>
 
       {/* Chat window */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col mt-10 sm:mt-0">
         {selectedUser ? (
           <>
             {/* Chat header */}
-            <div className="p-4 bg-white border-b border-gray-200 flex items-center">
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white">
+            <div className="p-2 sm:p-3 lg:p-4 bg-white border-b border-gray-200 flex items-center">
+              <div
+                className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
+              >
                 {selectedUser.name[0]}
               </div>
-              <h2 className="ml-3 text-lg font-semibold">{selectedUser.name}</h2>
+              <h2 className="ml-2 sm:ml-3 text-base sm:text-lg lg:text-lg font-semibold truncate">
+                {selectedUser.name}
+              </h2>
             </div>
 
             {/* Message display area */}
-            <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
+            <div className="flex-1 p-2 sm:p-3 lg:p-4 overflow-y-auto bg-gray-50">
               {messages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`mb-4 flex ${
+                  className={`mb-3 sm:mb-4 flex ${
                     msg.senderEmail === currentUser.email
                       ? "justify-end"
                       : "justify-start"
                   }`}
                 >
                   <div
-                    className={`max-w-xs p-3 rounded-lg ${
+                    className={`max-w-[70%] sm:max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm lg:text-base ${
                       msg.senderEmail === currentUser.email
                         ? "bg-blue-500 text-white"
                         : msg.isRead
@@ -222,20 +256,20 @@ const ChatBox = () => {
                     }`}
                   >
                     <p>{msg.content}</p>
-                    <p className="text-xs mt-1 opacity-70">
+                    <p className="text-[10px] sm:text-xs mt-1 opacity-70">
                       {new Date(msg.timestamp).toLocaleTimeString()}
                     </p>
                   </div>
                 </div>
               ))}
               {typingStatus[selectedUser.email] && (
-                <div className="text-sm text-gray-500">Typing...</div>
+                <div className="text-xs sm:text-sm text-gray-500">Typing...</div>
               )}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Message input */}
-            <div className="p-4 bg-white border-t border-gray-200">
+            <div className="p-2 sm:p-3 lg:p-4 bg-white border-t border-gray-200">
               <div className="flex items-center">
                 <input
                   type="text"
@@ -243,11 +277,11 @@ const ChatBox = () => {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type a message..."
-                  className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 p-1.5 sm:p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
                 />
                 <button
                   onClick={sendMessage}
-                  className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                  className="ml-1 sm:ml-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xs sm:text-sm"
                 >
                   Send
                 </button>
@@ -256,7 +290,9 @@ const ChatBox = () => {
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-500">Select a user to start chatting</p>
+            <p className="text-gray-500 text-sm sm:text-base">
+              Select a user to start chatting
+            </p>
           </div>
         )}
       </div>

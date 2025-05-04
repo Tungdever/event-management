@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'; 
+
 const UpgradeOrganizerDialog = ({ open, onClose }) => {
   const { user } = useAuth();
   const token = localStorage.getItem('token'); 
@@ -42,12 +43,9 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
     onClose();
   };
 
-  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-
-  
     setErrors((prev) => ({ ...prev, [name]: '' }));
   };
 
@@ -89,7 +87,6 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
     return isValid;
   };
 
-  
   const handleUpToOrganize = async () => {
     if (!validateForm()) return;
 
@@ -216,6 +213,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
     </Dialog>
   );
 };
+
 const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
@@ -244,23 +242,23 @@ const LocationDropdown = ({ onLocationChange }) => {
   };
 
   return (
-    <div className="relative flex items-center px-4" ref={dropdownRef}>
-      <FaMapMarkerAlt className="text-gray-500 cursor-pointer" />
+    <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4" ref={dropdownRef}>
+      <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
       <div
-        className="relative ml-2 text-gray-500 text-sm cursor-pointer flex items-center"
+        className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="px-3 py-2">
+        <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2">
           {locations.find((loc) => loc.slug === selected)?.name || selected}
         </span>
-        <FaChevronDown className="ml-2 text-gray-400" />
+        <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
       </div>
       {isOpen && (
-        <div className="absolute top-full left-8 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+        <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
           {locations.map((city) => (
             <div
               key={city.slug}
-              className="p-2 text-gray-700 text-sm hover:bg-orange-200 cursor-pointer transition"
+              className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
               onClick={() => handleSelectCity(city.slug)}
             >
               {city.name}
@@ -345,15 +343,15 @@ const SearchBar = () => {
 
   return (
     <div
-      className="relative flex items-center bg-white rounded-full border p-2 w-full max-w-2xl text-[13px] h-[40px]"
+      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
       ref={searchRef}
     >
-      <div className="flex items-center px-4 w-[260px]">
-        <i className="fas fa-search text-gray-500"></i>
+      <div className="flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[180px] sm:w-[220px] md:w-[200px] lg:w-[260px]">
+        <i className="fas fa-search text-gray-500 text-sm sm:text-base md:text-sm lg:text-base"></i>
         <input
           type="text"
           placeholder="Search events by name"
-          className="ml-2 outline-none text-gray-500 w-full"
+          className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 outline-none text-gray-500 w-full text-xs sm:text-sm md:text-xs lg:text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setShowHistory(true)}
@@ -361,11 +359,11 @@ const SearchBar = () => {
         />
       </div>
       {showHistory && (
-        <div className="absolute top-full left-10 w-[286px] bg-white border rounded shadow-lg z-50">
+        <div className="absolute top-full left-6 sm:left-8 md:left-8 lg:left-10 w-[180px] sm:w-[220px] md:w-[200px] lg:w-[286px] bg-white border rounded shadow-lg z-50">
           {searchHistory.map((item, index) => (
             <div
               key={index}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer"
+              className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm md:text-xs lg:text-sm"
               onClick={() => {
                 setSearchTerm(item);
                 setShowHistory(false);
@@ -377,15 +375,15 @@ const SearchBar = () => {
           ))}
         </div>
       )}
-      <div className="border-l border-gray-300 h-6 mx-4"></div>
-      <div className="relative flex items-center px-4">
+      <div className="border-l border-gray-300 h-4 sm:h-6 md:h-5 lg:h-6 mx-2 sm:mx-3 md:mx-3 lg:mx-4"></div>
+      <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4">
         <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
       <button
-        className="ml-auto bg-red-600 text-white rounded-full px-2 py-1 hover:bg-red-700"
+        className="ml-auto bg-red-600 text-white rounded-full px-1 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-1 hover:bg-red-700"
         onClick={handleSearch}
       >
-        <i className="fas fa-search"></i>
+        <i className="fas fa-search text-sm sm:text-base md:text-sm lg:text-base"></i>
       </button>
     </div>
   );
@@ -393,28 +391,36 @@ const SearchBar = () => {
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
   const menuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   const handleCreateEventClick = () => {
     navigate("/createEvent");
+    setIsMobileMenuOpen(false);
   };
   const handleHomepage = () => {
     navigate("/");
+    setIsMobileMenuOpen(false);
   };
   const handleLike = () => {
     navigate("/event-like");
+    setIsMobileMenuOpen(false);
   };
   const handleMyTicket = () => {
     navigate("/myticket");
+    setIsMobileMenuOpen(false);
   };
   const handleDashboard = () => {
     navigate("/dashboard");
+    setIsMobileMenuOpen(false);
   };
   const handleNoti = () => {
     navigate("/notification");
+    setIsMobileMenuOpen(false);
   };
   const handleLogout = async () => {
     try {
@@ -422,6 +428,7 @@ const Header = () => {
       logout();
       alert("Logged out successfully");
       navigate("/login");
+      setIsMobileMenuOpen(false);
     } catch (error) {
       alert("Logout failed: " + (error.msg || "Server error"));
     }
@@ -434,16 +441,12 @@ const Header = () => {
   ];
 
   const menuPopup = [
-   
     { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
-   
     { title: "Tickets", action: handleMyTicket },
-  
     { title: "Log out", action: handleLogout },
-    {title:"Up to Organizer",action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"]}
+    { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }
   ];
 
-  // Lọc menuPopup dựa trên vai trò
   const filteredMenuPopup = menuPopup.filter(
     (item) => !item.roles || item.roles.includes(user?.primaryRole)
   );
@@ -453,6 +456,9 @@ const Header = () => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
       }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -460,49 +466,54 @@ const Header = () => {
 
   return (
     <div className="bg-white shadow fixed top-0 left-0 w-full z-10">
-      <div className="w-full px-4 py-4 h-16 flex justify-between items-center">
-        <div
-          className="text-red-500 text-xl font-bold ml-4 cursor-pointer hover:text-red-700 transition duration-300"
-          onClick={handleHomepage}
-        >
-          Manage Event
+      <div className="w-full px-4 py-2 sm:py-3 md:py-3 lg:py-4 h-auto sm:h-auto md:h-14 lg:h-16 flex flex-col sm:flex-col md:flex-row justify-between items-center">
+        <div className="flex justify-between items-center w-full sm:w-full md:w-auto">
+          <div
+            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
+            onClick={handleHomepage}
+          >
+            Manage Event
+          </div>
+          <button
+            className="md:hidden text-gray-500"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            <i className="fas fa-bars text-base sm:text-lg md:text-lg"></i>
+          </button>
         </div>
-        <SearchBar />
-        <div className="flex items-center gap-6 mx-4">
+        <div className="w-full sm:w-full md:w-auto mt-2 sm:mt-2 md:mt-0">
+          <SearchBar />
+        </div>
+        <div className="hidden md:flex items-center gap-2 md:gap-3 lg:gap-6 mx-0 md:mx-4" ref={menuRef}>
           {menuItems.map((item, index) => (
             <a
               key={index}
-              className="flex flex-col items-center text-gray-500 text-[13px] font-medium px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
+              className="flex flex-col items-center text-gray-500 text-[11px] md:text-[12px] lg:text-[13px] font-medium px-2 md:px-3 lg:px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
               onClick={item.action}
             >
-              <i className={`${item.icon} text-lg`}></i>
+              <i className={`${item.icon} text-sm md:text-base lg:text-lg`}></i>
               {item.text}
             </a>
           ))}
-          <UpgradeOrganizerDialog
-        open={openUpgradeDialog}
-        onClose={() => setOpenUpgradeDialog(false)}
-      />
           <div
-            className="relative flex items-center text-gray-500 text-[13px] pl-[20px] cursor-pointer"
+            className="relative flex items-center text-gray-500 text-[11px] md:text-[12px] lg:text-[13px] pl-2 md:pl-3 lg:pl-[20px] cursor-pointer"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            ref={menuRef}
             onMouseEnter={() => setIsMenuOpen(true)}
           >
             {user ? (
               <>
-                <i className="fa-solid fa-user text-lg"></i>
-                <p className="pl-[6px] font-medium">{user.email}</p>
-                <i className="bi bi-chevron-down pt-[4px] pl-[3px] cursor-pointer"></i>
+                <i className="fa-solid fa-user text-sm md:text-base lg:text-lg"></i>
+                <p className="pl-1 md:pl-1 lg:pl-[6px] font-medium hidden lg:block">{user.email}</p>
+                <i className="bi bi-chevron-down pt-1 md:pt-1 lg:pt-[4px] pl-1 md:pl-1 lg:pl-[3px] cursor-pointer text-xs md:text-sm lg:text-sm"></i>
                 {isMenuOpen && (
                   <div
-                    className="absolute right-0 top-full mt-2 w-[205px] bg-white border rounded shadow-lg z-50"
+                    className="absolute right-0 top-full mt-2 w-44 md:w-48 lg:w-[205px] bg-white border rounded shadow-lg z-50"
                     onMouseLeave={() => setIsMenuOpen(false)}
                   >
                     {filteredMenuPopup.map((item, index) => (
                       <a
                         key={index}
-                        className="block pl-4 pr-10 py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[14px]"
+                        className="block pl-4 pr-10 py-2 md:py-3 lg:py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[12px] md:text-[13px] lg:text-[14px]"
                         onClick={item.action}
                       >
                         {item.title}
@@ -513,16 +524,53 @@ const Header = () => {
               </>
             ) : (
               <>
-                <a href="/login" className="text-white hover:underline">
+                <a href="/login" className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]">
                   Login
                 </a>
-                <a href="/signup" className="text-white hover:underline">
+                <a href="/signup" className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]">
                   Sign Up
                 </a>
               </>
             )}
           </div>
         </div>
+        {isMobileMenuOpen && (
+          <div className="md:hidden w-full bg-white border-t mt-2 py-2" ref={mobileMenuRef}>
+            {menuItems.map((item, index) => (
+              <a
+                key={index}
+                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm"
+                onClick={item.action}
+              >
+                {item.text}
+              </a>
+            ))}
+            {user ? (
+              filteredMenuPopup.map((item, index) => (
+                <a
+                  key={index}
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm"
+                  onClick={item.action}
+                >
+                  {item.title}
+                </a>
+              ))
+            ) : (
+              <>
+                <a href="/login" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm">
+                  Login
+                </a>
+                <a href="/signup" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm">
+                  Sign Up
+                </a>
+              </>
+            )}
+          </div>
+        )}
+        <UpgradeOrganizerDialog
+          open={openUpgradeDialog}
+          onClose={() => setOpenUpgradeDialog(false)}
+        />
       </div>
     </div>
   );
