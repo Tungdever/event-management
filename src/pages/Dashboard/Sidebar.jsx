@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";  
-import { FaChevronDown, FaTachometerAlt, FaUsers } from "react-icons/fa"; 
+import { FaChevronDown, FaTachometerAlt, FaUsers, FaChartLine } from "react-icons/fa"; 
 import { MdEvent } from "react-icons/md";
 
 // Hàm helper để tạo menu items với eventId
@@ -34,6 +34,17 @@ const createMenuItems = (eventId) => [
         title: "Ticket", 
         path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`
       },
+    ],
+  },
+  {
+    title: "Reports",
+    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`,
+    icon: <FaChartLine />,
+    submenu: [
+      { 
+        title: "Order", 
+        path: `/dashboard/order${eventId ? `/${eventId}` : ''}`,
+      },  
     ],
   },
   {

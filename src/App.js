@@ -4,7 +4,7 @@ import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
 import SearchPage from "./pages/Event/SearchPage";
 import CalendarPage from "./pages/Dashboard/Calendar";
-import React, {  useState } from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -47,10 +47,13 @@ import RolePage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
 import PaymentResult from "./pages/Checkout/PaymentResult"
 import MyBooking from "./pages/Booking/MyBooking";
+import ReportOrder from "./pages/report/order"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const MainLayout = () => {
   const location = useLocation();
   const eventId = location.state?.eventId || undefined;
-  
+
   // Các trang auth
   const isAuthPage = ["/login", "/signup", "/forgot"].includes(location.pathname);
 
@@ -65,7 +68,7 @@ const MainLayout = () => {
     "/createEvent",
     "/all-event",
     "/payment-result",
-    "/mybooking"
+    "/my-bookings"
   ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by");
 
   // Các base path của trang chi tiết sự kiện
@@ -81,6 +84,7 @@ const MainLayout = () => {
     "/dashboard/editEvent",
     "/dashboard/ticket",
     "/dashboard/test",
+    "/dashboard/order"
   ];
   const handleEventClick = (eventId) => {
     console.log(`Clicked event with ID: ${eventId}`);
@@ -94,9 +98,9 @@ const MainLayout = () => {
   const isAdminPage = location.pathname.startsWith("/admin");
   // Các trang dashboard chung
   const isDashboardPage =
-  !isFullScreenPageWithHeader && !isAuthPage && !isDetailOfEvent && !isAdminPage;
+    !isFullScreenPageWithHeader && !isAuthPage && !isDetailOfEvent && !isAdminPage;
 
-const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -107,7 +111,7 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     <div className="w-full min-h-screen bg-white">
       {/* 1. Auth Pages */}
       {isAuthPage && (
-        
+
         <Routes>
           <Route path="/login" element={<LoginForm />} />
           <Route path="/signup" element={<SignUp />} />
@@ -129,11 +133,11 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
               <Route path="/refund" element={<Refund />} />
               <Route path="/event-like" element={<EventPage />} />
               <Route path="/createEvent" element={<CRUDEvent />} />
-              <Route path="/all-event" element={<EventGrid onEventClick={handleEventClick} />}/>
-              <Route path="/list-event-search-by/:categoryName" element={<SearchByType  />}/>
-              <Route path="/payment-result" element={<PaymentResult  />}/>
-              <Route path="/mybooking" element={<MyBooking  />}/>
-              
+              <Route path="/all-event" element={<EventGrid onEventClick={handleEventClick} />} />
+              <Route path="/list-event-search-by/:categoryName" element={<SearchByType />} />
+              <Route path="/payment-result" element={<PaymentResult />} />
+              <Route path="/my-bookings" element={<MyBooking />} />
+
             </Routes>
           </div>
         </>
@@ -150,9 +154,9 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             <Route path="/calendar" element={<CalendarPage />} />
             <Route
               path="/notification"
-              element={<NotificationList  />}
+              element={<NotificationList />}
             />
-            <Route path="/view" element={<ViewProfile  />} />
+            <Route path="/view" element={<ViewProfile />} />
           </Routes>
         </div>
       )}
@@ -163,7 +167,6 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
           <Navbar />
           <Sidebar id={eventId} />
           <Routes>
-            
             <Route path="/dashboard/view/:eventId" element={<ViewProfile />} />
             <Route path="/dashboard/refund" element={<RefundManagement />} />
             <Route path="/dashboard/refund/:eventId" element={<RefundManagement />} />
@@ -178,10 +181,11 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
             <Route path="/dashboard/addticket" element={<AddTicket />} />
             <Route path="/dashboard/addticket/:eventId" element={<AddTicket />} />
             <Route path="/dashboard/member" element={<EmployeeList />} />
-            <Route path="/dashboard/member/:eventId" element={<EmployeeList  />} />
+            <Route path="/dashboard/member/:eventId" element={<EmployeeList />} />
             <Route path="/dashboard/editEvent" element={<EditEvent />} />
             <Route path="/dashboard/editEvent/:eventId" element={<EditEvent />} />
             <Route path="/dashboard/ticket" element={<TicketDashboard />} />
+            <Route path="/dashboard/order" element={<ReportOrder />} />
             <Route path="/dashboard/ticket/:eventId" element={<TicketDashboard />} />
             <Route path="/dashboard/event/detail/:eventId" element={<EditEvent />} />
           </Routes>
@@ -194,14 +198,14 @@ const [isSidebarOpen, setIsSidebarOpen] = useState(false);
           <div className="flex-1 flex flex-col">
             <Navbar />
             <Routes>
-                <Route path="/admin" element={<DashboardPage />} />
-                <Route path="/admin/report" element={<ReportPage />} />
-                <Route path="/admin/user" element={<UserPage />} />
-                <Route path="/admin/role" element={<RolePage />} />
-              </Routes>
+              <Route path="/admin" element={<DashboardPage />} />
+              <Route path="/admin/report" element={<ReportPage />} />
+              <Route path="/admin/user" element={<UserPage />} />
+              <Route path="/admin/role" element={<RolePage />} />
+            </Routes>
           </div>
         </div>
-        
+
       )}
     </div>
   );
@@ -210,6 +214,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <ToastContainer />
         <MainLayout />
       </AuthProvider>
     </Router>

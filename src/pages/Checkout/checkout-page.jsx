@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
 import VNPAY from "../../assets/VNPAY.jpeg";
 import momo from "../../assets/MoMo.png";
-
+import { toast } from 'react-toastify';
 const CheckoutPage = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -13,11 +13,15 @@ const CheckoutPage = (props) => {
   const total = checkoutData?.tickets?.reduce((sum, ticket) => {
     return sum + ticket.price * ticket.quantity;
   }, 0);
-  const [method, setMethod] = useState("MoMo");
+  const [method, setMethod] = useState("");
   const handleClick = (method) => {
     setMethod(method);
   };
   const checkoutHandle = async () => {
+    if (method === "") {
+      toast.warn("Select the payment method!");
+      return;
+    }
     const token = localStorage.getItem('token'); // 'token' là tên của key trong localStorage
     let userId;
     if (token) {
@@ -28,7 +32,7 @@ const CheckoutPage = (props) => {
       // Lấy giá trị userId từ payload
       userId = decodedPayload.userId;
     } else {
-      console.log("Token không tồn tại trong localStorage");
+      toast.error("Token does not exist.");
     }
     const tickets = checkoutData?.tickets?.reduce((acc, ticket) => {
       acc[ticket.ticketId] = ticket.quantity;
@@ -36,59 +40,67 @@ const CheckoutPage = (props) => {
     }, {});
     const data = {
       "orderInfo": checkoutData?.eventData.eventName,
+      "eventId": checkoutData?.eventData.eventId,
       "amount": total,
       "userId": userId,
       "tickets": tickets
     }
     if (method === "MoMo") {
       try {
-        const response = await axios.post('http://localhost:8080/api/payment/create-momo', data, {
+        const response = await axios.post('http://localhost:8080/api/v1/payment/create-momo', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           }
         });
-        console.log(response.data.payUrl);
         window.location.href = response.data.payUrl;
       } catch (error) {
-        throw error;
+        toast.error("Payment via Momo failed. Please try again.");
+        console.error(error);
       }
-    }
-    else {
+    } else {
       try {
-        const response = await axios.post('http://localhost:8080/api/payment/create-vnpay', data, {
+        const response = await axios.post('http://localhost:8080/api/v1/payment/create-vnpay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           }
         });
-        console.log(response.data.paymentUrl);
         window.location.href = response.data.paymentUrl;
       } catch (error) {
-        throw error;
+        toast.error("Payment via VNPay failed. Please try again.");
+        console.error(error);
       }
     }
+
   };
   return (
     <div className="checkout-page-container">
       <div className="flex flex-wrap max-w-[950px] bg-white rounded-[12px] p-5 gap-[60px]">
         <div className="flex flex-col flex-1 min-w-[500px]">
           <span className="font-normal text-black text-[25px] mb-[25px]">Payment Method</span>
-          <div className="flex items-center justify-between p-[15px] rounded-[8px] border border-[#e8e9eb] cursor-pointer mb-[15px] hover:border-blue-500 focus:outline-none focus:border-blue-500" tabindex="0" onClick={() => handleClick("MoMo")}>
+          <div
+            className={`flex items-center justify-between p-[15px] rounded-[8px] border cursor-pointer mb-[15px] ${method === "MoMo" ? "border-2 border-blue-600 shadow-md bg-blue-50" : "border-[#e8e9eb]"
+              }`}
+            onClick={() => handleClick("MoMo")}
+          >
             <div className="flex">
-              <img className="mr-1" src={momo} alt="Visa" width="25" />
+              <img className="mr-1" src={momo} alt="MoMo" width="25" />
               <span>MoMo</span>
             </div>
           </div>
 
-          {/* Nhấn để mở hoặc đóng */}
-          <div className="flex items-center justify-between p-[15px] rounded-[8px] border border-[#e8e9eb] cursor-pointer mb-[15px] hover:border-blue-500 focus:outline-none focus:border-blue-500" tabindex="0" onClick={() => handleClick("VNPAY")}>
-            <div className='flex'>
-              <img className="mr-1" src={VNPAY} alt="Visa" width="80px" />
+          <div
+            className={`flex items-center justify-between p-[15px] rounded-[8px] border cursor-pointer mb-[15px] ${method === "VNPAY" ? "border-2 border-blue-600 shadow-md bg-blue-50" : "border-[#e8e9eb]"
+              }`}
+            onClick={() => handleClick("VNPAY")}
+          >
+            <div className="flex">
+              <img className="mr-1" src={VNPAY} alt="VNPAY" width="80px" />
               <span>VNPAY</span>
             </div>
-
           </div>
+
 
         </div>
         <div className="flex-1 bg-[#f5f8ff] rounded-[12px] p-5">
