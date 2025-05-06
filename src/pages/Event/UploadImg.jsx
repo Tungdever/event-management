@@ -3,7 +3,21 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
-  const [images, setImages] = useState(uploadedImages.map(file => ({ file, url: URL.createObjectURL(file) })) || []);
+  const getCloudinaryUrl = (publicId) =>
+    publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
+
+  const initializeImages = (images) => {
+    return images.map((item) => {
+      if (item instanceof File || item instanceof Blob) {
+        return { file: item, url: URL.createObjectURL(item) };
+      } else if (typeof item === "string") {
+        return { file: null, url: item.startsWith("http") ? item : getCloudinaryUrl(item) };
+      }
+      return null;
+    }).filter((img) => img !== null);
+  };
+
+  const [images, setImages] = useState(initializeImages(uploadedImages || []));
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -14,24 +28,24 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
 
     const newImages = files.map((file) => ({
       file,
-      url: URL.createObjectURL(file), // Chỉ dùng URL để hiển thị
+      url: URL.createObjectURL(file),
     }));
     const updatedImages = [...images, ...newImages];
     setImages(updatedImages);
-    setUploadedImages(updatedImages.map((img) => img.file)); // Truyền File objects
+    setUploadedImages(updatedImages.map((img) => img.file || img.url));
   };
 
   const handleDeleteImage = (indexToDelete) => {
     const updatedImages = images.filter((_, index) => index !== indexToDelete);
     setImages(updatedImages);
-    setUploadedImages(updatedImages.map((img) => img.file));
+    setUploadedImages(updatedImages.map((img) => img.file || img.url));
     if (updatedImages.length === 0) {
       setShowUpload(false);
     }
   };
 
   const handleComplete = () => {
-    setUploadedImages(images.map((img) => img.file));
+    setUploadedImages(images.map((img) => img.file || img.url));
     setShowUpload(false);
   };
 
@@ -117,6 +131,20 @@ const UploadedImagesSlider = ({ images, onEdit }) => {
 const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
   const [showUpload, setShowUpload] = useState(false);
 
+  const getCloudinaryUrl = (publicId) =>
+    publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
+
+  const initializeImages = (images) => {
+    return images.map((item) => {
+      if (item instanceof File || item instanceof Blob) {
+        return { file: item, url: URL.createObjectURL(item) };
+      } else if (typeof item === "string") {
+        return { file: null, url: item.startsWith("http") ? item : getCloudinaryUrl(item) };
+      }
+      return null;
+    }).filter((img) => img !== null);
+  };
+
   const handleEditImages = () => {
     setShowUpload(true);
   };
@@ -126,10 +154,7 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
       {!showUpload ? (
         uploadedImages.length > 0 ? (
           <UploadedImagesSlider
-            images={uploadedImages.map((file) => ({
-              file,
-              url: URL.createObjectURL(file),
-            }))}
+            images={initializeImages(uploadedImages)}
             onEdit={handleEditImages}
           />
         ) : (

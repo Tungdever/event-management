@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material'; 
+import Swal from 'sweetalert2';
 
 const UpgradeOrganizerDialog = ({ open, onClose }) => {
   const { user } = useAuth();
@@ -104,16 +105,29 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
       );
 
       if (response.ok) {
-        alert('Upgrade request sent successfully!');
+         Swal.fire({
+          icon: 'success',
+          title: 'success',
+        text: 'upgrade success',
+      });
         setShowForm(false);
         onClose(); 
       } else {
         const errorData = await response.json();
-        alert(`Failed to upgrade: ${errorData.message || 'Unknown error'}`);
+        Swal.fire({
+          icon: 'error',
+          title: 'error',
+          text: 'upgrade failure',
+        });
       }
     } catch (error) {
       console.error('Error upgrading to organizer:', error);
-      alert('An error occurred while upgrading. Please try again.');
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: 'An error occurred while upgrading. Please try again.',
+      });
+      
     }
   };
 
@@ -242,31 +256,31 @@ const LocationDropdown = ({ onLocationChange }) => {
   };
 
   return (
-    <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4" ref={dropdownRef}>
-      <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
-      <div
-        className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2">
-          {locations.find((loc) => loc.slug === selected)?.name || selected}
-        </span>
-        <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
-      </div>
-      {isOpen && (
-        <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-          {locations.map((city) => (
-            <div
-              key={city.slug}
-              className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
-              onClick={() => handleSelectCity(city.slug)}
-            >
-              {city.name}
-            </div>
-          ))}
-        </div>
-      )}
+    <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[120px] lg:w-[200px]" ref={dropdownRef}>
+    <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
+    <div
+      className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2 truncate w-full">
+        {locations.find((loc) => loc.slug === selected)?.name || selected}
+      </span>
+      <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
     </div>
+    {isOpen && (
+      <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+        {locations.map((city) => (
+          <div
+            key={city.slug}
+            className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
+            onClick={() => handleSelectCity(city.slug)}
+          >
+            {city.name}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
   );
 };
 
@@ -275,10 +289,7 @@ const SearchBar = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh");
   const [searchHistory, setSearchHistory] = useState([
-    "Music Festival",
-    "Tech Conference",
-    "Art Exhibition",
-    "Sports Event",
+    
   ]);
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);
@@ -293,28 +304,11 @@ const SearchBar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const normalizeVenueName = (name) => {
-    return name
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/đ/g, "d")
-      .replace(/Đ/g, "D")
-      .toLowerCase()
-      .replace(/\s+/g, " ")
-      .trim();
-  };
 
   const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      alert("Please enter a search term");
-      return;
-    }
-
+   
     try {
-      const normalizedSearchTerm = normalizeVenueName(searchTerm);
-      const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${encodeURIComponent(
-        normalizedSearchTerm
-      )}&city=${encodeURIComponent(selectedLocation)}`;
+      const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -322,16 +316,29 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
+     
+    if (data && Array.isArray(data)) {
       if (!searchHistory.includes(searchTerm)) {
         setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
       }
-
       navigate("/search", {
-        state: { events: data, searchTerm: normalizedSearchTerm },
+        state: { events: data, searchTerm: searchTerm },
       });
+    } else {
+      console.error("No valid data received from API");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Không tìm thấy sự kiện nào',
+      });
+    }
     } catch (error) {
       console.error("Error fetching events:", error.message);
-      alert(`Failed to search events: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: 'Failed to search events',
+      });
     }
   };
 
@@ -343,7 +350,7 @@ const SearchBar = () => {
 
   return (
     <div
-      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
+      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl  text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
       ref={searchRef}
     >
       <div className="flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[180px] sm:w-[220px] md:w-[200px] lg:w-[260px]">
@@ -380,7 +387,7 @@ const SearchBar = () => {
         <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
       <button
-        className="ml-auto bg-red-600 text-white rounded-full px-1 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-1 hover:bg-red-700"
+        className="ml-auto bg-red-600 text-white rounded-full px-2 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-2 hover:bg-red-700"
         onClick={handleSearch}
       >
         <i className="fas fa-search text-sm sm:text-base md:text-sm lg:text-base"></i>
@@ -418,6 +425,10 @@ const Header = () => {
     navigate("/dashboard");
     setIsMobileMenuOpen(false);
   };
+  const handleChat = () => {
+    navigate("/chat");
+    setIsMobileMenuOpen(false);
+  };
   const handleNoti = () => {
     navigate("/notification");
     setIsMobileMenuOpen(false);
@@ -426,11 +437,21 @@ const Header = () => {
     try {
       await api.logout();
       logout();
-      alert("Logged out successfully");
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Logged out successfully',
+      });
       navigate("/login");
       setIsMobileMenuOpen(false);
     } catch (error) {
-      alert("Logout failed: " + (error.msg || "Server error"));
+    
+      Swal.fire({
+        icon: 'error',
+        title: 'error',
+        text: "Logout failed: " + (error.msg || "Server error"),
+      });
     }
   };
 
@@ -442,8 +463,9 @@ const Header = () => {
 
   const menuPopup = [
     { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
-    { title: "Tickets", action: handleMyTicket },
+    { title: "Tickets", action: handleMyTicket ,roles: ["ATTENDEE"]},
     { title: "Log out", action: handleLogout },
+    { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
     { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }
   ];
 

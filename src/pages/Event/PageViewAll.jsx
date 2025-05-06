@@ -78,7 +78,7 @@ const truncateText = (text, maxLength) => {
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
 };
 
-const AllEvent = ({ onEventClick }) => {
+const AllEvent = () => {
   const [events, setEvents] = useState([]);
   const navigate = useNavigate();
   const [displayedEvents, setDisplayedEvents] = useState([]);

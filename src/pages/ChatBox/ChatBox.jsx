@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useWebSocket } from "./WebSocketContext";
 import axios from "axios";
-import { FaBars } from "react-icons/fa";
+import { FaBars, FaSearch } from "react-icons/fa";
 
 const ChatBox = () => {
   const { stompClient } = useWebSocket();
   const [users, setUsers] = useState([]);
+  const [searchedUsers, setSearchedUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [typingStatus, setTypingStatus] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const messagesEndRef = useRef(null);
@@ -61,11 +63,44 @@ const ChatBox = () => {
     }
   };
 
+  // Search users
+  const searchUsers = async (query) => {
+    if (!query.trim()) {
+      setSearchedUsers([]);
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/chat/search?query=${encodeURIComponent(query)}&currentUserId=${currentUser.userId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      const formattedUsers = response.data.map((user) => ({
+        userId: user.userId,
+        email: user.email,
+        name: user.fullName || "Unknown",
+      }));
+      setSearchedUsers(formattedUsers);
+    } catch (error) {
+      console.error("Error searching users:", error);
+      alert("Failed to search users. Please try again.");
+    }
+  };
+
   useEffect(() => {
     if (currentUser.userId) {
       fetchUser(currentUser.userId);
     }
   }, [currentUser.userId]);
+
+  // Handle search query change
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      searchUsers(searchQuery);
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery, currentUser.userId]);
 
   // Scroll to bottom
   const scrollToBottom = () => {
@@ -98,7 +133,19 @@ const ChatBox = () => {
         `/user/${currentUser.email}/chat`,
         (message) => {
           const receivedMessage = JSON.parse(message.body);
-          setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+          setMessages((prevMessages) => {
+            if (
+              prevMessages.some(
+                (msg) =>
+                  msg.content === receivedMessage.content &&
+                  msg.timestamp === receivedMessage.timestamp &&
+                  msg.senderEmail === receivedMessage.senderEmail
+              )
+            ) {
+              return prevMessages;
+            }
+            return [...prevMessages, receivedMessage];
+          });
         }
       );
 
@@ -160,6 +207,10 @@ const ChatBox = () => {
       };
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
       setMessages((prevMessages) => [...prevMessages, messageDTO]);
+      // Add user to chatted users if not already present
+      if (!users.some((user) => user.userId === selectedUser.userId)) {
+        setUsers((prev) => [...prev, selectedUser]);
+      }
       setInputMessage("");
     }
   };
@@ -169,7 +220,7 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row h-screen bg-gray-100">
+    <div className="flex h-[calc(100vh-64px)] bg-gray-100">
       {/* Hamburger menu for mobile */}
       <button
         className="sm:hidden p-2 text-gray-600 bg-white border-b border-gray-200 fixed top-0 left-0 z-50"
@@ -180,47 +231,86 @@ const ChatBox = () => {
 
       {/* Left sidebar: User list */}
       <div
-        className={`fixed sm:static top-0 left-0 h-screen bg-white border-r border-gray-200 transition-transform duration-300 z-40
-          w-full sm:w-1/3 lg:w-1/4 max-w-[280px] sm:max-w-none
+        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300 z-40
+          w-64 sm:w-1/3 lg:w-1/4 sm:max-w-none
           ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
       >
         <div className="p-3 sm:p-4 border-b border-gray-200">
           <h2 className="text-base sm:text-lg lg:text-lg font-semibold">
             Messages
           </h2>
+          <div className="mt-2 flex items-center border border-gray-300 rounded-lg p-2">
+            <FaSearch className="text-gray-500 mr-2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search users..."
+              className="flex-1 outline-none text-sm"
+            />
+          </div>
         </div>
-        <div className="overflow-y-auto h-[calc(100%-60px)] sm:h-full">
-          {users.map((user) => (
-            <div
-              key={user.userId}
-              className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
-                selectedUser?.userId === user.userId ? "bg-gray-200" : ""
-              }`}
-              onClick={() => {
-                setSelectedUser(user);
-                setIsSidebarOpen(false);
-              }}
-            >
+        <div className="overflow-y-auto h-[calc(100%-120px)]">
+          {searchQuery ? (
+            searchedUsers.map((user) => (
               <div
-                className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
+                key={user.userId}
+                className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
+                  selectedUser?.userId === user.userId ? "bg-gray-200" : ""
+                }`}
+                onClick={() => {
+                  setSelectedUser(user);
+                  setIsSidebarOpen(false);
+                }}
               >
-                {user.name[0]}
+                <div
+                  className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
+                >
+                  {user.name[0]}
+                </div>
+                <div className="ml-2 sm:ml-3">
+                  <p className="font-medium text-sm sm:text-base truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 truncate">
+                    {user.email}
+                  </p>
+                </div>
               </div>
-              <div className="ml-2 sm:ml-3">
-                <p className="font-medium text-sm sm:text-base truncate">
-                  {user.name}
-                </p>
-                <p className="text-xs sm:text-sm text-gray-500 truncate">
-                  {user.email}
-                </p>
+            ))
+          ) : (
+            users.map((user) => (
+              <div
+                key={user.userId}
+                className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
+                  selectedUser?.userId === user.userId ? "bg-gray-200" : ""
+                }`}
+                onClick={() => {
+                  setSelectedUser(user);
+                  setIsSidebarOpen(false);
+                }}
+              >
+                <div
+                  className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
+                >
+                  {user.name[0]}
+                </div>
+                <div className="ml-2 sm:ml-3">
+                  <p className="font-medium text-sm sm:text-base truncate">
+                    {user.name}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500 truncate">
+                    {user.email}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
       {/* Chat window */}
-      <div className="flex-1 flex flex-col mt-10 sm:mt-0">
+      <div className="flex-1 flex flex-col">
         {selectedUser ? (
           <>
             {/* Chat header */}
@@ -236,36 +326,38 @@ const ChatBox = () => {
             </div>
 
             {/* Message display area */}
-            <div className="flex-1 p-2 sm:p-3 lg:p-4 overflow-y-auto bg-gray-50">
-              {messages.map((msg, index) => (
-                <div
-                  key={index}
-                  className={`mb-3 sm:mb-4 flex ${
-                    msg.senderEmail === currentUser.email
-                      ? "justify-end"
-                      : "justify-start"
-                  }`}
-                >
+            <div className="flex-1 overflow-y-auto bg-gray-50">
+              <div className="p-2 sm:p-3 lg:p-4 flex flex-col min-h-full">
+                {messages.map((msg, index) => (
                   <div
-                    className={`max-w-[70%] sm:max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm lg:text-base ${
+                    key={index}
+                    className={`mb-3 sm:mb-4 flex ${
                       msg.senderEmail === currentUser.email
-                        ? "bg-blue-500 text-white"
-                        : msg.isRead
-                        ? "bg-white text-gray-800 border border-gray-200"
-                        : "bg-gray-200 text-gray-800 border border-gray-300 font-semibold"
+                        ? "justify-end"
+                        : "justify-start"
                     }`}
                   >
-                    <p>{msg.content}</p>
-                    <p className="text-[10px] sm:text-xs mt-1 opacity-70">
-                      {new Date(msg.timestamp).toLocaleTimeString()}
-                    </p>
+                    <div
+                      className={`max-w-[70%] sm:max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm lg:text-base ${
+                        msg.senderEmail === currentUser.email
+                          ? "bg-blue-500 text-white"
+                          : msg.isRead
+                          ? "bg-white text-gray-800 border border-gray-200"
+                          : "bg-gray-200 text-gray-800 border border-gray-300 font-semibold"
+                      }`}
+                    >
+                      <p>{msg.content}</p>
+                      <p className="text-[10px] sm:text-xs mt-1 opacity-70">
+                        {new Date(msg.timestamp).toLocaleTimeString()}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
-              {typingStatus[selectedUser.email] && (
-                <div className="text-xs sm:text-sm text-gray-500">Typing...</div>
-              )}
-              <div ref={messagesEndRef} />
+                ))}
+                {typingStatus[selectedUser.email] && (
+                  <div className="text-xs sm:text-sm text-gray-500">Typing...</div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
             </div>
 
             {/* Message input */}

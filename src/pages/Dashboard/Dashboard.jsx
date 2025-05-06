@@ -22,6 +22,7 @@ const EventsPage = () => {
   // Fetch dữ liệu ban đầu
   useEffect(() => {
     fetchEventData();
+    window.scrollTo(0, 0);
   }, []);
 
   // Fetch lại khi filterStatus thay đổi
@@ -241,12 +242,7 @@ const EventsPage = () => {
           </div>
         ))}
       </div>
-      <div className="mt-4 sm:mt-6">
-        <a href="#" className="text-blue-600 flex items-center space-x-2 text-xs sm:text-sm">
-          <FaFileCsv className="text-sm sm:text-base" />
-          <span>CSV Export</span>
-        </a>
-      </div>
+      
     </div>
   );
 };

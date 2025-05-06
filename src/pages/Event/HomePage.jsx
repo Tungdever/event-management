@@ -8,11 +8,185 @@ import {
   FaChevronRight,
   FaExternalLinkAlt,
 } from "react-icons/fa";
-import EventListings from "../../components/EventListGrid";
+
 import ListEventScroll from "../../components/EventListScroll";
 import Loader from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
+
+
+const ListEventGrid = ({ events: propEvents }) => {
+  const [events, setLocalEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const fetchAllEvent = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/events/all", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch events");
+      }
+      const data = await response.json();
+      setLocalEvents(data);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error fetching events:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (propEvents && propEvents.length > 0) {
+      setLocalEvents(propEvents);
+      setLoading(false);
+    } else {
+      fetchAllEvent();
+    }
+  }, [propEvents]);
+
+  const truncateText = (text, maxLength) => {
+    if (!text || text.length <= maxLength) return text || "";
+    return text.substring(0, maxLength) + "...";
+  };
+
+  const handleEventClick = (eventId) => {
+    navigate(`/event/${eventId}`);
+  };
+
+  const handlePageAll = () => {
+    setLoading(true);
+    navigate("/all-event");
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center p-4">
+        <Loader />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center p-4 text-red-600 text-sm sm:text-base">
+        Error: {error}. Please try again later.
+      </div>
+    );
+  }
+
+  if (!events || events.length === 0) {
+    return (
+      <div className="text-center p-4">
+        <p className="text-gray-600 text-sm sm:text-base">No events available</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800">
+          Upcoming Events
+        </h2>
+        <div
+          className="flex items-center gap-1 sm:gap-2 hover:cursor-pointer hover:text-red-500"
+          onClick={handlePageAll}
+        >
+          <p className="text-xs sm:text-sm lg:text-[15px] text-gray-600 hover:text-red-500">
+            View all event
+          </p>
+          <i className="fa-solid fa-circle-chevron-right text-xs sm:text-sm"></i>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        {events.map((event) => (
+          <div
+            key={event.eventId}
+            onClick={() => handleEventClick(event.eventId)}
+            className="w-full min-h-[360px] sm:min-h-[380px] lg:min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-100 cursor-pointer transition-shadow"
+          >
+            {/* Hình ảnh sự kiện */}
+            <div className="w-full h-32 sm:h-36 lg:h-40 bg-gray-100 rounded-t-lg overflow-hidden">
+              {event.eventImages && event.eventImages.length > 0 ? (
+                <img
+                  src={`${event.eventImages[0]}`}
+                  alt={event.eventName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img
+                  src="https://via.placeholder.com/300x150"
+                  alt="Default Event"
+                  className="w-full h-full object-cover"
+                />
+              )}
+            </div>
+
+            {/* Thông tin sự kiện */}
+            <div className="p-3 sm:p-4">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                {truncateText(event.eventName, 25) || "Unnamed Event"}
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm mt-1 truncate">
+                {truncateText(event.eventDesc, 30) || "No description"}
+              </p>
+              <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+                <span className="font-medium">Date:</span>{" "}
+                {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+              </p>
+              <p className="text-gray-700 text-xs sm:text-sm">
+                <span className="font-medium">Time:</span>{" "}
+                {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}{" "}
+                -{" "}
+                {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+              <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+                <span className="font-medium">Location:</span>{" "}
+                {event.eventLocation.venueName +
+                  " " +
+                  event.eventLocation.address +
+                  " " +
+                  event.eventLocation.city}
+              </p>
+            </div>
+
+            {/* Tags */}
+            <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex flex-wrap gap-1 sm:gap-2">
+              {event.tags && typeof event.tags === "string" ? (
+                event.tags.split("|").map((tag, index) => (
+                  <span
+                    key={index}
+                    className="bg-gray-100 text-gray-700 text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1 rounded-full"
+                  >
+                    {truncateText(tag.trim(), 10)}
+                  </span>
+                ))
+              ) : (
+                <span className="text-gray-600 text-[10px] sm:text-xs">
+                  No tags
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const popularCities = [
   {
@@ -262,6 +436,7 @@ const HomePage = () => {
       <Navbar setCityEvents={setCityEvents} />
       <ListEventScroll events={cityEvents} setEvents={setCityEvents} />
       {/* <EventListings /> */}
+      <ListEventGrid/>
       <TopDestinations />
       <Footer />
     </div>

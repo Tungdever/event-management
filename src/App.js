@@ -45,7 +45,6 @@ import RolePage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
 import { WebSocketProvider } from "./pages/ChatBox/WebSocketContext";
 import { useAuth } from "./pages/Auth/AuthProvider";
-import ChatBox2 from "./pages/ChatBox/ChatSocket";
 import EventSignup from "./pages/Auth/EventSignUp";
 import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
@@ -208,14 +207,7 @@ const MainLayout = () => {
                   </RoleBasedRouteGroup>
                 }
               />
-              <Route
-                path="/chat2"
-                element={
-                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
-                    <ChatBox2 />
-                  </RoleBasedRouteGroup>
-                }
-              />
+              
               <Route
                 path="/calendar"
                 element={

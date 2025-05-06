@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
 import { useWebSocket } from "../ChatBox/WebSocketContext";
-import { toast } from "react-toastify";
+import Swal from 'sweetalert2';
 
 const CRUDEvent = () => {
   const [selectedStep, setSelectedStep] = useState("build");
@@ -49,11 +49,15 @@ const CRUDEvent = () => {
     const uploadPromises = files.map(async (file) => {
       try {
         if (typeof file === "string" && file.startsWith("http")) {
-          return file; // Giữ nguyên URL đã upload
+          return file;
         }
 
         if (!(file instanceof File)) {
-          console.warn("File không hợp lệ:", file);
+          Swal.fire({
+            icon: 'warning',
+            title: 'Cảnh báo',
+            text: 'File không hợp lệ!',
+          });
           return null;
         }
 
@@ -74,7 +78,11 @@ const CRUDEvent = () => {
         if (!publicId) throw new Error("Không nhận được public_id");
         return publicId;
       } catch (error) {
-        console.error("Lỗi khi tải file:", file, error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: `Lỗi khi tải file: ${error.message}`,
+        });
         return null;
       }
     });
@@ -84,10 +92,8 @@ const CRUDEvent = () => {
   };
 
   const handlePublish = async () => {
-    console.log("Publish" + event)
     setIsLoading(true);
     try {
-      // Xử lý uploadedImages
       const existingImageIds = event.uploadedImages
         .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages
@@ -95,7 +101,6 @@ const CRUDEvent = () => {
       const newImageIds = await uploadFilesToCloudinary(newImages);
       const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
-      // Xử lý overviewContent.media
       const existingMediaIds = event.overviewContent.media
         .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
         .map((item) => item.url) || [];
@@ -105,7 +110,6 @@ const CRUDEvent = () => {
       const newMediaIds = await uploadFilesToCloudinary(newMedia);
       const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
-      // Chuẩn bị dữ liệu sự kiện
       const dataEvent = {
         eventName: event.eventName || "",
         eventDesc: event.eventDesc || "",
@@ -135,7 +139,6 @@ const CRUDEvent = () => {
         mediaContent: uploadedMediaIds,
       };
 
-      // Gửi yêu cầu tạo sự kiện
       const eventResponse = await fetch("http://localhost:8080/api/events/create", {
         headers: {
           "Content-Type": "application/json",
@@ -152,7 +155,7 @@ const CRUDEvent = () => {
 
       const responseData = await eventResponse.json();
       const eventId = responseData.data.eventId || responseData;
-      // Gửi thông báo qua WebSocket
+
       if (stompClient && stompClient.connected && user?.userId) {
         const notification = {
           title: "Sự kiện mới",
@@ -163,10 +166,13 @@ const CRUDEvent = () => {
         };
         stompClient.send("/app/private", {}, JSON.stringify(notification));
       } else {
-        toast.error("Không thể gửi thông báo. Kết nối WebSocket không sẵn sàng.");
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Không thể gửi thông báo. Kết nối WebSocket không sẵn sàng.',
+        });
       }
 
-      // Lưu segment
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
           const uploadedSpeakerId = segment?.speaker?.speakerImage
@@ -203,7 +209,6 @@ const CRUDEvent = () => {
         }
       }
 
-      // Lưu ticket
       if (event.tickets?.length > 0) {
         for (const ticketData of event.tickets) {
           const ticketapi = {
@@ -231,7 +236,6 @@ const CRUDEvent = () => {
         }
       }
 
-      // Cập nhật state sự kiện
       const updatedEvent = {
         ...event,
         uploadedImages: uploadedImageIds,
@@ -246,11 +250,18 @@ const CRUDEvent = () => {
 
       setEvent(updatedEvent);
       setIsLoading(false);
-      toast.success(`Sự kiện được xuất bản thành công! ID: ${eventId}`);
+      Swal.fire({
+        icon: 'success',
+        title: 'Thành công',
+        text: `Sự kiện được xuất bản thành công! ID: ${eventId}`,
+      });
       setTimeout(() => navigate('/'), 300);
     } catch (error) {
-      console.error("Lỗi khi xuất bản sự kiện:", error);
-      //toast.error(`Lỗi khi xử lý sự kiện: ${error.message}`);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: `Lỗi khi xử lý sự kiện: ${error.message}`,
+      });
       setIsLoading(false);
     }
   };
@@ -266,7 +277,6 @@ const CRUDEvent = () => {
     const requiredFields = {
       eventName: event.eventName,
       eventDesc: event.eventDesc,
-    
       date: event.eventLocation.date,
       startTime: event.eventLocation.startTime,
       endTime: event.eventLocation.endTime,
@@ -291,7 +301,11 @@ const CRUDEvent = () => {
   const handleNext = () => {
     const validation = validateEventForm(event);
     if (!validation.isValid) {
-      toast.error(validation.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: validation.message,
+      });
       return;
     }
     setSelectedStep("tickets");
@@ -304,7 +318,11 @@ const CRUDEvent = () => {
     }
     const validation = validateEventForm(event);
     if (!validation.isValid) {
-      toast.error(validation.message);
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: validation.message,
+      });
       return;
     }
     setSelectedStep(step);
@@ -362,7 +380,6 @@ const CRUDEvent = () => {
                     : "Chưa thiết lập ngày giờ"}
                 </span>
               </div>
-              
             </div>
             <h3 className="text-lg font-semibold mb-2">Bước</h3>
             <div className="space-y-2">

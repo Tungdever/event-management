@@ -251,6 +251,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     speakerName: "",
     speakerDesc: "",
     speakerImage: "",
+    speakerImageFile: null, 
     startTime: "",
     endTime: "",
   });
@@ -260,13 +261,16 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const token = localStorage.getItem("token");
   // Load segments from API
   const loadSegments = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8080/api/segment/${eventId}/getSegment`
+        `http://localhost:8080/api/segment/${eventId}/getSegment`,{  headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },}
       );
       setSegments(response.data);
       onSegmentUpdate(response.data);
@@ -289,7 +293,8 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const handleImageUpload = (data) => {
     setNewSegment((prevData) => ({
       ...prevData,
-      speakerImage: data ? data.imageUrl : "", // Update speakerImage directly
+      speakerImage: data ? data.imageUrl : "", // Lưu imageUrl để hiển thị
+      speakerImageFile: data ? data.file : null, // Lưu File để tải lên
     }));
   };
 
@@ -312,18 +317,18 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
     const segmentToAdd = {
       segmentTitle: newSegment.segmentTitle,
-      speaker: actor
-        ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
-          }
-        : null,
-      eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
-      isLocal: true,
+  speaker: actor
+    ? {
+        speakerImage: newSegment.speakerImageFile, 
+        speakerName: newSegment.speakerName,
+        speakerDesc: newSegment.speakerDesc,
+      }
+    : null,
+  eventID: eventId || "",
+  segmentDesc: newSegment.segmentDesc,
+  startTime: newSegment.startTime,
+  endTime: newSegment.endTime,
+  isLocal: true,
     };
 
     const updatedSegments = [...segments, segmentToAdd];
@@ -334,6 +339,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
   // Handle editing an existing segment
   const handleEditSegment = (index) => {
+    
     const segment = segments[index];
     setNewSegment({
       eventId: eventId || "",
@@ -372,19 +378,19 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
     const updatedSegment = {
       segmentId: newSegment.segmentId,
-      segmentTitle: newSegment.segmentTitle,
-      speaker: actor
-        ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
-          }
-        : null,
-      eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
-      isLocal: segments[editIndex]?.isLocal,
+  segmentTitle: newSegment.segmentTitle,
+  speaker: actor
+    ? {
+        speakerImage: newSegment.speakerImageFile, 
+        speakerName: newSegment.speakerName,
+        speakerDesc: newSegment.speakerDesc,
+      }
+    : null,
+  eventID: eventId || "",
+  segmentDesc: newSegment.segmentDesc,
+  startTime: newSegment.startTime,
+  endTime: newSegment.endTime,
+  isLocal: segments[editIndex]?.isLocal,
     };
 
     const updatedSegments = [...segments];
@@ -403,7 +409,8 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
       segmentDesc: "",
       speakerName: "",
       speakerDesc: "",
-      speakerImage: "", // Reset speakerImage
+      speakerImage: "",
+      speakerImageFile: null,
       startTime: "",
       endTime: "",
     });
@@ -417,7 +424,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   // Handle deleting a segment
   const handleDeleteSegment = async (index) => {
     const segmentToDelete = segments[index];
-
+    const token = localStorage.getItem("token");
     if (segmentToDelete.isLocal) {
       const updatedSegments = segments.filter((_, i) => i !== index);
       setSegments(updatedSegments);
@@ -428,6 +435,10 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
         const response = await fetch(
           `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
           {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
             method: "DELETE",
           }
         );

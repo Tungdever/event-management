@@ -7,42 +7,32 @@ import Checkout from "../Ticket/CheckOut";
 import Loader from "../../components/Loading";
 import { useParams } from "react-router-dom";
 import ListEventScroll from "../../components/EventListScroll";
-import { useAuth } from "../Auth/AuthProvider";
-import axios from "axios";
 import DOMPurify from "dompurify";
+import { format, parseISO } from "date-fns";
 
-// Helper: Định dạng thời gian
-const formatTime = (isoString) => {
+//  : Format date and time
+const formatDateTime = (isoString) => {
   if (!isoString) return "N/A";
-  const date = new Date(isoString);
-  return date.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-  });
-};
-
-// Helper: Fetch dữ liệu từ API
-const fetchData = async (url, setData, errorMsg) => {
-  const token = localStorage.getItem("token");
   try {
-    const response = await fetch(url, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (!response.ok) throw new Error(errorMsg);
-    const data = await response.json();
-    setData(data);
-    return data;
-  } catch (error) {
-    console.error(errorMsg, error);
-    throw error;
+    const date = parseISO(isoString);
+    return format(date, "MMM d, yyyy 'at' HH:mm");
+  } catch {
+    return "Invalid date";
   }
 };
 
-// Helper: Tính số lượng mới
+//  : Format time only
+const formatTime = (isoString) => {
+  if (!isoString) return "N/A";
+  try {
+    const date = parseISO(isoString);
+    return format(date, "HH:mm");
+  } catch {
+    return "Invalid time";
+  }
+};
+
+//  : Calculate new ticket count
 const calculateNewCount = (current, delta, max, ticketType) => {
   const updated = current + delta;
   if (updated < 0) return 0;
@@ -51,7 +41,7 @@ const calculateNewCount = (current, delta, max, ticketType) => {
   return updated;
 };
 
-// Helper: Cập nhật selectedTickets
+//  : Update selected tickets
 const updateTickets = (prev, ticketId, newCount) => {
   if (newCount === 0) {
     const { [ticketId]: _, ...rest } = prev;
@@ -60,6 +50,36 @@ const updateTickets = (prev, ticketId, newCount) => {
   return { ...prev, [ticketId]: newCount };
 };
 
+// Custom hook for fetching event data
+const useEventData = (eventId) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(`http://localhost:8080/api/events/detail/${eventId}`, {
+          headers: { "Content-Type": "application/json" },
+        });
+        if (!response.ok) throw new Error("Failed to fetch event data");
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err.message || "Failed to fetch event data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [eventId]);
+
+  return { data, loading, error };
+};
+
+// Timeline Component
 const Timeline = ({ segments }) => {
   if (!segments?.length) {
     return (
@@ -73,7 +93,7 @@ const Timeline = ({ segments }) => {
     <div className="my-4 sm:my-6 mx-4 sm:mx-8 lg:mx-16 sm:ml-12 lg:ml-[100px]">
       {segments.map((segment, index) => (
         <div
-          key={index}
+          key={segment.segmentId}
           className="relative pl-4 sm:pl-16 lg:pl-32 py-4 sm:py-6 group"
         >
           <time className="relative sm:absolute left-0 sm:-left-12 lg:-left-16 translate-y-0.5 inline-flex items-center text-[10px] sm:text-xs lg:text-sm font-semibold uppercase min-w-max h-5 sm:h-6 lg:h-7 mb-2 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-2 sm:px-3 lg:px-4 py-1 sm:py-1 lg:py-2">
@@ -85,7 +105,7 @@ const Timeline = ({ segments }) => {
             </div>
           </div>
           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
-            {segment.speaker?.speakerTitle || "No title"}
+            {segment.speaker?.speakerDesc || "No description"}
           </p>
           <p className="text-sm sm:text-base lg:text-lg font-bold text-indigo-700 mt-1">
             "{segment.segmentTitle || "Untitled Segment"}"
@@ -96,76 +116,57 @@ const Timeline = ({ segments }) => {
   );
 };
 
-const OrganizedBy = () => {
-  const { user } = useAuth();
-  const [userData, setUserData] = useState([]);
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUserData(response.data);
-      } catch (err) {
-        console.error("Lỗi khi lấy dữ liệu người dùng:", err);
-      }
-    };
-    fetchUserData();
-  }, [user.email, token]);
-
+// OrganizedBy Component
+const OrganizedBy = ({ organizer }) => {
   return (
     <div className="mt-6 sm:mt-8 mb-4">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Organize</h2>
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Organizer</h2>
       <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow">
         <div className="flex items-center mb-3 sm:mb-4">
-          <img
-            src="https://storage.googleapis.com/a1aa/image/iulMqkOeKR6SAOm-Zs8J1VIWV9rNEcpFiteM_nMV1hs.jpg"
-            alt="Logo of ShareWell"
-            className="w-10 sm:w-12 h-10 sm:h-12 rounded-full mr-3 sm:mr-4"
-          />
+          <div className="w-10 sm:w-12 h-10 sm:h-12 bg-gray-200 rounded-full mr-3 sm:mr-4 flex items-center justify-center">
+            <span className="text-gray-600 text-sm sm:text-base">
+              {organizer?.organizerName?.[0] || "N/A"}
+            </span>
+          </div>
           <div>
             <h3 className="text-base sm:text-lg lg:text-xl font-semibold">
-              {userData.organizer?.organizerName || "N/A"}
+              {organizer?.organizerName || "N/A"}
             </h3>
             <div className="text-gray-600 text-sm sm:text-base flex flex-col sm:flex-row sm:space-x-4">
               <span>
-                <strong>Location</strong> {userData.organizer?.organizerAddress || "N/A"}
+                <strong>Location</strong> {organizer?.organizerAddress || "N/A"}
               </span>
               <span>
-                <strong>Phone</strong> {userData.organizer?.organizerPhone || "N/A"}
+                <strong>Phone</strong> {organizer?.organizerPhone || "N/A"}
               </span>
             </div>
           </div>
         </div>
         <p className="text-gray-700 text-sm sm:text-base mb-3 sm:mb-4">
-          {userData.organizer?.organizerDesc || "N/A"}
+          {organizer?.organizerDesc || "No description available"}
         </p>
       </div>
     </div>
   );
 };
 
-const EventInfo = ({ eventData }) => (
+// EventInfo Component
+const EventInfo = ({ eventData, organizerData }) => (
   <div className="flex-1">
     <div className="text-gray-500 text-sm sm:text-base mb-2">
-      {new Date(eventData.eventStart).toDateString()}
+      {formatDateTime(eventData?.eventStart)}
     </div>
     <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
-      {eventData.eventName || "Unnamed Event"}
+      {eventData?.eventName || "Unnamed Event"}
     </h1>
-    <OrganizedBy />
+    <OrganizedBy organizer={organizerData} />
     <div className="mb-4 sm:mb-6">
       <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
         Date and Time
       </h2>
       <div className="text-gray-700 text-sm sm:text-base">
         <i className="bi bi-calendar-event pr-2 sm:pr-[10px]"></i>
-        {eventData.eventStart} - {eventData.eventEnd}
+        {formatDateTime(eventData?.eventStart)} - {formatDateTime(eventData?.eventEnd)}
       </div>
     </div>
     <div className="mb-4 sm:mb-6">
@@ -174,16 +175,15 @@ const EventInfo = ({ eventData }) => (
       </h2>
       <div className="text-gray-700 text-sm sm:text-base">
         <i className="bi bi-geo-alt pr-2 sm:pr-[10px]"></i>
-        {eventData.eventLocation.venueName +
-          " " +
-          eventData.eventLocation.address +
-          " " +
-          eventData.eventLocation.city || "No location specified"}
+        {eventData?.eventLocation?.venueName
+          ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
+          : "No location specified"}
       </div>
     </div>
   </div>
 );
 
+// OverviewContent Component
 const OverviewContent = ({ eventData }) => (
   <div className="mb-4 sm:mb-6 flex-1">
     <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
@@ -192,7 +192,7 @@ const OverviewContent = ({ eventData }) => (
     <div
       className="text-gray-700 text-sm sm:text-base text-justify mb-3 sm:mb-4 prose max-w-none"
       dangerouslySetInnerHTML={{
-        __html: eventData.eventDesc
+        __html: eventData?.eventDesc
           ? DOMPurify.sanitize(eventData.eventDesc)
           : "No description available",
       }}
@@ -201,33 +201,34 @@ const OverviewContent = ({ eventData }) => (
       Overview
     </h2>
     <div className="text-gray-700 text-sm sm:text-base text-justify">
-    <p
+      <p
         className="mb-3 sm:mb-4"
         dangerouslySetInnerHTML={{
-          __html: eventData.textContent
+          __html: eventData?.textContent
             ? DOMPurify.sanitize(eventData.textContent)
             : "No description available",
         }}
       />
-      {eventData.mediaContent?.length > 0 ? (
+      {eventData?.mediaContent?.length > 0 ? (
         eventData.mediaContent.map((mediaContent, index) => (
           <img
             key={index}
             src={mediaContent}
-            alt={eventData.eventName}
+            alt={`${eventData.eventName} media ${index + 1}`}
             className="w-full h-auto object-cover rounded-lg mb-3 sm:mb-4"
           />
         ))
       ) : (
-       <></>
+        <></>
       )}
     </div>
   </div>
 );
 
+// TicketSelector Component
 const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }) => (
   <div className="w-full sm:w-[400px] lg:w-[500px] bg-white border border-gray-200 rounded-lg p-4 sm:p-5 lg:p-6 shadow mt-4 sm:mr-8 lg:mr-16 sm:ml-6 lg:ml-10">
-    <div className="mb-3 sm:mb-4 p-3 sm:p-4 border-[2px] sm:border-[3px] border-blue-800 rounded-lg w-full sm:w-[320px] lg:w-[380px]">
+    <div className="mb-3 sm:mb-4 p-3 sm:4 border-[2px] sm:border-[3px] border-blue-800 rounded-lg w-full sm:w-[320px] lg:w-[380px]">
       {!tickets ? (
         <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">Loading tickets...</p>
       ) : tickets.length === 0 ? (
@@ -245,7 +246,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                     {ticket.ticketName}
                   </p>
                   <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">
-                    {ticket.price} USD
+                    {ticket.price.toLocaleString()} USD
                     {ticket.ticketType === "Free" && (
                       <span className="text-gray-500 text-[10px] sm:text-[12px] ml-2">
                         (Max 1 ticket)
@@ -265,6 +266,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                       )
                     }
                     disabled={(selectedTickets[ticket.ticketId] || 0) === 0}
+                    aria-label={`Decrease quantity for ${ticket.ticketName}`}
                   >
                     -
                   </button>
@@ -286,13 +288,14 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                       (ticket.ticketType === "Free" &&
                         (selectedTickets[ticket.ticketId] || 0) >= 1)
                     }
+                    aria-label={`Increase quantity for ${ticket.ticketName}`}
                   >
                     +
                   </button>
                 </div>
               </div>
               <div className="text-gray-700 text-[10px] sm:text-[12px]">
-                <p>Amount: {ticket.quantity}</p>
+                <p>Available: {ticket.quantity}</p>
               </div>
             </div>
           ))}
@@ -301,65 +304,66 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
     </div>
     <button
       className="bg-red-600 text-white w-full py-2 sm:py-2.5 rounded-lg hover:bg-red-500 mt-2 disabled:bg-gray-400 text-sm sm:text-base"
+ palindrome
       onClick={onSelect}
       disabled={Object.keys(selectedTickets).length === 0}
+      aria-label="Select tickets"
     >
-      Select tickets
+      Select Tickets
     </button>
   </div>
 );
 
+// Sponsors Component
+const Sponsors = ({ sponsors }) => {
+  if (!sponsors?.length) {
+    return null;
+  }
+
+  return (
+    <div className="my-4 sm:my-6">
+      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Sponsors</h2>
+      <div className="flex flex-wrap gap-4">
+        {sponsors.map((sponsor) => (
+          <div key={sponsor.sponsorId} className="flex items-center">
+            <img
+              src={sponsor.sponsorLogo}
+              alt={`${sponsor.sponsorName} logo`}
+              className="w-16 h-16 object-contain"
+            />
+            <span className="ml-2 text-sm sm:text-base">{sponsor.sponsorName}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// Main EventDetail Component
 const EventDetail = () => {
-  const token = localStorage.getItem("token");
   const { eventId } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [eventData, setEventData] = useState(null);
   const [segmentData, setSegments] = useState(null);
+  const [organizer, setOrganizer] = useState(null);
   const [speakers, setSpeakers] = useState([]);
   const [tickets, setTickets] = useState(null);
+  const [sponsors, setSponsors] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const { data, loading, error } = useEventData(eventId);
 
   useEffect(() => {
-    const fetchAllData = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const [event, segments, tickets] = await Promise.all([
-          fetchData(
-            `http://localhost:8080/api/events/${eventId}`,
-            setEventData,
-            "Failed to fetch event"
-          ),
-          fetchData(
-            `http://localhost:8080/api/segment/${eventId}/getSegment`,
-            setSegments,
-            "Failed to fetch segment"
-          ),
-          fetchData(
-            `http://localhost:8080/api/ticket/list/${eventId}`,
-            setTickets,
-            "Failed to fetch tickets"
-          ),
-        ]);
-
-        if (segments) {
-          const speakerList = segments
-            .map((segment) => segment.speaker)
-            .filter(Boolean);
-          setSpeakers(speakerList);
-        }
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setTimeout(() => setLoading(false), 500);
-      }
-    };
-
-    fetchAllData();
+    if (data) {
+      setEventData(data.event);
+      setSegments(data.segments);
+      setTickets(data.tickets);
+      setSponsors(data.sponsors);
+      setOrganizer(data.organizer);
+      setSpeakers(data.segments?.map((segment) => segment.speaker).filter(Boolean) || []);
+    }
     window.scrollTo(0, 0);
-  }, [eventId]);
+  }, [data]);
 
   const handleQuantityChange = (ticketId, maxQuantity, delta, ticketType) => {
     setSelectedTickets((prev) => {
@@ -380,18 +384,21 @@ const EventDetail = () => {
     );
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loader />
       </div>
     );
-  if (error)
+  }
+
+  if (error) {
     return (
       <div className="text-center text-red-600 p-4 sm:p-8 text-sm sm:text-base">
         Error: {error}. Please try again later.
       </div>
     );
+  }
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -421,7 +428,7 @@ const EventDetail = () => {
                 ></div>
                 <img
                   src={imageUrl}
-                  alt={`Event Image ${index + 1}`}
+                  alt={`Event image ${index + 1}`}
                   className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
                 />
               </div>
@@ -436,7 +443,7 @@ const EventDetail = () => {
               ></div>
               <img
                 src="https://via.placeholder.com/1200x500"
-                alt="Default Banner"
+                alt="Default event banner"
                 className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
               />
             </div>
@@ -447,16 +454,17 @@ const EventDetail = () => {
         <div className="rounded-lg px-4 sm:px-6 pt-4 leading-normal">
           <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-2">
             <div className="w-full lg:flex-1 ml-4 sm:ml-6 lg:ml-10">
-              <EventInfo eventData={eventData} />
+              <EventInfo eventData={eventData} organizerData={organizer} />
               <OverviewContent eventData={eventData} />
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-                Speaker
+                Speakers
               </h2>
               <SliderSpeaker speakers={speakers} />
               <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
-                Section
+                Schedule
               </h2>
               <Timeline segments={segmentData} />
+              <Sponsors sponsors={sponsors} />
               <div>
                 <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 mt-3 sm:mt-4">
                   Tags

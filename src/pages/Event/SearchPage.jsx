@@ -90,52 +90,61 @@ const FilterSidebar = ({ onFilterChange, selectedCategories, setSelectedCategori
 };
 
 const SearchPage = () => {
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Bỏ loading ban đầu
   const [events, setEvents] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState("all-types");
   const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
   const location = useLocation();
   const [searchTitle, setSearchTitle] = useState(location.state?.searchTerm || "");
-  const token = localStorage.getItem('token')
+  const token = localStorage.getItem('token');
+
+  // Thiết lập sự kiện ban đầu từ location.state
   useEffect(() => {
-    // Lấy dữ liệu events từ state được truyền từ SearchBar
     const initialEvents = location.state?.events || [];
     setEvents(initialEvents);
+    setSearchTitle(location.state?.searchTerm || "");
     window.scrollTo(0, 0);
   }, [location.state]);
 
+  // Lấy dữ liệu khi bộ lọc thay đổi
   useEffect(() => {
     const fetchEvents = async () => {
+      // Chỉ lấy dữ liệu nếu có bộ lọc cụ thể
+      if (selectedCategories === "all-types" && selectedEventLocation === "all-locations") {
+        return; // Giữ nguyên events từ location.state
+      }
       setLoading(true);
       try {
         let fetchedEvents = [];
-        
-        // Fetch events by category
         if (selectedCategories !== "all-types") {
           const response = await fetch(`http://localhost:8080/api/events/search/by-type/${selectedCategories}`, {
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            }});
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (!response.ok) throw new Error("Failed to fetch events by category");
           fetchedEvents = await response.json();
         } else {
-          // If "all-types" is selected, fetch all events (assuming an endpoint for all events)
           const response = await fetch(`http://localhost:8080/api/events/search/by-type/all-types`, {
             headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-            }});
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (!response.ok) throw new Error("Failed to fetch all events");
           fetchedEvents = await response.json();
         }
 
-        // Filter by location if a specific location is selected
         if (selectedEventLocation !== "all-locations") {
-          const response = await fetch(`http://localhost:8080/api/events/search/by-city/${selectedEventLocation}`);
+          const response = await fetch(`http://localhost:8080/api/events/search/by-city/${selectedEventLocation}`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
           if (!response.ok) throw new Error("Failed to fetch events by location");
           const locationEvents = await response.json();
-          
           fetchedEvents = fetchedEvents.filter(event =>
             locationEvents.some(locEvent => locEvent.id === event.id)
           );
@@ -151,11 +160,7 @@ const SearchPage = () => {
     };
 
     fetchEvents();
-  }, [selectedCategories, selectedEventLocation]);
-
-  const handleFilterChange = (filteredEvents) => {
-    setEvents(filteredEvents);
-  };
+  }, [selectedCategories, selectedEventLocation, token]);
 
   return loading ? (
     <div className="flex justify-center items-center h-screen">
@@ -165,12 +170,12 @@ const SearchPage = () => {
     <>
       <div className="mx-auto px-6 py-4">
         <h1 className="text-3xl font-bold text-gray-700 mt-4">
-          {searchTitle ? `Upcoming Events for ${searchTitle}` : "Upcoming Events"}
+          {searchTitle ? `Sự kiện sắp tới cho ${searchTitle}` : "Sự kiện sắp tới"}
         </h1>
         <div className="flex flex-col md:flex-row gap-2 p-5">
           <div className="w-full md:w-1/4">
             <FilterSidebar
-              onFilterChange={handleFilterChange}
+              onFilterChange={(filteredEvents) => setEvents(filteredEvents)}
               selectedCategories={selectedCategories}
               setSelectedCategories={setSelectedCategories}
               selectedEventLocation={selectedEventLocation}

@@ -6,7 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); // Thêm trạng thái loading
+  const [isLoading, setIsLoading] = useState(true); 
   const navigate = useNavigate();
 
   const checkToken = () => {
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setUser(null);
     }
-    setIsLoading(false); // Đặt isLoading thành false sau khi kiểm tra token
+    setIsLoading(false); 
   };
 
   useEffect(() => {
