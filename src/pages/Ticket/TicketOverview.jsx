@@ -30,7 +30,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket }) => {
                 </div>
                 <i
                   className="fa-solid fa-pen-to-square hover:text-blue-600 hover:cursor-pointer"
-                  onClick={() => onEditTicket(ticket)} // Gọi hàm edit khi click
+                  onClick={() => onEditTicket(ticket)} 
                 ></i>
               </div>
             </div>

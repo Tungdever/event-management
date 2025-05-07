@@ -8,16 +8,82 @@ import {
   FaImage,
   FaVideo,
 } from "react-icons/fa";
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Underline from '@tiptap/extension-underline';
+import Link from '@tiptap/extension-link';
 
 const Overview = ({ setShowOverview, content, setContent }) => {
-  const [text, setText] = useState(content.text);
   const [media, setMedia] = useState(content.media);
+  const [pasteError, setPasteError] = useState('');
 
-  // Đồng bộ state cục bộ với props content khi content thay đổi
+  // Khởi tạo Tiptap editor
+  const editor = useEditor({
+    extensions: [
+      StarterKit.configure({
+        history: true,
+      }),
+      Underline,
+      Link.configure({
+        openOnClick: false,
+        HTMLAttributes: {
+          class: 'underline text-blue-600',
+        },
+      }),
+    ],
+    content: content.text || '',
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML();
+      const plainText = editor.getText().replace(/\n/g, '');
+      if (plainText.length <= 2000) {
+        setContent({ text: html, media });
+        setPasteError('');
+      } else {
+        const truncatedText = plainText.slice(0, 2000);
+        const newHtml = `<p>${truncatedText}</p>`;
+        editor.commands.setContent(newHtml);
+        setContent({ text: newHtml, media });
+        setPasteError('Nội dung dán đã vượt quá 2000 ký tự và được cắt bớt.');
+      }
+    },
+    editorProps: {
+      handlePaste: (view, event) => {
+        const clipboardData = event.clipboardData.getData('text/plain');
+        if (clipboardData) {
+          const currentText = view.state.doc.textContent.replace(/\n/g, '');
+          const newText = currentText + clipboardData.replace(/\n/g, '');
+          if (newText.length > 2000) {
+            const allowedText = clipboardData.slice(0, 2000 - currentText.length);
+            view.dispatch(
+              view.state.tr.insertText(allowedText, view.state.selection.from)
+            );
+            setPasteError('Nội dung dán đã vượt quá 2000 ký tự và được cắt bớt.');
+            return true;
+          }
+        }
+        return false;
+      },
+    },
+  });
+
+  // Đồng bộ editor với content.text khi content thay đổi
   useEffect(() => {
-    setText(content.text);
-    setMedia(content.media);
-  }, [content]);
+    if (editor && content.text !== editor.getHTML()) {
+      editor.commands.setContent(content.text || '');
+    }
+  }, [editor, content.text]);
+
+  // Đếm ký tự (loại bỏ thẻ HTML)
+  const getCharacterCount = () => {
+    const plainText = content.text.replace(/<[^>]+>/g, '').replace(/\n/g, '');
+    return plainText.length;
+  };
+
+  // Kiểm tra xem text có hợp lệ không
+  const isFormValid = () => {
+    const hasText = content.text && content.text.replace(/<[^>]+>/g, '').trim() !== '';
+    return hasText;
+  };
 
   const handleMediaUpload = (event, type) => {
     const files = Array.from(event.target.files);
@@ -27,7 +93,7 @@ const Overview = ({ setShowOverview, content, setContent }) => {
     }));
     setMedia((prev) => {
       const updatedMedia = [...prev, ...newMedia];
-      setContent({ text, media: updatedMedia }); // Cập nhật tức thời về cha
+      setContent({ text: content.text, media: updatedMedia });
       return updatedMedia;
     });
   };
@@ -35,24 +101,20 @@ const Overview = ({ setShowOverview, content, setContent }) => {
   const handleDeleteMedia = (index) => {
     setMedia((prev) => {
       const updatedMedia = prev.filter((_, i) => i !== index);
-      setContent({ text, media: updatedMedia }); // Cập nhật tức thời về cha
+      setContent({ text: content.text, media: updatedMedia });
       return updatedMedia;
     });
   };
 
-  const handleTextChange = (e) => {
-    const newText = e.target.value;
-    setText(newText);
-    setContent({ text: newText, media }); // Cập nhật tức thời về cha
-  };
-
   const handleComplete = () => {
-    setContent({ text, media }); // Đảm bảo dữ liệu cuối cùng được gửi
-    setShowOverview(false);
+    if (isFormValid()) {
+      setContent({ text: editor.getHTML(), media });
+      setShowOverview(false);
+    }
   };
 
   const handleCancel = () => {
-    setText(content.text); // Khôi phục dữ liệu cũ
+    editor.commands.setContent(content.text); // Khôi phục nội dung cũ
     setMedia(content.media);
     setShowOverview(false);
   };
@@ -65,23 +127,63 @@ const Overview = ({ setShowOverview, content, setContent }) => {
         <div className="flex items-center justify-between mb-2">
           <span>Text Formatting</span>
           <div className="flex space-x-2">
-            <FaBold /> <FaItalic /> <FaLink /> <FaListUl />
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleBold().run()}
+              className={`p-2 rounded ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            >
+              <FaBold />
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleItalic().run()}
+              className={`p-2 rounded ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            >
+              <FaItalic />
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleUnderline().run()}
+              className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            >
+              <FaTrashAlt /> {/* Thay FaLink bằng FaTrashAlt để đồng bộ với yêu cầu xóa */}
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleBulletList().run()}
+              className={`p-2 rounded ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            >
+              <FaListUl />
+            </button>
+            <button
+              type="button"
+              onClick={() => editor.chain().focus().toggleLink({ href: prompt('Enter URL') }).run()}
+              className={`p-2 rounded ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+            >
+              <FaLink />
+            </button>
           </div>
         </div>
-        <textarea
-          className="w-full h-32 border rounded-lg p-2"
-          value={text}
-          onChange={handleTextChange}
+        <EditorContent
+          editor={editor}
+          className="w-full min-h-[100px] border rounded-lg p-2 outline-none focus:ring-0"
         />
-        <div className="flex justify-end mt-2">
+        <div className="flex justify-between mt-2">
+          <div className="text-gray-600">{getCharacterCount()} / 2000</div>
           <FaTrashAlt
             className="text-gray-500 cursor-pointer"
             onClick={() => {
-              setText("");
-              setContent({ text: "", media });
+              editor.commands.clearContent();
+              setContent({ text: '', media });
             }}
           />
         </div>
+        {pasteError && (
+          <div className="text-red-500 mt-1">{pasteError}</div>
+        )}
+        {(!content.text || content.text.replace(/<[^>]+>/g, '').trim() === '') && (
+          <div className="text-red-500 mt-1">Event details are required</div>
+        )}
       </div>
       <div className="flex space-x-4 mb-4">
         <label className="cursor-pointer border px-4 py-2 rounded flex items-center">
@@ -134,12 +236,31 @@ const Overview = ({ setShowOverview, content, setContent }) => {
           Cancel
         </button>
         <button
-          className="px-4 py-2 bg-blue-500 text-white rounded"
+          className={`px-4 py-2 rounded ${
+            isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
           onClick={handleComplete}
+          disabled={!isFormValid()}
         >
           Complete
         </button>
       </div>
+
+      {/* CSS tùy chỉnh cho ProseMirror */}
+      <style jsx>{`
+        .ProseMirror {
+          min-height: 100px !important;
+          padding: 8px;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        .ProseMirror:focus {
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+      `}</style>
     </div>
   );
 };
@@ -155,7 +276,10 @@ const OverviewSection = ({ content, setContent }) => {
           onClick={() => setShowOverview(true)}
         >
           <h2 className="text-2xl font-semibold mb-2">Overview</h2>
-          <p className="text-gray-600">{content.text || "Click to add details"}</p>
+          <div
+            className="text-gray-600 prose max-w-none"
+            dangerouslySetInnerHTML={{ __html: content.text || "Click to add details" }}
+          />
           <div className="mt-2">
             {content.media.map((item, index) => (
               <div key={index}>

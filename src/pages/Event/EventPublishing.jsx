@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
+
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -48,10 +49,6 @@ const TagsInput = ({ tags, setTags }) => {
 };
 
 const PublishSettings = ({
-  eventVisibility,
-  setEventVisibility,
-  publishTime,
-  setPublishTime,
   refunds,
   setRefunds,
   validityDays,
@@ -66,48 +63,6 @@ const PublishSettings = ({
       <h1 className="text-2xl font-bold mb-6">Publish settings</h1>
       <div className="flex flex-col md:flex-row mb-10">
         <div className="flex-1">
-          {/* Public or private */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2">
-              Is your event public or private?
-            </h2>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="event_visibility"
-                  checked={eventVisibility === "public"}
-                  onChange={() => setEventVisibility("public")}
-                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
-                />
-                <span className="text-base">Public</span>
-              </label>
-              <p className="text-sm text-gray-500 ml-6">
-                Shared on Eventbrite and search engines
-              </p>
-            </div>
-            <div>
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="event_visibility"
-                  checked={eventVisibility === "private"}
-                  onChange={() => setEventVisibility("private")}
-                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
-                />
-                <span className="text-base">Private</span>
-              </label>
-              <p className="text-sm text-gray-500 ml-6">
-                Shared only with a select audience
-              </p>
-            </div>
-            {eventVisibility === "private" && (
-              <select className="w-full p-2 border border-gray-300 rounded-lg mt-2">
-                <option value="1">Anyone with the link</option>
-              </select>
-            )}
-          </div>
-          {/* Refund policy */}
           <div>
             <h2 className="text-lg font-semibold mb-2">Set your refund policy</h2>
             <p className="text-gray-500 text-[13px] mb-2">
@@ -166,57 +121,13 @@ const PublishSettings = ({
             )}
           </div>
         </div>
-        <div className="flex-1 mt-6 md:mt-0 md:ml-6">
-          {/* Schedule publish */}
-          <div className="bg-gray-100 p-4 rounded-lg">
-            <h2 className="text-lg font-semibold mb-2">
-              When should we publish your event?
-            </h2>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="publish_time"
-                  checked={publishTime === "now"}
-                  onChange={() => setPublishTime("now")}
-                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
-                />
-                <span className="text-base">Publish now</span>
-              </label>
-            </div>
-            <div className="mb-4">
-              <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="publish_time"
-                  checked={publishTime === "later"}
-                  onChange={() => setPublishTime("later")}
-                  className="w-4 h-4 border-2 border-orange-500 accent-red-500 mr-2"
-                />
-                <span className="text-base">Schedule for later</span>
-              </label>
-            </div>
-            {publishTime === "later" && (
-              <div className="flex space-x-2 mb-4">
-                <label className="block text-gray-700 text-[13px]">
-                  Start date *
-                  <input type="date" className="w-full border rounded-md p-2" />
-                </label>
-                <label className="block text-gray-700 text-[13px]">
-                  Start time
-                  <input type="time" className="w-full border rounded-md p-2" />
-                </label>
-              </div>
-            )}
-          </div>
-        </div>
+        <div className="flex-1 mt-6 md:mt-0 md:ml-6"></div>
       </div>
-      
     </div>
   );
 };
 
-const EventPublishing = ({ event, setEvent,onPublish }) => {
+const EventPublishing = ({ event, setEvent, onPublish }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -225,7 +136,16 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
     }, 500);
   }, []);
 
-  
+  const getImageUrl = (item) => {
+    if (item instanceof File || item instanceof Blob) {
+      return URL.createObjectURL(item);
+    } else if (typeof item === "string") {
+      return item.startsWith("http")
+        ? item
+        : `https://res.cloudinary.com/dho1vjupv/image/upload/${item}`;
+    }
+    return "https://mybic.vn/uploads/news/default/no-image.png";
+  };
 
   return loading ? (
     <Loader />
@@ -239,25 +159,35 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
       </p>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 bg-gray-100 p-3 rounded-lg ">
+        <div className="flex-1 bg-gray-100 p-3 rounded-lg">
           <div className="bg-white p-4 rounded-[20px] shadow-md mb-4 text-[14px] relative">
             <div className="flex items-center justify-center h-48 rounded-lg mb-4">
-            {event.uploadedImages.map((img, index) => (
-                    <div key={index} className="relative  mb-4">
-                      <img
-                        src={img}
-                        alt={`Uploaded ${index}`}
-                        className="w-[448px] h-[192px] object-cover rounded-[14px]"
-                      />
-                    </div>
-                  ))}
+              {event.uploadedImages?.length > 0 ? (
+                <div className="relative mb-4">
+                  <img
+                    src={getImageUrl(event.uploadedImages[0])}
+                    alt="Uploaded Event Image"
+                    className="w-[448px] h-[192px] object-cover rounded-[14px]"
+                  />
+                </div>
+              ) : (
+                <img
+                  src="https://mybic.vn/uploads/news/default/no-image.png"
+                  alt="Placeholder"
+                  className="w-[448px] h-[192px] object-cover rounded-[14px]"
+                />
+              )}
             </div>
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               {event.eventName || "Untitled Event"}
             </h2>
             <p className="font-semibold text-gray-600 text-[13px] mb-1">
               {event.eventLocation.date && event.eventLocation.startTime
-                ? `${new Date(event.eventLocation.date).toLocaleDateString()} ${event.eventLocation.startTime} - ${event.eventLocation.endTime}`
+                ? `${new Date(
+                    event.eventLocation.date
+                  ).toLocaleDateString()} ${event.eventLocation.startTime} - ${
+                    event.eventLocation.endTime
+                  }`
                 : "Date and time not set"}
             </p>
             <p className="text-gray-600 text-[13px] mb-1">
@@ -295,8 +225,7 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
           </div>
         </div>
 
-        {/* Event Type & Tags Section */}
-        <div className="flex-1 bg-gray-100 p-2 rounded-lg ">
+        <div className="flex-1 bg-gray-100 p-2 rounded-lg">
           <div className="mb-6">
             <h3 className="text-gray-900 font-semibold mb-2">
               Event type and category
@@ -317,19 +246,7 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
               <option value="Holidays">Holidays</option>
               <option value="Food & Drink">Food & Drink</option>
               <option value="Business">Business</option>
-              {/* Thêm các tùy chọn khác nếu cần */}
             </select>
-            {/* <div className="flex gap-4">
-              <select className="w-full p-2 border border-gray-300 rounded-lg">
-                <option value="103">Music</option>
-               
-              </select>
-              <select className="w-full p-2 border border-gray-300 rounded-lg">
-                <option value="4001">TV</option>
-                <option value="4002">Film</option>
-                
-              </select>
-            </div> */}
           </div>
           <div>
             <h3 className="text-gray-900 font-semibold mb-2">Tags</h3>
@@ -347,14 +264,6 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
         </div>
       </div>
       <PublishSettings
-        eventVisibility={event.eventVisibility}
-        setEventVisibility={(value) =>
-          setEvent((prev) => ({ ...prev, eventVisibility: value }))
-        }
-        publishTime={event.publishTime}
-        setPublishTime={(value) =>
-          setEvent((prev) => ({ ...prev, publishTime: value }))
-        }
         refunds={event.refunds}
         setRefunds={(value) =>
           setEvent((prev) => ({ ...prev, refunds: value }))
@@ -364,9 +273,9 @@ const EventPublishing = ({ event, setEvent,onPublish }) => {
           setEvent((prev) => ({ ...prev, validityDays: value }))
         }
       />
-      <div className="mb-6 ">
+      <div className="mb-6">
         <button
-          onClick={onPublish} 
+          onClick={onPublish}
           className="bg-orange-600 text-white px-4 py-2 rounded-md"
         >
           Publish now

@@ -1,6 +1,7 @@
 import React from "react";
 
 const TicketTypeSelector = ({ onSelectType }) => {
+  
   return (
     <div className="space-y-4">
       {["Paid", "Free"].map((type, index) => (
@@ -53,6 +54,14 @@ const TicketTypeSelector = ({ onSelectType }) => {
           <i className="fas fa-chevron-right text-gray-400"></i>
         </div>
       ))}
+      <div className="flex items-center justify-end p-4 rounded-lg cursor-pointer w-2/4 absolute bottom-20 right-4">
+        <button
+          className="bg-orange-600 text-white px-6 py-2 rounded-lg"
+         
+        >
+          Save and continue
+        </button>
+      </div>
     </div>
   );
 };

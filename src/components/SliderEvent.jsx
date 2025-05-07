@@ -24,12 +24,11 @@ const categoriesData = [
   { icon: "fas fa-utensils", label: "Food & Drink" },
 ];
 
-const CategoriesGrid = ({categories}) => {
+const CategoriesGrid = ({ categories }) => {
   const navigate = useNavigate();
   const handleSearchByCategory = async (categoryName) => {
     try {
       categoryName = categoryName.trim().toLowerCase();
-      //console.log(categoryName)
       const response = await fetch(
         `http://localhost:8080/api/events/search/by-type/${categoryName}`
       );
@@ -40,26 +39,26 @@ const CategoriesGrid = ({categories}) => {
       navigate(`/list-event-search-by/${categoryName}`, {
         state: { events, categoryName },
       });
-      //console.log("list event search by "+ categoryName +" "+events)
     } catch (error) {
       console.error('Error fetching event data:', error);
       alert('Failed to load event data');
     }
   };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 my-12 py-4">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 lg:gap-4 my-8 sm:my-10 lg:my-12 py-4">
       {categories.map((category, index) => (
         <div
           key={index}
           className="flex flex-col items-center group"
           onClick={() => handleSearchByCategory(category.label)}
         >
-          <div className="w-[108px] h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[ #74CEF7]">
+          <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[#74CEF7]">
             <i
-              className={`${category.icon} text-2xl text-gray-600 group-hover:text-[#3d64ff]`}
+              className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]`}
             ></i>
           </div>
-          <p className="mt-2 text-gray-600 group-hover:text-[#3d64ff]">
+          <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base">
             {category.label}
           </p>
         </div>
@@ -70,7 +69,7 @@ const CategoriesGrid = ({categories}) => {
 
 const SliderEvent = () => {
   return (
-    <div className="w-full max-w-[1300px] mx-auto my-[20px] font-roboto">
+    <div className="w-full max-w-[1300px] mx-auto my-4 sm:my-5 lg:my-[20px] font-roboto">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={10}
@@ -86,7 +85,7 @@ const SliderEvent = () => {
             <img
               src={src}
               alt={`Slide ${index + 1}`}
-              className="w-full h-[400px] object-cover"
+              className="w-full h-[200px] sm:h-[300px] lg:h-[400px] object-cover"
             />
           </SwiperSlide>
         ))}

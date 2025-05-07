@@ -5,6 +5,7 @@ import TicketTypeSelector from "./TicketTypeSelector";
 import TicketForm from "./TicketForm";
 import TicketOverview from "./TicketOverview";
 import TicketPopup from "./TicketPopup";
+import Swal from 'sweetalert2';
 
 // Hàm chuyển đổi định dạng ISO sang yyyy-MM-dd
 const formatDateForInput = (isoDate) => {
@@ -73,11 +74,19 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
 
   const handleSaveTicket = () => {
     if (!newTicket.ticketName || !newTicket.quantity || !newTicket.startTime || !newTicket.endTime) {
-      alert("Please fill in all required fields.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ các trường bắt buộc.',
+      });
       return;
     }
     if (newTicket.ticketType === "Paid" && !newTicket.price) {
-      alert("Please enter a price for a paid ticket.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng nhập giá cho vé có trả phí.',
+      });
       return;
     }
 
@@ -103,7 +112,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     setEditingTicket({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
-      endTime: formatDateForInput(ticket.endTime), 
+      endTime: formatDateForInput(ticket.endTime),
     });
     setTypeTicket(ticket.ticketType);
     setShowForm(true);
@@ -111,11 +120,19 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
 
   const handleUpdateTicket = () => {
     if (!editingTicket.ticketName || !editingTicket.quantity || !editingTicket.startTime || !editingTicket.endTime) {
-      alert("Please fill in all required fields.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng điền đầy đủ các trường bắt buộc.',
+      });
       return;
     }
     if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
-      alert("Please enter a price for a paid ticket.");
+      Swal.fire({
+        icon: 'error',
+        title: 'Lỗi',
+        text: 'Vui lòng nhập giá cho vé có trả phí.',
+      });
       return;
     }
 
@@ -130,7 +147,11 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
 
   const saveTicketsToDatabase = () => {
     if (tickets.length === 0) {
-      alert("No tickets to save.");
+      Swal.fire({
+        icon: 'warning',
+        title: 'Cảnh báo',
+        text: 'Không có vé nào để lưu.',
+      });
       return;
     }
     if (onNext) onNext();
@@ -164,27 +185,26 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
           }}
         />
       </main>
-      {showForm && 
-          <TicketForm
-            newTicket={
-              editingTicket
-                ? {
-                    ...editingTicket,
-                    startTime: formatDateForInput(editingTicket.startTime),
-                    endTime: formatDateForInput(editingTicket.endTime),
-                  }
-                : newTicket
-            }
-            typeTicket={typeTicket}
-            onChange={handleChange}
-            onSave={editingTicket ? handleUpdateTicket : handleSaveTicket}
-            onCancel={() => {
-              setShowForm(false);
-              setEditingTicket(null);
-            }}
-          />
- 
-      }
+      {showForm && (
+        <TicketForm
+          newTicket={
+            editingTicket
+              ? {
+                  ...editingTicket,
+                  startTime: formatDateForInput(editingTicket.startTime),
+                  endTime: formatDateForInput(editingTicket.endTime),
+                }
+              : newTicket
+          }
+          typeTicket={typeTicket}
+          onChange={handleChange}
+          onSave={editingTicket ? handleUpdateTicket : handleSaveTicket}
+          onCancel={() => {
+            setShowForm(false);
+            setEditingTicket(null);
+          }}
+        />
+      )}
     </div>
   );
 };

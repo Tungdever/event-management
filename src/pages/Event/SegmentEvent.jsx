@@ -38,34 +38,31 @@ const ImageUploader = ({ onImageUpload }) => {
         <div>
           <i className="fa-solid fa-image text-gray-600 text-xl"></i>
           <input
-        type="file"
-        ref={fileInputRef}
-        className="hidden"
-        accept="image/*"
-        onChange={handleFileChange}
-      />
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleFileChange}
+          />
         </div>
-        
-        
       )}
-      
     </div>
   );
 };
 
-const SegmentFormPopup = ({ 
-  isOpen, 
-  onClose, 
-  newSegment, 
-  handleChange, 
-  handleImageUpload, 
-  desc, 
-  setDesc, 
-  actor, 
-  setActor, 
-  onSave, 
-  isEditing, 
-  loading 
+const SegmentFormPopup = ({
+  isOpen,
+  onClose,
+  newSegment,
+  handleChange,
+  handleImageUpload,
+  desc,
+  setDesc,
+  actor,
+  setActor,
+  onSave,
+  isEditing,
+  loading,
 }) => {
   if (!isOpen) return null;
 
@@ -73,7 +70,10 @@ const SegmentFormPopup = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-6 rounded-lg w-full max-w-md max-h-[100vh] overflow-y-auto">
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="title">
+          <label
+            className="block text-gray-700 mb-2 text-[14px]"
+            htmlFor="title"
+          >
             Title<span className="text-red-500">*</span>
           </label>
           <input
@@ -88,7 +88,10 @@ const SegmentFormPopup = ({
         </div>
         <div className="flex space-x-4 mb-4">
           <div className="flex-1">
-            <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="start-time">
+            <label
+              className="block text-gray-700 mb-2 text-[14px]"
+              htmlFor="start-time"
+            >
               Start time<span className="text-red-500">*</span>
             </label>
             <input
@@ -101,7 +104,10 @@ const SegmentFormPopup = ({
             />
           </div>
           <div className="flex-1">
-            <label className="block text-gray-700 mb-2 text-[14px]" htmlFor="end-time">
+            <label
+              className="block text-gray-700 mb-2 text-[14px]"
+              htmlFor="end-time"
+            >
               End time<span className="text-red-500">*</span>
             </label>
             <input
@@ -124,8 +130,10 @@ const SegmentFormPopup = ({
               <FaList className="mr-2" /> Add description
             </button>
           ) : (
-            <div>
-              <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+            <div className="flex justify-between">
+
+             <div className="flex-1">
+             <label className="block text-gray-600 mt-2 text-[14px] mb-2">
                 Description
               </label>
               <textarea
@@ -138,6 +146,11 @@ const SegmentFormPopup = ({
               <div className="text-right text-gray-400 text-xs">
                 {newSegment.segmentDesc.length} / 1000
               </div>
+             </div>
+              <i
+                className="fa-solid fa-xmark hover:cursor-pointer"
+                onClick={() => setDesc(false)}
+              ></i>
             </div>
           )}
           {!actor ? (
@@ -148,52 +161,58 @@ const SegmentFormPopup = ({
               <FaUser className="mr-2" /> Add Speaker
             </button>
           ) : (
-            <div>
-              <label className="block text-gray-600 mt-2 text-[14px] mb-2">
-                Speaker Name <span className="text-red-500">*</span>
-              </label>
-              <div className="flex space-x-4 mb-4 items-center">
-                <input
-                  className="w-[200px] p-2 border border-gray-300 rounded-lg"
-                  type="text"
-                  id="speakerName"
-                  placeholder="Speaker Name"
-                  name="speakerName"
-                  value={newSegment.speakerName}
+            <div className="flex ">
+             
+              <div className="flex-1">
+                <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+                  Speaker Name <span className="text-red-500">*</span>
+                </label>
+                <div className="flex space-x-4 mb-4 items-center">
+                  <input
+                    className="w-[200px] p-2 border border-gray-300 rounded-lg"
+                    type="text"
+                    id="speakerName"
+                    placeholder="Speaker Name"
+                    name="speakerName"
+                    value={newSegment.speakerName}
+                    onChange={handleChange}
+                  />
+                  {newSegment.speakerImage ? (
+                    <div className="relative">
+                      <img
+                        src={newSegment.speakerImage}
+                        alt="Speaker"
+                        className="w-[50px] h-[50px] rounded-full object-cover"
+                      />
+                      <button
+                        className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                        onClick={() => handleImageUpload(null)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <ImageUploader onImageUpload={handleImageUpload} />
+                  )}
+                </div>
+                <label className="block text-gray-600 mt-2 text-[14px] mb-2">
+                  Description <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                  rows="3"
+                  name="speakerDesc"
+                  value={newSegment.speakerDesc}
                   onChange={handleChange}
                 />
-                {newSegment.speakerImage ? (
-                  <div className="relative">
-                    <img
-                      src={newSegment.speakerImage}
-                      alt="Speaker"
-                      className="w-[50px] h-[50px] rounded-full object-cover"
-                    />
-                    <button
-                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                      onClick={() => handleImageUpload(null)}
-                    >
-                      ×
-                    </button>
-                    {/* <ImageUploader onImageUpload={handleImageUpload} /> */}
-                  </div>
-                ) : (
-                  <ImageUploader onImageUpload={handleImageUpload} />
-                )}
+                <div className="text-right text-gray-400 text-xs">
+                  {newSegment.speakerDesc.length} / 1000
+                </div>
               </div>
-              <label className="block text-gray-600 mt-2 text-[14px] mb-2">
-                Description <span className="text-red-500">*</span>
-              </label>
-              <textarea
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-                rows="3"
-                name="speakerDesc"
-                value={newSegment.speakerDesc}
-                onChange={handleChange}
-              />
-              <div className="text-right text-gray-400 text-xs">
-                {newSegment.speakerDesc.length} / 1000
-              </div>
+              <i
+                className="fa-solid fa-xmark hover:cursor-pointer"
+                onClick={() => setActor(false)}
+              ></i>
             </div>
           )}
         </div>
@@ -210,7 +229,11 @@ const SegmentFormPopup = ({
             onClick={onSave}
             disabled={loading}
           >
-            {loading ? "Saving..." : isEditing ? "Save Changes" : "Save Segment"}
+            {loading
+              ? "Saving..."
+              : isEditing
+              ? "Save Changes"
+              : "Save Segment"}
           </button>
         </div>
       </div>
@@ -227,7 +250,8 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     segmentDesc: "",
     speakerName: "",
     speakerDesc: "",
-    speakerImage: "", 
+    speakerImage: "",
+    speakerImageFile: null, 
     startTime: "",
     endTime: "",
   });
@@ -237,12 +261,17 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [loading, setLoading] = useState(false);
-
+  const token = localStorage.getItem("token");
   // Load segments from API
   const loadSegments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:8080/api/segment/${eventId}/getSegment`);
+      const response = await axios.get(
+        `http://localhost:8080/api/segment/${eventId}/getSegment`,{  headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },}
+      );
       setSegments(response.data);
       onSegmentUpdate(response.data);
     } catch (error) {
@@ -264,14 +293,21 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   const handleImageUpload = (data) => {
     setNewSegment((prevData) => ({
       ...prevData,
-      speakerImage: data ? data.imageUrl : "" // Update speakerImage directly
+      speakerImage: data ? data.imageUrl : "", // Lưu imageUrl để hiển thị
+      speakerImageFile: data ? data.file : null, // Lưu File để tải lên
     }));
   };
 
   // Handle adding a new segment
   const handleAddSlot = () => {
-    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
-      alert("Please fill in all required fields (Title, Start Time, End Time).");
+    if (
+      !newSegment.segmentTitle ||
+      !newSegment.startTime ||
+      !newSegment.endTime
+    ) {
+      alert(
+        "Please fill in all required fields (Title, Start Time, End Time)."
+      );
       return;
     }
     if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
@@ -281,18 +317,18 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
     const segmentToAdd = {
       segmentTitle: newSegment.segmentTitle,
-      speaker: actor
-        ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
-          }
-        : null,
-      eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
-      isLocal: true
+  speaker: actor
+    ? {
+        speakerImage: newSegment.speakerImageFile, 
+        speakerName: newSegment.speakerName,
+        speakerDesc: newSegment.speakerDesc,
+      }
+    : null,
+  eventID: eventId || "",
+  segmentDesc: newSegment.segmentDesc,
+  startTime: newSegment.startTime,
+  endTime: newSegment.endTime,
+  isLocal: true,
     };
 
     const updatedSegments = [...segments, segmentToAdd];
@@ -303,6 +339,7 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
   // Handle editing an existing segment
   const handleEditSegment = (index) => {
+    
     const segment = segments[index];
     setNewSegment({
       eventId: eventId || "",
@@ -324,8 +361,14 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
   // Handle saving the edited segment
   const handleSaveEdit = () => {
-    if (!newSegment.segmentTitle || !newSegment.startTime || !newSegment.endTime) {
-      alert("Please fill in all required fields (Title, Start Time, End Time).");
+    if (
+      !newSegment.segmentTitle ||
+      !newSegment.startTime ||
+      !newSegment.endTime
+    ) {
+      alert(
+        "Please fill in all required fields (Title, Start Time, End Time)."
+      );
       return;
     }
     if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
@@ -335,19 +378,19 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
 
     const updatedSegment = {
       segmentId: newSegment.segmentId,
-      segmentTitle: newSegment.segmentTitle,
-      speaker: actor
-        ? {
-            speakerImage: newSegment.speakerImage,
-            speakerName: newSegment.speakerName,
-            speakerDesc: newSegment.speakerDesc,
-          }
-        : null,
-      eventID: eventId || "",
-      segmentDesc: newSegment.segmentDesc,
-      startTime: newSegment.startTime,
-      endTime: newSegment.endTime,
-      isLocal: segments[editIndex]?.isLocal
+  segmentTitle: newSegment.segmentTitle,
+  speaker: actor
+    ? {
+        speakerImage: newSegment.speakerImageFile, 
+        speakerName: newSegment.speakerName,
+        speakerDesc: newSegment.speakerDesc,
+      }
+    : null,
+  eventID: eventId || "",
+  segmentDesc: newSegment.segmentDesc,
+  startTime: newSegment.startTime,
+  endTime: newSegment.endTime,
+  isLocal: segments[editIndex]?.isLocal,
     };
 
     const updatedSegments = [...segments];
@@ -366,7 +409,8 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
       segmentDesc: "",
       speakerName: "",
       speakerDesc: "",
-      speakerImage: "", // Reset speakerImage
+      speakerImage: "",
+      speakerImageFile: null,
       startTime: "",
       endTime: "",
     });
@@ -380,22 +424,27 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
   // Handle deleting a segment
   const handleDeleteSegment = async (index) => {
     const segmentToDelete = segments[index];
-    
+    const token = localStorage.getItem("token");
     if (segmentToDelete.isLocal) {
       const updatedSegments = segments.filter((_, i) => i !== index);
       setSegments(updatedSegments);
       onSegmentUpdate(updatedSegments);
       alert("Delete segment successful");
-    } 
-    else if (segmentToDelete.segmentId) {
+    } else if (segmentToDelete.segmentId) {
       try {
-        const response = await fetch(`http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`, {
-          method: "DELETE",
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            method: "DELETE",
+          }
+        );
 
         if (response.ok) {
           alert("Delete segment successful");
-          
         } else {
           alert("Failed to delete segment");
         }
@@ -406,15 +455,15 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
     }
   };
 
- 
-
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
       <div className="flex justify-between items-center mb-4">
         <h1 className="text-2xl font-semibold">Segment</h1>
       </div>
       <p className="text-gray-600 mb-6">
-        Add an itinerary, schedule, or lineup to your event. You can include a time, a description of what will happen, and who will host or perform during the event.
+        Add an itinerary, schedule, or lineup to your event. You can include a
+        time, a description of what will happen, and who will host or perform
+        during the event.
       </p>
       <div className="flex items-center mb-4">
         <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4">
@@ -452,7 +501,9 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
               <span className="font-semibold text-gray-500 text-xl py-2">
                 {segment.segmentTitle}
               </span>
-              <p className="text-gray-500 border-t-2 pt-2">{segment.segmentDesc}</p>
+              <p className="text-gray-500 border-t-2 pt-2">
+                {segment.segmentDesc}
+              </p>
               {segment.speaker && (
                 <div className="flex items-center mt-2">
                   {segment.speaker.speakerImage && (
@@ -463,7 +514,8 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate }) => {
                     />
                   )}
                   <p className="text-gray-500">
-                    Speaker: {segment.speaker.speakerName} - {segment.speaker.speakerDesc}
+                    Speaker: {segment.speaker.speakerName} -{" "}
+                    {segment.speaker.speakerDesc}
                   </p>
                 </div>
               )}
