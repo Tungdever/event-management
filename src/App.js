@@ -48,6 +48,7 @@ import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
 import PaymentResult from "./pages/Checkout/PaymentResult"
 import MyBooking from "./pages/Booking/MyBooking";
 import ReportOrder from "./pages/report/order"
+import ViewTicket from "./pages/Ticket/ViewTicket"
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 const MainLayout = () => {
@@ -69,7 +70,7 @@ const MainLayout = () => {
     "/all-event",
     "/payment-result",
     "/my-bookings"
-  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by");
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets");
 
   // Các base path của trang chi tiết sự kiện
   const eventDetailBasePaths = [
@@ -137,7 +138,7 @@ const MainLayout = () => {
               <Route path="/list-event-search-by/:categoryName" element={<SearchByType />} />
               <Route path="/payment-result" element={<PaymentResult />} />
               <Route path="/my-bookings" element={<MyBooking />} />
-
+              <Route path="/view-tickets/:orderCode" element={<ViewTicket />} />
             </Routes>
           </div>
         </>

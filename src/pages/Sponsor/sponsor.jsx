@@ -10,9 +10,9 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import "../../fonts/Times New Roman";
 import axios from "axios";
-import { ConciergeBell } from "lucide-react";
+import { useParams } from "react-router-dom";
 const Sponsor = () => {
-  const eid = 1;
+  const { eventId } = useParams();
   const [selectedLevel, setSelectedLevel] = useState("Select level");
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
@@ -20,7 +20,7 @@ const Sponsor = () => {
   const [empty, setEmpty] = useState({});
   const dropdownExportRef = useRef(null);
   const dropdownLevelRef = useRef(null);
-
+  const token = localStorage.getItem('token');
   // =====================================================================
   // Màu sắc và icon của từng Level
   const levelClass = {
@@ -54,8 +54,13 @@ const Sponsor = () => {
     sponsorEndDate: "",
   });
   useEffect(() => {
+
     axios
-      .get(`http://localhost:8080/api/v1/myevent/${eid}/sponsor`)
+      .get(`http://localhost:8080/api/v1/myevent/${eventId}/sponsor`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
         setSponsors(response.data.data);
       })
@@ -154,10 +159,13 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.post(
-        `http://localhost:8080/api/v1/myevent/${eid}/sponsor`,
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
       console.log("Upload thành công:", response.data);
@@ -199,10 +207,13 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/v1/myevent/${eid}/sponsor`,
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: { 
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+           }
         }
       );
       console.log("Upload thành công:", response.data);
@@ -225,9 +236,14 @@ const Sponsor = () => {
   const handleDeleteSponsor = async (selectedSponsor) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/v1/myevent/${eid}/sponsor/${selectedSponsor.sponsorId}`,        
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
       );
-      console.log("Upload thành công:", response.data);      
+      console.log("Upload thành công:", response.data);
     } catch (error) {
       console.error("Lỗi tải file:", error);
     }
@@ -673,7 +689,7 @@ const Sponsor = () => {
                     <div className="custom-body-header p-3">
                       <div className="file-name-icon">
                         <a href="#" className="custom-avatar-2">
-                          <img src={selectedSponsor.sponsorLogo} className="img-fluid" alt="img"></img>
+                          <img src={`http://localhost:8080/api/storage/view/${selectedSponsor.sponsorLogo}`} className="img-fluid" alt="img"></img>
                         </a>
                         <div>
                           <p className="custom-text mb-0">{selectedSponsor.sponsorName}</p>
@@ -1267,7 +1283,7 @@ const Sponsor = () => {
                     <div className="avt-name">
                       <div className="avatar">
                         <img
-                          src={sponsor.sponsorLogo}
+                          src={`http://localhost:8080/api/storage/view/${sponsor.sponsorLogo}`}
                           alt={sponsor.sponsorName}
                           className="img-fluid"
                           style={{ width: "28px", height: "28px", objectFit: "cover" }}

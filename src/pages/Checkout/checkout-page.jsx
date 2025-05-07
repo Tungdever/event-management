@@ -118,10 +118,7 @@ const CheckoutPage = (props) => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
-            <span>Offers</span>
-            <span className="mr-0.5 text-[#408BFC] border-b border-dashed border-[#408BFC] cursor-pointer">Add Code</span>
-          </div>
+          
           <div className="flex flex-col items-start justify-start gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
             <span className="checkout-page-text-detail">Payment Details</span>
             <div className="w-full flex flex-col items-start justify-start bg-white rounded-[10px] mb-2.5">
@@ -132,14 +129,14 @@ const CheckoutPage = (props) => {
                     <div key={index} className="w-full">
                       <div className="flex w-full items-center justify-between bg-white py-1.5">
                         <span>{ticket.ticketName} x{ticket.quantity}</span>
-                        <span className="text-right w-24">${s?.toFixed(2)}</span>
+                        <span className="text-right w-24">{s?.toFixed(2)}Đ</span>
                       </div>
                     </div>
                   );
                 })}
               <div className="mt-2.5 flex w-full items-center justify-between bg-white border-t border-[#E7E9EB] pt-2">
                 <span className="font-semibold">Total</span>
-                <span className="text-right w-24 font-semibold">${total?.toFixed(2)}</span>
+                <span className="text-right w-24 font-semibold">{total?.toFixed(2)}Đ</span>
               </div>
             </div>
 

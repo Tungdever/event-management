@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import axios from 'axios';
 import EmptyOrder from './empty-orders.jpg';
 import { toast } from 'react-toastify';
+import { FaTicketAlt, FaDownload, FaUndoAlt } from "react-icons/fa";
+
 export default function MyBooking() {
   const [orders, setOrders] = useState([]);
   const [openOrders, setOpenOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const toggleOrder = (orderId) => {
     setOpenOrders((prev) =>
@@ -72,6 +75,9 @@ export default function MyBooking() {
 
 
   const handleRefund = async (orderId) => {
+    const confirmRefund = window.confirm("Are you sure you want to request a refund for this order?");
+    if (!confirmRefund) return;
+
     try {
       const token = localStorage.getItem('token');
       let userId;
@@ -95,7 +101,7 @@ export default function MyBooking() {
           Authorization: `Bearer ${token}`
         }
       });
-      
+
       if (response.data === true || response.data === "true") {
         const refundResponse = await axios.post(`http://localhost:8080/api/v1/refund/${orderId}`, null, {
           headers: {
@@ -114,7 +120,31 @@ export default function MyBooking() {
     }
   };
 
+  const downloadInvoice = async (orderId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`http://localhost:8080/api/v1/invoice/${orderId}`, {
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `invoice_${orderId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      toast.error("Download failed.");
+      console.error(err);
+    }
+  };
 
+  const viewTicket = (orderId) => {
+    window.location.href = `/view-tickets/${orderId}`;
+  }
 
   const statusColors = {
     SUCCESSFULLY: "text-green-600",
@@ -166,7 +196,7 @@ export default function MyBooking() {
                 >
                   <div>
                     <h2 className="text-xl font-semibold text-gray-800">
-                      Bill ID: #{order.orderId}
+                      Invoice ID: #{order.orderId}
                     </h2>
                     <p className="text-sm text-gray-500">
                       Transaction time: {convertTimestamp(order.transaction.transactionDate)}
@@ -233,15 +263,7 @@ export default function MyBooking() {
                           <h3 className="text-lg font-semibold text-gray-800">
                             {ticket.ticketName}
                           </h3>
-                          <p className="text-sm text-gray-500">
-                            Type: {ticket.ticketType}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            Start: {new Date(ticket.startTime).toLocaleString("vi-VN")}
-                          </p>
-                          <p className="text-sm text-gray-500">
-                            End: {new Date(ticket.endTime).toLocaleString("vi-VN")}
-                          </p>
+
                         </div>
                         <div className="text-right mt-4 md:mt-0 w-full md:w-1/3">
                           <p className="text-sm text-gray-600">
@@ -258,21 +280,66 @@ export default function MyBooking() {
                     ))}
                   </div>
                 </div>
-                {order.transaction.transactionStatus !== "REFUNDED" &&
-                  <div className="mt-6 flex justify-end">
+                <div className="mt-6 flex justify-end space-x-3">
+                  <button
+                    onClick={() => viewTicket(order.orderId)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                  >
+                    <FaTicketAlt />
+                    View Tickets
+                  </button>
+
+                  <button
+                    onClick={() => downloadInvoice(order.orderId)}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                  >
+                    <FaDownload />
+                    Download Invoice
+                  </button>
+
+                  {order.transaction.transactionStatus !== "REFUNDED" && (
                     <button
-                      onClick={() => handleRefund(order.orderId)}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200"
+                      onClick={() => setSelectedOrderId(order.orderId)}
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                     >
+                      <FaUndoAlt />
                       Refund
                     </button>
-                  </div>
-                }
+                  )}
+
+                </div>
+
               </div>
             );
           })}
         </div>
       )}
+      {selectedOrderId && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
+            <h2 className="text-xl font-bold mb-4">Confirm Refund</h2>
+            <p className="text-gray-700">Are you sure you want to refund this invoice?</p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setSelectedOrderId(null)}
+                className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  handleRefund(selectedOrderId);
+                  setSelectedOrderId(null);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
