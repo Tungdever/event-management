@@ -242,7 +242,7 @@ const AdminRoleAssignment = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="p-4">
         <h1 className="text-3xl font-extrabold text-start tracking-tight">
           Event Role Management
@@ -251,12 +251,12 @@ const AdminRoleAssignment = () => {
 
       <div className="p-6 space-y-12">
         {/* Assign Role Section */}
-        <div className="bg-gray-50 p-8 rounded-2xl shadow-inner">
+        <div className="bg-gray-50 p-8 rounded-[10px] shadow border">
           <h2 className="text-2xl font-semibold text-gray-900 mb-6">Assign New Role</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">Member Email</label>
-              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-blue-500">
+              <div className="flex items-center bg-white border border-gray-300 rounded-lg shadow-sm focus-within:ring-2 focus-within:ring-teal-500">
                 <FaUser className="ml-3 text-gray-400" />
                 <input
                   type="email"
@@ -267,13 +267,13 @@ const AdminRoleAssignment = () => {
                 />
                 <button
                   onClick={searchMember}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-[8px] hover:bg-blue-700 transition duration-200 flex items-center mr-2"
+                  className="bg-teal-400 text-white px-4 py-2 rounded-[8px] hover:bg-teal-500 transition duration-200 flex items-center mr-2"
                 >
                   <FaSearch className="mr-2" />
                 </button>
               </div>
               {member && (
-                <p className="mt-2 text-sm text-blue-600 font-medium">
+                <p className="mt-2 text-sm text-teal-600 font-medium">
                   Found: {member.fullName} ({member.email})
                 </p>
               )}
@@ -285,7 +285,7 @@ const AdminRoleAssignment = () => {
                 <select
                   value={selectedEvent}
                   onChange={(e) => handleEventSelection(e.target.value)}
-                  className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
                 >
                   <option value="">Select Event</option>
                   {events.map((event) => (
@@ -303,7 +303,7 @@ const AdminRoleAssignment = () => {
                 <select
                   value={selectedRole}
                   onChange={(e) => setSelectedRole(e.target.value)}
-                  className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                  className="w-full pl-10 p-3 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 appearance-none"
                 >
                   <option value="">Select Role</option>
                   {roles.map((role) => (
@@ -317,7 +317,7 @@ const AdminRoleAssignment = () => {
           </div>
           <button
             onClick={assignRole}
-            className="w-full md:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-lg shadow-md hover:from-blue-700 hover:to-indigo-700 transition duration-300 transform hover:scale-105"
+            className="w-full md:w-auto bg-gradient-to-r from-teal-400 to-teal-400 text-white px-8 py-3 rounded-lg shadow-md hover:from-teal-400 hover:to-teal-500 transition duration-300 transform hover:scale-105"
           >
             Assign Role
           </button>
@@ -330,9 +330,9 @@ const AdminRoleAssignment = () => {
         <div>
           <h2 className="text-2xl font-semibold text-gray-900 mb-4">Event Team</h2>
           {events.length > 0 && selectedEvent ? (
-            <div className="bg-gray-50 p-8 rounded-2xl shadow-inner">
+            <div className="bg-gray-50 p-8 rounded-[10px] shadow border">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-semibold text-indigo-600">
+                <h3 className="text-xl font-semibold text-teal-600">
                   {events.find((event) => String(event.eventId) === String(selectedEvent))?.eventName || 'Selected Event'}
                 </h3>
                 <div className="flex items-center space-x-4">
@@ -342,7 +342,7 @@ const AdminRoleAssignment = () => {
                     className={`px-4 py-2 rounded-lg shadow-sm transition duration-200 ${
                       currentEventIndex === 0 || isLoading
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-teal-400 text-white hover:bg-teal-500'
                     }`}
                   >
                     Previous
@@ -356,7 +356,7 @@ const AdminRoleAssignment = () => {
                     className={`px-4 py-2 rounded-lg shadow-sm transition duration-200 ${
                       currentEventIndex === events.length - 1 || isLoading
                         ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-teal-400 text-white hover:bg-teal-500'
                     }`}
                   >
                     Next
@@ -369,7 +369,7 @@ const AdminRoleAssignment = () => {
                 <div className="overflow-x-auto">
                   <table className="w-full bg-white rounded-lg shadow-sm">
                     <thead>
-                      <tr className="bg-indigo-100 text-indigo-800">
+                      <tr className="bg-teal-100 text-teal-900">
                         <th className="p-4 text-left font-semibold text-sm uppercase tracking-wider">
                           Full Name
                         </th>
@@ -387,7 +387,7 @@ const AdminRoleAssignment = () => {
                           key={member.userId}
                           className={`border-b transition duration-150 ${
                             index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                          } hover:bg-indigo-50`}
+                          } hover:bg-teal-50`}
                         >
                           <td className="p-4 text-gray-800">{member.fullName}</td>
                           <td className="p-4 text-gray-600">{member.email}</td>

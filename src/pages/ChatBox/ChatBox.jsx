@@ -21,7 +21,6 @@ const ChatBox = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
-  // Get current user from token
   useEffect(() => {
     if (token) {
       try {
@@ -37,7 +36,6 @@ const ChatBox = () => {
     }
   }, [token]);
 
-  // Fetch user list
   const fetchUser = async (userId) => {
     try {
       const response = await fetch(
@@ -63,7 +61,6 @@ const ChatBox = () => {
     }
   };
 
-  // Search users
   const searchUsers = async (query) => {
     if (!query.trim()) {
       setSearchedUsers([]);
@@ -71,7 +68,7 @@ const ChatBox = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:8080/chat/search?query=${encodeURIComponent(query)}&currentUserId=${currentUser.userId}`,
+        `http://localhost:8080/chat/search?query=${encodeURIComponent(query)}¤tUserId=${currentUser.userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -94,7 +91,6 @@ const ChatBox = () => {
     }
   }, [currentUser.userId]);
 
-  // Handle search query change
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       searchUsers(searchQuery);
@@ -102,12 +98,10 @@ const ChatBox = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchQuery, currentUser.userId]);
 
-  // Scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch chat history
   useEffect(() => {
     if (selectedUser) {
       axios
@@ -126,7 +120,6 @@ const ChatBox = () => {
     }
   }, [selectedUser, currentUser.userId, token]);
 
-  // Subscribe to messages and typing notifications
   useEffect(() => {
     if (stompClient) {
       const messageSubscription = stompClient.subscribe(
@@ -167,7 +160,6 @@ const ChatBox = () => {
     }
   }, [stompClient, currentUser.email]);
 
-  // Send typing notification
   useEffect(() => {
     if (stompClient && selectedUser && inputMessage) {
       const typingDTO = {
@@ -195,7 +187,6 @@ const ChatBox = () => {
     scrollToBottom();
   }, [messages]);
 
-  // Send message
   const sendMessage = () => {
     if (inputMessage.trim() && selectedUser && stompClient) {
       const messageDTO = {
@@ -207,7 +198,6 @@ const ChatBox = () => {
       };
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
       setMessages((prevMessages) => [...prevMessages, messageDTO]);
-      // Add user to chatted users if not already present
       if (!users.some((user) => user.userId === selectedUser.userId)) {
         setUsers((prev) => [...prev, selectedUser]);
       }
@@ -220,175 +210,139 @@ const ChatBox = () => {
   };
 
   return (
-    <div className="flex h-[calc(100vh-64px)] bg-gray-100">
-      {/* Hamburger menu for mobile */}
-      <button
-        className="sm:hidden p-2 text-gray-600 bg-white border-b border-gray-200 fixed top-0 left-0 z-50"
-        onClick={toggleSidebar}
-      >
-        <FaBars className="text-lg" />
-      </button>
+    <div className="flex h-[calc(100vh-48px)] max-w-7xl mx-auto shadow-2xl rounded-2xl overflow-hidden">
+    {/* Hamburger menu for mobile */}
+    <button
+      className="sm:hidden p-3 text-gray-600 bg-white fixed top-4 left-4 z-50 rounded-full shadow-md hover:bg-gray-100 transition-colors duration-300"
+      onClick={toggleSidebar}
+    >
+      <FaBars className="text-lg" />
+    </button>
 
-      {/* Left sidebar: User list */}
-      <div
-        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300 z-40
-          w-64 sm:w-1/3 lg:w-1/4 sm:max-w-none
-          ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
-      >
-        <div className="p-3 sm:p-4 border-b border-gray-200">
-          <h2 className="text-base sm:text-lg lg:text-lg font-semibold">
-            Messages
-          </h2>
-          <div className="mt-2 flex items-center border border-gray-300 rounded-lg p-2">
-            <FaSearch className="text-gray-500 mr-2" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search users..."
-              className="flex-1 outline-none text-sm"
-            />
-          </div>
-        </div>
-        <div className="overflow-y-auto h-[calc(100%-120px)]">
-          {searchQuery ? (
-            searchedUsers.map((user) => (
-              <div
-                key={user.userId}
-                className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
-                  selectedUser?.userId === user.userId ? "bg-gray-200" : ""
-                }`}
-                onClick={() => {
-                  setSelectedUser(user);
-                  setIsSidebarOpen(false);
-                }}
-              >
-                <div
-                  className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
-                >
-                  {user.name[0]}
-                </div>
-                <div className="ml-2 sm:ml-3">
-                  <p className="font-medium text-sm sm:text-base truncate">
-                    {user.name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">
-                    {user.email}
-                  </p>
-                </div>
-              </div>
-            ))
-          ) : (
-            users.map((user) => (
-              <div
-                key={user.userId}
-                className={`p-3 sm:p-4 flex items-center cursor-pointer hover:bg-gray-100 ${
-                  selectedUser?.userId === user.userId ? "bg-gray-200" : ""
-                }`}
-                onClick={() => {
-                  setSelectedUser(user);
-                  setIsSidebarOpen(false);
-                }}
-              >
-                <div
-                  className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
-                >
-                  {user.name[0]}
-                </div>
-                <div className="ml-2 sm:ml-3">
-                  <p className="font-medium text-sm sm:text-base truncate">
-                    {user.name}
-                  </p>
-                  <p className="text-xs sm:text-sm text-gray-500 truncate">
-                    {user.email}
-                  </p>
-                </div>
-              </div>
-            ))
-          )}
+    {/* Left sidebar: User list */}
+    <div
+      className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300 z-40
+        w-80 sm:w-1/3 lg:w-1/4 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
+    >
+      <div className="p-4 border-b border-gray-200">
+        <h2 className="text-xl font-bold text-gray-800">Messages</h2>
+        <div className="mt-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg p-2 shadow-sm">
+          <FaSearch className="text-gray-500 mr-2" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search users..."
+            className="flex-1 bg-transparent outline-none text-sm focus:ring-0"
+          />
         </div>
       </div>
-
-      {/* Chat window */}
-      <div className="flex-1 flex flex-col">
-        {selectedUser ? (
-          <>
-            {/* Chat header */}
-            <div className="p-2 sm:p-3 lg:p-4 bg-white border-b border-gray-200 flex items-center">
-              <div
-                className="w-8 h-8 sm:w-9 h-9 lg:w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm sm:text-base"
-              >
-                {selectedUser.name[0]}
-              </div>
-              <h2 className="ml-2 sm:ml-3 text-base sm:text-lg lg:text-lg font-semibold truncate">
-                {selectedUser.name}
-              </h2>
+      <div className="overflow-y-auto h-[calc(100%-120px)]">
+        {(searchQuery ? searchedUsers : users).map((user) => (
+          <div
+            key={user.userId}
+            className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 transition-colors duration-300 ${
+              selectedUser?.userId === user.userId ? "bg-teal-100" : ""
+            }`}
+            onClick={() => {
+              setSelectedUser(user);
+              setIsSidebarOpen(false);
+            }}
+          >
+            <div
+              className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm"
+            >
+              {user.name[0]}
             </div>
-
-            {/* Message display area */}
-            <div className="flex-1 overflow-y-auto bg-gray-50">
-              <div className="p-2 sm:p-3 lg:p-4 flex flex-col min-h-full">
-                {messages.map((msg, index) => (
-                  <div
-                    key={index}
-                    className={`mb-3 sm:mb-4 flex ${
-                      msg.senderEmail === currentUser.email
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
-                    <div
-                      className={`max-w-[70%] sm:max-w-xs p-2 sm:p-3 rounded-lg text-xs sm:text-sm lg:text-base ${
-                        msg.senderEmail === currentUser.email
-                          ? "bg-blue-500 text-white"
-                          : msg.isRead
-                          ? "bg-white text-gray-800 border border-gray-200"
-                          : "bg-gray-200 text-gray-800 border border-gray-300 font-semibold"
-                      }`}
-                    >
-                      <p>{msg.content}</p>
-                      <p className="text-[10px] sm:text-xs mt-1 opacity-70">
-                        {new Date(msg.timestamp).toLocaleTimeString()}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {typingStatus[selectedUser.email] && (
-                  <div className="text-xs sm:text-sm text-gray-500">Typing...</div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
+            <div className="ml-3 flex-1">
+              <p className="font-semibold text-sm truncate">{user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{user.email}</p>
             </div>
-
-            {/* Message input */}
-            <div className="p-2 sm:p-3 lg:p-4 bg-white border-t border-gray-200">
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type a message..."
-                  className="flex-1 p-1.5 sm:p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs sm:text-sm"
-                />
-                <button
-                  onClick={sendMessage}
-                  className="ml-1 sm:ml-2 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xs sm:text-sm"
-                >
-                  Send
-                </button>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <p className="text-gray-500 text-sm sm:text-base">
-              Select a user to start chatting
-            </p>
           </div>
-        )}
+        ))}
       </div>
     </div>
+
+    {/* Chat window */}
+    <div className="flex-1 flex flex-col bg-white">
+      {selectedUser ? (
+        <>
+          {/* Chat header */}
+          <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
+            <div
+              className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm"
+            >
+              {selectedUser.name[0]}
+            </div>
+            <h2 className="ml-3 text-lg font-semibold text-gray-800 truncate">
+              {selectedUser.name}
+            </h2>
+          </div>
+
+          {/* Message display area */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`mb-4 flex ${
+                  msg.senderEmail === currentUser.email
+                    ? "justify-end"
+                    : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[70%] sm:max-w-md p-3 rounded-lg text-sm shadow-sm transition-all duration-200 ${
+                    msg.senderEmail === currentUser.email
+                      ? "bg-teal-500 text-white"
+                      : msg.isRead
+                      ? "bg-white text-gray-800 border border-gray-200"
+                      : "bg-gray-100 text-gray-800 border border-gray-300 font-semibold"
+                  }`}
+                >
+                  <p>{msg.content}</p>
+                  <p className="text-xs mt-1 opacity-70">
+                    {new Date(msg.timestamp).toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+            {typingStatus[selectedUser.email] && (
+              <div className="text-xs text-gray-500 animate-pulse">
+                Typing...
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Message input */}
+          <div className="p-4 bg-white border-t border-gray-200">
+            <div className="flex items-center space-x-3">
+              <input
+                type="text"
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Type a message..."
+                className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
+              />
+              <button
+                onClick={sendMessage}
+                className="px-4 py-2 bg-teal-500 text-white rounded-lg shadow-md hover:bg-teal-600 transition-colors duration-300"
+              >
+                Send
+              </button>
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="flex-1 flex items-center justify-center bg-gray-50">
+          <p className="text-gray-500 text-base">
+            Select a user to start chatting
+          </p>
+        </div>
+      )}
+    </div>
+  </div>
   );
 };
 

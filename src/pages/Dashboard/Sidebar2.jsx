@@ -10,16 +10,16 @@ const defaultMenuItems = [
     icon: <FaTachometerAlt />,
     submenu: [
       { title: "Manager", path: "/dashboard" },
-      { title: "Assign role", path: "/role" },
+      
       { title: "Chat", path: "/chat", icon: <MdChat /> },
       { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt /> },
     ],
   },
   {
-    title: "Report",
+    title: "Team && Roles",
     path: "/report",
     icon: <i className="fa-solid fa-chart-simple"></i>,
-    submenu: [{ title: "Order", path: "/order" }],
+    submenu: [{ title: "Assign role", path: "/role" },],
   },
   {
     title: "Setting",
@@ -95,7 +95,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu, t
     <li className="mb-1 sm:mb-2">
       <div
         className={`flex justify-between items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all duration-300 
-          text-xs sm:text-sm lg:text-[14px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
+          text-xs sm:text-sm lg:text-[15px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
         onClick={menu.submenu ? onClick : () => handleSubmenuClick(menu.title)}
       >
         <div className="flex items-center">
@@ -117,7 +117,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu, t
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className={`block px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg transition-all text-xs sm:text-sm 
+                className={`block px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-3 rounded-lg transition-all text-xs sm:text-sm 
                   ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
                   hover:bg-gray-100 hover:text-[#0357AF]`}
                 onClick={() => handleSubmenuClick(sub.title)}
