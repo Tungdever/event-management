@@ -10,6 +10,7 @@ const defaultMenuItems = [
     icon: <FaTachometerAlt />,
     submenu: [
       { title: "Manager", path: "/dashboard" },
+      { title: "Assign role", path: "/role" },
       { title: "Chat", path: "/chat", icon: <MdChat /> },
       { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt /> },
     ],

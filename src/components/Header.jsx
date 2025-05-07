@@ -433,6 +433,10 @@ const Header = () => {
     navigate("/notification");
     setIsMobileMenuOpen(false);
   };
+  const handleAdmin =()=>{
+    navigate("/admin")
+    setIsMobileMenuOpen(false);
+  }
   const handleLogout = async () => {
     try {
       await api.logout();
@@ -464,6 +468,7 @@ const Header = () => {
   const menuPopup = [
     { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
     { title: "Tickets", action: handleMyTicket ,roles: ["ATTENDEE"]},
+    { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
     { title: "Log out", action: handleLogout },
     { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
     { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }

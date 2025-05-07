@@ -36,21 +36,7 @@ const createMenuItems = (eventId) => [
       },
     ],
   },
-  {
-    title: "Team",
-    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`,
-    icon: <FaUsers />,
-    submenu: [
-      { 
-        title: "Member", 
-        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` 
-      },
-      { 
-        title: "Task", 
-        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` 
-      },
-    ],
-  },
+  
 ];
 
 const Sidebar = ({ id }) => {
