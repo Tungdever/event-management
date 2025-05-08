@@ -60,7 +60,7 @@ const AssignedEvents = () => {
 
   const handleActionClick = (action, eventId) => {
     if (action === "View detail event") {
-      navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
+      navigate(`/dashboard/my-team/${eventId}`, { state: { eventId } });
     } else if (action === "Delete event") {
       if (window.confirm("Are you sure you want to delete this event?")) {
         deleteEvent(eventId);
@@ -119,7 +119,7 @@ const AssignedEvents = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl min-h-screen p-6 bg-gray-100 rounded-xl">
+    <div className="mx-auto max-w-4xl min-h-screen p-6 bg-gray-50 rounded-[8px]">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">

@@ -1,9 +1,9 @@
-import Loader from "./Loading";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import DOMPurify from "dompurify";
+import Loader from "./Loading";
 
-const ListEventScroll = ({ events: propEvents, }) => {
+const ListEventScroll = ({ events: propEvents }) => {
   const [events, setLocalEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,7 +23,6 @@ const ListEventScroll = ({ events: propEvents, }) => {
       }
       const data = await response.json();
       setLocalEvents(data);
-     
     } catch (error) {
       setError(error.message);
       console.error("Error fetching events:", error);
@@ -46,6 +45,17 @@ const ListEventScroll = ({ events: propEvents, }) => {
     return text.substring(0, maxLength) + "...";
   };
 
+  const sanitizeAndTruncate = (html, maxLength) => {
+    const sanitizedHtml = DOMPurify.sanitize(html || "");
+    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
+    if (plainText.length <= maxLength) {
+      return sanitizedHtml;
+    }
+    const truncatedPlainText = truncateText(plainText, maxLength);
+  
+    return `<p>${truncatedPlainText}</p>`;
+  };
+
   const handleEventClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
@@ -53,9 +63,21 @@ const ListEventScroll = ({ events: propEvents, }) => {
   const handlePageAll = () => {
     setLoading(true);
     navigate("/all-event");
-  
   };
-
+  const getLocation = (location) => {
+    if (
+      !location ||
+      (!location.venueName && !location.address && !location.city)
+    ) {
+      return "Online";
+    }
+    const parts = [
+      location.venueName,
+      location.address,
+      location.city,
+    ].filter((part) => part && part.trim() !== "");
+    return parts.length > 0 ? parts.join(", ") : "Online";
+  };
   if (loading) {
     return (
       <div className="text-center p-4">
@@ -125,9 +147,14 @@ const ListEventScroll = ({ events: propEvents, }) => {
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 {truncateText(event.eventName, 25) || "Unnamed Event"}
               </h3>
-              <p className="text-gray-600 text-xs sm:text-sm mt-1 truncate">
-                {truncateText(event.eventDesc, 30) || "No description"}
-              </p>
+              <p
+                className="text-gray-600 text-xs sm:text-sm mt-1"
+                dangerouslySetInnerHTML={{
+                  __html: event?.eventDesc
+                    ? sanitizeAndTruncate(event.eventDesc, 30)
+                    : "No description available",
+                }}
+              />
               <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
                 <span className="font-medium">Date:</span>{" "}
                 {new Date(event.eventStart).toLocaleDateString("vi-VN")}
@@ -146,11 +173,7 @@ const ListEventScroll = ({ events: propEvents, }) => {
               </p>
               <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
                 <span className="font-medium">Location:</span>{" "}
-                {event.eventLocation.venueName +
-                  " " +
-                  event.eventLocation.address +
-                  " " +
-                  event.eventLocation.city}
+                {getLocation(event.eventLocation)}
               </p>
             </div>
 

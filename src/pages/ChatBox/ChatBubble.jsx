@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef } from "react";
 import { useWebSocket } from "./WebSocketContext";
 import axios from "axios";
 
-const ChatBubble = ({ currentUser }) => {
+const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const { stompClient } = useWebSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(initialSelectedUser || null);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
   const [unreadCounts, setUnreadCounts] = useState({});
@@ -40,8 +40,17 @@ const ChatBubble = ({ currentUser }) => {
         console.error("Failed to load chatted users:", error);
       }
     };
-    if (currentUser.userId) fetchUsers();
-  }, [currentUser.userId, token]);
+    if (currentUser.userId && !initialSelectedUser) {
+      fetchUsers();
+    }
+  }, [currentUser.userId, token, initialSelectedUser]);
+
+  // Open chat automatically if initialSelectedUser is provided
+  useEffect(() => {
+    if (initialSelectedUser) {
+      setIsOpen(true);
+    }
+  }, [initialSelectedUser]);
 
   // Subscribe to messages and typing notifications
   useEffect(() => {
@@ -50,14 +59,12 @@ const ChatBubble = ({ currentUser }) => {
         `/user/${currentUser.email}/chat`,
         (message) => {
           const receivedMessage = JSON.parse(message.body);
-          // Thêm tin nhắn nếu nó thuộc cuộc trò chuyện hiện tại
           if (
             selectedUser &&
             (receivedMessage.senderEmail === selectedUser.email ||
               receivedMessage.recipientEmail === selectedUser.email)
           ) {
             setMessages((prev) => {
-              // Tránh trùng lặp tin nhắn
               if (
                 prev.some(
                   (msg) =>
@@ -71,7 +78,6 @@ const ChatBubble = ({ currentUser }) => {
               return [...prev, receivedMessage];
             });
           }
-          // Cập nhật số tin nhắn chưa đọc
           if (
             !isOpen ||
             (selectedUser?.email !== receivedMessage.senderEmail &&
@@ -168,9 +174,7 @@ const ChatBubble = ({ currentUser }) => {
         timestamp: new Date().toISOString(),
         isRead: false,
       };
-      // Thêm tin nhắn vào state ngay lập tức
       setMessages((prev) => [...prev, messageDTO]);
-      // Gửi tin nhắn qua WebSocket
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
       setInputMessage("");
     }
@@ -180,12 +184,18 @@ const ChatBubble = ({ currentUser }) => {
     if (e.key === "Enter") sendMessage();
   };
 
+  const handleClose = () => {
+    setIsOpen(false);
+    setSelectedUser(null);
+    if (onClose) onClose();
+  };
+
   return (
     <div className="fixed bottom-5 right-5 z-50">
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600"
+          className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors duration-200"
         >
           <svg
             className="w-8 h-8"
@@ -212,7 +222,7 @@ const ChatBubble = ({ currentUser }) => {
         <div className="w-80 h-96 bg-white rounded-lg shadow-xl flex flex-col">
           <div className="p-4 bg-blue-500 text-white rounded-t-lg flex justify-between items-center">
             <h3 className="font-semibold">Messages</h3>
-            <button onClick={() => setIsOpen(false)} className="text-white">
+            <button onClick={handleClose} className="text-white">
               <svg
                 className="w-6 h-6"
                 fill="none"
@@ -234,7 +244,7 @@ const ChatBubble = ({ currentUser }) => {
               {users.map((user) => (
                 <div
                   key={user.userId}
-                  className="p-3 flex items-center cursor-pointer hover:bg-gray-100"
+                  className="p-3 flex items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200"
                   onClick={() => setSelectedUser(user)}
                 >
                   <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
@@ -327,7 +337,7 @@ const ChatBubble = ({ currentUser }) => {
                   />
                   <button
                     onClick={sendMessage}
-                    className="ml-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="ml-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-200"
                   >
                     Send
                   </button>

@@ -48,6 +48,7 @@ import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
 import AdminRoleAssignment from "./pages/Dashboard/AssignRole";
 import AssignedEvents from "./pages/Dashboard/AssignedEvents";
+import MyTeamEvents from "./pages/Dashboard/MyTeamEvents";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -98,6 +99,7 @@ const MainLayout = () => {
     "/dashboard/member",
     "/dashboard/editEvent",
     "/dashboard/ticket",
+    "/dashboard/my-team",
     "/dashboard/event/detail",
   ];
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
@@ -194,7 +196,7 @@ const MainLayout = () => {
                 <Route
                   path="/dashboard"
                   element={
-                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE","TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]}>
                       <Dashboard />
                     </RoleBasedRouteGroup>
                   }
@@ -308,8 +310,16 @@ const MainLayout = () => {
               <Route
                 path="/dashboard/ticket/:eventId"
                 element={
-                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER","TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]}>
                     <TicketDashboard />
+                  </RoleBasedRouteGroup>
+                }
+              />
+               <Route
+                path="/dashboard/my-team/:eventId"
+                element={
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER","TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]}>
+                    <MyTeamEvents />
                   </RoleBasedRouteGroup>
                 }
               />
@@ -373,7 +383,7 @@ const MainLayout = () => {
           </div>
         )}
 
-        {user && !isAuthPage && !isDashboardPage && !isAdminPage && <ChatBubble currentUser={user} />}
+        {user && !isAuthPage && !isDashboardPage && !isAdminPage && !isDetailOfEvent && <ChatBubble currentUser={user} />}
       </div>
     </WebSocketProvider>
   );

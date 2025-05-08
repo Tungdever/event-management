@@ -13,7 +13,7 @@ const createMenuItems = (eventId) => [
       { 
         title: "Event", 
         path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}`,
-        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+        roles: ["ORGANIZER"]
       }
     ]
   },
@@ -22,6 +22,11 @@ const createMenuItems = (eventId) => [
     path: `/dashboard/event${eventId ? `/${eventId}` : ''}`,
     icon: <MdEvent />,
     submenu: [
+      { 
+        title: "Teams", 
+        path: `/dashboard/my-team/${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+      },
       { 
         title: "Sponsor", 
         path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
