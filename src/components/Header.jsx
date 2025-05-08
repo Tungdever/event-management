@@ -387,7 +387,7 @@ const SearchBar = () => {
         <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
       <button
-        className="ml-auto bg-red-600 text-white rounded-full px-2 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-2 hover:bg-red-700"
+        className="ml-auto bg-red-600 text-white rounded-full px-2 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-1 hover:bg-red-700"
         onClick={handleSearch}
       >
         <i className="fas fa-search text-sm sm:text-base md:text-sm lg:text-base"></i>
@@ -466,16 +466,16 @@ const Header = () => {
   ];
 
   const menuPopup = [
-    { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
-    { title: "Tickets", action: handleMyTicket ,roles: ["ATTENDEE"]},
+    { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"] },
+    { title: "Tickets", action: handleMyTicket ,roles: ["ATTENDEE","ORGANIZER"]},
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
     { title: "Log out", action: handleLogout },
-    { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
+    // { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
     { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }
   ];
 
   const filteredMenuPopup = menuPopup.filter(
-    (item) => !item.roles || item.roles.includes(user?.primaryRole)
+    (item) => !item.roles || item.roles.some(role => user?.primaryRoles?.includes(role))
   );
 
   useEffect(() => {

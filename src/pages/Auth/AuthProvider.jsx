@@ -6,7 +6,7 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true); 
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   const checkToken = () => {
@@ -20,7 +20,7 @@ export const AuthProvider = ({ children }) => {
             userId: decoded.userId,
             roles: decoded.roles || [],
             permissions: decoded.permissions || [],
-            primaryRole: getPrimaryRole(decoded.roles || []),
+            primaryRoles: getPrimaryRoles(decoded.roles || []), // Thay primaryRole thành primaryRoles
           });
         } else {
           localStorage.removeItem('token');
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     } else {
       setUser(null);
     }
-    setIsLoading(false); 
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       userId: decoded.userId,
       roles: decoded.roles || [],
       permissions: decoded.permissions || [],
-      primaryRole: getPrimaryRole(decoded.roles || []),
+      primaryRoles: getPrimaryRoles(decoded.roles || []),
     });
     setIsLoading(false);
   };
@@ -64,11 +64,18 @@ export const AuthProvider = ({ children }) => {
     navigate('/login');
   };
 
-  const getPrimaryRole = (roles) => {
-    if (roles.includes('ROLE_ADMIN')) return 'ADMIN';
-    if (roles.includes('ROLE_ORGANIZER')) return 'ORGANIZER';
-    if (roles.includes('ROLE_ATTENDEE')) return 'ATTENDEE';
-    return null;
+  const getPrimaryRoles = (roles) => {
+    const roleMap = {
+      'ROLE_ADMIN': 'ADMIN',
+      'ROLE_ORGANIZER': 'ORGANIZER',
+      'ROLE_ATTENDEE': 'ATTENDEE',
+      'ROLE_TICKET MANAGER': 'TICKET MANAGER',
+      'ROLE_EVENT ASSISTANT': 'EVENT ASSISTANT',
+      'ROLE_CHECK-IN STAFF': 'CHECK-IN STAFF'
+    };
+    return roles
+      .filter(role => roleMap[role]) 
+      .map(role => roleMap[role]); 
   };
 
   return (

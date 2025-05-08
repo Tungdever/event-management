@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaChevronDown, FaTachometerAlt, FaCogs, FaCalendarAlt } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
+import { useAuth } from "../Auth/AuthProvider";
 
 const defaultMenuItems = [
   {
@@ -9,17 +10,19 @@ const defaultMenuItems = [
     path: "/dashboard",
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Manager", path: "/dashboard" },
-      
-      { title: "Chat", path: "/chat", icon: <MdChat /> },
-      { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt /> },
+      { title: "Manager", path: "/dashboard", roles: ["ORGANIZER"] },
+      { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "Chat", path: "/chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
     ],
   },
   {
     title: "Team && Roles",
     path: "/report",
     icon: <i className="fa-solid fa-chart-simple"></i>,
-    submenu: [{ title: "Assign role", path: "/role" },],
+    submenu: [
+      { title: "Assign role", path: "/role", roles: ["ORGANIZER"] },
+      { title: "Assigned Events", path: "/assigned-events", roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+    ],
   },
   {
     title: "Setting",
@@ -27,14 +30,20 @@ const defaultMenuItems = [
     icon: <FaCogs />,
     submenu: [
       { title: "Profile", path: "/view" },
-      
     ],
   },
 ];
 
 const Sidebar2 = ({ isOpen, toggleSidebar }) => {
+  const { user } = useAuth();
+  const menuItems = defaultMenuItems
+    .map(menu => ({...menu,
+      submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
+    }))
+    .filter(menu => !menu.submenu || menu.submenu.length > 0);
+
   const [openMenus, setOpenMenus] = useState(
-    defaultMenuItems.reduce((acc, menu) => {
+    menuItems.reduce((acc, menu) => {
       acc[menu.title] = true;
       return acc;
     }, {})
@@ -68,7 +77,7 @@ const Sidebar2 = ({ isOpen, toggleSidebar }) => {
           Management Event
         </h1>
         <ul>
-          {defaultMenuItems.map((menu) => (
+          {menuItems.map((menu) => (
             <SidebarItem
               key={menu.title}
               menu={menu}

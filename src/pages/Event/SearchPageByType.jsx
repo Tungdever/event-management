@@ -156,7 +156,7 @@ const SearchByType = () => {
           alt={categoryName || "Upcoming Events"}
         />
       </div>
-      <div className="container mx-auto px-8 py-4 relative">
+      <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">
           {(categoryName ? `Upcoming Events for ${categoryName}` : "Upcoming Events").toUpperCase()}
         </h2>

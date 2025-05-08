@@ -76,9 +76,9 @@ const NotificationList = () => {
     if (user?.userId) {
       fetchHistory(user.userId);
     }
+    window.scrollTo(0, 0);
   }, [user]);
 
-  // Format thời gian createdAt
   const formatDateTime = (isoString) => {
     const date = new Date(isoString);
     return date.toLocaleString("vi-VN", {
@@ -90,46 +90,45 @@ const NotificationList = () => {
     });
   };
 
-  // Lọc thông báo theo tab
   const filteredNotifications =
     activeTab === "all"
       ? notifications
       : notifications.filter((notif) => !notif.read);
 
   return (
-    <div className="mx-[8px] min-h-[800px] p-4 bg-white rounded-lg shadow-md">
+    <div className="mx-auto max-w-3xl min-h-[800px] p-6 bg-white rounded-xl shadow-lg transition-all duration-300">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-[24px] font-bold">Thông báo</h1>
-        <div className="flex items-center space-x-2">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-900">Thông báo</h1>
+        <div className="flex items-center space-x-3">
           <button
-            className="text-blue-600 text-sm hover:underline"
+            className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={() => readAllNoti(user?.userId)}
             disabled={!notifications.some((notif) => !notif.read)}
           >
             Đánh dấu tất cả đã đọc
           </button>
-          <MoreHorizontal className="text-gray-500 cursor-pointer hover:text-gray-700" />
+          <MoreHorizontal className="w-5 h-5 text-gray-500 hover:text-gray-700 cursor-pointer transition-colors duration-200" />
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-4 mb-4">
+      <div className="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg">
         <button
-          className={`px-4 py-2 rounded-lg text-[14px] transition ${
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
             activeTab === "all"
-              ? "bg-blue-500 text-white"
-              : "bg-blue-100 text-blue-600"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "text-gray-600 hover:bg-gray-200"
           }`}
           onClick={() => setActiveTab("all")}
         >
           Tất cả
         </button>
         <button
-          className={`px-4 py-2 rounded-lg text-[14px] transition ${
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
             activeTab === "unread"
-              ? "bg-blue-500 text-white"
-              : "bg-blue-100 text-blue-600"
+              ? "bg-indigo-600 text-white shadow-sm"
+              : "text-gray-600 hover:bg-gray-200"
           }`}
           onClick={() => setActiveTab("unread")}
         >
@@ -138,40 +137,37 @@ const NotificationList = () => {
       </div>
 
       {/* List notifications */}
-      <h2 className="text-[14px] font-semibold mb-4 text-gray-600">Trước đó</h2>
-      <div className="space-y-2">
+      <h2 className="text-sm font-semibold text-gray-500 mb-4">Trước đó</h2>
+      <div className="space-y-3">
         {filteredNotifications.length === 0 ? (
-          <p className="text-gray-500">Không có thông báo nào.</p>
+          <p className="text-gray-500 text-center py-8">Không có thông báo nào.</p>
         ) : (
           filteredNotifications.map((notif) => (
             <div
               key={notif.id}
-              className="flex items-start space-x-4 p-4 rounded-lg hover:bg-blue-50 transition cursor-pointer min-h-[80px]"
+              className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-all duration-200 cursor-pointer shadow-sm"
             >
-              {/* Icon thay cho avatar */}
-              <Bell className="text-blue-500 w-12 h-12 p-2" />
-
-              {/* Nội dung thông báo */}
+              <Bell className="text-indigo-500 w-10 h-10 p-2 flex-shrink-0" />
               <div className="flex-1">
-                <p className="text-sm leading-tight text-gray-900">
-                  <span className="font-bold text-blue-800">{notif.title}</span>{" "}
+                <p className="text-sm text-gray-900 leading-relaxed">
+                  <span className="font-semibold text-indigo-700">{notif.title}</span>{" "}
                   {notif.message}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-400 mt-1">
                   {formatDateTime(notif.createdAt)}
                 </p>
                 {!notif.read && (
                   <button
-                    className="text-blue-600 text-sm hover:underline mt-2"
+                    className="text-indigo-600 text-sm font-medium hover:text-indigo-800 mt-2 transition-colors duration-200"
                     onClick={() => readNoti(notif.id)}
                   >
                     Đánh dấu đã đọc
                   </button>
                 )}
               </div>
-
-              {/* Icon nếu chưa đọc */}
-              {!notif.read && <Bell className="text-blue-500 w-4 h-4" />}
+              {!notif.read && (
+                <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2"></div>
+              )}
             </div>
           ))
         )}
