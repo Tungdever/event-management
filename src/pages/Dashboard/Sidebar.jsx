@@ -2,15 +2,19 @@ import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";  
 import { FaChevronDown, FaTachometerAlt, FaUsers, FaChartLine } from "react-icons/fa"; 
 import { MdEvent } from "react-icons/md";
+import { useAuth } from "../Auth/AuthProvider";
 
-// Hàm helper để tạo menu items với eventId
 const createMenuItems = (eventId) => [
   {
     title: "Dashboard",
     path: `/dashboard${eventId ? `/${eventId}` : ''}`,
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Event", path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}` }
+      { 
+        title: "Event", 
+        path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+      }
     ]
   },
   {
@@ -21,53 +25,36 @@ const createMenuItems = (eventId) => [
       { 
         title: "Sponsor", 
         path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
       },
       { 
         title: "Speaker", 
-        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`, 
+        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"] 
       },
       { 
         title: "Session", 
         path: `/dashboard/session${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
       },
       { 
         title: "Ticket", 
-        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`
-      },
-    ],
-  },
-  {
-    title: "Reports",
-    path: `/dashboard/event${eventId ? `/${eventId}` : ''}`,
-    icon: <FaChartLine />,
-    submenu: [
-      { 
-        title: "Order", 
-        path: `/dashboard/order${eventId ? `/${eventId}` : ''}`,
-      },  
-    ],
-  },
-  {
-    title: "Team",
-    path: `/dashboard/team${eventId ? `/${eventId}` : ''}`,
-    icon: <FaUsers />,
-    submenu: [
-      { 
-        title: "Member", 
-        path: `/dashboard/member${eventId ? `/${eventId}` : ''}` 
-      },
-      { 
-        title: "Task", 
-        path: `/dashboard/task${eventId ? `/${eventId}` : ''}` 
+        path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,
+        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
       },
     ],
   },
 ];
 
 const Sidebar = ({ id }) => {
- 
+  const { user } = useAuth();
   const [eventId] = useState(id);
-  const menuItems = createMenuItems(eventId);
+  const menuItems = createMenuItems(eventId)
+    .map(menu => ({
+      ...menu,
+      submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
+    }))
+    .filter(menu => !menu.submenu || menu.submenu.length > 0);
   
   const [openMenus, setOpenMenus] = useState(
     menuItems.reduce((acc, menu) => {
@@ -84,12 +71,13 @@ const Sidebar = ({ id }) => {
       [menuTitle]: !prev[menuTitle],
     }));
   };
-  const handleHomepage = (e) => {
-    
+
+  const handleHomepage = () => {
     navigate("/"); 
   };
+
   return (
-    <div className="w-64 h-screen bg-white text-black p-2 border border-r-1 fixed top-0 left-0 overflow-y-auto">
+    <div className="w-64 h-screen bg-white text-black p-3 border border-r-1 fixed top-0 left-0 overflow-y-auto">
       <h1 className="text-xl font-bold text-orange-500 mb-8 mt-2 hover:cursor-pointer" onClick={handleHomepage}>Management Event</h1>
       <ul>
         {menuItems.map((menu) => (
@@ -112,7 +100,6 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
   const location = useLocation();
 
   const handleClick = (path) => {
-    // Truyền lại eventId qua state để duy trì khi điều hướng
     navigate(path, { state: { eventId: location.state?.eventId || menu.path.split('/').pop() } });
     if (!menu.submenu) setActiveSubmenu(menu.title);
   };
@@ -140,7 +127,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu })
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className={`block px-2 ml-2 py-2 rounded-lg transition-all text-[14px] 
+                className={`block px-2 ml-2 py-3 rounded-lg transition-all text-[14px] 
                 ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
                 hover:bg-gray-100 hover:text-[#0357AF]`}
                 onClick={(e) => { e.preventDefault(); handleClick(sub.path); }}

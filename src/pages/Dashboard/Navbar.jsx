@@ -7,7 +7,7 @@ import { useAuth } from "../Auth/AuthProvider";
 
 const Navbar = ({ toggleSidebar }) => {
   return (
-    <div className="py-1.5 sm:py-2 lg:py-2 px-4 sm:px-5 lg:px-6 bg-[#f8f4f3] flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30 h-[40px] sm:h-[42px] lg:h-[45px]">
+    <div className="py-1.5 sm:py-2 lg:py-2 px-4 sm:px-5 lg:px-6 bg-gray-100 flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30 h-[45px] sm:h-[42px] lg:h-[55px]">
       <button
         type="button"
         className="text-base sm:text-lg lg:text-xl text-gray-900 font-semibold md:hidden"
@@ -43,7 +43,7 @@ const ProfileDropdown = () => {
         {user ? (
           <>
             <i className="fa-solid fa-user text-base sm:text-lg lg:text-lg"></i>
-            <span className="text-[11px] sm:text-[12px] lg:text-[12px] truncate max-w-[120px] sm:max-w-[150px]">
+            <span className="text-[11px] sm:text-[12px] lg:text-[12px] truncate max-w-[150px] sm:max-w-[200px]">
               {user.email}
             </span>
           </>

@@ -166,7 +166,7 @@ const AllEvent = () => {
 
   return (
     <>
-      <div className="container mx-auto px-8 py-4 relative">
+      <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
         <div
           className="relative h-[350px] rounded-[20px] my-8 bg-cover bg-center overflow-hidden"
           style={{

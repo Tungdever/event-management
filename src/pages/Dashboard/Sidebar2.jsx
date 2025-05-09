@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaChevronDown, FaTachometerAlt, FaCogs, FaCalendarAlt } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
+import { useAuth } from "../Auth/AuthProvider";
 
 const defaultMenuItems = [
   {
@@ -9,16 +10,19 @@ const defaultMenuItems = [
     path: "/dashboard",
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Manager", path: "/dashboard" },
-      { title: "Chat", path: "/chat", icon: <MdChat /> },
-      { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt /> },
+      { title: "Manager", path: "/dashboard", roles: ["ORGANIZER"] },
+      { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "Chat", path: "/chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
     ],
   },
   {
-    title: "Report",
+    title: "Team && Roles",
     path: "/report",
     icon: <i className="fa-solid fa-chart-simple"></i>,
-    submenu: [{ title: "Order", path: "/order" }],
+    submenu: [
+      { title: "Assign role", path: "/role", roles: ["ORGANIZER"] },
+      { title: "Assigned Events", path: "/assigned-events", roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+    ],
   },
   {
     title: "Setting",
@@ -26,14 +30,20 @@ const defaultMenuItems = [
     icon: <FaCogs />,
     submenu: [
       { title: "Profile", path: "/view" },
-      
     ],
   },
 ];
 
 const Sidebar2 = ({ isOpen, toggleSidebar }) => {
+  const { user } = useAuth();
+  const menuItems = defaultMenuItems
+    .map(menu => ({...menu,
+      submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
+    }))
+    .filter(menu => !menu.submenu || menu.submenu.length > 0);
+
   const [openMenus, setOpenMenus] = useState(
-    defaultMenuItems.reduce((acc, menu) => {
+    menuItems.reduce((acc, menu) => {
       acc[menu.title] = true;
       return acc;
     }, {})
@@ -67,7 +77,7 @@ const Sidebar2 = ({ isOpen, toggleSidebar }) => {
           Management Event
         </h1>
         <ul>
-          {defaultMenuItems.map((menu) => (
+          {menuItems.map((menu) => (
             <SidebarItem
               key={menu.title}
               menu={menu}
@@ -94,7 +104,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu, t
     <li className="mb-1 sm:mb-2">
       <div
         className={`flex justify-between items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all duration-300 
-          text-xs sm:text-sm lg:text-[14px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
+          text-xs sm:text-sm lg:text-[15px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
         onClick={menu.submenu ? onClick : () => handleSubmenuClick(menu.title)}
       >
         <div className="flex items-center">
@@ -116,7 +126,7 @@ const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, setActiveSubmenu, t
             <li key={sub.title}>
               <Link
                 to={sub.path}
-                className={`block px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-2 rounded-lg transition-all text-xs sm:text-sm 
+                className={`block px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-3 rounded-lg transition-all text-xs sm:text-sm 
                   ${activeSubmenu === sub.title ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
                   hover:bg-gray-100 hover:text-[#0357AF]`}
                 onClick={() => handleSubmenuClick(sub.title)}

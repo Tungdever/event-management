@@ -15,23 +15,14 @@ const Calendar = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  // Danh sách màu cố định để gán ngẫu nhiên cho sự kiện
   const colorPalette = [
-    "#FF6B6B", // Đỏ
-    "#4ECDC4", // Xanh ngọc
-    "#45B7D1", // Xanh dương
-    "#96CEB4", // Xanh lá
-    "#FFEEAD", // Vàng nhạt
-    "#D4A5A5", // Hồng
-    "#9B59B6", // Tím
+    "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD", "#D4A5A5", "#9B59B6"
   ];
 
-  // Hàm tạo màu ngẫu nhiên từ colorPalette
   const getRandomColor = () => {
     return colorPalette[Math.floor(Math.random() * colorPalette.length)];
   };
 
-  // Gán màu ngẫu nhiên cho mỗi sự kiện
   const eventsWithColors = events.map((event) => ({
     ...event,
     color: getRandomColor(),
@@ -41,9 +32,11 @@ const Calendar = () => {
     fetchAllEvents();
     generateCalendar();
   }, [currentMonth]);
+
   const handleViewDetail = (eventId) => {
     navigate(`/event/${eventId}`);
   };
+
   const fetchAllEvents = async () => {
     if (!token) {
       setError("No authentication token found");
@@ -60,7 +53,7 @@ const Calendar = () => {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch events");
+        throw new Error("Failed to fetch Heading to fetch events");
       }
       const data = await response.json();
       setEvents(data);
@@ -143,7 +136,6 @@ const Calendar = () => {
     setSelectedDay(null);
   };
 
-  // Lấy danh sách sự kiện cho một ngày cụ thể
   const getEventsForDay = (day) => {
     if (!day.isCurrentMonth) return [];
     const year = currentMonth.getFullYear();
@@ -158,139 +150,156 @@ const Calendar = () => {
   };
 
   return (
-    <div className="w-full mx-auto bg-white shadow-lg rounded-lg overflow-hidden p-4">
-      {isLoading && (
-        <div className="flex justify-center items-center h-64">
-          <div>Loading...</div> {/* Thay bằng Loader nếu có */}
-        </div>
-      )}
-      {error && (
-        <div className="text-center p-4 text-red-600">
-          Error: {error}. Please try again later.
-        </div>
-      )}
-      {!isLoading && !error && (
-        <>
-          {/* Header */}
-          <div className="flex justify-between items-center px-6 py-4 bg-gray-100 rounded-t-lg">
-            <button onClick={() => changeMonth(-1)} className="text-lg font-bold">
-              ◁
-            </button>
-            <span className="text-lg font-semibold">
-              {currentMonth.toLocaleString("default", {
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-            <button onClick={() => changeMonth(1)} className="text-lg font-bold">
-              ▷
-            </button>
-          </div>
-
-          {/* Calendar */}
-          <div className="grid grid-cols-7 p-4 border-t border-l">
-            {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-              <div
-                key={day}
-                className="w-[180px] h-[60px] flex items-center justify-center text-center font-bold text-gray-700 p-2 border-r border-b bg-gray-100"
-              >
-                {day}
+    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-4 font-sans">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white rounded-[6px] shadow p-6 max-w-7xl mx-auto">
+          {isLoading && (
+            <div className="flex justify-center items-center h-64">
+              <div className="text-lg font-semibold text-teal-600 animate-pulse">Loading...</div>
+            </div>
+          )}
+          {error && (
+            <div className="text-center p-6 text-red-500 bg-red-50 rounded-lg">
+              Error: {error}. Please try again later.
+            </div>
+          )}
+          {!isLoading && !error && (
+            <>
+              {/* Header */}
+              <div className="flex justify-between items-center px-4 py-4 bg-gray-100 rounded-t-xl border-b border-gray-300">
+                <button
+                  onClick={() => changeMonth(-1)}
+                  className="p-2 text-teal-600 hover:bg-teal-100 rounded-full transition-colors duration-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <span className="text-2xl font-bold text-gray-800">
+                  {currentMonth.toLocaleString("default", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+                <button
+                  onClick={() => changeMonth(1)}
+                  className="p-2 text-teal-600 hover:bg-teal-100 rounded-full transition-colors duration-300"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
-            ))}
 
-            {daysInMonth.map((day, index) => (
-              <div
-                key={index}
-                onClick={() => openCreateEventDialog(day)}
-                className={`w-[180px] h-[120px] flex flex-col items-center justify-start text-center p-2 border-r border-b cursor-pointer
-                ${day.isCurrentMonth ? "text-black" : "text-gray-400"}
-                ${isToday(day) ? "text-blue-600 font-bold" : ""}`}
-              >
-                <span>{day.day}</span>
-                {/* Hiển thị danh sách sự kiện */}
-                <div className="mt-1 w-full">
-                  {getEventsForDay(day).map((event) => (
-                    <div
-                      key={event.eventId}
-                      className="text-xs px-2 py-1 mt-1 text-white rounded truncate"
-                      style={{ backgroundColor: event.color }}
-                      title={event.eventName}
-                      onClick={()=>handleViewDetail(event.eventId)}
-                    >
-                      {event.eventName}
+              {/* Calendar */}
+              <div className="grid grid-cols-7 gap-px bg-gray-200">
+                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                  <div
+                    key={day}
+                    className="bg-gray-50 text-center py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide"
+                  >
+                    {day}
+                  </div>
+                ))}
+                {daysInMonth.map((day, index) => (
+                  <div
+                    key={index}
+                    onClick={() => openCreateEventDialog(day)}
+                    className={`relative bg-white p-3 min-h-[120px] flex flex-col justify-start text-center cursor-pointer transition-all duration-300 hover:bg-teal-50
+                      ${day.isCurrentMonth ? "text-gray-800" : "text-gray-400"}
+                      ${isToday(day) ? "border-2 border-teal-500 rounded-lg" : ""}`}
+                  >
+                    <span className={`text-sm font-medium ${isToday(day) ? "text-teal-600" : ""}`}>
+                      {day.day}
+                    </span>
+                    <div className="mt-2 space-y-1 overflow-y-auto max-h-20 scrollbar-thin scrollbar-thumb-teal-300">
+                      {getEventsForDay(day).map((event) => (
+                        <div
+                          key={event.eventId}
+                          className="text-xs px-2 py-1 text-white rounded truncate hover:scale-105 transition-transform"
+                          style={{ backgroundColor: event.color }}
+                          title={event.eventName}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetail(event.eventId);
+                          }}
+                        >
+                          {event.eventName}
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-                {notes[day.day] && (
-                  <span className="text-xs px-2 py-1 mt-1 bg-orange-500 text-white rounded">
-                    {notes[day.day]}
-                  </span>
-                )}
+                    {notes[day.day] && (
+                      <span className="text-xs px-2 py-1 mt-2 bg-orange-500 text-white rounded truncate">
+                        {notes[day.day]}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Popup for Notes */}
-          {showPopup && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white p-4 rounded-lg shadow-lg w-80">
-                <h3 className="text-lg font-semibold mb-2">
-                  Note for day {selectedDay}
-                </h3>
-                <textarea
-                  value={noteText}
-                  onChange={(e) => setNoteText(e.target.value)}
-                  className="w-full p-2 border rounded"
-                  rows="3"
-                />
-                <div className="flex justify-end mt-3">
-                  <button
-                    onClick={() => setShowPopup(false)}
-                    className="px-3 py-1 bg-gray-300 rounded mr-2"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={saveNote}
-                    className="px-3 py-1 bg-blue-500 text-white rounded"
-                  >
-                    Save
-                  </button>
+              {/* Popup for Notes */}
+              {showPopup && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
+                  <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Note for day {selectedDay}
+                    </h3>
+                    <textarea
+                      value={noteText}
+                      onChange={(e) => setNoteText(e.target.value)}
+                      className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                      rows="4"
+                    />
+                    <div className="flex justify-end gap-3 mt-4">
+                      <button
+                        onClick={() => setShowPopup(false)}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={saveNote}
+                        className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                      >
+                        Save
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-          )}
+              )}
 
-          {/* Dialog for Create Event */}
-          {showCreateEventDialog && (
-            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-              <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h3 className="text-lg font-semibold mb-4">
-                  Do you want to create an event on this day?
-                </h3>
-                <p className="text-gray-600 mb-6">
-                  Selected date: {selectedDay}/{currentMonth.getMonth() + 1}/
-                  {currentMonth.getFullYear()}
-                </p>
-                <div className="flex justify-end gap-3">
-                  <button
-                    onClick={closeCreateEventDialog}
-                    className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                  >
-                    No
-                  </button>
-                  <button
-                    onClick={handleCreateEvent}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Yes
-                  </button>
+              {/* Dialog for Create Event */}
+              {showCreateEventDialog && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
+                  <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg transform transition-all duration-300 scale-100">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      Create an event?
+                    </h3>
+                    <p className="text-gray-600 mb-6">
+                      Selected date: {selectedDay}/{currentMonth.getMonth() + 1}/
+                      {currentMonth.getFullYear()}
+                    </p>
+                    <div className="flex justify-end gap-3">
+                      <button
+                        onClick={closeCreateEventDialog}
+                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                      >
+                        No
+                      </button>
+                      <button
+                        onClick={handleCreateEvent}
+                        className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 };
