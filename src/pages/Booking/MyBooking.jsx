@@ -4,7 +4,7 @@ import EmptyOrder from './empty-orders.jpg';
 import { toast } from 'react-toastify';
 import { FaTicketAlt, FaDownload, FaUndoAlt } from "react-icons/fa";
 
-export default function MyBooking() {
+export default function MyInvoice() {
   const [orders, setOrders] = useState([]);
   const [openOrders, setOpenOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -51,7 +51,6 @@ export default function MyBooking() {
         setLoading(false);
         return;
       }
-
       try {
         const response = await axios.get(`http://localhost:8080/api/v1/booking/${userId}`, {
           headers: {
@@ -154,7 +153,7 @@ export default function MyBooking() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold text-center mb-12 text-gray-900 tracking-tight">
-        Booking Invoices
+         Invoices
       </h1>
 
       {loading ? (

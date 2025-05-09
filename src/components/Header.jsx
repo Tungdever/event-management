@@ -417,8 +417,8 @@ const Header = () => {
     navigate("/event-like");
     setIsMobileMenuOpen(false);
   };
-  const handleMyTicket = () => {
-    navigate("/myticket");
+  const handleMyInvoices = () => {
+    navigate("/myinvoices");
     setIsMobileMenuOpen(false);
   };
   const handleDashboard = () => {
@@ -463,10 +463,10 @@ const Header = () => {
 
   const menuPopup = [
     { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER"] },
-    { title: "Tickets", action: handleMyTicket ,roles: ["ATTENDEE"]},
-    { title: "Log out", action: handleLogout },
+    { title: "Invoices", action: handleMyInvoices ,roles: ["ATTENDEE"]},
     { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
-    { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }
+    { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] },
+    { title: "Log out", action: handleLogout }
   ];
 
   const filteredMenuPopup = menuPopup.filter(
