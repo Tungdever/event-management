@@ -1,5 +1,5 @@
 import "./App.css";
-import EventPage from "./pages/Event/EventPage";
+import EventPage from "./pages/Event/FavoritesPage";
 import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
 import SearchPage from "./pages/Event/SearchPage";

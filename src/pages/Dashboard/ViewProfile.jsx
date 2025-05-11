@@ -29,6 +29,7 @@ const ViewProfile = () => {
       }
     };
     fetchUserData();
+    window.scrollTo(0, 0);
   }, []);
 
   const handleEditClick = () => {

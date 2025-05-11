@@ -38,7 +38,7 @@ const Checkout = ({ onClose, selectedTickets }) => {
               <p key={ticket.ticketId} className="text-gray-700 mb-2">
                 {ticket.quantity} x {ticket.ticketName}{" "}
                 <span className="float-right">
-                  {(ticket.price * ticket.quantity).toFixed(2)} USD
+                  {(ticket.price * ticket.quantity).toFixed(2)} VND
                 </span>
               </p>
             ))
@@ -49,7 +49,7 @@ const Checkout = ({ onClose, selectedTickets }) => {
           </p>
           <hr className="my-4" />
           <p className="text-xl font-semibold">
-            Total <span className="float-right">{totalPrice.toFixed(2)} USD</span>
+            Total <span className="float-right">{totalPrice.toFixed(2)} VND</span>
           </p>
         </div>
 

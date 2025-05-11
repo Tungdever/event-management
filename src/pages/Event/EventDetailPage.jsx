@@ -246,7 +246,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                     {ticket.ticketName}
                   </p>
                   <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">
-                    {ticket.price.toLocaleString()} USD
+                    {ticket.price.toLocaleString()} VND
                     {ticket.ticketType === "Free" && (
                       <span className="text-gray-500 text-[10px] sm:text-[12px] ml-2">
                         (Max 1 ticket)

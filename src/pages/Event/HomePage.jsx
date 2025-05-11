@@ -17,9 +17,12 @@ import DOMPurify from "dompurify";
 
 const ListEventGrid = ({ events: propEvents }) => {
   const [events, setLocalEvents] = useState([]);
+  const [favoriteEvents, setFavoriteEvents] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [togglingFavorites, setTogglingFavorites] = useState(new Set()); // Theo dõi trạng thái đang thêm/xóa
   const navigate = useNavigate();
+  const { user } = useAuth();
   const token = localStorage.getItem("token");
 
   const fetchAllEvent = async () => {
@@ -43,14 +46,129 @@ const ListEventGrid = ({ events: propEvents }) => {
     }
   };
 
-  useEffect(() => {
-    if (propEvents && propEvents.length > 0) {
-      setLocalEvents(propEvents);
+  const getFavorites = async () => {
+    if (!user || !user.userId) {
       setLoading(false);
-    } else {
-      fetchAllEvent();
+      return;
     }
-  }, [propEvents]);
+    try {
+      const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch favorite events");
+      }
+      const data = await response.json();
+      const favoriteEventIds = new Set(data.map(event => event.eventId));
+      setFavoriteEvents(favoriteEventIds);
+    } catch (error) {
+      setError(error.message);
+      console.error("Error fetching favorite events:", error);
+    }
+  };
+
+  const addFavorites = async (eventId) => {
+    if (!user || !user.userId) {
+      setError("Please log in to add favorites");
+      return;
+    }
+    setTogglingFavorites(prev => new Set(prev).add(eventId));
+    try {
+      const favoriteEvent = {
+        userId: user.userId,
+        eventId: eventId,
+      };
+      const response = await fetch("http://localhost:8080/api/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(favoriteEvent),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to add favorite event");
+      }
+      setFavoriteEvents(prev => new Set(prev).add(eventId));
+    } catch (error) {
+      setError(error.message);
+      console.error("Error adding favorite event:", error);
+    } finally {
+      setTogglingFavorites(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(eventId);
+        return newSet;
+      });
+    }
+  };
+
+  const removeFavorites = async (eventId) => {
+    if (!user || !user.userId) {
+      setError("Please log in to remove favorites");
+      return;
+    }
+    setTogglingFavorites(prev => new Set(prev).add(eventId));
+    try {
+      const favoriteEvent = {
+        userId: user.userId,
+        eventId: eventId,
+      };
+      const response = await fetch("http://localhost:8080/api/favorites", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(favoriteEvent),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to remove favorite event");
+      }
+      setFavoriteEvents(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(eventId);
+        return newSet;
+      });
+    } catch (error) {
+      setError(error.message);
+      console.error("Error removing favorite event:", error);
+    } finally {
+      setTogglingFavorites(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(eventId);
+        return newSet;
+      });
+    }
+  };
+
+  const toggleFavorite = (eventId) => {
+    if (togglingFavorites.has(eventId)) return; // Ngăn click khi đang xử lý
+    if (favoriteEvents.has(eventId)) {
+      removeFavorites(eventId);
+    } else {
+      addFavorites(eventId);
+    }
+  };
+
+  useEffect(() => {
+    const initializeEvents = async () => {
+      if (propEvents && propEvents.length > 0) {
+        setLocalEvents(propEvents);
+        setLoading(false);
+      } else {
+        await fetchAllEvent();
+      }
+      if (user) {
+        await getFavorites();
+      } else {
+        setLoading(false);
+      }
+    };
+    initializeEvents();
+  }, [propEvents, user]);
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -59,7 +177,7 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   const sanitizeAndTruncate = (html, maxLength) => {
     const sanitizedHtml = DOMPurify.sanitize(html || "");
-    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "")
+    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
     if (plainText.length <= maxLength) {
       return sanitizedHtml;
     }
@@ -75,20 +193,17 @@ const ListEventGrid = ({ events: propEvents }) => {
     setLoading(true);
     navigate("/all-event");
   };
+
   const getLocation = (location) => {
-    if (
-      !location ||
-      (!location.venueName && !location.address && !location.city)
-    ) {
+    if (!location || (!location.venueName && !location.address && !location.city)) {
       return "Online";
     }
-    const parts = [
-      location.venueName,
-      location.address,
-      location.city,
-    ].filter((part) => part && part.trim() !== "");
+    const parts = [location.venueName, location.address, location.city].filter(
+      (part) => part && part.trim() !== ""
+    );
     return parts.length > 0 ? parts.join(", ") : "Online";
   };
+
   if (loading) {
     return (
       <div className="text-center p-4">
@@ -139,11 +254,22 @@ const ListEventGrid = ({ events: propEvents }) => {
             {/* Hình ảnh sự kiện */}
             <div className="w-full h-32 sm:h-36 lg:h-40 bg-gray-100 rounded-t-lg overflow-hidden">
               {event.eventImages && event.eventImages.length > 0 ? (
-                <img
-                  src={`${event.eventImages[0]}`}
-                  alt={event.eventName}
-                  className="w-full h-full object-cover"
-                />
+                <div
+                  className="relative w-full h-full bg-cover bg-center"
+                  style={{ backgroundImage: `url(${event.eventImages[0]})` }}
+                >
+                  <i
+                    className={`fa-heart text-white absolute bottom-2 right-2 text-[24px] p-2 rounded-full cursor-pointer ${
+                      favoriteEvents.has(event.eventId)
+                        ? "fa-solid bg-red-500"
+                        : "fa-regular hover:bg-red-500"
+                    } ${togglingFavorites.has(event.eventId) ? "opacity-50" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(event.eventId);
+                    }}
+                  ></i>
+                </div>
               ) : (
                 <img
                   src="https://via.placeholder.com/300x150"
