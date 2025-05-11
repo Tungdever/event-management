@@ -77,7 +77,7 @@ export default function PaymentResultPage() {
           Về trang sự kiện
         </button>
         <button
-          onClick={() => window.location.href = '/my-bookings'}
+          onClick={() => window.location.href = '/myinvoices'}
           className="px-5 py-2.5 bg-white border-2 border-blue-600 text-blue-600 font-semibold rounded-full shadow hover:bg-blue-50 transition duration-300"
         >
           Xem đơn của tôi

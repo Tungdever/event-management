@@ -74,44 +74,28 @@ export default function MyInvoice() {
 
 
   const handleRefund = async (orderId) => {
-    const confirmRefund = window.confirm("Are you sure you want to request a refund for this order?");
-    if (!confirmRefund) return;
-
     try {
       const token = localStorage.getItem('token');
-      let userId;
-      if (token) {
-        try {
-          const payload = token.split('.')[1];
-          const decodedPayload = JSON.parse(atob(payload));
-          userId = decodedPayload.userId;
-        } catch (e) {
-          toast.error("Token is invalid. Please login again.");
-          return;
-        }
-      } else {
-        toast.error("No token found. Please login.");
-        return;
-      }
-
+      console.log(token);
       const response = await axios.get(`http://localhost:8080/api/v1/refund/valid/${orderId}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
         }
       });
-
-      if (response.data === true || response.data === "true") {
+      console.log(response.data);
+      if (response.data.statusCode === 1 || response.data.statusCode === "1") {
         const refundResponse = await axios.post(`http://localhost:8080/api/v1/refund/${orderId}`, null, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
           }
         });
+        console.log(refundResponse.data);
         toast.success("Refund successfully!");
         window.location.reload();
       } else {
-        toast.warn("Can't refund for this invoice!");
+        toast.warn(response.data.msg);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Refund fail!';

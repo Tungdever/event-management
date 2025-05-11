@@ -1,41 +1,44 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import axios from 'axios';
 const DashboardPage = () => {
-  const [events, setEvents] = useState([]);
+  const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
   const eventsPerPage = 4; // Số sự kiện mỗi trang
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-
   const fetchAllEvent = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/all", {
+      const response = await axios.get("http://localhost:8080/api/v1/admin/dashboard", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
       });
-      if (!response.ok) {
-        throw new Error("Failed to fetch events");
-      }
-      const data = await response.json();
-      setEvents(data);
+      setData(response.data.data);
     } catch (error) {
       setError(error.message);
-      console.error("Error fetching events:", error);
+      console.error("Error fetching data:", error);
     } finally {
       setLoading(false);
     }
   };
 
   const stats = [
-    { title: 'Total Events', value: '150', icon: 'fas fa-calendar-alt', color: '#a5d8ff', change: '+3.4%' },
-    { title: 'Active Accounts', value: '320', icon: 'fas fa-users', color: '#a7f3d0', change: '-2.8%' },
-    { title: 'Total Sales', value: '$12,500', icon: 'fas fa-dollar-sign', color: '#fed7aa', change: '+4.6%' },
-    { title: 'Total Orders', value: '780', icon: 'fas fa-shopping-cart', color: '#d8b4fe', change: '-1.1%' },
+    { title: 'Total Events', value: data.totalEvents, icon: 'fas fa-calendar-alt', color: '#a5d8ff', change: '' },
+    { title: 'Total Organizer', value: data.totalOrganizers, icon: 'fas fa-users', color: '#a7f3d0', change: '' },
+    { title: 'Total Tickets', value: data.totalTicketsSold, icon: 'fas fa-shopping-cart', color: '#d8b4fe', change: '' },
+    { title: 'Total Sales', value: data.totalRevenue, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: '' },
+    { title: 'Total Orders', value: data.totalBookings, icon: 'fas fa-shopping-cart', color: '#d8b4fe', change: '' },
+
+    { title: 'Total events this month', value: data.totalEventsThisMonth, icon: 'fas fa-calendar-alt', color: '#a5d8ff', change: data?.totalEventsChange || "" },
+    { title: 'Organizer upgrade this month', value: data.totalOrganizersThisMonth, icon: 'fas fa-users', color: '#a7f3d0', change: data?.totalOrganizersChange || "" },
+    { title: 'Total tickets this month', value: data.totalTicketsSoldThisMonth, icon: 'fas fa-shopping-cart', color: '#d8b4fe', change: data?.totalTicketsSoldChange || "" },
+    { title: 'Total sales this month', value: data.totalRevenueThisMonth, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: data?.totalRevenueChange || "" },
+    { title: 'Total orders this month', value: data.totalBookingsThisMonth, icon: 'fas fa-shopping-cart', color: '#d8b4fe', change: data?.totalBookingsChange || "" },
+
   ];
 
   useEffect(() => {
@@ -45,10 +48,10 @@ const DashboardPage = () => {
   // Tính toán các sự kiện hiển thị trên trang hiện tại
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = events.slice(indexOfFirstEvent, indexOfLastEvent);
+  const currentEvents = data.events?.slice(indexOfFirstEvent, indexOfLastEvent);
 
   // Tính tổng số trang
-  const totalPages = Math.ceil(events.length / eventsPerPage);
+  const totalPages = Math.ceil(data.events?.length / eventsPerPage);
 
   // Hàm chuyển trang
   const handlePageChange = (pageNumber) => {
@@ -70,11 +73,13 @@ const DashboardPage = () => {
             <i className="fas fa-chevron-down text-[10px]"></i>
           </button> */}
         </div>
-        <div className="flex space-x-4 mb-6 max-w-full overflow-x-auto gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6 max-w-[1440px]">
+
+
           {stats.map((stat) => (
             <div
               key={stat.title}
-              className="bg-[#f9fafb] rounded-xl p-4 w-28 min-w-[260px] flex flex-col items-center text-center"
+              className="bg-[#f9fafb] rounded-xl p-4 w-28 min-w-[200px] flex flex-col items-center text-center"
             >
               <div className={`rounded-full p-2 mb-2`} style={{ backgroundColor: stat.color }}>
                 <i className={`${stat.icon} text-[#1e293b]`}></i>
@@ -82,12 +87,19 @@ const DashboardPage = () => {
               <p className="text-[10px] text-gray-600 mb-1 select-none">{stat.title}</p>
               <p className="font-bold text-sm text-[#1e1e2d] mb-1">{stat.value}</p>
               <p
-                className={`text-xs font-semibold select-none ${
-                  stat.change.startsWith('+') ? 'text-[#22c55e]' : 'text-[#f87171]'
-                }`}
+                className={`text-xs font-semibold select-none ${stat.change.startsWith('+') ? 'text-[#22c55e]' : 'text-[#f87171]'
+                  }`}
               >
-                {stat.change}
-                <span className="font-normal text-gray-500"> from last month</span>
+
+                {stat.change && (
+                  <p className={`text-xs font-semibold select-none flex items-center gap-1 ${stat.change.startsWith('+') ? 'text-[#22c55e]' : 'text-[#f87171]'
+                    }`}>
+                    <i className={`fas ${stat.change.startsWith('+') ? 'fa-arrow-up' : 'fa-arrow-down'}`}></i>
+                    {stat.change}
+                    <span className="font-normal text-gray-500"> from last month</span>
+                  </p>
+                )}
+
               </p>
             </div>
           ))}
@@ -142,11 +154,10 @@ const DashboardPage = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md text-sm ${
-                currentPage === 1
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm ${currentPage === 1
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
             >
               Previous
             </button>
@@ -154,11 +165,10 @@ const DashboardPage = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-md text-sm ${
-                  currentPage === page
-                    ? 'bg-[#3b82f6] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={`px-3 py-1 rounded-md text-sm ${currentPage === page
+                  ? 'bg-[#3b82f6] text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
               >
                 {page}
               </button>
@@ -166,11 +176,10 @@ const DashboardPage = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md text-sm ${
-                currentPage === totalPages
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm ${currentPage === totalPages
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
             >
               Next
             </button>
