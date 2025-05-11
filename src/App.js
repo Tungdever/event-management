@@ -118,9 +118,9 @@ const MainLayout = () => {
         {isAuthPage && (
           <Routes>
             <Route path="/login" element={<LoginForm />} />
-            <Route path="/signup" element={<SignUp />} />
+            <Route path="/signup" element={<EventSignup />} />
             <Route path="/forgot" element={<ForgotPassword />} />
-            <Route path="/event-signup" element={<EventSignup />} />
+           
           </Routes>
         )}
 

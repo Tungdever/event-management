@@ -496,7 +496,7 @@ const Header = () => {
       <div className="w-full px-4 py-2 sm:py-3 md:py-3 lg:py-4 h-auto sm:h-auto md:h-14 lg:h-16 flex flex-col sm:flex-col md:flex-row justify-between items-center">
         <div className="flex justify-between items-center w-full sm:w-full md:w-auto">
           <div
-            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
+            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
             onClick={handleHomepage}
           >
             Manage Event
@@ -538,9 +538,9 @@ const Header = () => {
                     onMouseLeave={() => setIsMenuOpen(false)}
                   >
                     {filteredMenuPopup.map((item, index) => (
-                      <a
+                    <a
                         key={index}
-                        className="block pl-4 pr-10 py-2 md:py-3 lg:py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[12px] md:text-[13px] lg:text-[14px]"
+                        className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-200 font-semibold text-sm"
                         onClick={item.action}
                       >
                         {item.title}

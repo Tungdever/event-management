@@ -20,7 +20,7 @@ const EventSignUp = () => {
   const [verificationCode, setVerificationCode] = useState('');
   const navigate = useNavigate();
 
-  // Chuyển hướng đến /login khi currentStep đạt 6
+  
   useEffect(() => {
     if (currentStep === 6) {
       navigate('/login');
