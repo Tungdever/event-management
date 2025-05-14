@@ -44,7 +44,6 @@ export const WebSocketProvider = ({ children }) => {
                                 message={parsedMessage.message || "Bạn có một thông báo mới!"}
                             />,
                             {
-                                position: "bottom-right",
                                 autoClose: 5000,
                                 hideProgressBar: false,
                                 closeOnClick: true,
@@ -72,7 +71,18 @@ export const WebSocketProvider = ({ children }) => {
     return (
         <WebSocketContext.Provider value={{ stompClient }}>
             {children}
-            <ToastContainer />
+            <ToastContainer
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme="light"
+            />
         </WebSocketContext.Provider>
     );
 };

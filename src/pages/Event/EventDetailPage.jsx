@@ -9,7 +9,7 @@ import { useParams } from "react-router-dom";
 import ListEventScroll from "../../components/EventListScroll";
 import DOMPurify from "dompurify";
 import { format, parseISO } from "date-fns";
-
+import { useNavigate } from "react-router-dom";
 //  : Format date and time
 const formatDateTime = (isoString) => {
   if (!isoString) return "N/A";
@@ -61,9 +61,12 @@ const useEventData = (eventId) => {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:8080/api/events/detail/${eventId}`, {
-          headers: { "Content-Type": "application/json" },
-        });
+        const response = await fetch(
+          `http://localhost:8080/api/events/detail/${eventId}`,
+          {
+            headers: { "Content-Type": "application/json" },
+          }
+        );
         if (!response.ok) throw new Error("Failed to fetch event data");
         const result = await response.json();
         setData(result);
@@ -101,14 +104,17 @@ const Timeline = ({ segments }) => {
           </time>
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-0 sm:before:left-6 lg:before:left-10 before:h-full before:px-px before:bg-slate-300 sm:before:ml-6 lg:before:ml-8 before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-0 sm:after:left-6 lg:after:left-10 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-6 lg:after:ml-8 after:-translate-x-1/2 after:translate-y-1.5">
             <div className="text-base sm:text-lg lg:text-xl font-bold text-slate-900">
-              {segment.speaker?.speakerName || "Unknown Speaker"}
+              {segment.speaker?.speakerName || ""}
             </div>
           </div>
           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
-            {segment.speaker?.speakerDesc || "No description"}
+            {segment.speaker?.speakerDesc || ""}
           </p>
           <p className="text-sm sm:text-base lg:text-lg font-bold text-indigo-700 mt-1">
             "{segment.segmentTitle || "Untitled Segment"}"
+          </p>
+           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
+            "{segment.segmentDesc || "Untitled Segment"}"
           </p>
         </div>
       ))}
@@ -118,33 +124,47 @@ const Timeline = ({ segments }) => {
 
 // OrganizedBy Component
 const OrganizedBy = ({ organizer }) => {
+  const navigate = useNavigate();
+
+  const handleOrganizerClick = () => {
+    if (organizer?.organizerName) {
+      window.open(
+        `/profile-organizer/${encodeURIComponent(organizer.organizerName)}`,
+        "_blank"
+      );
+    }
+  };
   return (
-    <div className="mt-6 sm:mt-8 mb-4">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Organizer</h2>
-      <div className="bg-gray-50 p-4 sm:p-6 rounded-lg shadow">
-        <div className="flex items-center mb-3 sm:mb-4">
-          <div className="w-10 sm:w-12 h-10 sm:h-12 bg-gray-200 rounded-full mr-3 sm:mr-4 flex items-center justify-center">
-            <span className="text-gray-600 text-sm sm:text-base">
-              {organizer?.organizerName?.[0] || "N/A"}
-            </span>
-          </div>
-          <div>
-            <h3 className="text-base sm:text-lg lg:text-xl font-semibold">
-              {organizer?.organizerName || "N/A"}
-            </h3>
-            <div className="text-gray-600 text-sm sm:text-base flex flex-col sm:flex-row sm:space-x-4">
-              <span>
-                <strong>Location</strong> {organizer?.organizerAddress || "N/A"}
-              </span>
-              <span>
-                <strong>Phone</strong> {organizer?.organizerPhone || "N/A"}
-              </span>
+    <div className="mt-10 mb-8 max-w-3xl font-inter">
+      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
+        Organized by
+      </h2>
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 border border-gray-200">
+        <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
+            <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full animate-pulse-subtle" />
+
+            <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
+              <img
+                src={organizer?.organizerLogo}
+                alt="Logo Tổ Chức"
+                className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-md"
+              />
             </div>
           </div>
+          <div className="text-center sm:text-left flex-1">
+            <h3
+              className="text-lg sm:text-xl lg:text-2xl font-playfair font-semibold text-gray-900 mb-3 leading-tight hover:text-red-500 hover:underline cursor-pointer transition-colors duration-300"
+              onClick={handleOrganizerClick}
+            >
+              {organizer?.organizerName || "N/A"}
+            </h3>
+
+            <p className="text-gray-700 text-sm sm:text-base font-inter leading-relaxed max-w-lg mx-auto sm:mx-0 italic">
+              {organizer?.organizerDesc || "No description available"}
+            </p>
+          </div>
         </div>
-        <p className="text-gray-700 text-sm sm:text-base mb-3 sm:mb-4">
-          {organizer?.organizerDesc || "No description available"}
-        </p>
       </div>
     </div>
   );
@@ -160,24 +180,30 @@ const EventInfo = ({ eventData, organizerData }) => (
       {eventData?.eventName || "Unnamed Event"}
     </h1>
     <OrganizedBy organizer={organizerData} />
-    <div className="mb-4 sm:mb-6">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+    <div className="mt-6 mb-6  pt-6">
+     
+      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
         Date and Time
       </h2>
-      <div className="text-gray-700 text-sm sm:text-base">
-        <i className="bi bi-calendar-event pr-2 sm:pr-[10px]"></i>
-        {formatDateTime(eventData?.eventStart)} - {formatDateTime(eventData?.eventEnd)}
+      <div className="text-gray-700 text-sm sm:text-base flex items-center">
+        <i className="fa-regular fa-calendar-days mr-4"></i>
+        <span className="text-[14px] font-bold">
+          {formatDateTime(eventData?.eventStart)} -{" "}
+          {formatDateTime(eventData?.eventEnd)}
+        </span>
       </div>
     </div>
-    <div className="mb-4 sm:mb-6">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+    <div className="mb-6">
+      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
         Location
       </h2>
-      <div className="text-gray-700 text-sm sm:text-base">
-        <i className="bi bi-geo-alt pr-2 sm:pr-[10px]"></i>
-        {eventData?.eventLocation?.venueName
-          ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
-          : "No location specified"}
+      <div className="text-gray-700 text-sm sm:text-base flex items-center">
+        <i className="fa-solid fa-location-dot mr-4"></i>
+        <span className="text-[14px] font-bold">
+          {eventData?.eventLocation?.venueName
+            ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
+            : "No location specified"}
+        </span>
       </div>
     </div>
   </div>
@@ -186,7 +212,7 @@ const EventInfo = ({ eventData, organizerData }) => (
 // OverviewContent Component
 const OverviewContent = ({ eventData }) => (
   <div className="mb-4 sm:mb-6 flex-1">
-    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+    <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
       Description
     </h2>
     <div
@@ -197,7 +223,7 @@ const OverviewContent = ({ eventData }) => (
           : "No description available",
       }}
     />
-    <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+    <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
       Overview
     </h2>
     <div className="text-gray-700 text-sm sm:text-base text-justify">
@@ -226,37 +252,37 @@ const OverviewContent = ({ eventData }) => (
 );
 
 // TicketSelector Component
-const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }) => (
-  <div className="w-full sm:w-[400px] lg:w-[500px] bg-white border border-gray-200 rounded-lg p-4 sm:p-5 lg:p-6 shadow mt-4 sm:mr-8 lg:mr-16 sm:ml-6 lg:ml-10">
-    <div className="mb-3 sm:mb-4 p-3 sm:4 border-[2px] sm:border-[3px] border-blue-800 rounded-lg w-full sm:w-[320px] lg:w-[380px]">
+const TicketSelector = ({tickets,selectedTickets,onQuantityChange,onSelect,}) => (
+  <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10  top-6">
+    <div className="mb-4 p-4 border-2 border-red-400 rounded-lg">
       {!tickets ? (
-        <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">Loading tickets...</p>
+        <p className="text-gray-700 text-sm font-inter">Loading tickets...</p>
       ) : tickets.length === 0 ? (
-        <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">No tickets available</p>
+        <p className="text-gray-700 text-sm font-inter">No tickets available</p>
       ) : (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-4">
           {tickets.map((ticket) => (
             <div
               key={ticket.ticketId}
-              className="border border-gray-300 rounded-lg p-3 sm:p-4 bg-gray-50 hover:bg-gray-100 transition"
+              className="border border-gray-400 rounded-lg p-4 bg-gray-100 hover:shadow-md transition-all duration-300"
             >
               <div className="flex justify-between items-center mb-2">
                 <div>
-                  <p className="text-gray-900 font-semibold text-sm sm:text-base lg:text-[16px]">
+                  <p className="text-gray-900 font-semibold text-base font-inter">
                     {ticket.ticketName}
                   </p>
-                  <p className="text-gray-700 text-xs sm:text-sm lg:text-[14px]">
+                  <p className="text-gray-700 text-sm font-inter">
                     {ticket.price.toLocaleString()} VND
                     {ticket.ticketType === "Free" && (
-                      <span className="text-gray-500 text-[10px] sm:text-[12px] ml-2">
+                      <span className="text-gray-500 text-xs ml-2">
                         (Max 1 ticket)
                       </span>
                     )}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2 sm:space-x-3">
+                <div className="flex items-center space-x-3">
                   <button
-                    className="bg-gray-200 text-gray-600 px-2 sm:px-3 py-1 rounded hover:bg-gray-300 transition text-xs sm:text-sm"
+                    className="bg-gray-200 text-gray-600 px-3 py-1 rounded-[4px] hover:bg-gray-300 transition text-sm font-inter"
                     onClick={() =>
                       onQuantityChange(
                         ticket.ticketId,
@@ -270,11 +296,11 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                   >
                     -
                   </button>
-                  <span className="text-gray-900 font-semibold text-xs sm:text-sm lg:text-[14px] w-6 sm:w-8 text-center">
+                  <span className="text-gray-900 font-semibold text-sm w-8 text-center font-inter">
                     {selectedTickets[ticket.ticketId] || 0}
                   </span>
                   <button
-                    className="bg-blue-600 text-white px-2 sm:px-3 py-1 rounded hover:bg-blue-700 transition text-xs sm:text-sm"
+                    className="bg-red-500 text-white px-3 py-1 rounded-[4px] hover:bg-red-600 transition text-sm font-inter"
                     onClick={() =>
                       onQuantityChange(
                         ticket.ticketId,
@@ -284,7 +310,8 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                       )
                     }
                     disabled={
-                      (selectedTickets[ticket.ticketId] || 0) >= ticket.quantity ||
+                      (selectedTickets[ticket.ticketId] || 0) >=
+                        ticket.quantity ||
                       (ticket.ticketType === "Free" &&
                         (selectedTickets[ticket.ticketId] || 0) >= 1)
                     }
@@ -294,7 +321,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
                   </button>
                 </div>
               </div>
-              <div className="text-gray-700 text-[10px] sm:text-[12px]">
+              <div className="text-gray-600 text-xs font-inter">
                 <p>Available: {ticket.quantity}</p>
               </div>
             </div>
@@ -303,8 +330,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }
       )}
     </div>
     <button
-      className="bg-red-600 text-white w-full py-2 sm:py-2.5 rounded-lg hover:bg-red-500 mt-2 disabled:bg-gray-400 text-sm sm:text-base"
- palindrome
+      className="bg-red-500 text-white w-full py-3 rounded-lg hover:bg-red-600 transition disabled:bg-gray-400 text-base font-semibold font-inter shadow-md"
       onClick={onSelect}
       disabled={Object.keys(selectedTickets).length === 0}
       aria-label="Select tickets"
@@ -322,7 +348,9 @@ const Sponsors = ({ sponsors }) => {
 
   return (
     <div className="my-4 sm:my-6">
-      <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">Sponsors</h2>
+      <h2 className="text-lg sm:text-xl lg:text-xl font-bold mb-3 sm:mb-4">
+        Sponsors
+      </h2>
       <div className="flex flex-wrap gap-4">
         {sponsors.map((sponsor) => (
           <div key={sponsor.sponsorId} className="flex items-center">
@@ -331,7 +359,9 @@ const Sponsors = ({ sponsors }) => {
               alt={`${sponsor.sponsorName} logo`}
               className="w-16 h-16 object-contain"
             />
-            <span className="ml-2 text-sm sm:text-base">{sponsor.sponsorName}</span>
+            <span className="ml-2 text-sm sm:text-base">
+              {sponsor.sponsorName}
+            </span>
           </div>
         ))}
       </div>
@@ -360,7 +390,9 @@ const EventDetail = () => {
       setTickets(data.tickets);
       setSponsors(data.sponsors);
       setOrganizer(data.organizer);
-      setSpeakers(data.segments?.map((segment) => segment.speaker).filter(Boolean) || []);
+      setSpeakers(
+        data.segments?.map((segment) => segment.speaker).filter(Boolean) || []
+      );
     }
     window.scrollTo(0, 0);
   }, [data]);
@@ -368,7 +400,12 @@ const EventDetail = () => {
   const handleQuantityChange = (ticketId, maxQuantity, delta, ticketType) => {
     setSelectedTickets((prev) => {
       const currentCount = prev[ticketId] || 0;
-      const newCount = calculateNewCount(currentCount, delta, maxQuantity, ticketType);
+      const newCount = calculateNewCount(
+        currentCount,
+        delta,
+        maxQuantity,
+        ticketType
+      );
       return updateTickets(prev, ticketId, newCount);
     });
   };
@@ -456,11 +493,11 @@ const EventDetail = () => {
             <div className="w-full lg:flex-1 ml-4 sm:ml-6 lg:ml-10">
               <EventInfo eventData={eventData} organizerData={organizer} />
               <OverviewContent eventData={eventData} />
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
                 Speakers
               </h2>
               <SliderSpeaker speakers={speakers} />
-              <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-2">
+              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
                 Schedule
               </h2>
               <Timeline segments={segmentData} />
@@ -478,7 +515,9 @@ const EventDetail = () => {
                       {tag.trim()}
                     </span>
                   )) || (
-                    <span className="text-gray-600 text-xs sm:text-sm">No tags available</span>
+                    <span className="text-gray-600 text-xs sm:text-sm">
+                      No tags available
+                    </span>
                   )}
                 </div>
               </div>

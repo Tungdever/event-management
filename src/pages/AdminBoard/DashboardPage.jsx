@@ -62,13 +62,7 @@ const DashboardPage = () => {
       <div className="bg-white rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="font-bold text-sm text-[#1e1e2d] select-none">Overview</h1>
-          {/* <button
-            aria-label="Select monthly"
-            className="text-xs bg-gray-200 text-gray-700 rounded-full px-3 py-1 flex items-center gap-1 hover:bg-gray-300"
-          >
-            Monthly
-            <i className="fas fa-chevron-down text-[10px]"></i>
-          </button> */}
+      
         </div>
         <div className="flex space-x-4 mb-6 max-w-full overflow-x-auto gap-4">
           {stats.map((stat) => (

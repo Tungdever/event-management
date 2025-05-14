@@ -1,67 +1,127 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
+import ErrorBoundary from "./ComponentSignup/ErrorBoundary";
+import EmailStep from "./ComponentSignup/EmailStep";
+import VerificationStep from "./ComponentSignup/VerificationStep";
+import NameStep from "./ComponentSignup/NameStep";
+import RoleStep from "./ComponentSignup/RoleStep";
+import AttendeeForm from "./ComponentSignup/AttendeeForm";
+import OrganizerForm from "./ComponentSignup/OrganizerForm";
 import { useNavigate } from 'react-router-dom';
-import { api } from './api';
 
-const SignUp = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+const EventSignUp = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [nextStepToShow, setNextStepToShow] = useState(null);
+  const [isExiting, setIsExiting] = useState(false);
+  const [transitionKey, setTransitionKey] = useState(0);
+  const [direction, setDirection] = useState("forward");
+  const [email, setEmail] = useState("");
+  const [userData, setUserData] = useState({});
+  const [role, setRole] = useState("");
+  const [verificationCode, setVerificationCode] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await api.register(email, password);
-      if (response.statusCode === 201) {
-        alert('Registration successful: ' + response.data);
-        navigate('/login');
-      } else {
-        setError(response.msg || 'Registration failed');
-      }
-    } catch (error) {
-      setError(error.msg || 'Registration failed');
+  
+  useEffect(() => {
+    if (currentStep === 6) {
+      navigate('/login');
     }
+  }, [currentStep, navigate]);
+
+  useEffect(() => {
+    if (isExiting && nextStepToShow !== null) {
+      const timer = setTimeout(() => {
+        setIsExiting(false);
+        setCurrentStep(nextStepToShow);
+        setTransitionKey((prev) => prev + 1);
+        setNextStepToShow(null);
+      }, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isExiting, nextStepToShow]);
+
+  const nextStep = (code) => {
+    setDirection("forward");
+    setIsExiting(true);
+    setNextStepToShow(currentStep + 1);
+    if (code) setVerificationCode(code);
   };
 
-  return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
-        {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:ring-blue-300"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 transition"
-          >
-            Sign Up
-          </button>
-        </form>
-        <p className="mt-4 text-center">
-          Already have an account? <a href="/login" className="text-blue-600 hover:underline">Login</a>
-        </p>
+  const prevStep = () => {
+    setDirection("backward");
+    setIsExiting(true);
+    setNextStepToShow(currentStep - 1);
+  };
+
+  const renderStep = () => {
+    const animationClass = isExiting
+      ? direction === "forward"
+        ? "animate-slide-out-left"
+        : "animate-slide-out-right"
+      : direction === "forward"
+      ? "animate-slide-in-right"
+      : "animate-slide-in-left";
+    return (
+      <div
+        key={transitionKey}
+        className={`will-change-transform-opacity ${animationClass}`}
+        aria-live="polite"
+      >
+        {(() => {
+          const stepToRender = nextStepToShow || currentStep;
+          switch (stepToRender) {
+            case 1:
+              return <EmailStep onNext={nextStep} setEmail={setEmail} />;
+            case 2:
+              return (
+                <VerificationStep
+                  email={email}
+                  verificationCode={verificationCode}
+                  onNext={nextStep}
+                  onPrev={prevStep}
+                />
+              );
+            case 3:
+              return (
+                <NameStep
+                  onNext={nextStep}
+                  onPrev={prevStep}
+                  setUserData={setUserData}
+                  email={email}
+                />
+              );
+            case 4:
+              return (
+                <RoleStep
+                  onNext={nextStep}
+                  onPrev={prevStep}
+                  setRole={setRole}
+                />
+              );
+            case 5:
+              return role === "attendee" ? (
+                <AttendeeForm
+                  email={email}
+                  userData={userData}
+                  onComplete={nextStep}
+                  onPrev={prevStep}
+                />
+              ) : (
+                <OrganizerForm
+                  email={email}
+                  userData={userData}
+                  onComplete={nextStep}
+                  onPrev={prevStep}
+                />
+              );
+            default:
+              return null; 
+          }
+        })()}
       </div>
-    </div>
-  );
+    );
+  };
+
+  return <ErrorBoundary>{renderStep()}</ErrorBoundary>;
 };
 
-export default SignUp;
+export default EventSignUp;

@@ -133,7 +133,7 @@ const EventsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-12 font-sans">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-800 mb-8">
-          Sự kiện
+          Events
         </h1>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 space-y-4 sm:space-y-0 sm:space-x-6">
@@ -158,30 +158,30 @@ const EventsPage = () => {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">Tất cả</option>
-              <option value="public">Công khai</option>
-              <option value="complete">Hoàn thành</option>
+              <option value="">All</option>
+              <option value="public">Public</option>
+              <option value="complete">Complete</option>
             </select>
             <button
               className="bg-orange-500 text-white py-3 px-4 rounded-lg text-sm shadow-sm hover:bg-orange-600 transition-colors duration-300"
               onClick={() => navigate("/createEvent")}
             >
-              Tạo sự kiện
+              Create event
             </button>
           </div>
         </div>
 
         <div className="bg-white rounded-2xl shadow overflow-hidden">
           <div className="hidden sm:grid sm:grid-cols-12 gap-4 p-6 bg-gray-50 border-b border-gray-200 text-sm font-semibold text-gray-600">
-            <div className="col-span-5">Sự kiện</div>
-            <div className="col-span-2">Đã bán</div>
-            <div className="col-span-2">Doanh thu</div>
-            <div className="col-span-2">Trạng thái</div>
+            <div className="col-span-5">Events</div>
+            <div className="col-span-2"></div>
+            <div className="col-span-2"></div>
+            <div className="col-span-2">Status</div>
             <div className="col-span-1"></div>
           </div>
           {currentEvents.length === 0 ? (
             <div className="p-6 text-center text-gray-500">
-              Không tìm thấy sự kiện.
+              Not found event
             </div>
           ) : (
             currentEvents.map((event) => (
@@ -198,7 +198,7 @@ const EventsPage = () => {
                     />
                   ) : (
                     <div className="w-16 h-16 sm:w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-gray-500 text-xs sm:text-sm">Không có ảnh</span>
+                      <span className="text-gray-500 text-xs sm:text-sm">No image</span>
                     </div>
                   )}
                   <div className="flex-1">
@@ -212,13 +212,13 @@ const EventsPage = () => {
                   </div>
                 </div>
                 <div className="col-span-1 sm:col-span-2 text-gray-600 text-sm flex items-center">
-                  <span className="sm:hidden font-semibold mr-2">Đã bán:</span>0
+                  <span className="sm:hidden font-semibold mr-2"></span>
                 </div>
                 <div className="col-span-1 sm:col-span-2 text-gray-600 text-sm flex items-center">
-                  <span className="sm:hidden font-semibold mr-2">Doanh thu:</span>0
+                  <span className="sm:hidden font-semibold mr-2"></span>
                 </div>
                 <div className="col-span-1 sm:col-span-2 text-gray-600 text-sm flex items-center">
-                  <span className="sm:hidden font-semibold mr-2">Trạng thái:</span>
+                  <span className="sm:hidden font-semibold mr-2"></span>
                   {event.eventStatus}
                 </div>
                 <div className="col-span-1 sm:col-span-1 relative flex justify-end">
@@ -257,7 +257,7 @@ const EventsPage = () => {
                     : "bg-teal-500 text-white hover:bg-teal-600"
                 }`}
               >
-                Trước
+                Previous
               </button>
               <div className="flex space-x-2">
                 {Array.from({ length: totalPages }, (_, index) => index + 1).map(
@@ -285,7 +285,7 @@ const EventsPage = () => {
                     : "bg-teal-500 text-white hover:bg-teal-600"
                 }`}
               >
-                Tiếp
+                Next
               </button>
             </div>
           )}

@@ -3,6 +3,7 @@ import Loader from "../../components/Loading";
 import Footer from "../../components/Footer";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate } from "react-router-dom";
+import FavoriteButton from "../../components/FavoriteButton";
 const popularCities = [
   {
     key: "ho-chi-minh",
@@ -197,11 +198,14 @@ const AllEvent = () => {
               {/* Hình ảnh sự kiện */}
               <div className="w-full h-40 bg-gray-100 rounded-t-lg overflow-hidden">
                 {event.eventImages && event.eventImages.length > 0 ? (
-                  <img
-                    src={event.eventImages[0]}
-                    alt={event.eventName}
-                    className="w-full h-full object-cover"
-                  />
+                 
+                  // Trong một component khác, ví dụ SearchPage
+                <div
+                  className="relative w-full h-full bg-cover bg-center"
+                  style={{ backgroundImage: `url(${event.eventImages[0]})` }}
+                >
+                  <FavoriteButton eventId={event.eventId} />
+                </div>
                 ) : (
                   <img
                     src="https://via.placeholder.com/300x150"

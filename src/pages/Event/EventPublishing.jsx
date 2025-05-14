@@ -240,12 +240,17 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
                 setEvent((prev) => ({ ...prev, eventType: e.target.value }))
               }
             >
+              
               <option value="">Select Type</option>
               <option value="Conference">Conference</option>
               <option value="Performing">Performing</option>
               <option value="Holidays">Holidays</option>
               <option value="Food & Drink">Food & Drink</option>
               <option value="Business">Business</option>
+              <option value="Hobbies">Hobbies</option>
+              <option value="Dating">Dating</option>
+              <option value="Nightlife">Nightlife</option>
+              <option value="Music">Music</option>
             </select>
           </div>
           <div>

@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
-import { useWebSocket } from "../ChatBox/WebSocketContext";
+
 import Swal from 'sweetalert2';
 
 const CRUDEvent = () => {
@@ -13,7 +13,6 @@ const CRUDEvent = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { stompClient } = useWebSocket();
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -42,7 +41,10 @@ const CRUDEvent = () => {
     segment: [],
   });
   const token = localStorage.getItem("token");
+useEffect(() => {
 
+    window.scrollTo(0, 0);
+  },[])
   const uploadFilesToCloudinary = async (files) => {
     if (!files || (Array.isArray(files) && files.length === 0)) return [];
 
@@ -94,51 +96,54 @@ const CRUDEvent = () => {
   const handlePublish = async () => {
     setIsLoading(true);
     try {
-      const existingImageIds = event.uploadedImages
-        .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
-      const newImages = event.uploadedImages
-        .filter((item) => item instanceof File) || [];
-      const newImageIds = await uploadFilesToCloudinary(newImages);
-      const uploadedImageIds = [...existingImageIds, ...newImageIds];
+     // Xử lý uploadedImages
+    const existingImageIds = event.uploadedImages
+      .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+    const newImages = event.uploadedImages
+      .filter((item) => item instanceof File) || [];
+    const newImageIds = await uploadFilesToCloudinary(newImages);
+    const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
-      const existingMediaIds = event.overviewContent.media
-        .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
-        .map((item) => item.url) || [];
-      const newMedia = event.overviewContent.media
-        .filter((item) => item.url instanceof File)
-        .map((item) => item.url) || [];
-      const newMediaIds = await uploadFilesToCloudinary(newMedia);
-      const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
+    // Xử lý overviewContent.media
+    const existingMediaIds = event.overviewContent.media
+      .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
+      .map((item) => item.url) || [];
+    const newMediaFiles = event.overviewContent.media
+      .filter((item) => item.file instanceof File)
+      .map((item) => item.file) || []; // Lấy file gốc
+    const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
+    const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
-      const dataEvent = {
-        eventName: event.eventName || "",
-        eventDesc: event.eventDesc || "",
-        eventType: event.eventType || "",
-        eventHost: event.eventHost || "",
-        eventStatus: event.eventStatus || "public",
-        eventStart: event.eventLocation.date && event.eventLocation.startTime
-          ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
-          : "",
-        eventEnd: event.eventLocation.date && event.eventLocation.endTime
-          ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
-          : "",
-        eventLocation: {
-          locationType: event.eventLocation.locationType || "online",
-          venueName: event.eventLocation.venueName || "",
-          venueSlug: event.eventLocation.venueSlug || "",
-          address: event.eventLocation.address || "",
-          city: event.eventLocation.city || "",
-        },
-        tags: event.tags?.join("|") || "",
-        eventVisibility: event.eventVisibility || "public",
-        publishTime: event.publishTime || new Date().toISOString(),
-        refunds: event.refunds || "no",
-        validityDays: event.validityDays || 7,
-        eventImages: uploadedImageIds,
-        textContent: event.overviewContent?.text || "",
-        mediaContent: uploadedMediaIds,
-      };
-
+    const dataEvent = {
+      eventName: event.eventName || "",
+      eventDesc: event.eventDesc || "",
+      eventType: event.eventType || "",
+      eventHost: event.eventHost || "",
+      eventStatus: event.eventStatus || "public",
+      eventStart: event.eventLocation.date && event.eventLocation.startTime
+        ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+        : "",
+      eventEnd: event.eventLocation.date && event.eventLocation.endTime
+        ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+        : "",
+      eventLocation: {
+        locationType: event.eventLocation.locationType || "online",
+        venueName: event.eventLocation.venueName || "",
+        venueSlug: event.eventLocation.venueSlug || "",
+        address: event.eventLocation.address || "",
+        city: event.eventLocation.city || "",
+      },
+      tags: event.tags?.join("|") || "",
+      eventVisibility: event.eventVisibility || "public",
+      publishTime: event.publishTime || new Date().toISOString(),
+      refunds: event.refunds || "no",
+      validityDays: event.validityDays || 7,
+      eventImages: uploadedImageIds,
+      textContent: event.overviewContent?.text || "",
+      mediaContent: uploadedMediaIds,
+      userId: user.userId,
+    };
+    console.log("Data sent to API:", dataEvent);
       const eventResponse = await fetch("http://localhost:8080/api/events/create", {
         headers: {
           "Content-Type": "application/json",
@@ -156,22 +161,7 @@ const CRUDEvent = () => {
       const responseData = await eventResponse.json();
       const eventId = responseData.data.eventId || responseData;
 
-      if (stompClient && stompClient.connected && user?.userId) {
-        const notification = {
-          title: "Sự kiện mới",
-          message: `Bạn đã tạo sự kiện ${event.eventName} thành công!`,
-          userId: user.userId,
-          isRead: false,
-          createdAt: new Date().toISOString(),
-        };
-        stompClient.send("/app/private", {}, JSON.stringify(notification));
-      } else {
-        Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: 'Không thể gửi thông báo. Kết nối WebSocket không sẵn sàng.',
-        });
-      }
+     
 
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
@@ -242,7 +232,7 @@ const CRUDEvent = () => {
         overviewContent: {
           ...event.overviewContent,
           media: uploadedMediaIds.map((id, index) => ({
-            type: (event.overviewContent.media[index]?.type || "image"),
+            type: event.overviewContent.media[index]?.type || "image",
             url: id,
           })),
         },
@@ -370,18 +360,18 @@ const CRUDEvent = () => {
           <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
             <div className="bg-white p-4 rounded-lg shadow-md mb-4">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "Sự kiện chưa có tiêu đề"}
+                {event.eventName || "The event has no title"}
               </h2>
               <div className="flex items-center text-gray-500 mt-2">
                 <i className="far fa-calendar-alt mr-2"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Chưa thiết lập ngày giờ"}
+                    : "Not yet established date and time"}
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Bước</h3>
+            <h3 className="text-lg font-semibold mb-2">Steps</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -397,9 +387,9 @@ const CRUDEvent = () => {
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
                   <span>
-                    {step === "build" && "Xây dựng trang sự kiện"}
-                    {step === "tickets" && "Thêm vé"}
-                    {step === "publish" && "Xuất bản"}
+                    {step === "build" && "Build event"}
+                    {step === "tickets" && "Add ticket"}
+                    {step === "publish" && "Publish"}
                   </span>
                 </label>
               ))}

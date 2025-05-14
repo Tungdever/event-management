@@ -1,10 +1,8 @@
-import { FaBell, FaEnvelope } from "react-icons/fa";
 import { RiMenuLine } from "react-icons/ri";
-import React from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../Auth/api";
 import { useAuth } from "../Auth/AuthProvider";
-
+import Swal from "sweetalert2";
 const Navbar = ({ toggleSidebar }) => {
   return (
     <div className="py-1.5 sm:py-2 lg:py-2 px-4 sm:px-5 lg:px-6 bg-gray-100 flex items-center shadow shadow-black/5 sticky top-0 left-0 z-30 h-[45px] sm:h-[42px] lg:h-[55px]">
@@ -30,10 +28,20 @@ const ProfileDropdown = () => {
     try {
       await api.logout();
       logout();
-      alert("Logged out successfully");
+      
+      Swal.fire({
+        icon: "success",
+        title: "success",
+        text: "Logged out successfully",
+      });
       navigate("/login");
     } catch (error) {
       alert("Logout failed: " + (error.msg || "Server error"));
+      Swal.fire({
+        icon: "error",
+        title: "error",
+        text: "Logout failed",
+      });
     }
   };
 
@@ -59,22 +67,7 @@ const ProfileDropdown = () => {
         )}
       </div>
       <ul className="absolute right-0 mt-2 w-32 sm:w-36 lg:w-40 py-1 sm:py-1.5 bg-white rounded-md shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 pt-1 sm:pt-2 pointer-events-auto">
-        <li>
-          <a
-            href="#"
-            className="block px-3 sm:px-4 py-1 sm:py-2 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-200 text-xs sm:text-sm"
-          >
-            Main dashboard
-          </a>
-        </li>
-        <li>
-          <a
-            href="#"
-            className="block px-3 sm:px-4 py-1 sm:py-2 text-gray-600 hover:text-red-500 hover:bg-gray-50 transition-all duration-200 text-xs sm:text-sm"
-          >
-            Settings
-          </a>
-        </li>
+        
         <li>
           <a
             href="#"

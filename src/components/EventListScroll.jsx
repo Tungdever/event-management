@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import DOMPurify from "dompurify";
 import Loader from "./Loading";
 import { useAuth } from "../pages/Auth/AuthProvider";
+import FavoriteButton from "./FavoriteButton";
 
 const ListEventScroll = ({ events: propEvents }) => {
   const [events, setLocalEvents] = useState([]);
-  const [favoriteEvents, setFavoriteEvents] = useState(new Set()); // Lưu danh sách eventId yêu thích
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -34,86 +34,6 @@ const ListEventScroll = ({ events: propEvents }) => {
     }
   };
 
-  const getFavorites = async () => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch favorite events");
-      }
-      const data = await response.json();
-      const favoriteEventIds = new Set(data.map(event => event.eventId));
-      setFavoriteEvents(favoriteEventIds);
-    } catch (error) {
-      setError(error.message);
-      console.error("Error fetching favorite events:", error);
-    }
-  };
-
-  const addFavorites = async (eventId) => {
-    try {
-      const favoriteEvent = {
-        userId: user.userId,
-        eventId: eventId,
-      };
-      const response = await fetch("http://localhost:8080/api/favorites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(favoriteEvent),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add favorite event");
-      }
-      setFavoriteEvents(prev => new Set(prev).add(eventId));
-    } catch (error) {
-      setError(error.message);
-      console.error("Error adding favorite event:", error);
-    }
-  };
-
-  const removeFavorites = async (eventId) => {
-    try {
-      const favoriteEvent = {
-        userId: user.userId,
-        eventId: eventId,
-      };
-      const response = await fetch("http://localhost:8080/api/favorites", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(favoriteEvent),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to remove favorite event");
-      }
-      setFavoriteEvents(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(eventId);
-        return newSet;
-      });
-    } catch (error) {
-      setError(error.message);
-      console.error("Error removing favorite event:", error);
-    }
-  };
-
-  const toggleFavorite = (eventId) => {
-    if (favoriteEvents.has(eventId)) {
-      removeFavorites(eventId);
-    } else {
-      addFavorites(eventId);
-    }
-  };
-
   useEffect(() => {
     const initializeEvents = async () => {
       if (propEvents && propEvents.length > 0) {
@@ -122,12 +42,9 @@ const ListEventScroll = ({ events: propEvents }) => {
       } else {
         await fetchAllEvent();
       }
-      if (user) {
-        await getFavorites();
-      }
     };
     initializeEvents();
-  }, [propEvents, user]);
+  }, [propEvents]);
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -219,17 +136,7 @@ const ListEventScroll = ({ events: propEvents }) => {
                   className="relative w-full h-full bg-cover bg-center"
                   style={{ backgroundImage: `url(${event.eventImages[0]})` }}
                 >
-                  <i
-                    className={`fa-heart text-white absolute bottom-2 right-2 text-[24px] p-2 rounded-full cursor-pointer ${
-                      favoriteEvents.has(event.eventId)
-                        ? "fa-solid bg-red-500"
-                        : "fa-regular hover:bg-red-500"
-                    }`}
-                    onClick={(e) => {
-                      e.stopPropagation(); // Ngăn click vào icon kích hoạt handleEventClick
-                      toggleFavorite(event.eventId);
-                    }}
-                  ></i>
+                  {user && <FavoriteButton eventId={event.eventId} />}
                 </div>
               ) : (
                 <img
