@@ -85,19 +85,19 @@ const Overview = ({ setShowOverview, content, setContent }) => {
     return hasText;
   };
 
-  const handleMediaUpload = (event, type) => {
-    const files = Array.from(event.target.files);
-    const newMedia = files.map((file) => ({
-      type,
-      url: URL.createObjectURL(file),
-    }));
-    setMedia((prev) => {
-      const updatedMedia = [...prev, ...newMedia];
-      setContent({ text: content.text, media: updatedMedia });
-      return updatedMedia;
-    });
-  };
-
+const handleMediaUpload = (event, type) => {
+  const files = Array.from(event.target.files);
+  const newMedia = files.map((file) => ({
+    type,
+    file, // Lưu file gốc
+    url: URL.createObjectURL(file), // URL tạm thời để hiển thị
+  }));
+  setMedia((prev) => {
+    const updatedMedia = [...prev, ...newMedia];
+    setContent({ text: content.text, media: updatedMedia });
+    return updatedMedia;
+  });
+};
   const handleDeleteMedia = (index) => {
     setMedia((prev) => {
       const updatedMedia = prev.filter((_, i) => i !== index);
@@ -195,15 +195,7 @@ const Overview = ({ setShowOverview, content, setContent }) => {
             onChange={(e) => handleMediaUpload(e, "image")}
           />
         </label>
-        <label className="cursor-pointer border px-4 py-2 rounded flex items-center">
-          <FaVideo className="mr-2" /> Add video
-          <input
-            type="file"
-            accept="video/*"
-            className="hidden"
-            onChange={(e) => handleMediaUpload(e, "video")}
-          />
-        </label>
+        
       </div>
       <div className="mb-4">
         {media.map((item, index) => (

@@ -95,6 +95,13 @@ const Navbar = ({ setCityEvents }) => {
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
     { slug: "da-nang", name: "Đà Nẵng" },
+    { slug: "hai-phong", name: "Hải Phòng" },
+    { slug: "can-tho", name: "Cần Thơ" },
+    { slug: "nha-trang", name: "Nha Trang" },
+    { slug: "da-lat", name: "Đà Lạt" },
+    { slug: "binh-duong", name: "Bình Dương" },
+    { slug: "dong-nai", name: "Đồng Nai" },
+    { slug: "quang-ninh", name: "Quảng Ninh" },
   ];
 
   const fetchEventsByCity = async (citySlug) => {
@@ -233,7 +240,7 @@ const TopDestinations = () => {
           <a
             key={index}
             onClick={() => handleSearchByCity(city.key)}
-            className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base"
+            className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
           >
             <span>Things to do in {city.name}</span>
             <FaExternalLinkAlt className="text-xs sm:text-sm" />

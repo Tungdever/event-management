@@ -4,9 +4,10 @@ import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useLocation } from "react-router-dom";
 import Swal from 'sweetalert2';
-
+import Loader from "../../components/Loading";
 const EditEvent = () => {
   const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
   const eventId = location.state?.eventId || undefined;
   const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
@@ -190,6 +191,7 @@ const EditEvent = () => {
   };
 
   const handleEdit = async (event) => {
+    setIsLoading(true);
     try {
       const isFile = (item) =>
         item instanceof File ||
@@ -315,6 +317,7 @@ const EditEvent = () => {
       }
 
       const result = await response.json();
+      setIsLoading(false);
       Swal.fire({
         icon: 'success',
         title: 'Thành công',
@@ -326,6 +329,7 @@ const EditEvent = () => {
         title: 'Lỗi',
         text: `Không thể chỉnh sửa sự kiện: ${error.message}`,
       });
+      setIsLoading(false);
     }
   };
 
@@ -368,7 +372,11 @@ const EditEvent = () => {
   };
 
   return (
-    <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
+   <>
+      {isLoading ? (
+        <Loader />
+      ) : (
+         <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
       <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
         <div className="bg-white p-4 rounded-lg shadow-md mb-4">
           <h2 className="text-lg font-semibold">
@@ -383,8 +391,7 @@ const EditEvent = () => {
             </span>
           </div>
           <div className="flex items-center mt-4">
-            <button className="bg-gray-200 text-gray-7
-00 px-4 py-2 rounded-md mr-2">
+            <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
               Draft <i className="fas fa-caret-down ml-1"></i>
             </button>
             <a href="#" className="text-blue-600">
@@ -418,6 +425,8 @@ const EditEvent = () => {
       </aside>
       <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
     </div>
+      )}
+   </>
   );
 };
 

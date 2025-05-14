@@ -4,13 +4,12 @@ import Loader from "./Loading";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import DOMPurify from "dompurify";
+import FavoriteButton from "./FavoriteButton";
 
 const ListEventGrid = ({ events: propEvents }) => {
   const [events, setLocalEvents] = useState([]);
-  const [favoriteEvents, setFavoriteEvents] = useState(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [togglingFavorites, setTogglingFavorites] = useState(new Set());
   const navigate = useNavigate();
   const { user } = useAuth();
   const token = localStorage.getItem("token");
@@ -36,113 +35,6 @@ const ListEventGrid = ({ events: propEvents }) => {
     }
   };
 
-  const getFavorites = async () => {
-    if (!user || !user.userId) {
-      setLoading(false);
-      return;
-    }
-    try {
-      const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if (!response.ok) {
-        throw new Error("Failed to fetch favorite events");
-      }
-      const data = await response.json();
-      const favoriteEventIds = new Set(data.map((event) => event.eventId));
-      setFavoriteEvents(favoriteEventIds);
-    } catch (error) {
-      setError(error.message);
-      console.error("Error fetching favorite events:", error);
-    }
-  };
-
-  const addFavorites = async (eventId) => {
-    if (!user || !user.userId) {
-      setError("Please log in to add favorites");
-      return;
-    }
-    setTogglingFavorites((prev) => new Set(prev).add(eventId));
-    try {
-      const favoriteEvent = {
-        userId: user.userId,
-        eventId: eventId,
-      };
-      const response = await fetch("http://localhost:8080/api/favorites", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(favoriteEvent),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to add favorite event");
-      }
-      setFavoriteEvents((prev) => new Set(prev).add(eventId));
-    } catch (error) {
-      setError(error.message);
-      console.error("Error adding favorite event:", error);
-    } finally {
-      setTogglingFavorites((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(eventId);
-        return newSet;
-      });
-    }
-  };
-
-  const removeFavorites = async (eventId) => {
-    if (!user || !user.userId) {
-      setError("Please log in to remove favorites");
-      return;
-    }
-    setTogglingFavorites((prev) => new Set(prev).add(eventId));
-    try {
-      const favoriteEvent = {
-        userId: user.userId,
-        eventId: eventId,
-      };
-      const response = await fetch("http://localhost:8080/api/favorites", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(favoriteEvent),
-      });
-      if (!response.ok) {
-        throw new Error("Failed to remove favorite event");
-      }
-      setFavoriteEvents((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(eventId);
-        return newSet;
-      });
-    } catch (error) {
-      setError(error.message);
-      console.error("Error removing favorite event:", error);
-    } finally {
-      setTogglingFavorites((prev) => {
-        const newSet = new Set(prev);
-        newSet.delete(eventId);
-        return newSet;
-      });
-    }
-  };
-
-  const toggleFavorite = (eventId) => {
-    if (togglingFavorites.has(eventId)) return;
-    if (favoriteEvents.has(eventId)) {
-      removeFavorites(eventId);
-    } else {
-      addFavorites(eventId);
-    }
-  };
-
   useEffect(() => {
     const initializeEvents = async () => {
       if (propEvents && propEvents.length > 0) {
@@ -151,14 +43,9 @@ const ListEventGrid = ({ events: propEvents }) => {
       } else {
         await fetchAllEvent();
       }
-      if (user) {
-        await getFavorites();
-      } else {
-        setLoading(false);
-      }
     };
     initializeEvents();
-  }, [propEvents, user]);
+  }, [propEvents]);
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -251,22 +138,7 @@ const ListEventGrid = ({ events: propEvents }) => {
                   className="w-full h-full bg-cover bg-center group-hover:scale-102 transition-transform duration-300"
                   style={{ backgroundImage: `url(${event.eventImages[0]})` }}
                 >
-                  <button
-                    className={`absolute bottom-3 right-3 text-white text-xl px-2 py-1 rounded-full transition-all duration-200 ${
-                      favoriteEvents.has(event.eventId)
-                        ? "bg-red-500 hover:bg-red-600"
-                        : "bg-gray-800/50 hover:bg-red-500"
-                    } ${togglingFavorites.has(event.eventId) ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleFavorite(event.eventId);
-                    }}
-                    disabled={togglingFavorites.has(event.eventId)}
-                  >
-                    <i
-                      className={`fa-heart ${favoriteEvents.has(event.eventId) ? "fa-solid" : "fa-regular"}`}
-                    ></i>
-                  </button>
+                  {user && <FavoriteButton eventId={event.eventId} />}
                 </div>
               ) : (
                 <img

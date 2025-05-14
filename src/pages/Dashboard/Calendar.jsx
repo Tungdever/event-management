@@ -31,7 +31,7 @@ const Calendar = () => {
   useEffect(() => {
     fetchAllEvents();
     generateCalendar();
-  }, [currentMonth]);
+  }, []);
 
   const handleViewDetail = (eventId) => {
     navigate(`/event/${eventId}`);

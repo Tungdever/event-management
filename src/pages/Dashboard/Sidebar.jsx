@@ -24,7 +24,7 @@ const createMenuItems = (eventId) => [
     submenu: [
       { 
         title: "Teams", 
-        path: `/dashboard/my-team/${eventId ? `/${eventId}` : ''}`,
+        path: `/dashboard/my-team${eventId ? `/${eventId}` : ''}`,
         roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
       },
       { 
