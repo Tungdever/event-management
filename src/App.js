@@ -4,7 +4,7 @@ import EventDetail from "./pages/Event/EventDetailPage";
 import HomePage from "./pages/Event/HomePage";
 import SearchPage from "./pages/Event/SearchPage";
 import CalendarPage from "./pages/Dashboard/Calendar";
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -37,6 +37,7 @@ import AllEvent from "./pages/Event/PageViewAll";
 import SearchByType from "./pages/Event/SearchPageByType";
 import { AuthProvider } from "./pages/Auth/AuthProvider";
 import DashboardPage from "./pages/AdminBoard/DashboardPage";
+import OrganizerDashboard from "./pages/Dashboard/DashboardOrganizer";
 import ReportPage from "./pages/AdminBoard/ReportPage";
 import UserPage from "./pages/AdminBoard/UserPage";
 import RolePage from "./pages/AdminBoard/RolePage";
@@ -51,6 +52,12 @@ import AssignedEvents from "./pages/Dashboard/AssignedEvents";
 import MyTeamEvents from "./pages/Dashboard/MyTeamEvents";
 import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 
+import PaymentResult from "./pages/Checkout/PaymentResult"
+import MyInvoice from "./pages/Booking/MyBooking";
+import ReportOrder from "./pages/report/order"
+import ViewTicket from "./pages/Ticket/ViewTicket"
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const MainLayout = () => {
   const location = useLocation();
   const { user } = useAuth();
@@ -74,15 +81,19 @@ const MainLayout = () => {
     "/event-like",
     "/createEvent",
     "/all-event",
+    "/payment-result",
+    "/myinvoices",
     "/notification",
-    
   ].includes(location.pathname) ||
     location.pathname.startsWith("/event/") ||
     location.pathname.startsWith("/list-event-search-by")||
     location.pathname.startsWith("/profile-organizer");
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets");
 
   const isDashboardPage = [
     "/dashboard",
+    "/dashboard/events",
+    "/dashboard/reports",
     "/chat",
     "/calendar",
     "/notification",
@@ -104,6 +115,8 @@ const MainLayout = () => {
     "/dashboard/ticket",
     "/dashboard/my-team",
     "/dashboard/event/detail",
+    "/dashboard/order",
+    "/dashboard/test",
   ];
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
     location.pathname.startsWith(path)
@@ -194,6 +207,30 @@ const MainLayout = () => {
                   }
                 />
                 <Route
+                  path="/myinvoices"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <MyInvoice />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/view-tickets/:orderCode"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <ViewTicket />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/payment-result"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <PaymentResult />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
                   path="/profile-organizer/:organizerName"
                   element={
                     <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
@@ -215,6 +252,15 @@ const MainLayout = () => {
                 <Route
                   path="/dashboard"
                   element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <OrganizerDashboard />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/dashboard/events"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
                     <RoleBasedRouteGroup
                       allowedRoles={[
                         "ORGANIZER",
@@ -224,6 +270,14 @@ const MainLayout = () => {
                         "CHECK-IN STAFF",
                       ]}
                     >
+                      <Dashboard />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/dashboard/reports"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
                       <Dashboard />
                     </RoleBasedRouteGroup>
                   }
@@ -512,6 +566,7 @@ function App() {
   return (
     <Router>
       <AuthProvider>
+        <ToastContainer />
         <MainLayout />
       </AuthProvider>
     </Router>

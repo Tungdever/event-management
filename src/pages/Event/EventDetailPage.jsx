@@ -535,6 +535,7 @@ const EventDetail = () => {
         <Checkout
           onClose={() => setShowPopup(false)}
           selectedTickets={getSelectedTicketsData()}
+          eventData={eventData}
         />
       )}
       <ListEventScroll />

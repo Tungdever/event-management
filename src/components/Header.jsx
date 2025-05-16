@@ -204,8 +204,8 @@ const Header = () => {
     navigate("/event-like");
     setIsMobileMenuOpen(false);
   };
-  const handleMyTicket = () => {
-    navigate("/myticket");
+  const handleMyInvoices = () => {
+    navigate("/myinvoices");
     setIsMobileMenuOpen(false);
   };
   const handleDashboard = () => {

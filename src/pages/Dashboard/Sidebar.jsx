@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";  
-import { FaChevronDown, FaTachometerAlt } from "react-icons/fa"; 
+import { FaChevronDown, FaTachometerAlt, FaUsers, FaChartLine } from "react-icons/fa"; 
 import { MdEvent } from "react-icons/md";
 import { useAuth } from "../Auth/AuthProvider";
 

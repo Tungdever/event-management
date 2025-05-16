@@ -3,22 +3,28 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "@tabler/icons-webfont/dist/tabler-icons.min.css";
 import "./sponsor.css";
-import "jspdf-autotable";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
+import * as XLSX from 'xlsx';
+import { pdf } from '@react-pdf/renderer';
 import "../../fonts/Times New Roman";
 import axios from "axios";
-import { ConciergeBell } from "lucide-react";
+import { useParams } from "react-router-dom";
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import SponsorPDFDocument from './SponsorPDFDocument';
+import { toast } from 'react-toastify';
 const Sponsor = () => {
-  const [selectedLevel, setSelectedLevel] = useState("Select level");
+  const { eventId } = useParams();
+  const [selectedLevel, setSelectedLevel] = useState("");
   const [isOpenExport, setIsOpenExport] = useState(false);
   const [isOpenLevel, setIsOpenLevel] = useState(false);
   const [selectedSponsor, setSelectedSponsor] = useState(null);
   const [empty, setEmpty] = useState({});
   const dropdownExportRef = useRef(null);
   const dropdownLevelRef = useRef(null);
+  const token = localStorage.getItem('token');
+  const [searchTerm, setSearchTerm] = useState("");
+
+
 
   // =====================================================================
   // Màu sắc và icon của từng Level
@@ -31,6 +37,16 @@ const Sponsor = () => {
   // =====================================================================
   // Danh sách sponsor
   const [sponsors, setSponsors] = useState([]);
+  const filteredSponsors = sponsors.filter((sponsor) => {
+    const matchesSearch =
+      sponsor.sponsorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sponsor.sponsorEmail?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesLevel =
+      selectedLevel === "" || sponsor.sponsorLevel === selectedLevel;
+
+    return matchesSearch && matchesLevel;
+  });
   const [newSponsor, setNewSponsor] = useState({
     sponsorName: "",
     sponsorLogoFile: "",
@@ -52,13 +68,24 @@ const Sponsor = () => {
     sponsorStartDate: "",
     sponsorEndDate: "",
   });
-  useEffect(() => {
+  const fetchSponsors = async () => {
     axios
-      .get("http://localhost:8080/api/v1/myevent/sponsor?eid=1")
+      .get(`http://localhost:8080/api/v1/myevent/${eventId}/sponsor`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
         setSponsors(response.data.data);
       })
-      .catch((error) => console.error("Lỗi:", error));
+      .catch((error) => {
+        const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
+        toast.error(errorMessage);
+      });
+  };
+  
+  useEffect(() => {
+    fetchSponsors();
   }, []);
   console.log(sponsors);
 
@@ -80,9 +107,10 @@ const Sponsor = () => {
     setIsOpenExport(false);
   };
   const handleLevel = (option) => {
-    setSelectedLevel(option);
+    setSelectedLevel(option === "All Levels" ? "" : option);
     setIsOpenLevel(false);
   };
+
 
   // =====================================================================
   // Kiểm tra dữ liệu nhập (Validation)
@@ -153,28 +181,35 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/v1/myevent/sponsor?eid=1",
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data"
+          }
         }
       );
       console.log("Upload thành công:", response.data);
-
-      // Cập nhật danh sách tài trợ ngay sau khi upload thành công
-      setSponsors((prevSponsors) => [
-        ...prevSponsors,
-        { ...newSponsor, sponsorId: String(prevSponsors.length + 1) },
-      ]);
-
-      // Reset form
-      setNewSponsor({});
-      setEmpty({});
-
-      // Đóng modal
-      document.querySelector("#add-sponsor .btn-close").click();
+      if (response.data.statusCode === "1" || response.data.statusCode === 1) {
+        toast.success(response.data.msg);
+        // Cập nhật danh sách tài trợ ngay sau khi upload thành công
+        setSponsors((prevSponsors) => [
+          ...prevSponsors,
+          { ...newSponsor, sponsorId: String(prevSponsors.length + 1) },
+        ]);
+        // Reset form
+        setNewSponsor({});
+        setEmpty({});
+        // Đóng modal
+        document.querySelector("#add-sponsor .btn-close").click();
+      }
+      else {
+        toast.error(response.data.msg);
+      }
     } catch (error) {
-      console.error("Lỗi tải file:", error);
+      const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
+      toast.error(errorMessage);
     }
   };
   const editSponsorHandle = async (e) => {
@@ -198,30 +233,59 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.put(
-        "http://localhost:8080/api/v1/myevent/sponsor?eid=1",
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor`,
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data" },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`
+          }
         }
       );
-      console.log("Upload thành công:", response.data);
-      setSponsors((prevSponsors) =>
-        prevSponsors.map((sponsor) =>
-          sponsor.sponsorId === selectedSponsor.sponsorId ? selectedSponsor : sponsor
-        )
-      );
+      if (response.data.statusCode === "1" || response.data.statusCode === 1) {
+        toast.success(response.data.msg);
+        setSponsors((prevSponsors) =>
+          prevSponsors.map((sponsor) =>
+            sponsor.sponsorId === selectedSponsor.sponsorId ? selectedSponsor : sponsor
+          )
+        );
 
-      // Reset form
-      setSelectedSponsor(null);
-      setEmpty({});
-      // Đóng modal
-      document.querySelector("#edit-sponsor .btn-close").click();
+        // Reset form
+        setSelectedSponsor(null);
+        setEmpty({});
+        // Đóng modal
+        document.querySelector("#edit-sponsor .btn-close").click();
+      }
+      else {
+        toast.error(response.data.msg);
+      }
+
     } catch (error) {
-      console.error("Lỗi tải file:", error);
+      const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
+      toast.error(errorMessage);
     }
 
   };
-  const handleDeleteSponsor = (selectedSponsor) => {
+  const handleDeleteSponsor = async (selectedSponsor) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+      if (response.data.statusCode === "1" || response.data.statusCode === 1) {
+        toast.success(response.data.msg);
+      }
+      else {
+        toast.error(response.data.msg);
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
+      toast.error(errorMessage);
+    }
     const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsorId !== selectedSponsor.sponsorId);
     setSponsors(updatedSponsors);
     setSelectedSponsor(null);
@@ -231,10 +295,11 @@ const Sponsor = () => {
   // Xử lý Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalPages = Math.ceil(sponsors.length / rowsPerPage);
+  const totalPages = Math.ceil(filteredSponsors.length / rowsPerPage);
   const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, sponsors.length);
-  const currentSponsors = Array.isArray(sponsors) ? sponsors.slice(startIndex, endIndex) : 1;
+  const endIndex = Math.min(startIndex + rowsPerPage, filteredSponsors.length);
+  const currentSponsors = filteredSponsors.slice(startIndex, endIndex);
+
   const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
   const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handleRowsPerPageChange = (event) => {
@@ -244,39 +309,61 @@ const Sponsor = () => {
 
   // =====================================================================
   // Export dữ liệu (PDF, Excel)
-  const exportToPDF = () => {
-    const doc = new jsPDF();
-    doc.setFont("Times New Roman");
-    doc.addFont('Times New Roman.ttf', 'Times New Roman', 'normal');
-    doc.text("Sponsor List", 14, 10);
+  const exportToPDF = async () => {
+    const blob = await pdf(<SponsorPDFDocument sponsors={sponsors} />).toBlob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sponsors.pdf';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const exportToExcel = async () => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet('Sponsors');
 
-    const tableColumn = ["Name", "Level", "Email", "Contact", "Phone", "Website"];
-    const tableRows = sponsors.map((sponsor) => [
-      sponsor.sponsorName,
-      sponsor.sponsorLevel,
-      sponsor.sponsorEmail,
-      sponsor.sponsor_contact,
-      sponsor.sponsorPhone,
-      sponsor.sponsorWebsite,
-    ]);
+    // Header
+    worksheet.columns = [
+      { header: 'ID', key: 'sponsorId', width: 10 },
+      { header: 'Name', key: 'sponsorName', width: 20 },
+      { header: 'Email', key: 'sponsorEmail', width: 30 },
+      { header: 'Phone', key: 'sponsorPhone', width: 15 },
+      { header: 'Website', key: 'sponsorWebsite', width: 30 },
 
-    autoTable(doc, {
-      head: [tableColumn],
-      body: tableRows,
-      startY: 20,
+      { header: 'Address', key: 'sponsorAddress', width: 30 },
+      { header: 'Level', key: 'sponsorLevel', width: 20 },
+      { header: 'Representative Name', key: 'sponsorRepresentativeName', width: 30 },
+      { header: 'Representative Position', key: 'sponsorRepresentativePosition', width: 20 },
+
+      { header: 'Sponsor Type', key: 'sponsorType', width: 15 },
+      { header: 'Amount', key: 'sponsorAmount', width: 20 },
+      { header: 'Contribution', key: 'sponsorContribution', width: 20 },
+
+      { header: 'Status', key: 'sponsorStatus', width: 15 },
+      { header: 'Start Date', key: 'sponsorStartDate', width: 20 },
+      { header: 'End Date', key: 'sponsorEndDate', width: 20 },
+    ];
+
+    // Add data
+    sponsors.forEach(s => {
+      worksheet.addRow(s);
     });
 
-    doc.save("sponsor_list.pdf");
-  };
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(sponsors);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Sponsors");
+    // Style header
+    worksheet.getRow(1).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+      cell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF4CAF50' },
+      };
+      cell.alignment = { horizontal: 'center' };
+    });
 
-    // Xuất file
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    saveAs(data, "sponsor_list.xlsx");
+    const buffer = await workbook.xlsx.writeBuffer();
+    const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    saveAs(blob, 'sponsors.xlsx');
   };
   const handleExport = (option) => {
     if (option === "Export as PDF") {
@@ -286,6 +373,74 @@ const Sponsor = () => {
     }
     setIsOpenExport(false);
   };
+
+  // =====================================================================
+  // Xử lí import
+  const fileInputRef = useRef();
+  const handleImport = (e) => {
+    e.preventDefault();
+    fileInputRef.current.click();
+  }
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    console.log("Selected file:", file);
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const data = new Uint8Array(evt.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rawData = XLSX.utils.sheet_to_json(sheet); // Đọc dòng tiêu đề làm key
+        console.log("Raw data:", rawData);
+
+        const sponsorsFile = rawData.map((item) => ({
+          sponsorId: item["ID"],
+          sponsorName: item["Name"],
+          sponsorEmail: item["Email"],
+          sponsorPhone: item["Phone"],
+          sponsorWebsite: item["Website"],
+          sponsorAddress: item["Address"],
+          sponsorLevel: item["Level"],
+          sponsorRepresentativeName: item["Representative Name"],
+          sponsorRepresentativePosition: item["Representative Position"],
+          sponsorType: item["Sponsor Type"],
+          sponsorAmount: item["Amount"],
+          sponsorContribution: item["Contribution"],
+          sponsorStatus: item["Status"],
+          sponsorStartDate: item["Start Date"],
+          sponsorEndDate: item["End Date"],
+        }));
+
+        // Gọi API
+        const response = await axios.post(
+          `http://localhost:8080/api/v1/myevent/${eventId}/sponsors/import`,
+          sponsorsFile,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.statusCode === 1 || response.data.statusCode === "1") {
+          toast.success(response.data.msg);
+          fetchSponsors();
+        } else {
+          toast.error(response.data.msg);
+        }
+
+      } catch (error) {
+        console.error(error);
+        const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
+        toast.error(errorMessage);
+      }
+    };
+    reader.readAsArrayBuffer(file); 
+  };
+
 
   // =====================================================================
   // Xử lí khi click outside dropdown
@@ -664,7 +819,7 @@ const Sponsor = () => {
                     <div className="custom-body-header p-3">
                       <div className="file-name-icon">
                         <a href="#" className="custom-avatar-2">
-                          <img src={selectedSponsor.sponsorLogo} className="img-fluid" alt="img"></img>
+                          <img src={`http://localhost:8080/api/storage/view/${selectedSponsor.sponsorLogo}`} className="img-fluid" alt="img"></img>
                         </a>
                         <div>
                           <p className="custom-text mb-0">{selectedSponsor.sponsorName}</p>
@@ -765,7 +920,7 @@ const Sponsor = () => {
                             <p className="text-gray-9">{selectedSponsor.sponsorEndDate}</p>
                           </div>
                         </div>
-                      </div>                      
+                      </div>
                     </div>
                   </div>
                 </>
@@ -1114,6 +1269,20 @@ const Sponsor = () => {
 
           </div>
           <div className="mb-2">
+            <a href="#" className="btn btn-primary mr-2" onClick={handleImport}>
+              <i className="ti ti-file-arrow-left"></i> Import
+            </a>
+            <input
+              type="file"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              accept=".xlsx, .xls"
+              onChange={handleFileChange}
+            />
+
+          </div>
+
+          <div className="mb-2">
             <a href="#" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-sponsor">
               <i className="ti ti-circle-plus me-2"></i> Add Sponsor
             </a>
@@ -1201,11 +1370,11 @@ const Sponsor = () => {
           </h5>
           <div className="custom-dropdown" ref={dropdownLevelRef}>
             <button className="custom-dropdown-toggle" onClick={toggleDropdownLevel}>
-              {selectedLevel}
+              {selectedLevel === "" ? "All Levels" : selectedLevel}
             </button>
             {isOpenLevel && (
               <ul className="custom-dropdown-menu">
-                {["Diamond", "Gold", "Silver"].map((option) => (
+                {["All Levels", "Diamond", "Gold", "Silver"].map((option) => (
                   <li key={option} onClick={() => handleLevel(option)}>
                     {option}
                   </li>
@@ -1232,7 +1401,14 @@ const Sponsor = () => {
           <div className="col-custom">
             <div className="dataTables_filter">
               <label>
-                <input type="search" className="form-control form-control-sm" placeholder="Search" aria-controls="DataTables_Table_0"></input>
+                <input
+                  type="search"
+                  value={searchTerm}
+                  className="form-control form-control-sm"
+                  placeholder="Search by sponsor name, email"
+                  aria-controls="DataTables_Table_0"
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
               </label>
             </div>
           </div>
@@ -1258,7 +1434,7 @@ const Sponsor = () => {
                     <div className="avt-name">
                       <div className="avatar">
                         <img
-                          src={sponsor.sponsorLogo}
+                          src={`http://localhost:8080/api/storage/view/${sponsor.sponsorLogo}`}
                           alt={sponsor.sponsorName}
                           className="img-fluid"
                           style={{ width: "28px", height: "28px", objectFit: "cover" }}
@@ -1289,7 +1465,7 @@ const Sponsor = () => {
                         <i className="ti ti-eye"></i>
                       </button>
 
-                      <button className="btn btn-edit" data-bs-toggle="modal" data-bs-target="#edit-sponsor" onClick={() => {setSelectedSponsor(sponsor);console.log(selectedSponsor)}}>
+                      <button className="btn btn-edit" data-bs-toggle="modal" data-bs-target="#edit-sponsor" onClick={() => { setSelectedSponsor(sponsor); console.log(selectedSponsor) }}>
                         <i className="ti ti-pencil"></i>
                       </button>
                       <button className="btn btn-delete" onClick={() => handleDeleteSponsor(sponsor)}>

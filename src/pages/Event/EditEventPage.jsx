@@ -237,7 +237,7 @@ const EditEvent = () => {
             : segment.speaker?.speakerImage || null;
 
           segmentData.push({
-            segmentId: segment.segmentId || null,
+            segmentId: segment.segmentId || null, // Nếu không có segmentId thì để null
             segmentTitle: segment.segmentTitle || "",
             speaker: segment.speaker
               ? {
