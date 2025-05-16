@@ -32,16 +32,7 @@ const createMenuItems = (eventId) => [
         path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
         roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
       },
-      { 
-        title: "Speaker", 
-        path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`,
-        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"] 
-      },
-      { 
-        title: "Session", 
-        path: `/dashboard/session${eventId ? `/${eventId}` : ''}`,
-        roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
-      },
+     
       { 
         title: "Ticket", 
         path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,

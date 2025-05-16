@@ -7,6 +7,7 @@ import {
   FaTrashAlt,
   FaImage,
   FaVideo,
+  FaUnderline 
 } from "react-icons/fa";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -146,15 +147,15 @@ const handleMediaUpload = (event, type) => {
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
             >
-              <FaTrashAlt /> {/* Thay FaLink bằng FaTrashAlt để đồng bộ với yêu cầu xóa */}
+              <FaUnderline />
             </button>
-            <button
+            {/* <button
               type="button"
               onClick={() => editor.chain().focus().toggleBulletList().run()}
               className={`p-2 rounded ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
             >
               <FaListUl />
-            </button>
+            </button> */}
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleLink({ href: prompt('Enter URL') }).run()}

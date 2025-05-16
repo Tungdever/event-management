@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from "react";
 
 const vietnamCities = [
- { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
-    { slug: "ha-noi", name: "Hà Nội" },
-    { slug: "da-nang", name: "Đà Nẵng" },
-    { slug: "hai-phong", name: "Hải Phòng" },
-    { slug: "can-tho", name: "Cần Thơ" },
-    { slug: "nha-trang", name: "Nha Trang" },
-    { slug: "da-lat", name: "Đà Lạt" },
-    { slug: "binh-duong", name: "Bình Dương" },
-    { slug: "dong-nai", name: "Đồng Nai" },
-    { slug: "quang-ninh", name: "Quảng Ninh" },
+  { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
+  { slug: "ha-noi", name: "Hà Nội" },
+  { slug: "da-nang", name: "Đà Nẵng" },
+  { slug: "hai-phong", name: "Hải Phòng" },
+  { slug: "can-tho", name: "Cần Thơ" },
+  { slug: "nha-trang", name: "Nha Trang" },
+  { slug: "da-lat", name: "Đà Lạt" },
+  { slug: "binh-duong", name: "Bình Dương" },
+  { slug: "dong-nai", name: "Đồng Nai" },
+  { slug: "quang-ninh", name: "Quảng Ninh" },
 ];
 
 const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
@@ -57,14 +57,25 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
 
   const isFormValid = () => {
     const hasDate = eventLocation.date && eventLocation.date.trim() !== "";
-    const hasStartTime = eventLocation.startTime && eventLocation.startTime.trim() !== "";
-    const hasEndTime = eventLocation.endTime && eventLocation.endTime.trim() !== "";
+    const hasStartTime =
+      eventLocation.startTime && eventLocation.startTime.trim() !== "";
+    const hasEndTime =
+      eventLocation.endTime && eventLocation.endTime.trim() !== "";
 
     if (eventLocation.locationType === "venue") {
-      const hasVenueName = eventLocation.venueName && eventLocation.venueName.trim() !== "";
-      const hasAddress = eventLocation.address && eventLocation.address.trim() !== "";
+      const hasVenueName =
+        eventLocation.venueName && eventLocation.venueName.trim() !== "";
+      const hasAddress =
+        eventLocation.address && eventLocation.address.trim() !== "";
       const hasCity = eventLocation.city && eventLocation.city.trim() !== "";
-      return hasDate && hasStartTime && hasEndTime && hasVenueName && hasAddress && hasCity;
+      return (
+        hasDate &&
+        hasStartTime &&
+        hasEndTime &&
+        hasVenueName &&
+        hasAddress &&
+        hasCity
+      );
     }
 
     return hasDate && hasStartTime && hasEndTime;
@@ -110,10 +121,12 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
     <div>
       {showDetail ? (
         <div className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg border border-blue-500 max-w-full sm:max-w-[600px] lg:max-w-[710px] w-full mb-4">
-          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">Date and Location</h1>
+          <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-4 sm:mb-6">
+            Date and Location
+          </h1>
           <div className="mb-4 sm:mb-6">
             <label className="block text-gray-700 text-sm sm:text-base lg:text-lg mb-2">
-              Date and time <span className="text-red-500">*</span>
+              Date and time
             </label>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
               <div className="w-full">
@@ -125,7 +138,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                   className="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 lg:p-3 text-sm sm:text-base"
                 />
                 {!eventLocation.date && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">Date is required</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    Date is required
+                  </p>
                 )}
               </div>
               <div className="w-full">
@@ -137,7 +152,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                   className="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 lg:p-3 text-sm sm:text-base"
                 />
                 {!eventLocation.startTime && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">Start time is required</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    Start time is required
+                  </p>
                 )}
               </div>
               <div className="w-full">
@@ -149,12 +166,16 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                   className="w-full border border-gray-300 rounded-lg p-2 sm:p-2.5 lg:p-3 text-sm sm:text-base"
                 />
                 {!eventLocation.endTime && (
-                  <p className="text-red-500 text-xs sm:text-sm mt-1">End time is required</p>
+                  <p className="text-red-500 text-xs sm:text-sm mt-1">
+                    End time is required
+                  </p>
                 )}
               </div>
             </div>
           </div>
-          <label className="block text-gray-700 text-sm sm:text-base lg:text-lg mb-2">Location</label>
+          <label className="block text-gray-700 text-sm sm:text-base lg:text-lg mb-2">
+            Location
+          </label>
           <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mb-2 sm:mb-4">
             <button
               className={`flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${
@@ -195,7 +216,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                     className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
                   />
                   {!eventLocation.venueName && (
-                    <p className="text-red-500 text-xs sm:text-sm mt-1">Venue name is required</p>
+                    <p className="text-red-500 text-xs sm:text-sm mt-1">
+                      Venue name is required
+                    </p>
                   )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
@@ -212,7 +235,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                       className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
                     />
                     {!eventLocation.address && (
-                      <p className="text-red-500 text-xs sm:text-sm mt-1">Address is required</p>
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">
+                        Address is required
+                      </p>
                     )}
                   </div>
                   <div>
@@ -233,7 +258,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
                       ))}
                     </select>
                     {!eventLocation.city && (
-                      <p className="text-red-500 text-xs sm:text-sm mt-1">City is required</p>
+                      <p className="text-red-500 text-xs sm:text-sm mt-1">
+                        City is required
+                      </p>
                     )}
                   </div>
                 </div>
@@ -242,7 +269,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
           )}
           <button
             className={`mt-4 px-4 sm:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg text-sm sm:text-base ${
-              isFormValid() ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              isFormValid()
+                ? "bg-blue-500 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
             onClick={handleComplete}
             disabled={!isFormValid()}
@@ -252,36 +281,44 @@ const DatetimeLocation = ({ locationData, onLocationUpdate }) => {
         </div>
       ) : (
         <div
-          className="bg-white p-4 sm:p-6 lg:p-8 rounded-lg border border-blue-500 max-w-full sm:max-w-[600px] lg:max-w-[710px] w-full mb-4 cursor-pointer"
+          className="bg-white p-4 sm:p-5 lg:p-6 rounded-xl border border-blue-400 max-w-full sm:max-w-[600px] lg:max-w-[710px] w-full mb-4 cursor-pointer shadow  transition"
           onClick={() => setShowDetail(true)}
         >
-          <div className="flex flex-col sm:flex-row justify-start items-start sm:items-center mb-4 space-y-3 sm:space-y-0">
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold">Date and time</h2>
-            <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold sm:ml-8 lg:ml-16">Location</h2>
+          <div className="flex flex-col sm:flex-row justify-start items-start sm:items-center mb-3 space-y-2 sm:space-y-0">
+            <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800">
+              Date and Time
+            </h2>
+            <h2 className="text-base sm:text-lg lg:text-xl font-semibold text-gray-800 sm:ml-6 lg:ml-12">
+              Location
+            </h2>
           </div>
-          <div className="flex flex-col sm:flex-row justify-start items-start sm:items-start space-y-3 sm:space-y-0">
+          <div className="flex flex-col sm:flex-row justify-start items-start sm:items-start space-y-2 sm:space-y-0">
             <div className="flex items-start">
-              <i className="far fa-calendar-alt text-base sm:text-lg lg:text-xl mr-2"></i>
+              <i className="far fa-calendar-alt text-sm sm:text-base lg:text-base text-blue-500 mr-2"></i>
               <div>
-                <p className="font-medium text-sm sm:text-base lg:text-lg">{eventLocation.date || "Not set"}</p>
-                <p className="text-gray-500 text-xs sm:text-sm">
+                <p className="font-medium text-xs sm:text-sm lg:text-base text-gray-800">
+                  {eventLocation.date || "Not set"}
+                </p>
+                <p className="text-gray-600 text-xs sm:text-xs">
                   {eventLocation.startTime && eventLocation.endTime
                     ? `${eventLocation.startTime} - ${eventLocation.endTime}`
                     : "Time not set"}
                 </p>
               </div>
             </div>
-            <div className="flex items-start sm:ml-6 lg:ml-[90px]">
-              <i className="fas fa-map-marker-alt text-base sm:text-lg lg:text-xl mr-2"></i>
+            <div className="flex items-start sm:ml-4 lg:ml-12">
+              <i className="fas fa-map-marker-alt text-sm sm:text-base lg:text-base text-blue-500 mr-2"></i>
               <div>
                 {eventLocation.locationType === "online" ? (
-                  <p className="font-medium text-sm sm:text-base lg:text-lg">Online Event</p>
+                  <p className="font-medium text-xs sm:text-sm lg:text-base text-gray-800">
+                    Online Event
+                  </p>
                 ) : (
-                  <p className="font-medium text-sm sm:text-base lg:text-lg">
+                  <p className="font-medium text-xs sm:text-sm lg:text-base text-gray-800">
                     {eventLocation.venueName
-                      ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(
-                          eventLocation.city
-                        )}`
+                      ? `${eventLocation.venueName}, ${
+                          eventLocation.address
+                        }, ${getCityDisplayName(eventLocation.city)}`
                       : "Location not set"}
                   </p>
                 )}

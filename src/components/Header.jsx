@@ -14,6 +14,7 @@ const LocationDropdown = ({ onLocationChange }) => {
   const dropdownRef = useRef(null);
  
   const locations = [
+    {slug:"all-locations",name:"All-locations"},
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
     { slug: "da-nang", name: "Đà Nẵng" },

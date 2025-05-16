@@ -116,7 +116,7 @@ const MainLayout = () => {
   };
 
 
-  const hideChatBubbleOnPages = ["/createEvent"].includes(location.pathname);
+  const hideChatBubbleOnPages = ["/createEvent", "/chat"].includes(location.pathname);
 
   return (
     <WebSocketProvider>

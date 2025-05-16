@@ -167,6 +167,49 @@ const Navbar = ({ setCityEvents }) => {
 const TopDestinations = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
+  const [topCities, setTopCities] = useState([]);
+
+  // Danh sách ánh xạ slug và tên thành phố
+  const locations = [
+    { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
+    { slug: "ha-noi", name: "Hà Nội" },
+    { slug: "da-nang", name: "Đà Nẵng" },
+    { slug: "hai-phong", name: "Hải Phòng" },
+    { slug: "can-tho", name: "Cần Thơ" },
+    { slug: "nha-trang", name: "Nha Trang" },
+    { slug: "da-lat", name: "Đà Lạt" },
+    { slug: "binh-duong", name: "Bình Dương" },
+    { slug: "dong-nai", name: "Đồng Nai" },
+    { slug: "quang-ninh", name: "Quảng Ninh" },
+    {slug:"bac-lieu",name:"Bạc Liêu"}
+  ];
+
+  // Fetch top cities từ API
+  useEffect(() => {
+    const fetchTopCities = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:8080/api/events/search/top-cities-popular"
+        );
+        const cities = await response.json();
+        setTopCities(cities);
+      } catch (error) {
+        console.error("Lỗi khi lấy danh sách thành phố:", error);
+        
+        setTopCities([
+          "Đà Nẵng",
+          "TP. Hồ Chí Minh",
+          "Hà Nội",
+          "Bạc Liêu",
+          "Hải Phòng",
+          "Nha Trang",
+          "Cần Thơ",
+          "Quảng Ninh",
+        ]);
+      }
+    };
+    fetchTopCities();
+  }, []);
 
   const scroll = (direction) => {
     if (scrollRef.current) {
@@ -181,21 +224,30 @@ const TopDestinations = () => {
 
   const handleSearchByCity = async (city) => {
     try {
-      const cityName = city.trim().toLowerCase();
-      const response = await fetch(
-        `http://localhost:8080/api/events/search/by-city/${cityName}`
+      // Tìm slug tương ứng với tên thành phố
+      const cityObj = locations.find(
+        (loc) => loc.name.toLowerCase() === city.trim().toLowerCase()
       );
-      const listevent = await response.json();
-      navigate("/search", { state: { events: listevent } });
+      if (!cityObj) {
+        console.error(`Không tìm thấy slug cho thành phố: ${city}`);
+        return;
+      }
+      const citySlug = cityObj.slug;
+
+      const response = await fetch(
+        `http://localhost:8080/api/events/search/by-city/${citySlug}`
+      );
+      const listEvent = await response.json();
+      navigate("/search", { state: { events: listEvent } });
     } catch (error) {
-      console.error("Error fetching events:", error);
+      console.error("Lỗi khi tìm kiếm sự kiện:", error);
     }
   };
 
   return (
     <div className="bg-gray-50 text-gray-900 w-full max-w-[1280px] mx-auto p-4 sm:p-6">
       <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-center mb-4 sm:mb-6">
-        Top destinations in Viet Nam
+       Top destination in Vietnam
       </h1>
       <div className="relative">
         <div
@@ -233,16 +285,16 @@ const TopDestinations = () => {
         </button>
       </div>
       <h2 className="text-base sm:text-lg lg:text-xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4">
-        Popular cities
+        Popular city
       </h2>
       <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
-        {popularCities.map((city, index) => (
+        {topCities.map((city, index) => (
           <a
             key={index}
-            onClick={() => handleSearchByCity(city.key)}
+            onClick={() => handleSearchByCity(city)}
             className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
           >
-            <span>Things to do in {city.name}</span>
+            <span>Events at {city}</span>
             <FaExternalLinkAlt className="text-xs sm:text-sm" />
           </a>
         ))}

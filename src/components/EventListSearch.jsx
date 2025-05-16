@@ -66,7 +66,7 @@ const EventList = ({ event }) => {
               </div>
               <p className="text-gray-600">
                 <i className="fa-solid fa-location-dot mr-2 text-orange-300"></i>
-                 {getLocation(event.eventLocation)}
+                 {getLocation(eventItem.eventLocation)}
               </p>
               <div className="flex items-center text-gray-600 mt-1">
                 <FaUserFriends className="mr-2 text-blue-500" /> {eventItem.eventHost}

@@ -1,10 +1,9 @@
 import { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-
+import Swal from "sweetalert2";
 const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
-  const getCloudinaryUrl = (publicId) =>
-    publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
+  const getCloudinaryUrl = (publicId) => publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
 
   const initializeImages = (images) => {
     return images.map((item) => {
@@ -22,7 +21,12 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
     if (files.length + images.length > 3) {
-      alert("Bạn chỉ có thể upload tối đa 3 ảnh.");
+      
+      Swal.fire({
+              icon: "warning",
+              title: "Warning",
+              text: "You can only upload up to 3 photos.",
+            });
       return;
     }
 
@@ -51,10 +55,10 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
 
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
-      <h1 className="text-2xl font-semibold mb-4">Thêm ảnh</h1>
+      <h1 className="text-2xl font-semibold mb-4">Add image</h1>
 
       <div className="mb-6">
-        <h2 className="text-xl font-semibold mb-2">Ảnh</h2>
+        <h2 className="text-xl font-semibold mb-2">Image</h2>
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mb-2">
           <img
             src="https://mybic.vn/uploads/news/default/no-image.png"
@@ -75,11 +79,11 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
             htmlFor="upload-input"
             className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer"
           >
-            Tải ảnh lên
+            Upload Image
           </label>
         </div>
         <p className="text-sm text-gray-600">
-          • Kích thước đề xuất: 2160 x 1080px • Dung lượng tối đa: 10MB • Định dạng hỗ trợ: JPEG, PNG
+          • Proposed size: 2160 x 1080px • Maximum capacity: 10MB • Support format: JPEG, PNG
         </p>
         <div className="flex gap-2 mt-4 flex-wrap">
           {images.map((img, index) => (
@@ -104,7 +108,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
         onClick={handleComplete}
         className="bg-blue-500 text-white px-6 py-2 rounded-md mt-4"
       >
-        Hoàn tất
+        Complete
       </button>
     </div>
   );
@@ -170,7 +174,7 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="bg-white bg-opacity-75 p-6 rounded-lg text-center">
                 <i className="fas fa-upload text-2xl text-blue-500 mb-2"></i>
-                <p className="text-blue-500">Tải ảnh lên</p>
+                <p className="text-blue-500">Upload Images</p>
               </div>
             </div>
           </div>

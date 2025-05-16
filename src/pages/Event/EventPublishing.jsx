@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import Loader from "../../components/Loading";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-
+import { useAuth } from "../Auth/AuthProvider";
+import axios from "axios";
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -129,6 +130,31 @@ const PublishSettings = ({
 
 const EventPublishing = ({ event, setEvent, onPublish }) => {
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const token = localStorage.getItem("token");
+  const [organizerName, setOrganizerName] = useState("");
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const fetchedOrganizerName = response.data.organizer.organizerName || "Unknown Organizer";
+        setOrganizerName(fetchedOrganizerName);
+       
+        setEvent((prev) => ({ ...prev, eventHost: fetchedOrganizerName }));
+      } catch (err) {
+        console.error("Error fetching user data:", err);
+        setOrganizerName("Unknown Organizer");
+        setEvent((prev) => ({ ...prev, eventHost: "Unknown Organizer" }));
+      }
+    };
+    fetchUserData();
+  }, [user.email, token, setEvent]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -206,22 +232,13 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
                   {event.tickets[0]?.quantity || "N/A"}
                 </span>
               </div>
-              <div className="text-blue-600 hover:cursor-pointer">
-                <a href="#">Preview</a>
-                <i className="fa-solid fa-up-right-from-square ml-2"></i>
-              </div>
             </div>
           </div>
           <div>
             <h3 className="text-gray-900 font-semibold mb-2">Organized by</h3>
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded-lg"
-              value={event.eventHost || ""}
-              onChange={(e) =>
-                setEvent((prev) => ({ ...prev, eventHost: e.target.value }))
-              }
-            />
+            <div className="w-full p-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-700">
+              {organizerName || "Loading..."}
+            </div>
           </div>
         </div>
 
@@ -240,7 +257,6 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
                 setEvent((prev) => ({ ...prev, eventType: e.target.value }))
               }
             >
-              
               <option value="">Select Type</option>
               <option value="Conference">Conference</option>
               <option value="Performing">Performing</option>

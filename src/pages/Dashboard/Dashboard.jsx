@@ -3,6 +3,7 @@ import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
+import Swal from 'sweetalert2';
 
 const EventsPage = () => {
   const navigate = useNavigate();
@@ -56,7 +57,38 @@ const EventsPage = () => {
       setLoading(false);
     }
   };
-
+  const deleteEvent = async (eventId) => {
+    setLoading(true);
+    try {
+     
+      const response = await fetch(
+        `http://localhost:8080/api/events/delete/${eventId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          method:"DELETE"
+        }
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+         Swal.fire({
+          title: `${data.msg}`,
+          text: `${data.data}`,
+        });
+     if(data.statusCode == 200){
+      await fetchEventData();   
+     }
+    } catch (error) {
+      console.error("Error fetching event data:", error);
+     
+    } finally {
+      setLoading(false);
+    }
+  };
   const filterEventsByStatus = (events, status) => {
     if (!status) {
       return events;
@@ -80,8 +112,11 @@ const EventsPage = () => {
   };
 
   const handleActionClick = (action, eventId) => {
-    if (action === "Xem chi tiết sự kiện") {
+    if (action === "View event details") {
       navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
+    }
+    if(action ==="Delete event"){
+       deleteEvent(eventId)
     }
     setPopupVisible(null);
   };
@@ -231,7 +266,7 @@ const EventsPage = () => {
                       ref={popupRef}
                       className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 transform transition-all duration-200"
                     >
-                      {["Xem chi tiết sự kiện", "Xóa sự kiện"].map((action) => (
+                      {["View event details", "Delete event"].map((action) => (
                         <div
                           key={action}
                           className="px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-sm transition-colors duration-200"

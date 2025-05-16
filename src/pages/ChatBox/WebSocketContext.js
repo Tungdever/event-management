@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { toast, ToastContainer } from "react-toastify";
@@ -8,6 +8,8 @@ const WebSocketContext = createContext();
 
 export const WebSocketProvider = ({ children }) => {
     const [stompClient, setStompClient] = useState(null);
+    const [isConnected, setIsConnected] = useState(false);
+    const clientRef = useRef(null); // Lưu client hiện tại
 
     const CustomToast = ({ title, message }) => (
         <div>
@@ -16,9 +18,18 @@ export const WebSocketProvider = ({ children }) => {
         </div>
     );
 
-    useEffect(() => {
+    const connectWebSocket = () => {
+        // Ngắt kết nối client cũ nếu tồn tại
+        if (clientRef.current) {
+            clientRef.current.disconnect(() => {
+                console.log("Disconnected old WebSocket client");
+            });
+            clientRef.current = null;
+        }
+
         const socket = new SockJS("http://localhost:8080/ws");
         const client = Stomp.over(socket);
+        clientRef.current = client; // Lưu client mới
         const token = localStorage.getItem("token");
         let userId;
 
@@ -35,8 +46,10 @@ export const WebSocketProvider = ({ children }) => {
             {},
             () => {
                 console.log("Connected to WebSocket");
+                setIsConnected(true);
                 if (userId) {
                     client.subscribe(`/user/${userId}/specific`, (message) => {
+                        console.log(`Received on /user/${userId}/specific:`, message.body);
                         const parsedMessage = JSON.parse(message.body);
                         toast.info(
                             <CustomToast
@@ -57,19 +70,33 @@ export const WebSocketProvider = ({ children }) => {
             },
             (error) => {
                 console.error("WebSocket connection failed:", error);
-                toast.error("Không thể kết nối đến server thông báo. Vui lòng thử lại sau.");
+                setIsConnected(false);
+                toast.error("Mất kết nối đến server thông báo. Đang thử kết nối lại...");
+                setTimeout(connectWebSocket, 5000); // Thử kết nối lại
             }
         );
 
+        // Xử lý sự kiện đóng kết nối
+        client.onWebSocketClose = () => {
+            console.log("WebSocket connection closed");
+            setIsConnected(false);
+            setTimeout(connectWebSocket, 5000); // Thử kết nối lại
+        };
+    };
+
+    useEffect(() => {
+        connectWebSocket();
+
         return () => {
-            if (client) {
-                client.disconnect(() => console.log("Disconnected from WebSocket"));
+            if (clientRef.current) {
+                clientRef.current.disconnect(() => console.log("Disconnected from WebSocket"));
+                clientRef.current = null;
             }
         };
-    }, []);
+    }, []); // Chỉ chạy một lần khi component mount
 
     return (
-        <WebSocketContext.Provider value={{ stompClient }}>
+        <WebSocketContext.Provider value={{ stompClient, isConnected }}>
             {children}
             <ToastContainer
                 position="top-right"

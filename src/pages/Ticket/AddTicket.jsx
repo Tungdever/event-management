@@ -3,8 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import TicketForm from "./TicketForm";
 import Swal from "sweetalert2";
+import { CiTrash } from "react-icons/ci";
 
-const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket }) => {
+const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -56,10 +57,16 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket }) => {
                   <span className="mx-2">•</span>
                   <span>Ends at {ticket.endTime}</span>
                 </div>
-                <i
-                  className="fa-solid fa-pen-to-square hover:text-blue-600 hover:cursor-pointer"
-                  onClick={() => onEditTicket(ticket)}
-                ></i>
+                <div className="flex items-center space-x-3">
+                  <i
+                    className="fa-solid fa-pen-to-square hover:text-blue-600 cursor-pointer text-base"
+                    onClick={() => onEditTicket(ticket)}
+                  ></i>
+                  <CiTrash
+                    className="text-gray-500 hover:text-red-600 cursor-pointer text-xl"
+                    onClick={() => onDeleteTicket(index, ticket)}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -204,6 +211,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     quantity: "",
     startTime: "",
     endTime: "",
+    isLocal: true, // Mark new tickets as local
   });
   const [typeTicket, setTypeTicket] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
@@ -211,12 +219,14 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
   const [loading, setLoading] = useState(true);
   const [editingTicket, setEditingTicket] = useState(null);
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const formattedTickets = (ticketData || []).map((ticket) => ({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
       endTime: formatDateForInput(ticket.endTime),
+      isLocal: ticket.isLocal || false, // Ensure existing tickets have isLocal flag
     }));
     setTickets(formattedTickets);
   }, [ticketData]);
@@ -241,7 +251,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
 
   const handleTicketClick = (type) => {
     setTypeTicket(type);
-    setNewTicket((prev) => ({ ...prev, ticketType: type }));
+    setNewTicket((prev) => ({ ...prev, ticketType: type, isLocal: true }));
     setShowForm(true);
     setEditingTicket(null);
   };
@@ -259,21 +269,21 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     ) {
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng điền đầy đủ các trường bắt buộc.",
+        title: "Error",
+        text: "Please fill in all required fields.",
       });
       return;
     }
     if (newTicket.ticketType === "Paid" && !newTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng nhập giá cho vé có trả phí.",
+        title: "Error",
+        text: "Please enter a price for paid tickets.",
       });
       return;
     }
 
-    const updatedTickets = [...tickets, { ...newTicket }];
+    const updatedTickets = [...tickets, { ...newTicket, isLocal: true }];
     setTickets(updatedTickets);
     onTicketsUpdate(updatedTickets);
 
@@ -286,6 +296,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
       quantity: "",
       startTime: "",
       endTime: "",
+      isLocal: true,
     });
     setShowForm(false);
     setShowOverview(true);
@@ -310,22 +321,26 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     ) {
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng điền đầy đủ các trường bắt buộc.",
+        title: "Error",
+        text: "Please fill in all required fields.",
       });
       return;
     }
     if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng nhập giá cho vé có trả phí.",
+        title: "Error",
+        text: "Please enter a price for paid tickets.",
       });
       return;
     }
 
     const updatedTickets = tickets.map((ticket) =>
-      ticket.ticketId === editingTicket.ticketId ? editingTicket : ticket
+      ticket.ticketId === editingTicket.ticketId && !ticket.isLocal
+        ? editingTicket
+        : ticket.ticketId === editingTicket.ticketId
+        ? editingTicket
+        : ticket
     );
     setTickets(updatedTickets);
     onTicketsUpdate(updatedTickets);
@@ -333,12 +348,75 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     setShowForm(false);
   };
 
+  const handleDeleteTicket = async (index, ticket) => {
+    const confirm = await Swal.fire({
+      icon: "warning",
+      title: "Confirm Deletion",
+      text: "Are you sure you want to delete this ticket?",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+    });
+
+    if (!confirm.isConfirmed) return;
+
+    if (ticket.isLocal || !ticket.ticketId) {
+      // Local ticket: remove from state
+      const updatedTickets = tickets.filter((_, i) => i !== index);
+      setTickets(updatedTickets);
+      onTicketsUpdate(updatedTickets);
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Ticket deleted successfully.",
+      });
+    } else {
+      // Database ticket: call API
+      try {
+        const response = await fetch(
+          `http://localhost:8080/api/ticket/delete/${ticket.ticketId}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        if (response.ok) {
+          const updatedTickets = tickets.filter((_, i) => i !== index);
+          setTickets(updatedTickets);
+          onTicketsUpdate(updatedTickets);
+          Swal.fire({
+            icon: "success",
+            title: "Success",
+            text: "Ticket deleted successfully.",
+          });
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Failed to delete ticket from database.",
+          });
+        }
+      } catch (error) {
+        console.error("Error deleting ticket:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "An error occurred while deleting the ticket.",
+        });
+      }
+    }
+  };
+
   const saveTicketsToDatabase = () => {
     if (tickets.length === 0) {
       Swal.fire({
         icon: "warning",
-        title: "Cảnh báo",
-        text: "Không có vé nào để lưu.",
+        title: "Warning",
+        text: "No tickets to save.",
       });
       return;
     }
@@ -364,6 +442,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
             onAddTicket={handleTicketClick}
             onSaveAll={saveTicketsToDatabase}
             onEditTicket={handleEditTicket}
+            onDeleteTicket={handleDeleteTicket}
           />
         )}
       </main>
