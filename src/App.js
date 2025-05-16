@@ -37,6 +37,7 @@ import AllEvent from "./pages/Event/PageViewAll";
 import SearchByType from "./pages/Event/SearchPageByType";
 import { AuthProvider } from "./pages/Auth/AuthProvider";
 import DashboardPage from "./pages/AdminBoard/DashboardPage";
+import OrganizerDashboard from "./pages/Dashboard/DashboardOrganizer";
 import ReportPage from "./pages/AdminBoard/ReportPage";
 import UserPage from "./pages/AdminBoard/UserPage";
 import RolePage from "./pages/AdminBoard/RolePage";
@@ -85,6 +86,8 @@ const MainLayout = () => {
 
   const isDashboardPage = [
     "/dashboard",
+    "/dashboard/events",
+    "/dashboard/reports",
     "/chat",
     "/calendar",
     "/notification",
@@ -225,6 +228,22 @@ const MainLayout = () => {
               <Routes>
                 <Route
                   path="/dashboard"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <OrganizerDashboard />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/dashboard/events"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                      <Dashboard />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/dashboard/reports"
                   element={
                     <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
                       <Dashboard />

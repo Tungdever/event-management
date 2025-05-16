@@ -7,10 +7,11 @@ import { useAuth } from "../Auth/AuthProvider";
 const defaultMenuItems = [
   {
     title: "Dashboard",
-    path: "/dashboard",
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Manager", path: "/dashboard", roles: ["ORGANIZER"] },
+      { title: "Overview", path: "/dashboard", roles: ["ORGANIZER"] },
+      { title: "Events", path: "/dashboard/events", roles: ["ORGANIZER"] },
+      { title: "Reports", path: "/dashboard/reports", roles: ["ORGANIZER"] },
       { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
       { title: "Chat", path: "/chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
     ],
@@ -37,7 +38,8 @@ const defaultMenuItems = [
 const Sidebar2 = ({ isOpen, toggleSidebar }) => {
   const { user } = useAuth();
   const menuItems = defaultMenuItems
-    .map(menu => ({...menu,
+    .map(menu => ({
+      ...menu,
       submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
     }))
     .filter(menu => !menu.submenu || menu.submenu.length > 0);

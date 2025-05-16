@@ -4,7 +4,6 @@ import { NavLink } from 'react-router-dom';
 const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar }) => {
   const dashboardItems = [
     { name: 'Dashboard', icon: 'fas fa-shopping-cart', path: '/admin' },
-    { name: 'Report', icon: 'fas fa-chart-bar', path: '/admin/report' },
   ];
 
   const conceptItems = [
