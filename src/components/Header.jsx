@@ -266,11 +266,7 @@ const Header = () => {
         "CHECK-IN STAFF",
       ],
     },
-    {
-      title: "Tickets",
-      action: handleMyTicket,
-      roles: ["ATTENDEE", "ORGANIZER"],
-    },
+     { title: "Invoices", action: handleMyInvoices ,roles: ["ORGANIZER","ATTENDEE"]},
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
     { title: "Log out", action: handleLogout },
     // { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },

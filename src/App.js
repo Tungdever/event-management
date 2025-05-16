@@ -87,8 +87,7 @@ const MainLayout = () => {
   ].includes(location.pathname) ||
     location.pathname.startsWith("/event/") ||
     location.pathname.startsWith("/list-event-search-by")||
-    location.pathname.startsWith("/profile-organizer");
-  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets");
+    location.pathname.startsWith("/profile-organizer")|| location.pathname.startsWith("/view-tickets");
 
   const isDashboardPage = [
     "/dashboard",
@@ -260,7 +259,7 @@ const MainLayout = () => {
                 <Route
                   path="/dashboard/events"
                   element={
-                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                   
                     <RoleBasedRouteGroup
                       allowedRoles={[
                         "ORGANIZER",
