@@ -251,7 +251,7 @@ const MainLayout = () => {
                 <Route
                   path="/dashboard"
                   element={
-                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
                       <OrganizerDashboard />
                     </RoleBasedRouteGroup>
                   }
@@ -263,7 +263,7 @@ const MainLayout = () => {
                     <RoleBasedRouteGroup
                       allowedRoles={[
                         "ORGANIZER",
-                        "ATTENDEE",
+                       
                         "TICKET MANAGER",
                         "EVENT ASSISTANT",
                         "CHECK-IN STAFF",
@@ -276,7 +276,7 @@ const MainLayout = () => {
                 <Route
                   path="/dashboard/reports"
                   element={
-                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "ATTENDEE"]}>
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
                       <Dashboard />
                     </RoleBasedRouteGroup>
                   }
