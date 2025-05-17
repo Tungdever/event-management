@@ -3,7 +3,7 @@ import { Calendar, MapPin, Tag, User } from "lucide-react";
 import { useAuth } from "../Auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { FaEllipsisV } from "react-icons/fa";
-
+import Swal from "sweetalert2";
 const AssignedEvents = () => {
   const { user } = useAuth();
   const popupRef = useRef(null);
@@ -51,10 +51,18 @@ const AssignedEvents = () => {
         throw new Error("Failed to delete event");
       }
       setEvents(events.filter((e) => e.event.eventId !== eventId));
-      alert("Event deleted successfully");
+
+      Swal.fire({
+        Icon: "success",
+        Title: "success",
+        Text: "Event deleted successfully",
+      });
     } catch (error) {
-      console.error("Failed to delete event:", error);
-      alert("Failed to delete event: " + error.message);
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Failed to delete event",
+      });
     }
   };
 
@@ -66,12 +74,12 @@ const AssignedEvents = () => {
         deleteEvent(eventId);
       }
     }
-    setPopupVisible(null); 
+    setPopupVisible(null);
   };
 
   useEffect(() => {
     if (user?.userId) {
-      fetchAssignedEvents(user.userId); 
+      fetchAssignedEvents(user.userId);
     }
   }, [user]);
 
@@ -208,15 +216,19 @@ const AssignedEvents = () => {
                         ref={popupRef}
                         className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 transform transition-all duration-200"
                       >
-                        {getAvailableActions(roleName, permissions).map((action) => (
-                          <div
-                            key={action}
-                            className="px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-sm transition-colors duration-200"
-                            onClick={() => handleActionClick(action, event.eventId)}
-                          >
-                            {action}
-                          </div>
-                        ))}
+                        {getAvailableActions(roleName, permissions).map(
+                          (action) => (
+                            <div
+                              key={action}
+                              className="px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-sm transition-colors duration-200"
+                              onClick={() =>
+                                handleActionClick(action, event.eventId)
+                              }
+                            >
+                              {action}
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                   </div>

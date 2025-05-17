@@ -14,7 +14,7 @@ import Loader from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import ListEventGrid from "../../components/ListEventGrid";
-
+import RecommendedEvents from "../../components/RecommendedEvents";
 
 
 const popularCities = [
@@ -321,9 +321,10 @@ const HomePage = () => {
   ) : (
     <div className="flex flex-col min-h-screen">
       <SliderEvent />
+      {/* <EventListings /> */}
+      <RecommendedEvents/>
       <Navbar setCityEvents={setCityEvents} />
       <ListEventScroll events={cityEvents} setEvents={setCityEvents} />
-      {/* <EventListings /> */}
       <ListEventGrid/>
       <TopDestinations />
       <Footer />

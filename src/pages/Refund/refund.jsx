@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import Swal from 'sweetalert2';
 const RefundPage = () => {
   const [refundReason, setRefundReason] = useState("");
   const [additionalInfo, setAdditionalInfo] = useState("");
@@ -25,7 +25,12 @@ const RefundPage = () => {
 
   const handleConfirmRefund = () => {
     if (!refundReason) {
-      alert("Vui lòng chọn lý do hoàn tiền!");
+      
+      Swal.fire ({
+        Icon: 'error',
+        Title: 'error',
+        Text: 'Please select refund reason!',
+      });
       return;
     }
     setShowConfirmation(true);

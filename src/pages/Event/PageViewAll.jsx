@@ -86,7 +86,7 @@ const AllEvent = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const eventsPerPage = 4;
+  const eventsPerPage = 8;
   const token = localStorage.getItem("token");
 
   const handleEventClick = (eventId) => {

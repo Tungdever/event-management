@@ -36,7 +36,7 @@ const ProfileDropdown = () => {
       });
       navigate("/login");
     } catch (error) {
-      alert("Logout failed: " + (error.msg || "Server error"));
+    
       Swal.fire({
         icon: "error",
         title: "error",

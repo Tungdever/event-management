@@ -7,7 +7,7 @@ import Picker from "emoji-picker-react";
 import { IoIosLink } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
-
+import Swal from "sweetalert2";
 const ChatBox = () => {
   const { stompClient, isConnected } = useWebSocket();
   const [users, setUsers] = useState([]);
@@ -24,45 +24,54 @@ const ChatBox = () => {
   const [currentUser, setCurrentUser] = useState({ userId: "", email: "" });
   const token = localStorage.getItem("token");
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-const [previewMedia, setPreviewMedia] = useState({ url: "", type: "" });
+  const [previewMedia, setPreviewMedia] = useState({ url: "", type: "" });
 
   const MEDIA_BASE_URL = "http://localhost:8080/uploads/";
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
-const openPreview = (mediaUrl, contentType) => {
+  const openPreview = (mediaUrl, contentType) => {
     console.log("Opening preview:", { mediaUrl, contentType });
     setPreviewMedia({ url: `${MEDIA_BASE_URL}${mediaUrl}`, type: contentType });
     setIsPreviewOpen(true);
-};
-const closePreview = () => {
+  };
+  const closePreview = () => {
     console.log("Closing preview");
     setIsPreviewOpen(false);
     setPreviewMedia({ url: "", type: "" });
-};
+  };
   useEffect(() => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split(".")[1]));
         if (!payload.userId || !payload.sub) {
-         
-          alert("Phiên đăng nhập không hợp lệ. Vui lòng đăng nhập lại.");
+          Swal.fire({
+            Icon: "error",
+            Title: "error",
+            Text: "Invalid login session. Please login again.",
+          });
           return;
         }
         const user = {
           userId: payload.userId,
           email: payload.sub,
         };
-        
+
         setCurrentUser(user);
       } catch (e) {
-        
-        alert("Không thể xác thực người dùng. Vui lòng đăng nhập lại.");
+        Swal.fire({
+          Icon: "error",
+          Title: "error",
+          Text: "Unable to authenticate user. Please log in again.",
+        });
       }
     } else {
-     
-      alert("Vui lòng đăng nhập để sử dụng tính năng chat.");
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Please login to use chat feature.",
+      });
     }
   }, [token]);
 
@@ -79,7 +88,9 @@ const closePreview = () => {
         }
       );
       if (!response.ok) {
-        throw new Error(`Lấy danh sách người dùng thất bại: ${response.status}`);
+        throw new Error(
+          `Lấy danh sách người dùng thất bại: ${response.status}`
+        );
       }
       const listUser = await response.json();
       const formattedUsers = listUser.map((user) => ({
@@ -89,8 +100,11 @@ const closePreview = () => {
       }));
       setUsers(formattedUsers);
     } catch (error) {
-    
-      alert(`Không thể tải danh sách người dùng: ${error.message}`);
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Unable to load user list",
+      });
     }
   };
 
@@ -107,7 +121,9 @@ const closePreview = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:8080/chat/search?query=${encodeURIComponent(query)}¤tUserId=${currentUser.userId}`,
+        `http://localhost:8080/chat/search?query=${encodeURIComponent(
+          query
+        )}¤tUserId=${currentUser.userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -119,8 +135,11 @@ const closePreview = () => {
       }));
       setSearchedUsers(formattedUsers);
     } catch (error) {
-     
-      alert("Không thể tìm kiếm người dùng. Vui lòng thử lại.");
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Unable to find user. Please try again.",
+      });
     }
   };
 
@@ -145,12 +164,14 @@ const closePreview = () => {
           }
         )
         .then((response) => {
-        
           setMessages(response.data);
         })
         .catch((error) => {
-         
-          alert("Không thể tải lịch sử chat. Vui lòng thử lại.");
+          Swal.fire({
+            Icon: "error",
+            Title: "error",
+            Text: "Unable to load chat history. Please try again.",
+          });
         });
     }
   }, [selectedUser, currentUser.userId, token]);
@@ -161,16 +182,24 @@ const closePreview = () => {
         `/user/${currentUser.email}/chat`,
         (message) => {
           const receivedMessage = JSON.parse(message.body);
-       
+
           if (
             selectedUser &&
             (receivedMessage.senderEmail === selectedUser.email ||
-             receivedMessage.recipientEmail === selectedUser.email)
+              receivedMessage.recipientEmail === selectedUser.email)
           ) {
             setMessages((prevMessages) => {
-              const messageKey = `${receivedMessage.timestamp}_${receivedMessage.senderEmail}_${receivedMessage.mediaUrl || ""}`;
-              if (prevMessages.some((msg) => `${msg.timestamp}_${msg.senderEmail}_${msg.mediaUrl || ""}` === messageKey)) {
-             
+              const messageKey = `${receivedMessage.timestamp}_${
+                receivedMessage.senderEmail
+              }_${receivedMessage.mediaUrl || ""}`;
+              if (
+                prevMessages.some(
+                  (msg) =>
+                    `${msg.timestamp}_${msg.senderEmail}_${
+                      msg.mediaUrl || ""
+                    }` === messageKey
+                )
+              ) {
                 return prevMessages;
               }
               return [...prevMessages, receivedMessage];
@@ -183,7 +212,7 @@ const closePreview = () => {
         `/user/${currentUser.email}/typing`,
         (message) => {
           const typingData = JSON.parse(message.body);
-     
+
           setTypingStatus((prev) => ({
             ...prev,
             [typingData.senderEmail]: typingData.isTyping,
@@ -228,20 +257,22 @@ const closePreview = () => {
     const file = e.target.files[0];
     if (!file) return;
 
-  
     const formData = new FormData();
     formData.append("file", file);
 
     try {
-      const response = await axios.post("http://localhost:8080/chat/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8080/chat/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       const fileName = response.data;
       const contentType = file.type.startsWith("image") ? "IMAGE" : "VIDEO";
-     
 
       const messageDTO = {
         content: "",
@@ -255,11 +286,14 @@ const closePreview = () => {
       console.log("Sending messageDTO:", messageDTO);
 
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
-       // Thêm tin nhắn vào messages cục bộ để kích hoạt scrollToBottom
+      // Thêm tin nhắn vào messages cục bộ để kích hoạt scrollToBottom
       setMessages((prev) => [...prev, messageDTO]);
     } catch (error) {
- 
-      alert("Không thể tải file lên.");
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Unable to upload file.",
+      });
     }
   };
 
@@ -272,9 +306,11 @@ const closePreview = () => {
         timestamp: new Date().toISOString(),
         isRead: false,
         mediaUrl: "",
-        contentType: inputMessage.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/) ? "EMOJI" : "TEXT",
+        contentType: inputMessage.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)
+          ? "EMOJI"
+          : "TEXT",
       };
-      
+
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
       setMessages((prevMessages) => [...prevMessages, messageDTO]);
       if (!users.some((user) => user.userId === selectedUser.userId)) {
@@ -284,9 +320,17 @@ const closePreview = () => {
       setShowEmojiPicker(false);
     } else {
       if (!isConnected) {
-        alert("Không thể gửi tin nhắn: Mất kết nối WebSocket.");
+        Swal.fire({
+          Icon: "error",
+          Title: "error",
+          Text: "Unable to send message: WebSocket connection lost.",
+        });
       } else if (!selectedUser) {
-        alert("Vui lòng chọn người dùng để trò chuyện.");
+        Swal.fire({
+          Icon: "error",
+          Title: "error",
+          Text: "Please select a user to chat with.",
+        });
       }
     }
   };
@@ -296,15 +340,12 @@ const closePreview = () => {
   };
 
   const renderMessageContent = (msg) => {
-  
     if (!msg || !msg.contentType) {
-      
       return <p className="text-red-500">Tin nhắn không hợp lệ</p>;
     }
     try {
       if (msg.contentType === "IMAGE") {
         if (!msg.mediaUrl) {
-        
           return <p className="text-red-500">Không có URL hình ảnh</p>;
         }
         return (
@@ -314,10 +355,10 @@ const closePreview = () => {
             className="max-w-[300px] rounded"
             onClick={() => openPreview(msg.mediaUrl, "IMAGE")}
             onError={(e) => {
-          
-              e.target.replaceWith(<span className="text-red-500">Hình ảnh không tải được</span>);
+              e.target.replaceWith(
+                <span className="text-red-500">Hình ảnh không tải được</span>
+              );
             }}
-           
           />
         );
       }
@@ -336,10 +377,15 @@ const closePreview = () => {
       if (msg.contentType === "TEXT" || msg.contentType === "EMOJI") {
         return <p>{msg.content || "(trống)"}</p>;
       }
-    
-      return <p>{typeof msg.content === "string" ? msg.content : "(nội dung không xác định)"}</p>;
+
+      return (
+        <p>
+          {typeof msg.content === "string"
+            ? msg.content
+            : "(nội dung không xác định)"}
+        </p>
+      );
     } catch (error) {
-    
       return <p className="text-red-500">Lỗi hiển thị tin nhắn</p>;
     }
   };
@@ -353,7 +399,9 @@ const closePreview = () => {
         <FaBars className="text-lg" />
       </button>
       <div
-        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300  w-80 sm:w-1/3 lg:w-1/4 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"} sm:translate-x-0`}
+        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300  w-80 sm:w-1/3 lg:w-1/4 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } sm:translate-x-0`}
       >
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">Tin nhắn</h2>
@@ -374,7 +422,9 @@ const closePreview = () => {
               searchedUsers.map((user) => (
                 <div
                   key={user.userId}
-                  className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${selectedUser?.userId === user.userId ? "bg-teal-100" : ""}`}
+                  className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
+                    selectedUser?.userId === user.userId ? "bg-teal-100" : ""
+                  }`}
                   onClick={() => {
                     setSelectedUser(user);
                     setIsSidebarOpen(false);
@@ -384,19 +434,27 @@ const closePreview = () => {
                     {user.name[0]}
                   </div>
                   <div className="ml-3 flex-1">
-                    <p className="font-semibold text-sm truncate">{user.name}</p>
-                    <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                    <p className="font-semibold text-sm truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-xs text-gray-500 truncate">
+                      {user.email}
+                    </p>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="p-4 text-gray-500 text-sm">Không tìm thấy người dùng</p>
+              <p className="p-4 text-gray-500 text-sm">
+                Không tìm thấy người dùng
+              </p>
             )
           ) : users.length > 0 ? (
             users.map((user) => (
               <div
                 key={user.userId}
-                className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${selectedUser?.userId === user.userId ? "bg-teal-100" : ""}`}
+                className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
+                  selectedUser?.userId === user.userId ? "bg-teal-100" : ""
+                }`}
                 onClick={() => {
                   setSelectedUser(user);
                   setIsSidebarOpen(false);
@@ -412,7 +470,9 @@ const closePreview = () => {
               </div>
             ))
           ) : (
-            <p className="p-4 text-gray-500 text-sm">Chưa có lịch sử trò chuyện</p>
+            <p className="p-4 text-gray-500 text-sm">
+              Chưa có lịch sử trò chuyện
+            </p>
           )}
         </div>
       </div>
@@ -431,10 +491,20 @@ const closePreview = () => {
               {messages.map((msg, index) => (
                 <div
                   key={`${msg.timestamp}_${msg.senderEmail}_${index}`}
-                  className={`mb-4 flex ${msg.senderEmail === currentUser.email ? "justify-end" : "justify-start"}`}
+                  className={`mb-4 flex ${
+                    msg.senderEmail === currentUser.email
+                      ? "justify-end"
+                      : "justify-start"
+                  }`}
                 >
                   <div
-                    className={`max-w-[70%] sm:max-w-md p-3 rounded-lg text-sm shadow-sm ${msg.senderEmail === currentUser.email ? "bg-teal-500 text-white" : msg.isRead ? "bg-white text-gray-800 border border-gray-200" : "bg-gray-100 text-gray-800 border border-gray-300 font-semibold"}`}
+                    className={`max-w-[70%] sm:max-w-md p-3 rounded-lg text-sm shadow-sm ${
+                      msg.senderEmail === currentUser.email
+                        ? "bg-teal-500 text-white"
+                        : msg.isRead
+                        ? "bg-white text-gray-800 border border-gray-200"
+                        : "bg-gray-100 text-gray-800 border border-gray-300 font-semibold"
+                    }`}
                   >
                     {renderMessageContent(msg)}
                     <p className="text-xs mt-1 opacity-70">
@@ -446,7 +516,9 @@ const closePreview = () => {
                 </div>
               ))}
               {typingStatus[selectedUser.email] && (
-                <div className="text-xs text-gray-500 animate-pulse">Đang nhập...</div>
+                <div className="text-xs text-gray-500 animate-pulse">
+                  Đang nhập...
+                </div>
               )}
               <div ref={messagesEndRef} />
             </div>
@@ -491,23 +563,25 @@ const closePreview = () => {
                   onClick={sendMessage}
                   className="px-4 py-2 bg-teal-500 text-white rounded-lg shadow-md hover:bg-teal-600"
                 >
-                 <IoSend />
+                  <IoSend />
                 </button>
               </div>
             </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <p className="text-gray-500 text-base">Chọn một người dùng để bắt đầu trò chuyện</p>
+            <p className="text-gray-500 text-base">
+              Chọn một người dùng để bắt đầu trò chuyện
+            </p>
           </div>
         )}
       </div>
       <MediaPreviewModal
-    isOpen={isPreviewOpen}
-    onClose={closePreview}
-    mediaUrl={previewMedia.url}
-    contentType={previewMedia.type}
-/>
+        isOpen={isPreviewOpen}
+        onClose={closePreview}
+        mediaUrl={previewMedia.url}
+        contentType={previewMedia.type}
+      />
     </div>
   );
 };

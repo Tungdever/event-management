@@ -51,8 +51,12 @@ const EventsPage = () => {
       setEvents(Array.isArray(data) ? data : []);
       setCurrentPage(1);
     } catch (error) {
-      console.error("Error fetching event data:", error);
-      alert("Không thể tải dữ liệu sự kiện");
+
+      Swal.fire ({
+        Icon: 'error',
+        Title: 'error',
+        Text: 'Unable to load event data',
+      });
     } finally {
       setLoading(false);
     }

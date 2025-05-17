@@ -5,41 +5,44 @@ import Loader from "./Loading";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import FavoriteButton from "./FavoriteButton";
 
-const ListEventScroll = ({ events: propEvents }) => {
-  const [events, setLocalEvents] = useState([]);
+const ListEventScroll = ({ apiUrl, title }) => {
+  const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
   const token = localStorage.getItem("token");
 
-  const fetchTopEvent = async () => {
+  const fetchEvents = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/search/events-by-favorites");
+      const response = await fetch(apiUrl, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
       if (!response.ok) {
-        throw new Error("Failed to fetch events");
+        throw new Error(`Failed to fetch events from ${apiUrl}`);
       }
       const data = await response.json();
-      setLocalEvents(data);
+      // API có thể trả về Set hoặc List, chuyển về mảng nếu cần
+      setEvents(Array.isArray(data) ? data : [...data]);
     } catch (error) {
       setError(error.message);
-      console.error("Error fetching events:", error);
+      console.error(`Error fetching events from ${apiUrl}:`, error);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    const initializeEvents = async () => {
-      if (propEvents && propEvents.length > 0) {
-        setLocalEvents(propEvents);
-        setLoading(false);
-      } else {
-        await fetchTopEvent();
-      }
-    };
-    initializeEvents();
-  }, [propEvents]);
+    if(user){
+
+      fetchEvents();
+    }else{
+      setLoading(false)
+    }
+  }, [apiUrl]);
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -58,11 +61,6 @@ const ListEventScroll = ({ events: propEvents }) => {
 
   const handleEventClick = (eventId) => {
     navigate(`/event/${eventId}`);
-  };
-
-  const handlePageAll = () => {
-    setLoading(true);
-    navigate("/all-event");
   };
 
   const getLocation = (location) => {
@@ -95,9 +93,8 @@ const ListEventScroll = ({ events: propEvents }) => {
 
   if (!events || events.length === 0) {
     return (
-      <div className="text-center p-4">
-        <p className="text-gray-600 text-sm sm:text-base">No events available</p>
-      </div>
+    
+      <></>
     );
   }
 
@@ -105,14 +102,14 @@ const ListEventScroll = ({ events: propEvents }) => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4 relative">
       <div className="flex justify-between items-center">
         <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 font-montserrat">
-          Top Notable Events
+          {title}
         </h2>
         <div
           className="flex items-center gap-1 sm:gap-2 hover:cursor-pointer hover:text-red-500"
-          onClick={handlePageAll}
+          onClick={() => navigate("/all-event")}
         >
           <p className="text-xs sm:text-sm lg:text-[15px] text-gray-600 hover:text-red-500">
-            View all event
+            View all events
           </p>
           <i className="fa-solid fa-circle-chevron-right text-xs sm:text-sm"></i>
         </div>
@@ -201,4 +198,22 @@ const ListEventScroll = ({ events: propEvents }) => {
   );
 };
 
-export default ListEventScroll;
+const RecommendedEvents = () => {
+  const { user } = useAuth();
+  const email = user?.email 
+
+  return (
+    <div className="w-full">
+      <ListEventScroll
+        apiUrl={`http://localhost:8080/api/events/recommended/${email}`}
+        title="You Might Like"
+      />
+      <ListEventScroll
+        apiUrl={`http://localhost:8080/api/events/recommended/by-types/${email}`}
+        title="Some Popular Events"
+      />
+    </div>
+  );
+};
+
+export default RecommendedEvents;

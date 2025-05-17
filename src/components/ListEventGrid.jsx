@@ -16,7 +16,7 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   const fetchAllEvent = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/all", {
+      const response = await fetch("http://localhost:8080/api/events/search/upcoming", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -111,7 +111,7 @@ const ListEventGrid = ({ events: propEvents }) => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-6 sm:mb-8">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 font-montserrat">
           Upcoming Events
         </h2>
         <button

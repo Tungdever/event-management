@@ -6,7 +6,7 @@ import { IoIosLink } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import { MdInsertEmoticon } from "react-icons/md";
-
+import Swal from "sweetalert2";
 const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const { stompClient, isConnected } = useWebSocket();
   const [isOpen, setIsOpen] = useState(false);
@@ -29,7 +29,10 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   // Đóng emoji picker khi nhấp ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target)) {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(event.target)
+      ) {
         console.log("Clicked outside, closing emoji picker");
         setShowEmojiPicker(false);
       }
@@ -62,7 +65,9 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         }
       );
       if (!response.ok) {
-        throw new Error(`Lấy danh sách người dùng thất bại: ${response.status}`);
+        throw new Error(
+          `Lấy danh sách người dùng thất bại: ${response.status}`
+        );
       }
       const listUser = await response.json();
       const formattedUsers = listUser.map((user) => ({
@@ -73,7 +78,12 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setUsers(formattedUsers);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách người dùng:", error);
-      alert(`Không thể tải danh sách người dùng: ${error.message}`);
+
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Unable to load user list",
+      });
     }
   };
 
@@ -93,11 +103,20 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           if (
             selectedUser &&
             (receivedMessage.senderEmail === selectedUser.email ||
-             receivedMessage.recipientEmail === selectedUser.email)
+              receivedMessage.recipientEmail === selectedUser.email)
           ) {
             setMessages((prev) => {
-              const messageKey = `${receivedMessage.timestamp}_${receivedMessage.senderEmail}_${receivedMessage.mediaUrl || ""}`;
-              if (prev.some((msg) => `${msg.timestamp}_${msg.senderEmail}_${msg.mediaUrl || ""}` === messageKey)) {
+              const messageKey = `${receivedMessage.timestamp}_${
+                receivedMessage.senderEmail
+              }_${receivedMessage.mediaUrl || ""}`;
+              if (
+                prev.some(
+                  (msg) =>
+                    `${msg.timestamp}_${msg.senderEmail}_${
+                      msg.mediaUrl || ""
+                    }` === messageKey
+                )
+              ) {
                 console.log("Duplicate message ignored:", messageKey);
                 return prev;
               }
@@ -108,7 +127,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           if (
             !isOpen ||
             (selectedUser?.email !== receivedMessage.senderEmail &&
-             receivedMessage.senderEmail !== currentUser.email)
+              receivedMessage.senderEmail !== currentUser.email)
           ) {
             setUnreadCounts((prev) => ({
               ...prev,
@@ -156,8 +175,11 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           }));
         })
         .catch((error) => {
-          console.error("Lỗi khi lấy lịch sử chat:", error);
-          alert("Không thể tải lịch sử chat. Vui lòng thử lại.");
+          Swal.fire({
+            Icon: "error",
+            Title: "error",
+            Text: "RUnable to load chat history. Please try again.",
+          });
         });
     }
   }, [selectedUser, currentUser.userId, token]);
@@ -207,12 +229,16 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     formData.append("file", file);
 
     try {
-      const response = await axios.post("http://localhost:8080/chat/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8080/chat/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
       const fileName = response.data;
       const contentType = file.type.startsWith("image") ? "IMAGE" : "VIDEO";
       console.log("Content type:", contentType);
@@ -232,8 +258,11 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setMessages((prev) => [...prev, messageDTO]);
       setTimeout(scrollToBottom, 0);
     } catch (error) {
-      console.error("Tải file thất bại:", error);
-      alert("Không thể tải file lên.");
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Unable to upload file.",
+      });
     }
   };
 
@@ -246,7 +275,9 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         timestamp: new Date().toISOString(),
         isRead: false,
         mediaUrl: "",
-        contentType: inputMessage.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/) ? "EMOJI" : "TEXT",
+        contentType: inputMessage.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]/)
+          ? "EMOJI"
+          : "TEXT",
       };
       console.log("Gửi tin nhắn:", messageDTO);
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
@@ -256,9 +287,17 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setTimeout(scrollToBottom, 0);
     } else {
       if (!isConnected) {
-        alert("Không thể gửi tin nhắn: Mất kết nối WebSocket.");
+        Swal.fire({
+          Icon: "error",
+          Title: "error",
+          Text: "Unable to send message: WebSocket connection lost.",
+        });
       } else if (!selectedUser) {
-        alert("Vui lòng chọn người dùng để trò chuyện.");
+        Swal.fire({
+          Icon: "error",
+          Title: "error",
+          Text: "Please select a user to chat with.",
+        });
       }
     }
   };
@@ -298,10 +337,16 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
             className="max-w-[150px] rounded cursor-pointer"
             onClick={() => openPreview(msg.mediaUrl, "IMAGE")}
             onError={(e) => {
-              console.error(`Failed to load image: ${MEDIA_BASE_URL}${msg.mediaUrl}`);
-              e.target.replaceWith(<span className="text-red-500">Hình ảnh không tải được</span>);
+              console.error(
+                `Failed to load image: ${MEDIA_BASE_URL}${msg.mediaUrl}`
+              );
+              e.target.replaceWith(
+                <span className="text-red-500">Hình ảnh không tải được</span>
+              );
             }}
-            onLoad={() => console.log("Image loaded:", `${MEDIA_BASE_URL}${msg.mediaUrl}`)}
+            onLoad={() =>
+              console.log("Image loaded:", `${MEDIA_BASE_URL}${msg.mediaUrl}`)
+            }
           />
         );
       }
@@ -321,7 +366,13 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         return <p>{msg.content || "(trống)"}</p>;
       }
       console.warn("Unknown contentType:", msg.contentType);
-      return <p>{typeof msg.content === "string" ? msg.content : "(nội dung không xác định)"}</p>;
+      return (
+        <p>
+          {typeof msg.content === "string"
+            ? msg.content
+            : "(nội dung không xác định)"}
+        </p>
+      );
     } catch (error) {
       console.error("Error rendering message:", error, msg);
       return <p className="text-red-500">Lỗi hiển thị tin nhắn</p>;
@@ -335,8 +386,18 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           onClick={() => setIsOpen(true)}
           className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors duration-200"
         >
-          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          <svg
+            className="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
+            />
           </svg>
           {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
             <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
@@ -349,9 +410,25 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         <div className="w-80 h-96 bg-white rounded-lg shadow-xl flex flex-col">
           <div className="p-4 bg-blue-500 text-white rounded-t-lg flex justify-between items-center">
             <h3 className="font-semibold">Tin nhắn</h3>
-            <button onClick={() => { setIsOpen(false); onClose?.(); }} className="text-white">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onClose?.();
+              }}
+              className="text-white"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -379,15 +456,30 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                   </div>
                 ))
               ) : (
-                <p className="p-3 text-gray-500 text-sm">Chưa có lịch sử trò chuyện</p>
+                <p className="p-3 text-gray-500 text-sm">
+                  Chưa có lịch sử trò chuyện
+                </p>
               )}
             </div>
           ) : (
             <>
               <div className="p-3 bg-gray-100 flex items-center">
-                <button onClick={() => setSelectedUser(null)} className="text-blue-500 mr-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                <button
+                  onClick={() => setSelectedUser(null)}
+                  className="text-blue-500 mr-2"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                 </button>
                 <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
@@ -395,14 +487,27 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                 </div>
                 <p className="ml-2 font-medium">{selectedUser.name}</p>
               </div>
-              <div className="flex-1 p-3 overflow-y-auto bg-gray-50" style={{ maxHeight: "calc(100% - 120px)" }}>
+              <div
+                className="flex-1 p-3 overflow-y-auto bg-gray-50"
+                style={{ maxHeight: "calc(100% - 120px)" }}
+              >
                 {messages.map((msg, index) => (
                   <div
                     key={`${msg.timestamp}_${msg.senderEmail}_${index}`}
-                    className={`mb-2 flex ${msg.senderEmail === currentUser.email ? "justify-end" : "justify-start"}`}
+                    className={`mb-2 flex ${
+                      msg.senderEmail === currentUser.email
+                        ? "justify-end"
+                        : "justify-start"
+                    }`}
                   >
                     <div
-                      className={`max-w-[70%] p-2 rounded-lg ${msg.senderEmail === currentUser.email ? "bg-blue-500 text-white" : msg.isRead ? "bg-white text-gray-800 border border-gray-200" : "bg-gray-200 text-gray-800 border border-gray-300 font-semibold"}`}
+                      className={`max-w-[70%] p-2 rounded-lg ${
+                        msg.senderEmail === currentUser.email
+                          ? "bg-blue-500 text-white"
+                          : msg.isRead
+                          ? "bg-white text-gray-800 border border-gray-200"
+                          : "bg-gray-200 text-gray-800 border border-gray-300 font-semibold"
+                      }`}
                     >
                       {renderMessageContent(msg)}
                       <p className="text-xs mt-1 opacity-70">
@@ -424,13 +529,13 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     className="px-2 py-1 text-gray-600"
                   >
-                     <MdInsertEmoticon />
+                    <MdInsertEmoticon />
                   </button>
                   <button
                     onClick={() => fileInputRef.current.click()}
                     className="px-2 py-1 text-gray-600"
                   >
-                      <IoIosLink />
+                    <IoIosLink />
                   </button>
                   <input
                     type="file"
