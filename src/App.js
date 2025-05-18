@@ -85,11 +85,7 @@ const MainLayout = () => {
     "/payment-result",
     "/myinvoices",
     "/notification",
-  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets") || location.pathname.startsWith("/check-in") ;
-  ].includes(location.pathname) ||
-    location.pathname.startsWith("/event/") ||
-    location.pathname.startsWith("/list-event-search-by")||
-    location.pathname.startsWith("/profile-organizer")|| location.pathname.startsWith("/view-tickets");
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets") || location.pathname.startsWith("/check-in") || location.pathname.startsWith("/profile-organizer");
 
   const isDashboardPage = [
     "/dashboard",
