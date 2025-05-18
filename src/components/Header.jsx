@@ -5,238 +5,26 @@ import { useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import { api } from "../pages/Auth/api";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Typography,
-} from '@mui/material'; 
-import Swal from 'sweetalert2';
-
-const UpgradeOrganizerDialog = ({ open, onClose }) => {
-  const { user } = useAuth();
-  const token = localStorage.getItem('token'); 
-  const [showForm, setShowForm] = useState(false); 
-  const [formData, setFormData] = useState({
-    organizerName: '',
-    organizerAddress: '',
-    organizerWebsite: '',
-    organizerPhone: '',
-    organizerDesc:''
-  });
-  const [errors, setErrors] = useState({
-    organizerName: '',
-    organizerAddress: '',
-    organizerWebsite: '',
-    organizerPhone: '',
-    organizerDesc:''
-  });
-
-  const handleConfirm = () => {
-    setShowForm(true);
-  };
-
-  const handleCancel = () => {
-    setShowForm(false);
-    onClose();
-  };
-
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name]: '' }));
-  };
-
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
-      organizerName: '',
-      organizerAddress: '',
-      organizerWebsite: '',
-      organizerPhone: '',
-      organizerDesc:'',
-    };
-
-    if (!formData.organizerName.trim()) {
-      newErrors.organizerName = 'Organizer name is required';
-      isValid = false;
-    }
-    if (!formData.organizerAddress.trim()) {
-      newErrors.organizerAddress = 'Organizer address is required';
-      isValid = false;
-    }
-    if (!formData.organizerWebsite.trim()) {
-      newErrors.organizerWebsite = 'Organizer website is required';
-      isValid = false;
-    }
-    if (!formData.organizerPhone.trim()) {
-      newErrors.organizerPhone = 'Organizer phone is required';
-      isValid = false;
-    } 
-    if (!formData.organizerDesc.trim()) {
-      newErrors.organizerDesc = 'Organizer description is required';
-      isValid = false;
-    } else if (!/^\+?\d{10,15}$/.test(formData.organizerPhone)) {
-      newErrors.organizerPhone = 'Invalid phone number';
-      isValid = false;
-    }
-
-    setErrors(newErrors);
-    return isValid;
-  };
-
-  const handleUpToOrganize = async () => {
-    if (!validateForm()) return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/auth/user/upgrade-organizer/${user.email}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(formData),
-        }
-      );
-
-      if (response.ok) {
-         Swal.fire({
-          icon: 'success',
-          title: 'success',
-        text: 'upgrade success',
-      });
-        setShowForm(false);
-        onClose(); 
-      } else {
-        const errorData = await response.json();
-        Swal.fire({
-          icon: 'error',
-          title: 'error',
-          text: 'upgrade failure',
-        });
-      }
-    } catch (error) {
-      console.error('Error upgrading to organizer:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: 'An error occurred while upgrading. Please try again.',
-      });
-      
-    }
-  };
-
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      {!showForm ? (
-        <>
-          <DialogTitle>Upgrade to Organizer</DialogTitle>
-          <DialogContent>
-            <Typography>
-              Do you want to upgrade your account to an Organizer role?
-            </Typography>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCancel} color="primary">
-              No
-            </Button>
-            <Button onClick={handleConfirm} color="primary" variant="contained">
-              Yes
-            </Button>
-          </DialogActions>
-        </>
-      ) : (
-        <>
-          <DialogTitle>Organizer Information</DialogTitle>
-          <DialogContent>
-            <TextField
-              fullWidth
-              label="Organizer Name"
-              name="organizerName"
-              value={formData.organizerName}
-              onChange={handleInputChange}
-              error={!!errors.organizerName}
-              helperText={errors.organizerName}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Organizer Address"
-              name="organizerAddress"
-              value={formData.organizerAddress}
-              onChange={handleInputChange}
-              error={!!errors.organizerAddress}
-              helperText={errors.organizerAddress}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Organizer Website"
-              name="organizerWebsite"
-              value={formData.organizerWebsite}
-              onChange={handleInputChange}
-              error={!!errors.organizerWebsite}
-              helperText={errors.organizerWebsite}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Organizer Phone"
-              name="organizerPhone"
-              value={formData.organizerPhone}
-              onChange={handleInputChange}
-              error={!!errors.organizerPhone}
-              helperText={errors.organizerPhone}
-              margin="normal"
-              required
-            />
-            <TextField
-              fullWidth
-              label="Organizer Description"
-              name="organizerDesc"
-              value={formData.organizerDesc}
-              onChange={handleInputChange}
-              error={!!errors.organizerDesc}
-              helperText={errors.organizerDesc}
-              margin="normal"
-              required
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCancel} color="primary">
-              Cancel
-            </Button>
-            <Button
-              onClick={handleUpToOrganize}
-              color="primary"
-              variant="contained"
-            >
-              Up to Organizer
-            </Button>
-          </DialogActions>
-        </>
-      )}
-    </Dialog>
-  );
-};
+import Swal from "sweetalert2";
+import UpgradeOrganizerDialog from "./UpgradeOrganizerDialog";
 
 const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
-
+ 
   const locations = [
+    {slug:"all-locations",name:"All-locations"},
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
     { slug: "da-nang", name: "Đà Nẵng" },
+    { slug: "hai-phong", name: "Hải Phòng" },
+    { slug: "can-tho", name: "Cần Thơ" },
+    { slug: "nha-trang", name: "Nha Trang" },
+    { slug: "da-lat", name: "Đà Lạt" },
+    { slug: "binh-duong", name: "Bình Dương" },
+    { slug: "dong-nai", name: "Đồng Nai" },
+    { slug: "quang-ninh", name: "Quảng Ninh" },
   ];
 
   useEffect(() => {
@@ -256,31 +44,34 @@ const LocationDropdown = ({ onLocationChange }) => {
   };
 
   return (
-    <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[120px] lg:w-[200px]" ref={dropdownRef}>
-    <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
     <div
-      className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
-      onClick={() => setIsOpen(!isOpen)}
+      className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[120px] lg:w-[200px]"
+      ref={dropdownRef}
     >
-      <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2 truncate w-full">
-        {locations.find((loc) => loc.slug === selected)?.name || selected}
-      </span>
-      <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
-    </div>
-    {isOpen && (
-      <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
-        {locations.map((city) => (
-          <div
-            key={city.slug}
-            className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
-            onClick={() => handleSelectCity(city.slug)}
-          >
-            {city.name}
-          </div>
-        ))}
+      <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
+      <div
+        className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2 truncate w-full">
+          {locations.find((loc) => loc.slug === selected)?.name || selected}
+        </span>
+        <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
       </div>
-    )}
-  </div>
+      {isOpen && (
+        <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+          {locations.map((city) => (
+            <div
+              key={city.slug}
+              className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
+              onClick={() => handleSelectCity(city.slug)}
+            >
+              {city.name}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -288,9 +79,7 @@ const SearchBar = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh");
-  const [searchHistory, setSearchHistory] = useState([
-    
-  ]);
+  const [searchHistory, setSearchHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);
 
@@ -304,9 +93,7 @@ const SearchBar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-
   const handleSearch = async () => {
-   
     try {
       const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
 
@@ -316,28 +103,28 @@ const SearchBar = () => {
       }
 
       const data = await response.json();
-     
-    if (data && Array.isArray(data)) {
-      if (!searchHistory.includes(searchTerm)) {
-        setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
+
+      if (data && Array.isArray(data)) {
+        if (!searchHistory.includes(searchTerm)) {
+          setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
+        }
+        navigate("/search", {
+          state: { events: data, searchTerm: searchTerm },
+        });
+      } else {
+        console.error("No valid data received from API");
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không tìm thấy sự kiện nào",
+        });
       }
-      navigate("/search", {
-        state: { events: data, searchTerm: searchTerm },
-      });
-    } else {
-      console.error("No valid data received from API");
-      Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
-        text: 'Không tìm thấy sự kiện nào',
-      });
-    }
     } catch (error) {
       console.error("Error fetching events:", error.message);
       Swal.fire({
-        icon: 'error',
-        title: 'error',
-        text: 'Failed to search events',
+        icon: "error",
+        title: "error",
+        text: "Failed to search events",
       });
     }
   };
@@ -433,48 +220,67 @@ const Header = () => {
     navigate("/notification");
     setIsMobileMenuOpen(false);
   };
-  const handleAdmin =()=>{
-    navigate("/admin")
+  const handleAdmin = () => {
+    navigate("/admin");
     setIsMobileMenuOpen(false);
-  }
+  };
   const handleLogout = async () => {
     try {
       await api.logout();
       logout();
-      
+
       Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Logged out successfully',
+        icon: "success",
+        title: "Success",
+        text: "Logged out successfully",
       });
       navigate("/login");
       setIsMobileMenuOpen(false);
     } catch (error) {
-    
       Swal.fire({
-        icon: 'error',
-        title: 'error',
+        icon: "error",
+        title: "error",
         text: "Logout failed: " + (error.msg || "Server error"),
       });
     }
   };
 
   const menuItems = [
-    { icon: "bi-calendar4-event", text: "Create event", action: handleCreateEventClick },
+    {
+      icon: "bi-calendar4-event",
+      text: "Create event",
+      action: handleCreateEventClick,
+    },
     { icon: "bi-heart", text: "Likes", action: handleLike },
     { icon: "bi bi-bell", text: "Noti", action: handleNoti },
   ];
 
   const menuPopup = [
-    { title: "Manage my events", action: handleDashboard, roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"] },
-    { title: "Invoices", action: handleMyInvoices ,roles: ["ATTENDEE"]},
+    {
+      title: "Manage my events",
+      action: handleDashboard,
+      roles: [
+        "ORGANIZER",
+        "TICKET MANAGER",
+        "EVENT ASSISTANT",
+        "CHECK-IN STAFF",
+      ],
+    },
+     { title: "Invoices", action: handleMyInvoices ,roles: ["ORGANIZER","ATTENDEE"]},
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
     { title: "Log out", action: handleLogout },
-    { title: "Up to Organizer", action: () => setOpenUpgradeDialog(true), roles: ["ATTENDEE"] }
+    // { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
+    {
+      title: "Up to Organizer",
+      action: () => setOpenUpgradeDialog(true),
+      roles: ["ATTENDEE"],
+    },
   ];
 
   const filteredMenuPopup = menuPopup.filter(
-    (item) => !item.roles || item.roles.some(role => user?.primaryRoles?.includes(role))
+    (item) =>
+      !item.roles ||
+      item.roles.some((role) => user?.primaryRoles?.includes(role))
   );
 
   useEffect(() => {
@@ -482,7 +288,10 @@ const Header = () => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setIsMenuOpen(false);
       }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target)
+      ) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -495,7 +304,7 @@ const Header = () => {
       <div className="w-full px-4 py-2 sm:py-3 md:py-3 lg:py-4 h-auto sm:h-auto md:h-14 lg:h-16 flex flex-col sm:flex-col md:flex-row justify-between items-center">
         <div className="flex justify-between items-center w-full sm:w-full md:w-auto">
           <div
-            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
+            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
             onClick={handleHomepage}
           >
             Manage Event
@@ -510,7 +319,10 @@ const Header = () => {
         <div className="w-full sm:w-full md:w-auto mt-2 sm:mt-2 md:mt-0">
           <SearchBar />
         </div>
-        <div className="hidden md:flex items-center gap-2 md:gap-3 lg:gap-6 mx-0 md:mx-4" ref={menuRef}>
+        <div
+          className="hidden md:flex items-center gap-2 md:gap-3 lg:gap-6 mx-0 md:mx-4"
+          ref={menuRef}
+        >
           {menuItems.map((item, index) => (
             <a
               key={index}
@@ -529,7 +341,9 @@ const Header = () => {
             {user ? (
               <>
                 <i className="fa-solid fa-user text-sm md:text-base lg:text-lg"></i>
-                <p className="pl-1 md:pl-1 lg:pl-[6px] font-medium hidden lg:block">{user.email}</p>
+                <p className="pl-1 md:pl-1 lg:pl-[6px] font-medium hidden lg:block">
+                  {user.email}
+                </p>
                 <i className="bi bi-chevron-down pt-1 md:pt-1 lg:pt-[4px] pl-1 md:pl-1 lg:pl-[3px] cursor-pointer text-xs md:text-sm lg:text-sm"></i>
                 {isMenuOpen && (
                   <div
@@ -539,7 +353,7 @@ const Header = () => {
                     {filteredMenuPopup.map((item, index) => (
                       <a
                         key={index}
-                        className="block pl-4 pr-10 py-2 md:py-3 lg:py-4 text-gray-700 hover:bg-gray-100 transition duration-200 font-semibold text-[12px] md:text-[13px] lg:text-[14px]"
+                        className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-200 font-semibold text-sm"
                         onClick={item.action}
                       >
                         {item.title}
@@ -550,10 +364,16 @@ const Header = () => {
               </>
             ) : (
               <>
-                <a href="/login" className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]">
+                <a
+                  href="/login"
+                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
+                >
                   Login
                 </a>
-                <a href="/signup" className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]">
+                <a
+                  href="/signup"
+                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
+                >
                   Sign Up
                 </a>
               </>
@@ -561,7 +381,10 @@ const Header = () => {
           </div>
         </div>
         {isMobileMenuOpen && (
-          <div className="md:hidden w-full bg-white border-t mt-2 py-2" ref={mobileMenuRef}>
+          <div
+            className="md:hidden w-full bg-white border-t mt-2 py-2"
+            ref={mobileMenuRef}
+          >
             {menuItems.map((item, index) => (
               <a
                 key={index}
@@ -583,10 +406,16 @@ const Header = () => {
               ))
             ) : (
               <>
-                <a href="/login" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm">
+                <a
+                  href="/login"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
+                >
                   Login
                 </a>
-                <a href="/signup" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm">
+                <a
+                  href="/signup"
+                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
+                >
                   Sign Up
                 </a>
               </>

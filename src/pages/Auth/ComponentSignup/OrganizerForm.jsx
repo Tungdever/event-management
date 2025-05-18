@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ProgressBar from "./ProgressBar";
 import BackIcon from "./BackIcon";
+import Swal from 'sweetalert2';
 
 const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
   const [formData, setFormData] = useState({
@@ -83,10 +84,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      alert('Registration successful!');
+      
+       Swal.fire ({
+        Icon: 'success',
+        Title: 'ssuccess',
+        Text: 'Registration successful!',
+      });
       onComplete();
     } catch (error) {
-      alert('Registration failed. Please try again.');
+     
+      Swal.fire ({
+        Icon: 'error',
+        Title: 'error',
+        Text: 'Registration failed. Please try again.',
+      });
     }
   };
 

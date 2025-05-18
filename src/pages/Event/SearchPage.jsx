@@ -4,26 +4,57 @@ import EventList from "../../components/EventListSearch";
 import Footer from "../../components/Footer";
 import Loader from "../../components/Loading";
 
-const FilterSidebar = ({ onFilterChange, selectedCategories, setSelectedCategories, 
-  selectedEventLocation, setSelectedEventLocation }) => {
+const FilterSidebar = ({
+  onFilterChange,
+  selectedCategories,
+  setSelectedCategories,
+  selectedEventLocation,
+  setSelectedEventLocation,
+  selectedEventStart,
+  setSelectedEventStart,
+  selectedTicketType,
+  setSelectedTicketType,
+}) => {
   const eventCategories = [
     { id: "all-types", label: "All types" },
-    { id: "conference", label: "Conference" },
-    { id: "workshop", label: "Workshop" },
-    { id: "seminar", label: "Seminar" },
-    { id: "concert", label: "Concert" },
-    { id: "exhibition", label: "Exhibition" },
+    { id: "Conference", label: "Conference" },
+    { id: "Food & Drink", label: "Food & Drink" },
+    { id: "Business", label: "Business" },
+    { id: "Hobbies", label: "Hobbies" },
+    { id: "Dating", label: "Dating" },
+    { id: "Holidays", label: "Holidays" },
+    { id: "Performing", label: "Performing" },
+    { id: "Nightlife", label: "Nightlife" },
+    { id: "Music", label: "Music" },
   ];
 
   const eventLocations = [
     { id: "all-locations", label: "All location" },
-    { id: "ha-noi", label: "Hà Nội" },
     { id: "ho-chi-minh", label: "TP. Hồ Chí Minh" },
+    { id: "ha-noi", label: "Hà Nội" },
     { id: "da-nang", label: "Đà Nẵng" },
+    { id: "hai-phong", label: "Hải Phòng" },
+    { id: "can-tho", label: "Cần Thơ" },
+    { id: "nha-trang", label: "Nha Trang" },
+    { id: "da-lat", label: "Đà Lạt" },
+    { id: "binh-duong", label: "Bình Dương" },
+    { id: "dong-nai", label: "Đồng Nai" },
+    { id: "quang-ninh", label: "Quảng Ninh" },
+  ];
+
+  const eventStarts = [
+    { id: "all-times", label: "All time" },
+    { id: "this weeek", label: "This week" },
+    { id: "this month", label: "This month" },
+  ];
+  const ticketTypes = [
+    { id: "all-types", label: "All types" },
+    { id: "Free", label: "Free" },
+    { id: "Paid", label: "Paid" },
   ];
 
   return (
-    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200">
+    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200 overflow-y-auto h-screen">
       <div className="flex justify-between items-center border-b pb-4">
         <h2 className="text-xl font-bold text-gray-800">Filters</h2>
         <button
@@ -39,10 +70,15 @@ const FilterSidebar = ({ onFilterChange, selectedCategories, setSelectedCategori
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Event types</h3>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">
+          Event types
+        </h3>
         <div className="space-y-3">
           {eventCategories.map((category) => (
-            <div key={category.id} className="flex items-center space-x-3 text-[13px]">
+            <div
+              key={category.id}
+              className="flex items-center space-x-3 text-[13px]"
+            >
               <input
                 id={category.id}
                 type="radio"
@@ -66,7 +102,10 @@ const FilterSidebar = ({ onFilterChange, selectedCategories, setSelectedCategori
         <h3 className="font-semibold text-gray-700 mb-3 text-lg">Location</h3>
         <div className="space-y-3">
           {eventLocations.map((location) => (
-            <div key={location.id} className="flex items-center space-x-3 text-[13px]">
+            <div
+              key={location.id}
+              className="flex items-center space-x-3 text-[13px]"
+            >
               <input
                 id={location.id}
                 type="radio"
@@ -85,18 +124,77 @@ const FilterSidebar = ({ onFilterChange, selectedCategories, setSelectedCategori
           ))}
         </div>
       </div>
+
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Time</h3>
+        <div className="space-y-3">
+          {eventStarts.map((time) => (
+            <div
+              key={time.id}
+              className="flex items-center space-x-3 text-[13px]"
+            >
+              <input
+                id={time.id}
+                type="radio"
+                name="eventStart"
+                checked={selectedEventStart === time.id}
+                onChange={() => setSelectedEventStart(time.id)}
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+              />
+              <label
+                htmlFor={time.id}
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+              >
+                {time.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Price</h3>
+        <div className="space-y-3">
+          {ticketTypes.map((type) => (
+            <div
+              key={type.id}
+              className="flex items-center space-x-3 text-[13px]"
+            >
+              <input
+                id={type.id}
+                type="radio"
+                name="ticketType"
+                checked={selectedTicketType === type.id}
+                onChange={() => setSelectedTicketType(type.id)}
+                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+              />
+              <label
+                htmlFor={type.id}
+                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+              >
+                {type.label}
+              </label>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
 
 const SearchPage = () => {
-  const [loading, setLoading] = useState(false); // Bỏ loading ban đầu
+  const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState("all-types");
-  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
+  const [selectedEventLocation, setSelectedEventLocation] =
+    useState("all-locations");
+  const [selectedEventStart, setSelectedEventStart] = useState("all-times");
+  const [selectedTicketType, setSelectedTicketType] = useState("all-types");
   const location = useLocation();
-  const [searchTitle, setSearchTitle] = useState(location.state?.searchTerm || "");
-  const token = localStorage.getItem('token');
+  const [searchTitle, setSearchTitle] = useState(
+    location.state?.searchTerm || ""
+  );
+  const token = localStorage.getItem("token");
 
   // Thiết lập sự kiện ban đầu từ location.state
   useEffect(() => {
@@ -109,47 +207,27 @@ const SearchPage = () => {
   // Lấy dữ liệu khi bộ lọc thay đổi
   useEffect(() => {
     const fetchEvents = async () => {
-      // Chỉ lấy dữ liệu nếu có bộ lọc cụ thể
-      if (selectedCategories === "all-types" && selectedEventLocation === "all-locations") {
+      if (
+        selectedCategories === "all-types" &&
+        selectedEventLocation === "all-locations" &&
+        selectedEventStart === "all-times" &&
+        selectedTicketType === "all-types"
+      ) {
         return; // Giữ nguyên events từ location.state
       }
       setLoading(true);
       try {
-        let fetchedEvents = [];
-        if (selectedCategories !== "all-types") {
-          const response = await fetch(`http://localhost:8080/api/events/search/by-type/${selectedCategories}`, {
+        const response = await fetch(
+          `http://localhost:8080/api/events/search/multiple-filters?eventCategory=${selectedCategories}&eventLocation=${selectedEventLocation}&eventStart=${selectedEventStart}&ticketType=${selectedTicketType}`,
+          {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
             },
-          });
-          if (!response.ok) throw new Error("Failed to fetch events by category");
-          fetchedEvents = await response.json();
-        } else {
-          const response = await fetch(`http://localhost:8080/api/events/search/by-type/all-types`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (!response.ok) throw new Error("Failed to fetch all events");
-          fetchedEvents = await response.json();
-        }
-
-        if (selectedEventLocation !== "all-locations") {
-          const response = await fetch(`http://localhost:8080/api/events/search/by-city/${selectedEventLocation}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if (!response.ok) throw new Error("Failed to fetch events by location");
-          const locationEvents = await response.json();
-          fetchedEvents = fetchedEvents.filter(event =>
-            locationEvents.some(locEvent => locEvent.id === event.id)
-          );
-        }
-
+          }
+        );
+        if (!response.ok) throw new Error("Failed to fetch events");
+        const fetchedEvents = await response.json();
         setEvents(fetchedEvents);
       } catch (error) {
         console.error("Error fetching events:", error);
@@ -160,7 +238,13 @@ const SearchPage = () => {
     };
 
     fetchEvents();
-  }, [selectedCategories, selectedEventLocation, token]);
+  }, [
+    selectedCategories,
+    selectedEventLocation,
+    selectedEventStart,
+    selectedTicketType,
+    token,
+  ]);
 
   return loading ? (
     <div className="flex justify-center items-center h-screen">
@@ -170,7 +254,9 @@ const SearchPage = () => {
     <>
       <div className="mx-auto px-6 py-4">
         <h1 className="text-3xl font-bold text-gray-700 mt-4">
-          {searchTitle ? `Sự kiện sắp tới cho ${searchTitle}` : "Sự kiện sắp tới"}
+          {searchTitle
+            ? `Upcoming events for ${searchTitle}`
+            : "Upcoming events"}
         </h1>
         <div className="flex flex-col md:flex-row gap-2 p-5">
           <div className="w-full md:w-1/4">
@@ -180,13 +266,17 @@ const SearchPage = () => {
               setSelectedCategories={setSelectedCategories}
               selectedEventLocation={selectedEventLocation}
               setSelectedEventLocation={setSelectedEventLocation}
+              selectedEventStart={selectedEventStart}
+              setSelectedEventStart={setSelectedEventStart}
+              selectedTicketType={selectedTicketType}
+              setSelectedTicketType={setSelectedTicketType}
             />
           </div>
           <div className="w-full md:w-3/4 overflow-y-auto">
             {events.length > 0 ? (
               <EventList event={events} />
             ) : (
-              <p className="text-gray-500">Không tìm thấy sự kiện nào.</p>
+              <p className="text-gray-500">No event found.</p>
             )}
           </div>
         </div>

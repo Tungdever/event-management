@@ -3,7 +3,7 @@ import { Calendar, MapPin, Tag, User } from "lucide-react";
 import { useAuth } from "../Auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { FaEllipsisV } from "react-icons/fa";
-
+import Swal from "sweetalert2";
 const AssignedEvents = () => {
   const { user } = useAuth();
   const popupRef = useRef(null);
@@ -51,27 +51,35 @@ const AssignedEvents = () => {
         throw new Error("Failed to delete event");
       }
       setEvents(events.filter((e) => e.event.eventId !== eventId));
-      alert("Event deleted successfully");
+
+      Swal.fire({
+        Icon: "success",
+        Title: "success",
+        Text: "Event deleted successfully",
+      });
     } catch (error) {
-      console.error("Failed to delete event:", error);
-      alert("Failed to delete event: " + error.message);
+      Swal.fire({
+        Icon: "error",
+        Title: "error",
+        Text: "Failed to delete event",
+      });
     }
   };
 
   const handleActionClick = (action, eventId) => {
     if (action === "View detail event") {
-      navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
+      navigate(`/dashboard/my-team/${eventId}`, { state: { eventId } });
     } else if (action === "Delete event") {
       if (window.confirm("Are you sure you want to delete this event?")) {
         deleteEvent(eventId);
       }
     }
-    setPopupVisible(null); 
+    setPopupVisible(null);
   };
 
   useEffect(() => {
     if (user?.userId) {
-      fetchAssignedEvents(user.userId); 
+      fetchAssignedEvents(user.userId);
     }
   }, [user]);
 
@@ -119,7 +127,7 @@ const AssignedEvents = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl min-h-screen p-6 bg-gray-100 rounded-xl">
+    <div className="mx-auto max-w-4xl min-h-screen p-6 bg-gray-50 rounded-[8px]">
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">
@@ -208,15 +216,19 @@ const AssignedEvents = () => {
                         ref={popupRef}
                         className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 transform transition-all duration-200"
                       >
-                        {getAvailableActions(roleName, permissions).map((action) => (
-                          <div
-                            key={action}
-                            className="px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-sm transition-colors duration-200"
-                            onClick={() => handleActionClick(action, event.eventId)}
-                          >
-                            {action}
-                          </div>
-                        ))}
+                        {getAvailableActions(roleName, permissions).map(
+                          (action) => (
+                            <div
+                              key={action}
+                              className="px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-sm transition-colors duration-200"
+                              onClick={() =>
+                                handleActionClick(action, event.eventId)
+                              }
+                            >
+                              {action}
+                            </div>
+                          )
+                        )}
                       </div>
                     )}
                   </div>

@@ -1,3 +1,4 @@
+// EventForm.jsx
 import React, { useState, useEffect } from "react";
 import SectionEvent from "./SegmentEvent";
 import UploadContainer from "./UploadImg";
@@ -8,14 +9,12 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
-import DOMPurify from 'dompurify'; 
+import DOMPurify from 'dompurify';
 
 const EventForm = ({ event, setEvent, onNext }) => {
   const [showOverview, setShowOverview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pasteError, setPasteError] = useState('');
-
-  
 
   // Khởi tạo Tiptap editor
   const editor = useEditor({
@@ -43,7 +42,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
         const newHtml = `<p>${truncatedText}</p>`;
         editor.commands.setContent(newHtml);
         setEvent({ ...event, eventDesc: newHtml });
-        setPasteError('Nội dung dán đã vượt quá 20000 ký tự và được cắt bớt.');
+        setPasteError('Content pasted exceeds 20000 characters and has been truncated.');
       }
     },
     editorProps: {
@@ -57,7 +56,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
             view.dispatch(
               view.state.tr.insertText(allowedText, view.state.selection.from)
             );
-            setPasteError('Nội dung dán đã vượt quá 20000 ký tự và được cắt bớt.');
+            setPasteError('Content pasted exceeds 20000 characters and has been truncated.');
             return true;
           }
         }
@@ -258,10 +257,15 @@ const EventForm = ({ event, setEvent, onNext }) => {
         </div>
       )}
 
-      <SectionEvent segmentData={event.segment} onSegmentUpdate={handleSegmentUpdate} />
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
+      />
+      <SectionEvent
+        segmentData={event.segment}
+        onSegmentUpdate={handleSegmentUpdate}
+        eventStart={event.eventLocation?.startTime} // Truyền startTime
+        eventEnd={event.eventLocation?.endTime}     // Truyền endTime
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}
@@ -279,20 +283,20 @@ const EventForm = ({ event, setEvent, onNext }) => {
       </div>
 
       {/* CSS tùy chỉnh cho ProseMirror */}
-          <style>{`
-      .ProseMirror {
-        min-height: 100px !important;
-        padding: 8px;
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
-      }
-      .ProseMirror:focus {
-        border: none !important;
-        outline: none !important;
-        box-shadow: none !important;
-      }
-    `}</style>
+      <style>{`
+        .ProseMirror {
+          min-height: 100px !important;
+          padding: 8px;
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+        .ProseMirror:focus {
+          border: none !important;
+          outline: none !important;
+          box-shadow: none !important;
+        }
+      `}</style>
     </div>
   );
 };

@@ -16,7 +16,17 @@ const EventList = ({ event }) => {
   const handleImageError = (eventId) => {
     setImageError((prev) => ({ ...prev, [eventId]: true }));
   };
-
+  const getLocation = (location) => {
+    if (!location || (!location.venueName && !location.address && !location.city)) {
+      return "Online";
+    }
+    const parts = [
+      location.venueName,
+      location.address,
+      location.city,
+    ].filter((part) => part && part.trim() !== "");
+    return parts.length > 0 ? parts.join(", ") : "Online";
+  };
   if (!event || event.length === 0) {
     return (
       <div className="max-w-5xl mx-auto p-6 border-l-2 text-center">
@@ -38,7 +48,7 @@ const EventList = ({ event }) => {
             eventItem.eventImages.length === 0 || 
             !isValidUrl(eventItem.eventImages[0]) ? (
               <div className="w-44 h-28 bg-gray-200 flex items-center justify-center rounded-lg">
-                <p className="text-gray-500 text-sm">Hình ảnh không tải được</p>
+                <p className="text-gray-500 text-sm">No images</p>
               </div>
             ) : (
               <img
@@ -56,20 +66,13 @@ const EventList = ({ event }) => {
               </div>
               <p className="text-gray-600">
                 <i className="fa-solid fa-location-dot mr-2 text-orange-300"></i>
-                {eventItem.eventLocation.venueName}
+                 {getLocation(eventItem.eventLocation)}
               </p>
               <div className="flex items-center text-gray-600 mt-1">
                 <FaUserFriends className="mr-2 text-blue-500" /> {eventItem.eventHost}
               </div>
             </div>
-            <div className="flex flex-col items-center ml-6 space-y-3">
-              <button className="p-2 rounded-full bg-gray-100 hover:bg-red-100 text-red-500 transition duration-200 ease-in-out hover:scale-110">
-                <FaHeart size={18} />
-              </button>
-              <button className="p-2 rounded-full bg-gray-100 hover:bg-blue-100 text-blue-500 transition duration-200 ease-in-out hover:scale-110">
-                <FaShareAlt size={18} />
-              </button>
-            </div>
+          
           </div>
         ))}
       </div>

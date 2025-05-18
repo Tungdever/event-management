@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import Swal from 'sweetalert2';
 
 const images = [
   "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
@@ -41,7 +42,12 @@ const CategoriesGrid = ({ categories }) => {
       });
     } catch (error) {
       console.error('Error fetching event data:', error);
-      alert('Failed to load event data');
+     
+       Swal.fire ({
+        Icon: 'error',
+        Title: 'error',
+        Text: 'Failed to load event data',
+      });
     }
   };
 

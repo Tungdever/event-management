@@ -23,12 +23,13 @@ const ViewProfile = () => {
         setUserData(response.data);
         setLoading(false);
       } catch (err) {
-        console.error("Lỗi khi lấy dữ liệu người dùng:", err);
-        setError("Không thể tải dữ liệu người dùng. Vui lòng thử lại.");
+        console.error("Error fetching user data:", err);
+        setError("Unable to load user data. Please try again.");
         setLoading(false);
       }
     };
     fetchUserData();
+    window.scrollTo(0, 0);
   }, []);
 
   const handleEditClick = () => {
@@ -42,7 +43,7 @@ const ViewProfile = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-gradient-to-br from-teal-50 to-gray-100">
-        <div className="text-2xl font-bold text-teal-600 animate-pulse">Đang tải...</div>
+        <div className="text-2xl font-bold text-teal-600 animate-pulse">Loading...</div>
       </div>
     );
   }
@@ -55,7 +56,20 @@ const ViewProfile = () => {
     );
   }
 
-  const [firstName, lastName] = userData.fullName.split(" ");
+  // Hàm định dạng ngày sinh theo chuẩn MM/DD/YYYY
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not Updated";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  // Tách fullName thành firstName và lastName
+  const [firstName, ...lastNameParts] = userData.fullName.split(" ");
+  const lastName = lastNameParts.join(" ") || "Not Updated";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-4 font-sans">
@@ -67,7 +81,7 @@ const ViewProfile = () => {
               <div className="flex justify-center relative">
                 <img
                   className="w-36 h-36 rounded-full object-cover border-4 border-teal-100 shadow-lg transform transition-transform hover:scale-105"
-                  src="https://i.pinimg.com/736x/cd/4b/d9/cd4bd9b0ea2807611ba3a67c331bff0b.jpg"
+                  src={userData.organizer?.organizerLogo || "https://i.pinimg.com/736x/cd/4b/d9/cd4bd9b0ea2807611ba3a67c331bff0b.jpg"}
                   alt="Profile"
                 />
                 <div className="absolute inset-0 rounded-full bg-teal-500 opacity-10 blur-xl"></div>
@@ -76,22 +90,26 @@ const ViewProfile = () => {
                 {userData.fullName}
               </h1>
               <h3 className="text-gray-600 text-lg font-semibold text-center mt-2">
-                {userData.roles[0]?.name || "Người dùng"}
+                {userData.roles?.[0]?.name || "User"}
               </h3>
               <p className="text-gray-500 text-sm text-center mt-3 leading-relaxed">
-                Tổ chức: {userData.organizer?.organizerName || "N/A"}
+                {userData.organizer?.organizerName || "Not an Organizer"}
               </p>
               <div className="mt-8 bg-gray-50 rounded-xl p-6 shadow-inner">
                 <ul className="space-y-5 text-gray-600">
                   <li className="flex justify-between items-center">
-                    <span className="font-medium">Trạng thái</span>
-                    <span className="bg-teal-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow">
-                      Hoạt động
+                    <span className="font-medium">Status</span>
+                    <span
+                      className={`text-xs font-bold px-3 py-1 rounded-full shadow ${
+                        userData.active ? "bg-teal-500 text-white" : "bg-red-500 text-white"
+                      }`}
+                    >
+                      {userData.active ? "Active" : "Inactive"}
                     </span>
                   </li>
                   <li className="flex justify-between items-center">
-                    <span className="font-medium">Thành viên từ</span>
-                    <span className="text-gray-700">07/11/2016</span>
+                    <span className="font-medium">User ID</span>
+                    <span className="text-gray-700">{userData.userId}</span>
                   </li>
                 </ul>
               </div>
@@ -117,33 +135,33 @@ const ViewProfile = () => {
                       d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                     />
                   </svg>
-                  <span className="text-2xl font-bold text-gray-800 tracking-tight">Thông tin</span>
+                  <span className="text-2xl font-bold text-gray-800 tracking-tight">Personal Information</span>
                 </div>
                 <button
                   onClick={handleEditClick}
                   className="bg-gradient-to-r from-teal-500 to-teal-600 text-white px-4 py-2 rounded-lg shadow-md hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:-translate-y-0.5"
                 >
-                  <i className="fa-solid fa-user-pen mr-2"></i>Chỉnh sửa
+                  <i className="fa-solid fa-user-pen mr-2"></i>Edit
                 </button>
               </div>
               <div className="grid md:grid-cols-2 gap-6 text-gray-700 border-b-2 border-gray-100 pb-8">
                 {[
-                  { label: "Họ", value: firstName },
-                  { label: "Tên", value: lastName },
-                  { label: "Giới tính", value: userData.gender },
-                  { label: "Số điện thoại", value: userData.organizer?.organizerPhone || "N/A" },
-                  { label: "Địa chỉ hiện tại", value: userData.address },
-                  { label: "Địa chỉ tổ chức", value: userData.organizer?.organizerAddress || "N/A" },
+                  { label: "First Name", value: firstName },
+                  { label: "Last Name", value: lastName },
+                  { label: "Gender", value: userData.gender || "Not Updated" },
+                  { label: "Birthday", value: formatDate(userData.birthday) },
+                  { label: "Address", value: userData.address || "Not Updated" },
                   {
                     label: "Email",
                     value: (
-                      <a href={`mailto:${userData.email}`} className="text-teal-600 hover:text-teal-800 transition-colors">
+                      <a
+                        href={`mailto:${userData.email}`}
+                        className="text-teal-600 hover:text-teal-800 transition-colors"
+                      >
                         {userData.email}
                       </a>
                     ),
                   },
-                  { label: "Ngày sinh", value: userData.birthday },
-                  { label: "Website", value: userData.organizer?.organizerWebsite || "N/A" },
                 ].map((item) => (
                   <div key={item.label} className="flex flex-col gap-1 group">
                     <div className="font-semibold text-gray-600 group-hover:text-teal-600 transition-colors">
@@ -155,18 +173,44 @@ const ViewProfile = () => {
                   </div>
                 ))}
               </div>
-              <div className="mt-8">
-                <div className="flex items-center space-x-3 mb-6">
-                  <i className="fa-solid fa-users text-teal-600 text-xl"></i>
-                  <span className="text-2xl font-bold text-gray-800 tracking-tight">Tổ chức</span>
+              {userData.organizer && (
+                <div className="mt-8">
+                  <div className="flex items-center space-x-3 mb-6">
+                    <i className="fa-solid fa-users text-teal-600 text-xl"></i>
+                    <span className="text-2xl font-bold text-gray-800 tracking-tight">Organizational Information</span>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6 text-gray-700">
+                    {[
+                      { label: "Organization Name", value: userData.organizer.organizerName },
+                      { label: "Address", value: userData.organizer.organizerAddress },
+                      {
+                        label: "Website",
+                        value: (
+                          <a
+                            href={userData.organizer.organizerWebsite}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-teal-600 hover:text-teal-800 transition-colors"
+                          >
+                            {userData.organizer.organizerWebsite}
+                          </a>
+                        ),
+                      },
+                      { label: "Phone Number", value: userData.organizer.organizerPhone },
+                      { label: "Description", value: userData.organizer.organizerDesc },
+                    ].map((item) => (
+                      <div key={item.label} className="flex flex-col gap-1 group">
+                        <div className="font-semibold text-gray-600 group-hover:text-teal-600 transition-colors">
+                          {item.label}
+                        </div>
+                        <div className="text-gray-700 group-hover:text-gray-900 transition-colors overflow-hidden text-ellipsis whitespace-nowrap hover:whitespace-normal hover:overflow-visible">
+                          {item.value}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <ul className="space-y-4">
-                  <li className="transform transition-transform hover:translate-x-2">
-                    <div className="text-teal-600 font-semibold">{userData.organizer?.organizerName || "N/A"}</div>
-                    <div className="text-gray-500 text-sm">Tháng 3/2020 - Hiện tại</div>
-                  </li>
-                </ul>
-              </div>
+              )}
             </div>
           </div>
         </div>

@@ -36,7 +36,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
     setErrors((prev) => ({ ...prev, [name]: fieldErrors[name] }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     const newErrors = validateForm(formData);
 
@@ -45,38 +45,14 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
       return;
     }
 
-    try {
-      const payload = {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-        birthday: formData.birthday,
-        gender: formData.gender,
-        address: formData.address,
-       
-      };
-
-      const response = await fetch('http://localhost:8080/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      alert('Registration successful!');
-      onComplete();
-    } catch (error) {
-      alert('Registration failed. Please try again.');
-    }
+    // Lưu dữ liệu vào userData và chuyển sang bước tiếp theo
+    onComplete(formData);
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-[600px] mx-auto p-6">
-        <ProgressBar currentStep={5} />
+        <ProgressBar currentStep={5} totalSteps={6} />
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col w-[600px]">
           <div className="p-6 rounded-t">
             <h2 className="text-2xl font-bold flex items-center">
@@ -253,7 +229,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200"
             >
-              Register
+              Continue
             </button>
           </form>
         </div>

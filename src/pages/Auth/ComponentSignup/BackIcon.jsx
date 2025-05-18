@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { useState, useEffect } from "react";
 const BackIcon = ({ onClick }) => (
   <span
     onClick={onClick}
@@ -22,5 +21,4 @@ const BackIcon = ({ onClick }) => (
     </svg>
   </span>
 );
-
-export default BackIcon;
+export default BackIcon

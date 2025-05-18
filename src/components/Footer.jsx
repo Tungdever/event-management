@@ -1,55 +1,6 @@
 const Footer = () => {
-  const footerLinks = [
-    {
-      title: "Use Eventbrite",
-      links: [
-        "Create Events",
-        "Pricing",
-        "Event Marketing Platform",
-        "Eventbrite Mobile Ticket App",
-        "Eventbrite Check-In App",
-        "Eventbrite App Marketplace",
-        "Event Registration Software",
-        "Community Guidelines",
-        "FAQs",
-        "Sitemap",
-      ],
-    },
-    {
-      title: "Plan Events",
-      links: [
-        "Sell Tickets Online",
-        "Event Planning",
-        "Sell Concert Tickets Online",
-        "Event Payment System",
-        "Solutions for Professional Services",
-        "Event Management Software",
-        "Halloween Party Planning",
-        "Virtual Events Platform",
-        "QR Codes for Event Check-In",
-        "Post your event online",
-      ],
-    },
-    {
-      title: "Find Events",
-      links: ["Browse Ho Chi Minh City Events", "Get the Eventbrite App"],
-    },
-    {
-      title: "Connect With Us",
-      links: [
-        "Report This Event",
-        "Help Center",
-        "Terms",
-        "Privacy",
-        "CA Privacy Notice",
-        "Accessibility",
-        "Community Guidelines",
-      ],
-    },
-  ];
 
   return (
-
     <footer className="bg-white">
       <div className="mx-auto max-w-screen-xl px-4 pb-6 pt-16 sm:px-6 lg:px-8 lg:pt-24">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
@@ -61,8 +12,8 @@ const Footer = () => {
             </div>
 
             <p className="mt-6 max-w-md text-center leading-relaxed text-gray-500 sm:max-w-xs sm:text-left">
-              Lorem ipsum dolor, sit amet consectetur adipisicing elit. Incidunt
-              consequuntur amet culpa cum itaque neque.
+              Plan, manage, and celebrate extraordinary events effortlessly, 
+              powered by a platform that brings your vision to life and unites people through shared experiences.
             </p>
 
             <ul className="mt-8 flex justify-center gap-6 sm:justify-start md:gap-8 ">
@@ -232,19 +183,11 @@ const Footer = () => {
                     className="text-gray-700 transition hover:text-gray-700/75"
                     href="#"
                   >
-                    Web Development
+                    Management Event
                   </a>
                 </li>
 
-                <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    Web Design{" "}
-                  </a>
-                </li>
+               
 
                 <li>
                   <a
@@ -256,15 +199,7 @@ const Footer = () => {
                   </a>
                 </li>
 
-                <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    Google Ads{" "}
-                  </a>
-                </li>
+                
               </ul>
             </div>
 
@@ -320,7 +255,7 @@ const Footer = () => {
                       />
                     </svg>
 
-                    <span className="flex-1 text-gray-700">john@doe.com</span>
+                    <span className="flex-1 text-gray-700">trungho@gmail.com</span>
                   </a>
                 </li>
 
@@ -370,7 +305,7 @@ const Footer = () => {
                   </svg>
 
                   <address className="-mt-0.5 flex-1 not-italic text-gray-700">
-                    213 Lane, London, United Kingdom
+                    1 Vo Van Ngan, TP.Thu Duc
                   </address>
                 </li>
               </ul>

@@ -1,6 +1,4 @@
-import React from "react";
-
-const ProgressBar = ({ currentStep, totalSteps = 5 }) => {
+const ProgressBar = ({ currentStep, totalSteps = 6 }) => {
   const progress = (currentStep / totalSteps) * 100;
 
   return (
@@ -18,4 +16,4 @@ const ProgressBar = ({ currentStep, totalSteps = 5 }) => {
   );
 };
 
-export default ProgressBar;
+export default ProgressBar

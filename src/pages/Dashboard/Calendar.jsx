@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../Auth/AuthProvider";
 
 const Calendar = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -14,6 +15,7 @@ const Calendar = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const {user} = useAuth()
 
   const colorPalette = [
     "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD", "#D4A5A5", "#9B59B6"
@@ -31,7 +33,7 @@ const Calendar = () => {
   useEffect(() => {
     fetchAllEvents();
     generateCalendar();
-  }, [currentMonth]);
+  }, []);
 
   const handleViewDetail = (eventId) => {
     navigate(`/event/${eventId}`);
@@ -46,7 +48,7 @@ const Calendar = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:8080/api/events/all", {
+      const response = await fetch(`http://localhost:8080/api/role-assignment/${user.userId}/get-events`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

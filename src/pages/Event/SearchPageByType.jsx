@@ -146,7 +146,7 @@ const SearchByType = () => {
       <div className={`w-full h-[290px] ${selectedCategory.backgroundColor} grid grid-cols-2 my-6 gap-6 place-items-center`}>
         <div className={`${selectedCategory.textColor} font-weight-800 flex flex-col items-start justify-center`}>
           <h1 className="text-5xl text-center font-extrabold font-mono">
-            {(categoryName ? ` ${categoryName}` : "Upcoming Events").toUpperCase()}
+            {(categoryName ? ` ${categoryName}` : "Popular Events").toUpperCase()}
           </h1>
           <p className="text-lg text-center mt-2">{selectedCategory.slogan}</p>
         </div>
@@ -157,8 +157,8 @@ const SearchByType = () => {
         />
       </div>
       <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">
-          {(categoryName ? `Upcoming Events for ${categoryName}` : "Upcoming Events").toUpperCase()}
+        <h2 className="text-2xl font-bold text-gray-800 mb-4 font-lato">
+          {(categoryName ? `Popular Events ${categoryName}` : "Upcoming Events").toUpperCase()}
         </h2>
 
         {events.length === 0 ? (
