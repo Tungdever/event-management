@@ -23,8 +23,26 @@ const Sponsor = () => {
   const dropdownLevelRef = useRef(null);
   const token = localStorage.getItem('token');
   const [searchTerm, setSearchTerm] = useState("");
-
-
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState(null);
+  useEffect(() => {
+    if (toastMessage && toastType) {
+      if (toastType === "info") {
+        toast.info(toastMessage);
+      }
+      else if (toastType === "success") {
+        toast.success(toastMessage);
+      }
+      else if (toastType === "error") {
+        toast.error(toastMessage);
+      }
+      else if (toastType === "warn") {
+        toast.warn(toastMessage);
+      }
+      setToastType(null)
+      setToastMessage(null);
+    }
+  }, [toastMessage]);
 
   // =====================================================================
   // Màu sắc và icon của từng Level
@@ -80,10 +98,11 @@ const Sponsor = () => {
       })
       .catch((error) => {
         const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
-        toast.error(errorMessage);
+        setToastMessage(errorMessage);
+        setToastType("error");
       });
   };
-  
+
   useEffect(() => {
     fetchSponsors();
   }, []);
@@ -192,7 +211,8 @@ const Sponsor = () => {
       );
       console.log("Upload thành công:", response.data);
       if (response.data.statusCode === "1" || response.data.statusCode === 1) {
-        toast.success(response.data.msg);
+        setToastMessage(response.data.msg);
+        setToastType("success");
         // Cập nhật danh sách tài trợ ngay sau khi upload thành công
         setSponsors((prevSponsors) => [
           ...prevSponsors,
@@ -205,11 +225,14 @@ const Sponsor = () => {
         document.querySelector("#add-sponsor .btn-close").click();
       }
       else {
-        toast.error(response.data.msg);
+        setToastMessage(response.data.msg);
+        setToastType("error");
+
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
-      toast.error(errorMessage);
+      setToastMessage(errorMessage);
+      setToastType("error");
     }
   };
   const editSponsorHandle = async (e) => {
@@ -243,7 +266,9 @@ const Sponsor = () => {
         }
       );
       if (response.data.statusCode === "1" || response.data.statusCode === 1) {
-        toast.success(response.data.msg);
+
+        setToastMessage(response.data.msg);
+        setToastType("success");
         setSponsors((prevSponsors) =>
           prevSponsors.map((sponsor) =>
             sponsor.sponsorId === selectedSponsor.sponsorId ? selectedSponsor : sponsor
@@ -257,12 +282,16 @@ const Sponsor = () => {
         document.querySelector("#edit-sponsor .btn-close").click();
       }
       else {
-        toast.error(response.data.msg);
+        setToastMessage(response.data.msg);
+        setToastType("error");
+
       }
 
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
-      toast.error(errorMessage);
+      setToastMessage(errorMessage);
+      setToastType("error");
+
     }
 
   };
@@ -277,14 +306,17 @@ const Sponsor = () => {
         }
       );
       if (response.data.statusCode === "1" || response.data.statusCode === 1) {
-        toast.success(response.data.msg);
+        setToastMessage(response.data.msg);
+        setToastType("success");
       }
       else {
-        toast.error(response.data.msg);
+        setToastType("error");
+        setToastMessage(response.data.msg);
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
-      toast.error(errorMessage);
+      setToastType("error");
+      setToastMessage(errorMessage);
     }
     const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsorId !== selectedSponsor.sponsorId);
     setSponsors(updatedSponsors);
@@ -426,19 +458,23 @@ const Sponsor = () => {
         );
 
         if (response.data.statusCode === 1 || response.data.statusCode === "1") {
-          toast.success(response.data.msg);
+          setToastMessage(response.data.msg);
+          setToastType("success");
+
           fetchSponsors();
         } else {
-          toast.error(response.data.msg);
+          setToastMessage(response.data.msg);
+          setToastType("error");
         }
 
       } catch (error) {
         console.error(error);
         const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
-        toast.error(errorMessage);
+        setToastMessage(errorMessage);
+        setToastType("error");
       }
     };
-    reader.readAsArrayBuffer(file); 
+    reader.readAsArrayBuffer(file);
   };
 
 

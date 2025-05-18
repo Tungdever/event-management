@@ -214,19 +214,38 @@ const DashboardPage = () => {
   };
 
   // Doughnut Chart: Event Type Distribution
+  const eventTypeCount = data.events?.reduce((acc, event) => {
+    acc[event.eventType] = (acc[event.eventType] || 0) + 1;
+    return acc;
+  }, {}) || {};
+
   const eventTypeData = {
-    labels: data.events?.map(event => event.eventType) || [],
+    labels: Object.keys(eventTypeCount),
     datasets: [
       {
-        data: data.events?.reduce((acc, event) => {
-          acc[event.eventType] = (acc[event.eventType] || 0) + 1;
-          return acc;
-        }, {}) ? Object.values(data.events?.reduce((acc, event) => {
-          acc[event.eventType] = (acc[event.eventType] || 0) + 1;
-          return acc;
-        }, {})) : [],
-        backgroundColor: ['#a5d8ff', '#a7f3d0', '#d8b4fe', '#fed7aa', '#f87171'],
-        hoverBackgroundColor: ['#87c7ff', '#8eebbb', '#c89eff', '#f5c08f', '#e55e5e'],
+        data: Object.values(eventTypeCount),
+        backgroundColor: [
+          '#a5d8ff', // Xanh dương nhạt
+          '#a7f3d0', // Xanh lá nhạt
+          '#d8b4fe', // Tím nhạt
+          '#fed7aa', // Cam nhạt
+          '#f87171', // Đỏ nhạt
+          '#6ee7b7', // Xanh ngọc
+          '#f472b6', // Hồng
+          '#93c5fd', // Xanh dương trung
+          '#facc15', // Vàng
+        ],
+        hoverBackgroundColor: [
+          '#87c7ff', // Xanh dương nhạt sáng hơn
+          '#8eebbb', // Xanh lá nhạt sáng hơn
+          '#c89eff', // Tím nhạt sáng hơn
+          '#f5c08f', // Cam nhạt sáng hơn
+          '#e55e5e', // Đỏ nhạt sáng hơn
+          '#4ade80', // Xanh ngọc sáng hơn
+          '#ec4899', // Hồng sáng hơn
+          '#60a5fa', // Xanh dương trung sáng hơn
+          '#eab308', // Vàng sáng hơn
+        ],
         hoverOffset: 4,
         borderWidth: 1,
         borderColor: '#ffffff',
@@ -436,7 +455,7 @@ const DashboardPage = () => {
                 <div className="w-1/2 flex items-center space-x-4 text-[13px]">
                   {event.eventImage ? (
                     <img
-                      src={`http://localhost:8080/api/storage/view/${event.eventImage}`}
+                      src={event.eventImages[0]}
                       alt={event.eventName}
                       className="w-16 h-16 object-cover rounded-md"
                     />
@@ -452,8 +471,8 @@ const DashboardPage = () => {
                   </div>
                 </div>
                 <div className="w-1/6 text-gray-600">{event.eventHost}</div>
-                <div className="w-1/6 text-gray-600">{event.totalQuantity}</div>
-                <div className="w-1/6 text-gray-600">{event.totalRevenue}</div>
+                <div className="w-1/6 text-gray-600">{event.sold}</div>
+                <div className="w-1/6 text-gray-600">{event.eventRevenue}</div>
                 <div className="w-1/6 text-gray-600">{event.eventStatus}</div>
               </div>
             ))

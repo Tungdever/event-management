@@ -49,7 +49,7 @@ import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
 import AdminRoleAssignment from "./pages/Dashboard/AssignRole";
 import AssignedEvents from "./pages/Dashboard/AssignedEvents";
-
+import CheckInTicket from "./pages/Ticket/CheckInTicket"
 import PaymentResult from "./pages/Checkout/PaymentResult"
 import MyInvoice from "./pages/Booking/MyBooking";
 import ReportOrder from "./pages/report/order"
@@ -82,7 +82,7 @@ const MainLayout = () => {
     "/payment-result",
     "/myinvoices",
     "/notification",
-  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets");
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets") || location.pathname.startsWith("/check-in") ;
 
   const isDashboardPage = [
     "/dashboard",
@@ -110,7 +110,9 @@ const MainLayout = () => {
     "/dashboard/event/detail",
     "/dashboard/order",
     "/dashboard/test",
-  ];
+    
+  ]
+
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
     location.pathname.startsWith(path)
   );
@@ -143,6 +145,14 @@ const MainLayout = () => {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/all-event" element={<AllEvent onEventClick={handleEventClick} />} />
                 <Route path="/list-event-search-by/:categoryName" element={<SearchByType />} />
+                <Route
+                  path="/check-in/:ticketCode"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                      <CheckInTicket />
+                    </RoleBasedRouteGroup>
+                  }
+                />
                 <Route
                   path="/checkout"
                   element={
@@ -226,6 +236,7 @@ const MainLayout = () => {
             <div className="w-full md:w-[calc(100%-224px)] lg:w-[calc(100%-256px)] md:ml-56 lg:ml-64 min-h-screen transition-all">
               <Navbar toggleSidebar={toggleSidebar} />
               <Routes>
+                
                 <Route
                   path="/dashboard"
                   element={
