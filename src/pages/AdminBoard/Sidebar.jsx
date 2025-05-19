@@ -1,10 +1,15 @@
-
 import React, { useEffect, useState } from "react";
+import { CiMenuBurger } from "react-icons/ci";
+import { useNavigate } from "react-router-dom";
 
 const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const navigate = useNavigate();
 
-  // Theo dõi kích thước màn hình để xác định thiết bị di động
+  const handleBackHome = () => {
+    navigate("/");
+  };
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 1024);
@@ -33,13 +38,24 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
     <aside
       className={`bg-white w-64 flex flex-col border-r border-gray-200 fixed top-0 left-0 h-screen transform ${
         isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0 transition-transform z-20 overflow-y-auto`}
+      } lg:translate-x-0 transition-transform z-50 overflow-y-auto`}
     >
-      <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-200">
-        <div className="bg-[#1e293b] text-white rounded-full p-2">
-          <i className="fas fa-cube fa-lg"></i>
-        </div>
-        <span className="font-extrabold text-lg select-none">Management Event</span>
+      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
+        <button 
+          onClick={handleBackHome}
+          className="flex items-center gap-2"
+        >
+          <div className="bg-[#1e293b] text-white rounded-full p-2">
+            <i className="fas fa-cube fa-lg"></i>
+          </div>
+          <span className="font-extrabold text-lg select-none">Management Event</span>
+        </button>
+        <button 
+          onClick={toggleSidebar}
+          className="block"
+        >
+          <CiMenuBurger className="text-2xl" />
+        </button>
       </div>
       <nav className="flex-1 px-6 py-4 text-sm text-gray-600">
         <p className="uppercase font-semibold text-xs mb-3 select-none">DASHBOARD</p>

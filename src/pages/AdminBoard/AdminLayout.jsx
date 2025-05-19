@@ -4,7 +4,7 @@ import SidebarAdminBoard from "./Sidebar";
 import DashboardPage from "./DashboardPage";
 import UserPage from './UserPage';
 import UserEditPopup from './UserEditPopup';
-import RolePage from './RolePage';
+import RolePermissionPage from './RolePage';
 import Navbar from '../Dashboard/Navbar';
 
 const AdminLayout = () => {
@@ -22,7 +22,7 @@ const AdminLayout = () => {
       case "User":
         return <UserPage />;
       case "Role":
-        return <RolePage />;
+        return <RolePermissionPage />;
       default:
         return <DashboardPage />;
     }

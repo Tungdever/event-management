@@ -480,7 +480,7 @@ const ChatBox = () => {
         {selectedUser ? (
           <>
             <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
-              <div className=" W-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+              <div className=" w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
                 {selectedUser.name[0]}
               </div>
               <h2 className="ml-3 text-lg font-semibold text-gray-800 truncate">

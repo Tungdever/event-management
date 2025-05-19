@@ -329,34 +329,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
                 )}
               />
             </div>
-            <div className="mb-4 col-span-1 md:col-span-2">
-              <label className="block text-gray-600 text-xs mb-1">Roles</label>
-              <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
-                {roles.map((role) => (
-                  <div key={role.name} className="flex items-center mb-2">
-                    <Controller
-                      name="roles"
-                      control={control}
-                      render={({ field }) => (
-                        <input
-                          type="checkbox"
-                          checked={field.value.includes(role.name)}
-                          onChange={(e) => {
-                            const updatedRoles = e.target.checked
-                              ? [...field.value, role.name]
-                              : field.value.filter((r) => r !== role.name);
-                            setValue('roles', updatedRoles);
-                          }}
-                          className="mr-2"
-                          disabled={isSubmitting}
-                        />
-                      )}
-                    />
-                    <span className="text-sm">{role.name}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            
           </div>
         )}
         {(popupType === 'addRole' || popupType === 'removeRole') && (

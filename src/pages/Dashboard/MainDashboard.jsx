@@ -1,37 +1,55 @@
-
 import React, { useState, useEffect } from "react";
-import Sidebar from "./Sidebar";
-import DashboardPage from "./DashboardPage";
-import UserPage from './UserPage';
-import UserEditPopup from './UserEditPopup';
-import RolePage from './RolePage';
-import Navbar from '../Dashboard/Navbar';
+import Sidebar from "./MainSidebar";
+import Navbar from "../Dashboard/Navbar";
+import Dashboard from "./Dashboard";
+import Calendar from "./Calendar";
+import ChatBox from "../ChatBox/ChatBox";
+import AssignedEvents from "./AssignedEvents";
+import AdminRoleAssignment from "./AssignRole";
+import ViewProfile from "./ViewProfile";
+import OrganizerDashboard from "./OrganizerReport";
+import Loader from "../../components/Loading";
 
-const AdminLayout = () => {
+const OrganizerLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentComponent, setCurrentComponent] = useState("Dashboard");
-
+ const [loading, setLoading] = useState(true);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-
+useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 100);
+    window.scrollTo(0, 0);
+  }, []);
   const renderComponent = () => {
     switch (currentComponent) {
       case "Dashboard":
-        return <DashboardPage />;
-      case "User":
-        return <UserPage />;
-      case "Role":
-        return <RolePage />;
+        return <OrganizerDashboard />;
+      case "Events":
+        return <Dashboard />; 
+      case "Calendar":
+        return <Calendar />;
+      case "Chat":
+        return <ChatBox />;
+      case "AssignRole":
+        return <AdminRoleAssignment />;
+      case "AssignedEvents":
+        return <AssignedEvents />;
+      case "Profile":
+        return <ViewProfile />;
       default:
-        return <DashboardPage />;
+        return <Dashboard />;
     }
   };
-
+if (loading) {
+    return <div><Loader/></div>;
+  }
   return (
     <div className="relative min-h-screen flex">
       <Sidebar
-        isSidebarOpen={isSidebarOpen}
+        isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         setCurrentComponent={setCurrentComponent}
       />
@@ -43,4 +61,4 @@ const AdminLayout = () => {
   );
 };
 
-export default AdminLayout;
+export default OrganizerLayout;

@@ -78,7 +78,7 @@ const UserPage = () => {
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6 ">
+      <div className="grid grid-cols-3 md:grid-cols-5 gap-4 mb-6 ">
         <div className="bg-white rounded-xl p-4 border border-gray-200 w-[200px]">
           <h3 className="text-sm font-semibold text-gray-700">Total Users</h3>
           <div className='flex space-x-2 gap-4 p-2 items-center'>

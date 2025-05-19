@@ -37,10 +37,10 @@ import AllEvent from "./pages/Event/PageViewAll";
 import SearchByType from "./pages/Event/SearchPageByType";
 import { AuthProvider } from "./pages/Auth/AuthProvider";
 import DashboardPage from "./pages/AdminBoard/DashboardPage";
-import OrganizerDashboard from "./pages/Dashboard/DashboardOrganizer";
+import OrganizerDashboard from "./pages/Dashboard/OrganizerReport";
 import ReportPage from "./pages/AdminBoard/ReportPage";
 import UserPage from "./pages/AdminBoard/UserPage";
-import RolePage from "./pages/AdminBoard/RolePage";
+import RolePermissionPage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
 import { WebSocketProvider } from "./pages/ChatBox/WebSocketContext";
 import { useAuth } from "./pages/Auth/AuthProvider";
@@ -49,7 +49,7 @@ import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
 import AdminRoleAssignment from "./pages/Dashboard/AssignRole";
 import AssignedEvents from "./pages/Dashboard/AssignedEvents";
-import CheckInTicket from "./pages/Ticket/CheckInTicket"
+import CheckInTicket from "./pages/Ticket/CheckInTicket";
 import MyTeamEvents from "./pages/Dashboard/MyTeamEvents";
 import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 
@@ -60,6 +60,8 @@ import ViewTicket from "./pages/Ticket/ViewTicket";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminLayout from "./pages/AdminBoard/AdminLayout";
+import OrganizerLayout from "./pages/Dashboard/MainDashboard";
+
 const MainLayout = () => {
   const location = useLocation();
   const { user } = useAuth();
@@ -74,19 +76,25 @@ const MainLayout = () => {
     location.pathname
   );
 
-  const isFullScreenPageWithHeader = [
-    "/",
-    "/search",
-    "/checkout",
-    "/myticket",
-    "/refund",
-    "/event-like",
-    "/createEvent",
-    "/all-event",
-    "/payment-result",
-    "/myinvoices",
-    "/notification",
-  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets") || location.pathname.startsWith("/check-in") || location.pathname.startsWith("/profile-organizer");
+  const isFullScreenPageWithHeader =
+    [
+      "/",
+      "/search",
+      "/checkout",
+      "/myticket",
+      "/refund",
+      "/event-like",
+      "/createEvent",
+      "/all-event",
+      "/payment-result",
+      "/myinvoices",
+      "/notification",
+    ].includes(location.pathname) ||
+    location.pathname.startsWith("/event/") ||
+    location.pathname.startsWith("/list-event-search-by") ||
+    location.pathname.startsWith("/view-tickets") ||
+    location.pathname.startsWith("/check-in") ||
+    location.pathname.startsWith("/profile-organizer");
 
   const isDashboardPage = [
     "/dashboard",
@@ -115,8 +123,7 @@ const MainLayout = () => {
     "/dashboard/event/detail",
     "/dashboard/order",
     "/dashboard/test",
-    
-  ]
+  ];
 
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
     location.pathname.startsWith(path)
@@ -274,114 +281,108 @@ const MainLayout = () => {
           !isAuthPage &&
           !isFullScreenPageWithHeader &&
           !isAdminPage && (
-            <div className="flex flex-col md:flex-row min-h-screen">
-              <Sidebar2 isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-              <div className="w-full md:w-[calc(100%-224px)] lg:w-[calc(100%-256px)] md:ml-56 lg:ml-64 min-h-screen transition-all">
-                <Navbar toggleSidebar={toggleSidebar} />
-                <Routes>
-                  <Route
-                    path="/dashboard"
-                    element={
-                      <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
-                        <OrganizerDashboard />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/events"
-                    element={
-                      <RoleBasedRouteGroup
-                        allowedRoles={[
-                          "ORGANIZER",
+            <Routes>
+              <Route
+                path="/dashboard"
+                element={
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                    <OrganizerLayout />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/dashboard/events"
+                element={
+                  <RoleBasedRouteGroup
+                    allowedRoles={[
+                      "ORGANIZER",
 
-                          "TICKET MANAGER",
-                          "EVENT ASSISTANT",
-                          "CHECK-IN STAFF",
-                        ]}
-                      >
-                        <Dashboard />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/dashboard/reports"
-                    element={
-                      <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
-                        <Dashboard />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/chat"
-                    element={
-                      <RoleBasedRouteGroup
-                        allowedRoles={[
-                          "ORGANIZER",
-                          "TICKET MANAGER",
-                          "EVENT ASSISTANT",
-                          "CHECK-IN STAFF",
-                        ]}
-                      >
-                        <ChatBox />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/calendar"
-                    element={
-                      <RoleBasedRouteGroup
-                        allowedRoles={[
-                          "ORGANIZER",
-                          "TICKET MANAGER",
-                          "EVENT ASSISTANT",
-                          "CHECK-IN STAFF",
-                        ]}
-                      >
-                        <CalendarPage />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/role"
-                    element={
-                      <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
-                        <AdminRoleAssignment />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/assigned-events"
-                    element={
-                      <RoleBasedRouteGroup
-                        allowedRoles={[
-                          "ORGANIZER",
-                          "TICKET MANAGER",
-                          "EVENT ASSISTANT",
-                          "CHECK-IN STAFF",
-                        ]}
-                      >
-                        <AssignedEvents />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                  <Route
-                    path="/view"
-                    element={
-                      <RoleBasedRouteGroup
-                        allowedRoles={[
-                          "ORGANIZER",
-                          "TICKET MANAGER",
-                          "EVENT ASSISTANT",
-                          "CHECK-IN STAFF",
-                        ]}
-                      >
-                        <ViewProfile />
-                      </RoleBasedRouteGroup>
-                    }
-                  />
-                </Routes>
-              </div>
-            </div>
+                      "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",
+                    ]}
+                  >
+                    <Dashboard />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/dashboard/reports"
+                element={
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                    <Dashboard />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/chat"
+                element={
+                  <RoleBasedRouteGroup
+                    allowedRoles={[
+                      "ORGANIZER",
+                      "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",
+                    ]}
+                  >
+                    <ChatBox />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/calendar"
+                element={
+                  <RoleBasedRouteGroup
+                    allowedRoles={[
+                      "ORGANIZER",
+                      "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",
+                    ]}
+                  >
+                    <CalendarPage />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/role"
+                element={
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                    <AdminRoleAssignment />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/assigned-events"
+                element={
+                  <RoleBasedRouteGroup
+                    allowedRoles={[
+                      "ORGANIZER",
+                      "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",
+                    ]}
+                  >
+                    <AssignedEvents />
+                  </RoleBasedRouteGroup>
+                }
+              />
+              <Route
+                path="/view"
+                element={
+                  <RoleBasedRouteGroup
+                    allowedRoles={[
+                      "ORGANIZER",
+                      "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",
+                    ]}
+                  >
+                    <ViewProfile />
+                  </RoleBasedRouteGroup>
+                }
+              />
+            </Routes>
           )}
 
         {isDetailOfEvent &&
@@ -562,7 +563,7 @@ const MainLayout = () => {
               path="/admin/role"
               element={
                 <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                  <RolePage />
+                  <RolePermissionPage />
                 </RoleBasedRouteGroup>
               }
             />
