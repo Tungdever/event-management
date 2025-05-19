@@ -12,7 +12,10 @@ const isValidUrl = (url) => {
 
 const EventList = ({ event }) => {
   const [imageError, setImageError] = useState({});
-
+const truncateText = (text, maxLength) => {
+    if (!text || text.length <= maxLength) return text || "";
+    return text.substring(0, maxLength) + "...";
+  };
   const handleImageError = (eventId) => {
     setImageError((prev) => ({ ...prev, [eventId]: true }));
   };
@@ -59,7 +62,7 @@ const EventList = ({ event }) => {
               />
             )}
             <div className="ml-4 flex-1 text-[13px]">
-              <h3 className="text-lg font-semibold text-gray-900 truncate">{eventItem.eventName}</h3>
+              <h3 className="text-lg font-semibold text-gray-900 truncate">{truncateText(eventItem.eventName, 55) }</h3>
               <div className="flex space-x-6 my-2">
                 <p className="font-medium text-red-500 bg-blue-100 px-[4px] py-[2px] rounded-[4px]">{eventItem.eventType}</p>
                 <p className="text-gray-500 px-[4px] py-[2px]">{eventItem.eventStart}</p>

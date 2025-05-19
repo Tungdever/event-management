@@ -117,17 +117,17 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
 
      
       Swal.fire ({
-        Icon: 'success',
-        Title: 'success',
-        Text: 'Registration successful!',
+        icon: 'success',
+        title: 'success',
+        text: 'Registration successful!',
       });
       onComplete();
     } catch (error) {
      
       Swal.fire ({
-        Icon: 'error',
-        Title: 'error',
-        Text: 'Registration failed. Please try again.',
+        icon: 'error',
+        title: 'error',
+        text: 'Registration failed. Please try again.',
       });
     }
   };

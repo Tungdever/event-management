@@ -27,9 +27,9 @@ const RefundPage = () => {
     if (!refundReason) {
       
       Swal.fire ({
-        Icon: 'error',
-        Title: 'error',
-        Text: 'Please select refund reason!',
+        icon: 'error',
+        title: 'error',
+        text: 'Please select refund reason!',
       });
       return;
     }

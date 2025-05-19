@@ -272,7 +272,7 @@ const SearchPage = () => {
               setSelectedTicketType={setSelectedTicketType}
             />
           </div>
-          <div className="w-full md:w-3/4 overflow-y-auto">
+          <div className="w-full md:w-3/4 overflow-y-auto h-screen">
             {events.length > 0 ? (
               <EventList event={events} />
             ) : (

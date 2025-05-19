@@ -80,9 +80,9 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       console.error("Lỗi khi lấy danh sách người dùng:", error);
 
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Unable to load user list",
+        icon: "error",
+        title: "error",
+        text: "Unable to load user list",
       });
     }
   };
@@ -176,9 +176,9 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         })
         .catch((error) => {
           Swal.fire({
-            Icon: "error",
-            Title: "error",
-            Text: "RUnable to load chat history. Please try again.",
+            icon: "error",
+            title: "error",
+            text: "RUnable to load chat history. Please try again.",
           });
         });
     }
@@ -259,9 +259,9 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setTimeout(scrollToBottom, 0);
     } catch (error) {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Unable to upload file.",
+        icon: "error",
+        title: "error",
+        text: "Unable to upload file.",
       });
     }
   };
@@ -288,15 +288,15 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     } else {
       if (!isConnected) {
         Swal.fire({
-          Icon: "error",
-          Title: "error",
-          Text: "Unable to send message: WebSocket connection lost.",
+          icon: "error",
+          title: "error",
+          text: "Unable to send message: WebSocket connection lost.",
         });
       } else if (!selectedUser) {
         Swal.fire({
-          Icon: "error",
-          Title: "error",
-          Text: "Please select a user to chat with.",
+          icon: "error",
+          title: "error",
+          text: "Please select a user to chat with.",
         });
       }
     }

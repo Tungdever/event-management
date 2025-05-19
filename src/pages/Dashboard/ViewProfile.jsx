@@ -11,23 +11,23 @@ const ViewProfile = () => {
   const { user } = useAuth();
   const token = localStorage.getItem("token");
 
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUserData(response.data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching user data:", err);
+      setError("Unable to load user data. Please try again.");
+      setLoading(false);
+    }
+  };
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`, {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUserData(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching user data:", err);
-        setError("Unable to load user data. Please try again.");
-        setLoading(false);
-      }
-    };
     fetchUserData();
     window.scrollTo(0, 0);
   }, []);
@@ -38,6 +38,7 @@ const ViewProfile = () => {
 
   const closeEdit = () => {
     setOpenEdit(false);
+    fetchUserData();
   };
 
   if (loading) {

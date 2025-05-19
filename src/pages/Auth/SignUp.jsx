@@ -249,7 +249,7 @@ const handleSubmit = async (e) => {
 
     Swal.fire({
       icon: 'success', 
-      title: 'Success', 
+      title: 'success', 
       text: `Verification code sent to ${inputEmail}`, 
     });
     onNext(data);

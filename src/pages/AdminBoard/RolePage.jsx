@@ -18,7 +18,7 @@ const RolePage = () => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('http://localhost:8080/api/roles', {
+      const response = await fetch('http://localhost:8080/api/roles/ADMIN/created', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -57,7 +57,7 @@ const RolePage = () => {
   const createRole = async (roleData) => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:8080/api/roles', {
+      const response = await fetch('http://localhost:8080/api/roles/ADMIN/created', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ const RolePage = () => {
             roles.map((role) => (
               <div key={role.roleID} className="bg-white rounded-xl p-6 mb-6 shadow-sm">
                 <div className="flex justify-between items-center mb-4">
-                  <h2 className="font-semibold text-sm text-gray-800">{role.name}</h2>
+                  <h2 className="font-semibold text-sm text-gray-800">{role.name.replace('ROLE_', '')}</h2>
                   <div className="flex gap-2">
                     <button
                       onClick={() => openPopup('editRole', role.roleID, role)}

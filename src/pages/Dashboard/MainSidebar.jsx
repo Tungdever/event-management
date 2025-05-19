@@ -11,14 +11,14 @@ const defaultMenuItems = [
     submenu: [
       { title: "Overview", path: "/dashboard", roles: ["ORGANIZER"] },
       { title: "Events", path: "/dashboard/events", roles: ["ORGANIZER"] },
-      { title: "Reports", path: "/dashboard/reports", roles: ["ORGANIZER"] },
+      // { title: "Reports", path: "/dashboard/reports", roles: ["ORGANIZER"] },
       { title: "Calendar", path: "/calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
       { title: "Chat", path: "/chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
     ],
   },
   {
     title: "Team && Roles",
-    path: "/report",
+    // path: "/report",
     icon: <i className="fa-solid fa-chart-simple"></i>,
     submenu: [
       { title: "Assign role", path: "/role", roles: ["ORGANIZER"] },
@@ -27,7 +27,7 @@ const defaultMenuItems = [
   },
   {
     title: "Setting",
-    path: "/setting",
+    // path: "/setting",
     icon: <FaCogs />,
     submenu: [
       { title: "Profile", path: "/view" },

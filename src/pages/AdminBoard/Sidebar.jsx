@@ -1,20 +1,38 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
 
-const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar }) => {
+import React, { useEffect, useState } from "react";
+
+const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  // Theo dõi kích thước màn hình để xác định thiết bị di động
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const dashboardItems = [
-    { name: 'Dashboard', icon: 'fas fa-shopping-cart', path: '/admin' },
+    { name: "Dashboard", icon: "fas fa-shopping-cart", component: "Dashboard" },
   ];
 
   const conceptItems = [
-    { name: 'User', icon: 'fas fa-user', path: '/admin/user', hasDropdown: true },
-    { name: 'Role', icon: 'fas fa-box', path: '/admin/role', hasDropdown: true },
+    { name: "User", icon: "fas fa-user", component: "User", hasDropdown: true },
+    { name: "Role", icon: "fas fa-box", component: "Role", hasDropdown: true },
   ];
+
+  const handleItemClick = (component) => {
+    setCurrentComponent(component);
+    if (isMobile) {
+      toggleSidebar();
+    }
+  };
 
   return (
     <aside
       className={`bg-white w-64 flex flex-col border-r border-gray-200 fixed top-0 left-0 h-screen transform ${
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
       } lg:translate-x-0 transition-transform z-20 overflow-y-auto`}
     >
       <div className="flex items-center gap-2 px-6 py-5 border-b border-gray-200">
@@ -28,16 +46,17 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar }) => {
         <ul className="space-y-3">
           {dashboardItems.map((item) => (
             <li key={item.name}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 ${isActive ? 'text-[#3b82f6] font-semibold' : 'hover:text-[#3b82f6]'}`
-                }
-                onClick={() => toggleSidebar()}
+              <button
+                onClick={() => handleItemClick(item.component)}
+                className={`flex items-center gap-2 w-full text-left ${
+                  item.component === "Dashboard"
+                    ? "text-[#3b82f6] font-semibold"
+                    : "hover:text-[#3b82f6]"
+                }`}
               >
                 <i className={item.icon}></i>
                 {item.name}
-              </NavLink>
+              </button>
             </li>
           ))}
         </ul>
@@ -45,17 +64,20 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar }) => {
         <ul className="space-y-3">
           {conceptItems.map((item) => (
             <li key={item.name}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  `flex items-center gap-2 ${isActive ? 'text-[#3b82f6] font-semibold' : 'hover:text-[#3b82f6]'}`
-                }
-                onClick={() => toggleSidebar()}
+              <button
+                onClick={() => handleItemClick(item.component)}
+                className={`flex items-center gap-2 w-full text-left ${
+                  item.component === "User" || item.component === "Role"
+                    ? "text-[#3b82f6] font-semibold"
+                    : "hover:text-[#3b82f6]"
+                }`}
               >
                 <i className={item.icon}></i>
                 {item.name}
-                {item.hasDropdown}
-              </NavLink>
+                {/* {item.hasDropdown && (
+                  <i className="fas fa-chevron-down ml-auto"></i>
+                )} */}
+              </button>
             </li>
           ))}
         </ul>
