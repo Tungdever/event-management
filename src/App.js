@@ -49,6 +49,7 @@ import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
 import AdminRoleAssignment from "./pages/Dashboard/AssignRole";
 import AssignedEvents from "./pages/Dashboard/AssignedEvents";
+import CheckInTicket from "./pages/Ticket/CheckInTicket"
 import MyTeamEvents from "./pages/Dashboard/MyTeamEvents";
 import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 
@@ -73,24 +74,19 @@ const MainLayout = () => {
     location.pathname
   );
 
-  const isFullScreenPageWithHeader =
-    [
-      "/",
-      "/search",
-      "/checkout",
-      "/myticket",
-      "/refund",
-      "/event-like",
-      "/createEvent",
-      "/all-event",
-      "/payment-result",
-      "/myinvoices",
-      "/notification",
-    ].includes(location.pathname) ||
-    location.pathname.startsWith("/event/") ||
-    location.pathname.startsWith("/list-event-search-by") ||
-    location.pathname.startsWith("/profile-organizer") ||
-    location.pathname.startsWith("/view-tickets");
+  const isFullScreenPageWithHeader = [
+    "/",
+    "/search",
+    "/checkout",
+    "/myticket",
+    "/refund",
+    "/event-like",
+    "/createEvent",
+    "/all-event",
+    "/payment-result",
+    "/myinvoices",
+    "/notification",
+  ].includes(location.pathname) || location.pathname.startsWith("/event/") || location.pathname.startsWith("/list-event-search-by") || location.pathname.startsWith("/view-tickets") || location.pathname.startsWith("/check-in") || location.pathname.startsWith("/profile-organizer");
 
   const isDashboardPage = [
     "/dashboard",
@@ -119,7 +115,9 @@ const MainLayout = () => {
     "/dashboard/event/detail",
     "/dashboard/order",
     "/dashboard/test",
-  ];
+    
+  ]
+
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
     location.pathname.startsWith(path)
   );
@@ -160,6 +158,14 @@ const MainLayout = () => {
                 <Route
                   path="/list-event-search-by/:categoryName"
                   element={<SearchByType />}
+                />
+                <Route
+                  path="/check-in/:ticketCode"
+                  element={
+                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                      <CheckInTicket />
+                    </RoleBasedRouteGroup>
+                  }
                 />
                 <Route
                   path="/checkout"

@@ -10,7 +10,8 @@ export default function MyInvoice() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedOrderId, setSelectedOrderId] = useState(null);
-
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState(null);
   const toggleOrder = (orderId) => {
     setOpenOrders((prev) =>
       prev.includes(orderId)
@@ -29,7 +30,24 @@ export default function MyInvoice() {
     const shortYear = year.slice(2);
     return `${hour}:${minute}:${second} ${day}/${month}/${shortYear}`;
   };
-
+  useEffect(() => {
+    if (toastMessage && toastType) {
+      if (toastType === "info") {
+        toast.info(toastMessage);
+      }
+      else if (toastType === "success") {
+        toast.success(toastMessage);
+      }
+       else if (toastType === "error") {
+        toast.error(toastMessage);
+      }
+       else if (toastType === "warn") {
+        toast.warn(toastMessage);
+      }
+      setToastType(null)
+      setToastMessage(null);
+    }
+  }, [toastMessage]);
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -92,14 +110,17 @@ export default function MyInvoice() {
           }
         });
         console.log(refundResponse.data);
-        toast.success("Refund successfully!");
+        setToastMessage("Refund successfully!");
+        setToastType("success");
         window.location.reload();
       } else {
-        toast.warn(response.data.msg);
+        setToastMessage(response.data.msg);
+        setToastType("warn");
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Refund fail!';
-      toast.error(errorMessage);
+      setToastMessage(errorMessage);
+      setToastType("error");
     }
   };
 
@@ -120,8 +141,8 @@ export default function MyInvoice() {
       link.click();
       link.remove();
     } catch (err) {
-      toast.error("Download failed.");
-      console.error(err);
+      setToastMessage("Download failed.");
+      setToastType("error");
     }
   };
 
@@ -134,10 +155,11 @@ export default function MyInvoice() {
     REFUNDED: "text-yellow-600",
     FAILED: "text-red-600",
   };
+
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold text-center mb-12 text-gray-900 tracking-tight">
-         Invoices
+        Invoices
       </h1>
 
       {loading ? (

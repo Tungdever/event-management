@@ -197,7 +197,7 @@ const DashboardPage = () => {
 
 
   // Doughnut Chart: Event Type Distribution
-const eventTypeCount = data.events?.reduce((acc, event) => {
+  const eventTypeCount = data.events?.reduce((acc, event) => {
     acc[event.eventType] = (acc[event.eventType] || 0) + 1;
     return acc;
   }, {}) || {};
@@ -207,29 +207,28 @@ const eventTypeCount = data.events?.reduce((acc, event) => {
     datasets: [
       {
         data: Object.values(eventTypeCount),
-       backgroundColor: [
-  '#a5d8ff', // Xanh dương nhạt
-  '#a7f3d0', // Xanh lá nhạt
-  '#d8b4fe', // Tím nhạt
-  '#fed7aa', // Cam nhạt
-  '#f87171', // Đỏ nhạt
-  '#6ee7b7', // Xanh ngọc
-  '#f472b6', // Hồng
-  '#93c5fd', // Xanh dương trung
-  '#facc15', // Vàng
-],
-hoverBackgroundColor: [
-  '#87c7ff', // Xanh dương nhạt sáng hơn
-  '#8eebbb', // Xanh lá nhạt sáng hơn
-  '#c89eff', // Tím nhạt sáng hơn
-  '#f5c08f', // Cam nhạt sáng hơn
-  '#e55e5e', // Đỏ nhạt sáng hơn
-  '#4ade80', // Xanh ngọc sáng hơn
-  '#ec4899', // Hồng sáng hơn
-  '#60a5fa', // Xanh dương trung sáng hơn
-  '#eab308', // Vàng sáng hơn
-],
-
+        backgroundColor: [
+          '#a5d8ff', // Xanh dương nhạt
+          '#a7f3d0', // Xanh lá nhạt
+          '#d8b4fe', // Tím nhạt
+          '#fed7aa', // Cam nhạt
+          '#f87171', // Đỏ nhạt
+          '#6ee7b7', // Xanh ngọc
+          '#f472b6', // Hồng
+          '#93c5fd', // Xanh dương trung
+          '#facc15', // Vàng
+        ],
+        hoverBackgroundColor: [
+          '#87c7ff', // Xanh dương nhạt sáng hơn
+          '#8eebbb', // Xanh lá nhạt sáng hơn
+          '#c89eff', // Tím nhạt sáng hơn
+          '#f5c08f', // Cam nhạt sáng hơn
+          '#e55e5e', // Đỏ nhạt sáng hơn
+          '#4ade80', // Xanh ngọc sáng hơn
+          '#ec4899', // Hồng sáng hơn
+          '#60a5fa', // Xanh dương trung sáng hơn
+          '#eab308', // Vàng sáng hơn
+        ],
         hoverOffset: 4,
         borderWidth: 1,
         borderColor: '#ffffff',
@@ -378,8 +377,8 @@ hoverBackgroundColor: [
                   </div>
                 </div>
                 <div className="w-1/6 text-gray-600">{event.eventHost}</div>
-                <div className="w-1/6 text-gray-600">{event.totalQuantity}</div>
-                <div className="w-1/6 text-gray-600">{event.totalRevenue}</div>
+                <div className="w-1/6 text-gray-600">{event.sold}</div>
+                <div className="w-1/6 text-gray-600">{event.eventRevenue}</div>
                 <div className="w-1/6 text-gray-600">{event.eventStatus}</div>
               </div>
             ))

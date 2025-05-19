@@ -219,9 +219,9 @@ const OrganizerDashboard = () => {
             currentEvents.map((event) => (
               <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
                 <div className="w-1/2 flex items-center space-x-4 text-[13px]">
-                  {event.eventImage ? (
+                  {event.eventImages[0] ? (
                     <img
-                      src={`http://localhost:8080/api/storage/view/${event.eventImage}`}
+                      src={event.eventImages[0]}
                       alt={event.eventName}
                       className="w-16 h-16 object-cover rounded-md"
                     />

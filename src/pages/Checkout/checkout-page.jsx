@@ -1,14 +1,17 @@
 import React from 'react'
 import "../Checkout/checkout-page.css"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
 import VNPAY from "../../assets/VNPAY.jpeg";
 import momo from "../../assets/MoMo.png";
 import { toast } from 'react-toastify';
+
 const CheckoutPage = (props) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [toastMessage, setToastMessage] = useState(null);
+  const [toastType, setToastType] = useState(null);
   const checkoutData = location.state;
   const total = checkoutData?.tickets?.reduce((sum, ticket) => {
     return sum + ticket.price * ticket.quantity;
@@ -17,9 +20,28 @@ const CheckoutPage = (props) => {
   const handleClick = (method) => {
     setMethod(method);
   };
+  useEffect(() => {
+    if (toastMessage && toastType) {
+      if (toastType === "info") {
+        toast.info(toastMessage);
+      }
+      else if (toastType === "success") {
+        toast.success(toastMessage);
+      }
+      else if (toastType === "error") {
+        toast.error(toastMessage);
+      }
+      else if (toastType === "warn") {
+        toast.warn(toastMessage);
+      }
+      setToastType(null)
+      setToastMessage(null);
+    }
+  }, [toastMessage]);
   const checkoutHandle = async () => {
     if (method === "") {
-      toast.warn("Select the payment method!");
+      setToastMessage("Select the payment method!");
+      setToastType("warn");
       return;
     }
     const token = localStorage.getItem('token'); // 'token' là tên của key trong localStorage
@@ -32,7 +54,8 @@ const CheckoutPage = (props) => {
       // Lấy giá trị userId từ payload
       userId = decodedPayload.userId;
     } else {
-      toast.error("Token does not exist.");
+      setToastMessage("Token does not exist.");
+      setToastType("error");
     }
     const tickets = checkoutData?.tickets?.reduce((acc, ticket) => {
       acc[ticket.ticketId] = ticket.quantity;
@@ -55,7 +78,9 @@ const CheckoutPage = (props) => {
         });
         window.location.href = response.data.payUrl;
       } catch (error) {
-        toast.error("Payment via Momo failed. Please try again.");
+        setToastMessage("Payment via Momo failed. Please try again.");
+        setToastType("error");
+
         console.error(error);
       }
     } else {
@@ -68,7 +93,9 @@ const CheckoutPage = (props) => {
         });
         window.location.href = response.data.paymentUrl;
       } catch (error) {
-        toast.error("Payment via VNPay failed. Please try again.");
+
+        setToastMessage("Payment via VNPay failed. Please try again.");
+        setToastType("error");
         console.error(error);
       }
     }
@@ -118,7 +145,7 @@ const CheckoutPage = (props) => {
             </div>
           </div>
 
-          
+
           <div className="flex flex-col items-start justify-start gap-2.5 bg-white p-2.5 rounded-[10px] mb-5">
             <span className="checkout-page-text-detail">Payment Details</span>
             <div className="w-full flex flex-col items-start justify-start bg-white rounded-[10px] mb-2.5">
