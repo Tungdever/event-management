@@ -5,7 +5,7 @@ const Footer = () => {
       <div className="mx-auto max-w-screen-xl px-4 pb-6 pt-16 sm:px-6 lg:px-8 lg:pt-24">
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
-            <div className="flex justify-center text-teal-600 sm:justify-start text-orange-400">
+            <div className="flex justify-center text-red-600 sm:justify-start text-red-400">
               <h2 className="text-3xl font-semibold">Management event</h2>
                
              
@@ -22,7 +22,7 @@ const Footer = () => {
                   href="#"
                   rel="noreferrer"
                   target="_blank"
-                  className="text-teal-700 transition hover:text-teal-700/75"
+                  className="text-red-700 transition hover:text-red-900/75"
                 >
                   <span className="sr-only">Facebook</span>
                   <svg
@@ -45,7 +45,7 @@ const Footer = () => {
                   href="#"
                   rel="noreferrer"
                   target="_blank"
-                  className="text-teal-700 transition hover:text-teal-700/75"
+                  className="text-red-700 transition hover:text-red-900/75"
                 >
                   <span className="sr-only">Instagram</span>
                   <svg
@@ -68,7 +68,7 @@ const Footer = () => {
                   href="#"
                   rel="noreferrer"
                   target="_blank"
-                  className="text-teal-700 transition hover:text-teal-700/75"
+                  className="text-red-700 transition hover:text-red-900/75"
                 >
                   <span className="sr-only">Twitter</span>
                   <svg
@@ -87,7 +87,7 @@ const Footer = () => {
                   href="#"
                   rel="noreferrer"
                   target="_blank"
-                  className="text-teal-700 transition hover:text-teal-700/75"
+                  className="text-red-700 transition hover:text-red-900/75"
                 >
                   <span className="sr-only">GitHub</span>
                   <svg
@@ -110,7 +110,7 @@ const Footer = () => {
                   href="#"
                   rel="noreferrer"
                   target="_blank"
-                  className="text-teal-700 transition hover:text-teal-700/75"
+                  className="text-red-700 transition hover:text-red-900/75"
                 >
                   <span className="sr-only">Dribbble</span>
                   <svg
@@ -132,7 +132,7 @@ const Footer = () => {
 
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4 lg:col-span-2">
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-orange-500">About Us</p>
+              <p className="text-lg font-medium text-red-500">About Us</p>
 
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
@@ -175,7 +175,7 @@ const Footer = () => {
             </div>
 
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-orange-500">Our Services</p>
+              <p className="text-lg font-medium text-red-500">Our Services</p>
 
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
@@ -204,7 +204,7 @@ const Footer = () => {
             </div>
 
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-orange-500">Helpful Links</p>
+              <p className="text-lg font-medium text-red-500">Helpful Links</p>
 
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
@@ -232,7 +232,7 @@ const Footer = () => {
             </div>
 
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-orange-500">Contact Us</p>
+              <p className="text-lg font-medium text-red-500">Contact Us</p>
 
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
@@ -319,7 +319,7 @@ const Footer = () => {
               <span className="block sm:inline">All rights reserved.</span>
 
               <a
-                className="inline-block text-teal-600 underline transition hover:text-teal-600/75"
+                className="inline-block text-red-600 underline transition hover:text-red-600/75"
                 href="#"
               >
                 Terms & Conditions
@@ -328,7 +328,7 @@ const Footer = () => {
               <span>&middot;</span>
 
               <a
-                className="inline-block text-teal-600 underline transition hover:text-teal-600/75"
+                className="inline-block text-red-600 underline transition hover:text-red-600/75"
                 href="#"
               >
                 Privacy Policy

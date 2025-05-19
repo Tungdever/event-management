@@ -29,11 +29,11 @@ const ProfileDropdown = () => {
       await api.logout();
       logout();
       
-      Swal.fire({
-        icon: "success",
-        title: "success",
-        text: "Logged out successfully",
-      });
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "success",
+      //   text: "Logged out successfully",
+      // });
       navigate("/login");
     } catch (error) {
     
@@ -66,7 +66,7 @@ const ProfileDropdown = () => {
           </>
         )}
       </div>
-      <ul className="absolute right-0 mt-2 w-32 sm:w-36 lg:w-40 py-1 sm:py-1.5 bg-white rounded-md shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 pt-1 sm:pt-2 pointer-events-auto">
+      <ul className="absolute right-0 mt-2 w-32 sm:w-36 lg:w-40 py-1 sm:py-1.5 bg-white rounded-md shadow-md border border-gray-100 opacity-0 group-hover:opacity-100 invisible group-hover:visible transition-all duration-300 pt-1 sm:pt-2 pointer-events-auto ">
         
         <li>
           <a

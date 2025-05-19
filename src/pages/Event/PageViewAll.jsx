@@ -4,6 +4,7 @@ import Footer from "../../components/Footer";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useNavigate } from "react-router-dom";
 import FavoriteButton from "../../components/FavoriteButton";
+import DOMPurify from "dompurify";
 const popularCities = [
   {
     key: "ho-chi-minh",
@@ -125,7 +126,15 @@ const AllEvent = () => {
   useEffect(() => {
     fetchAllEvents();
   }, []);
-
+  const sanitizeAndTruncate = (html, maxLength) => {
+    const sanitizedHtml = DOMPurify.sanitize(html || "");
+    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
+    if (plainText.length <= maxLength) {
+      return sanitizedHtml;
+    }
+    const truncatedPlainText = truncateText(plainText, maxLength);
+    return `<p>${truncatedPlainText}</p>`;
+  };
   const handleViewMore = () => {
     if (displayedEvents.length >= events.length) return;
 
@@ -221,7 +230,15 @@ const AllEvent = () => {
                   {truncateText(event.eventName, 25) || "Sự kiện không tên"}
                 </h3>
                 <p className="text-gray-600 text-sm mt-1 truncate">
-                  {truncateText(event.eventDesc, 30) || "Không có mô tả"}
+                  {event?.eventDesc ? (
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeAndTruncate(event.eventDesc, 30),
+                      }}
+                    />
+                  ) : (
+                    "No description available"
+                  )}
                 </p>
                 <p className="text-gray-700 text-sm mt-2">
                   <span className="font-medium">Ngày:</span>{" "}
