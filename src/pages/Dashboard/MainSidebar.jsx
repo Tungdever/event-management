@@ -1,104 +1,165 @@
-import React, { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { FaChevronDown, FaTachometerAlt, FaCogs, FaCalendarAlt } from "react-icons/fa";
+import { MdChat } from "react-icons/md";
+import { useAuth } from "../Auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import { CiMenuBurger } from "react-icons/ci";
 
-const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+const defaultMenuItems = [
+  {
+    title: "Dashboard",
+    icon: <FaTachometerAlt />,
+    submenu: [
+      { title: "Overview", component: "Dashboard", roles: ["ORGANIZER"] },
+      { title: "Events", component: "Events", roles: ["ORGANIZER"] },
+      { title: "Calendar", component: "Calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
+    ],
+  },
+  {
+    title: "Team && Roles",
+    icon: <i className="fa-solid fa-chart-simple"></i>,
+    submenu: [
+      { title: "Assign role", component: "AssignRole", roles: ["ORGANIZER"] },
+      { title: "Assigned Events", component: "AssignedEvents", roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+    ],
+  },
+  {
+    title: "Setting",
+    icon: <FaCogs />,
+    submenu: [
+      { title: "Profile", component: "Profile" },
+    ],
+  },
+];
+
+const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent }) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  const handleBackHome = () => {
-    navigate("/");
-  };
-
+  // Theo dõi kích thước màn hình để xác định giao diện mobile
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024);
+      setIsMobile(window.innerWidth < 768);
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const dashboardItems = [
-    { name: "Dashboard", icon: "fas fa-shopping-cart", component: "Dashboard" },
-  ];
+  const menuItems = defaultMenuItems
+    .map(menu => ({
+      ...menu,
+      submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
+    }))
+    .filter(menu => !menu.submenu || menu.submenu.length > 0);
 
-  const conceptItems = [
-    { name: "User", icon: "fas fa-user", component: "User", hasDropdown: true },
-    { name: "Role", icon: "fas fa-box", component: "Role", hasDropdown: true },
-  ];
+  const [openMenus, setOpenMenus] = useState(
+    menuItems.reduce((acc, menu) => {
+      acc[menu.title] = true;
+      return acc;
+    }, {})
+  );
+  const [activeSubmenu, setActiveSubmenu] = useState(null);
 
-  const handleItemClick = (component) => {
+  const toggleMenu = (menuTitle) => {
+    setOpenMenus((prev) => ({
+      ...prev,
+      [menuTitle]: !prev[menuTitle],
+    }));
+  };
+
+  const handleHomepage = () => {
+    setCurrentComponent("Dashboard");
+    toggleSidebar();
+  };
+
+  const handleBackHome = () => {
+    navigate("/");
+  };
+
+  const handleSubmenuClick = (component) => {
     setCurrentComponent(component);
-    if (isMobile) {
-      toggleSidebar();
-    }
+    setActiveSubmenu(component);
+    if (isMobile && isOpen) toggleSidebar();
   };
 
   return (
-    <aside
-      className={`bg-white w-64 flex flex-col border-r border-gray-200 fixed top-0 left-0 h-screen transform ${
-        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0 transition-transform z-50 overflow-y-auto`}
+    <div
+      className={`fixed top-0 left-0 h-screen bg-white text-black border-r border-gray-200 overflow-y-auto transition-transform duration-300 z-40
+        w-[240px] sm:w-56 lg:w-64 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
     >
-      <div className="flex items-center justify-between px-6 py-5 border-b border-gray-200">
-        <button 
-          onClick={handleBackHome}
-          className="flex items-center gap-2"
-        >
-          <div className="bg-[#1e293b] text-white rounded-full p-2">
-            <i className="fas fa-cube fa-lg"></i>
-          </div>
-          <span className="font-extrabold text-lg select-none">Management Event</span>
-        </button>
-        <button 
-          onClick={toggleSidebar}
-          className="lg:block hidden"
-        >
-          <i className="fas fa-bars text-2xl"></i>
-        </button>
+      <div className="p-2 sm:p-3 lg:p-4">
+        <div className="flex items-center justify-between mb-6 sm:mb-7 lg:mb-8 mt-2">
+          <h1
+            className="text-xl sm:text-2xl lg:text-[24px] font-bold text-orange-500 hover:cursor-pointer truncate"
+            onClick={isMobile ? handleHomepage : handleBackHome}
+          >
+            Management Event
+          </h1>
+          {isMobile && (
+            <button onClick={handleHomepage} className="text-orange-500 hover:text-orange-600">
+              <CiMenuBurger size={24} />
+            </button>
+          )}
+        </div>
+        <ul>
+          {menuItems.map((menu) => (
+            <SidebarItem
+              key={menu.title}
+              menu={menu}
+              isOpen={openMenus[menu.title]}
+              onClick={() => toggleMenu(menu.title)}
+              activeSubmenu={activeSubmenu}
+              handleSubmenuClick={handleSubmenuClick}
+              toggleSidebar={toggleSidebar}
+            />
+          ))}
+        </ul>
       </div>
-      <nav className="flex-1 px-6 py-4 text-sm text-gray-600">
-        <p className="uppercase font-semibold text-xs mb-3 select-none">DASHBOARD</p>
-        <ul className="space-y-3">
-          {dashboardItems.map((item) => (
-            <li key={item.name}>
-              <button
-                onClick={() => handleItemClick(item.component)}
-                className={`flex items-center gap-2 w-full text-left ${
-                  item.component === "Dashboard"
-                    ? "text-[#3b82f6] font-semibold"
-                    : "hover:text-[#3b82f6]"
-                }`}
-              >
-                <i className={item.icon}></i>
-                {item.name}
-              </button>
-            </li>
-          ))}
-        </ul>
-        <p className="uppercase font-semibold text-xs mt-8 mb-3 select-none">CONCEPTS</p>
-        <ul className="space-y-3">
-          {conceptItems.map((item) => (
-            <li key={item.name}>
-              <button
-                onClick={() => handleItemClick(item.component)}
-                className={`flex items-center gap-2 w-full text-left ${
-                  item.component === "User" || item.component === "Role"
-                    ? "text-[#3b82f6] font-semibold"
-                    : "hover:text-[#3b82f6]"
-                }`}
-              >
-                <i className={item.icon}></i>
-                {item.name}
-                {/* {item.hasDropdown && (
-                  <i className="fas fa-chevron-down ml-auto"></i>
-                )} */}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
+    </div>
   );
 };
 
-export default SidebarAdminBoard;
+const SidebarItem = ({ menu, isOpen, onClick, activeSubmenu, handleSubmenuClick, toggleSidebar }) => {
+  return (
+    <li className="mb-1 sm:mb-2">
+      <div
+        className={`flex justify-between items-center px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg cursor-pointer transition-all duration-300 
+          text-xs sm:text-sm lg:text-[15px] font-medium hover:bg-gray-100 hover:text-[#0357AF] ${isOpen ? "bg-[#E6FBFA] text-[#0357AF]" : ""}`}
+        onClick={onClick}
+      >
+        <div className="flex items-center">
+          {menu.icon && (
+            <span className="mr-1 sm:mr-2 text-sm sm:text-base lg:text-[16px]">{menu.icon}</span>
+          )}
+          <span>{menu.title}</span>
+        </div>
+        {menu.submenu && (
+          <FaChevronDown
+            size={10}
+            className={`ml-2 transition-transform sm:text-xs lg:text-sm ${isOpen ? "rotate-180" : ""}`}
+          />
+        )}
+      </div>
+      {menu.submenu && isOpen && (
+        <ul className="mt-1 sm:mt-2 ml-2 sm:ml-3 lg:ml-4">
+          {menu.submenu.map((sub) => (
+            <li key={sub.title}>
+              <button
+                onClick={() => handleSubmenuClick(sub.component)}
+                className={`block w-full text-left px-2 sm:px-3 lg:px-4 py-1 sm:py-1.5 lg:py-3 rounded-lg transition-all text-xs sm:text-sm 
+                  ${activeSubmenu === sub.component ? "text-[#0357AF] font-semibold" : "text-gray-700"} 
+                  hover:bg-gray-100 hover:text-[#0357AF]`}
+              >
+                {sub.title}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+};
+
+export default Sidebar2;

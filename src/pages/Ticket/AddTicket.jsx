@@ -45,7 +45,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                   </span>
                   <span className="text-gray-500">
                     {ticket.ticketType === "Paid"
-                      ? `${ticket.price} VNĐ`
+                      ? `${ticket.price} Đ`
                       : "Free"}
                   </span>
                 </div>

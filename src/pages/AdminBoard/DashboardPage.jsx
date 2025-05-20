@@ -209,7 +209,7 @@ const DashboardPage = () => {
         data: Object.values(eventTypeCount),
         backgroundColor: [
           '#a5d8ff', // Xanh dương nhạt
-          '#a7f3d0', // Xanh lá nhạt
+          '#ffff6e', // Xanh lá nhạt
           '#d8b4fe', // Tím nhạt
           '#fed7aa', // Cam nhạt
           '#f87171', // Đỏ nhạt
@@ -220,7 +220,7 @@ const DashboardPage = () => {
         ],
         hoverBackgroundColor: [
           '#87c7ff', // Xanh dương nhạt sáng hơn
-          '#8eebbb', // Xanh lá nhạt sáng hơn
+          '#ffff28', // Xanh lá nhạt sáng hơn
           '#c89eff', // Tím nhạt sáng hơn
           '#f5c08f', // Cam nhạt sáng hơn
           '#e55e5e', // Đỏ nhạt sáng hơn
