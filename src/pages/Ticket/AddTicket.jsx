@@ -383,8 +383,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
             },
           }
         );
-
-        if (response.ok) {
+        const data = await response.json()
+        if (data.data === true) {
           const updatedTickets = tickets.filter((_, i) => i !== index);
           setTickets(updatedTickets);
           onTicketsUpdate(updatedTickets);
@@ -397,7 +397,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: "Failed to delete ticket from database.",
+            text: data.msg,
           });
         }
       } catch (error) {

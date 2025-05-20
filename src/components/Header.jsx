@@ -229,11 +229,11 @@ const Header = () => {
       await api.logout();
       logout();
 
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Logged out successfully",
-      });
+      // Swal.fire({
+      //   icon: "success",
+      //   title: "Success",
+      //   text: "Logged out successfully",
+      // });
       navigate("/login");
       setIsMobileMenuOpen(false);
     } catch (error) {

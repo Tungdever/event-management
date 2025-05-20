@@ -146,7 +146,7 @@ const OrganizedBy = ({ organizer }) => {
 
             <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
               <img
-                src={organizer?.organizerLogo}
+                src={organizer?.organizerLogo ||"https://i.pinimg.com/736x/40/dc/20/40dc204e1681aea04a030aaa6d1aac39.jpg"}
                 alt="Logo Tổ Chức"
                 className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-md"
               />

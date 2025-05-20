@@ -47,9 +47,9 @@ const ChatBox = () => {
         const payload = JSON.parse(atob(token.split(".")[1]));
         if (!payload.userId || !payload.sub) {
           Swal.fire({
-            Icon: "error",
-            Title: "error",
-            Text: "Invalid login session. Please login again.",
+            icon: "error",
+            title: "error",
+            text: "Invalid login session. Please login again.",
           });
           return;
         }
@@ -61,16 +61,16 @@ const ChatBox = () => {
         setCurrentUser(user);
       } catch (e) {
         Swal.fire({
-          Icon: "error",
-          Title: "error",
-          Text: "Unable to authenticate user. Please log in again.",
+          icon: "error",
+          title: "error",
+          text: "Unable to authenticate user. Please log in again.",
         });
       }
     } else {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Please login to use chat feature.",
+        icon: "error",
+        title: "error",
+        text: "Please login to use chat feature.",
       });
     }
   }, [token]);
@@ -101,9 +101,9 @@ const ChatBox = () => {
       setUsers(formattedUsers);
     } catch (error) {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Unable to load user list",
+        icon: "error",
+        title: "error",
+        text: "Unable to load user list",
       });
     }
   };
@@ -136,9 +136,9 @@ const ChatBox = () => {
       setSearchedUsers(formattedUsers);
     } catch (error) {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Unable to find user. Please try again.",
+        icon: "error",
+        title: "error",
+        text: "Unable to find user. Please try again.",
       });
     }
   };
@@ -168,9 +168,9 @@ const ChatBox = () => {
         })
         .catch((error) => {
           Swal.fire({
-            Icon: "error",
-            Title: "error",
-            Text: "Unable to load chat history. Please try again.",
+            icon: "error",
+            title: "error",
+            text: "Unable to load chat history. Please try again.",
           });
         });
     }
@@ -290,9 +290,9 @@ const ChatBox = () => {
       setMessages((prev) => [...prev, messageDTO]);
     } catch (error) {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Unable to upload file.",
+        icon: "error",
+        title: "error",
+        text: "Unable to upload file.",
       });
     }
   };
@@ -321,15 +321,15 @@ const ChatBox = () => {
     } else {
       if (!isConnected) {
         Swal.fire({
-          Icon: "error",
-          Title: "error",
-          Text: "Unable to send message: WebSocket connection lost.",
+          icon: "error",
+          title: "error",
+          text: "Unable to send message: WebSocket connection lost.",
         });
       } else if (!selectedUser) {
         Swal.fire({
-          Icon: "error",
-          Title: "error",
-          Text: "Please select a user to chat with.",
+          icon: "error",
+          title: "error",
+          text: "Please select a user to chat with.",
         });
       }
     }
@@ -480,7 +480,7 @@ const ChatBox = () => {
         {selectedUser ? (
           <>
             <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
-              <div className=" W-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+              <div className=" w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
                 {selectedUser.name[0]}
               </div>
               <h2 className="ml-3 text-lg font-semibold text-gray-800 truncate">

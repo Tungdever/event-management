@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { Bar, Pie, Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
-
+import SidebarAdminBoard from "./Sidebar";
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -194,24 +194,7 @@ const DashboardPage = () => {
     fetchAllEvent();
   }, []);
 
-  // Bar Chart: Tickets Sold vs Revenue per Event (with Dual Y-Axis)
-  const ticketsVsRevenueData = {
-    labels: data.events?.map(event => event.eventName) || [],
-    datasets: [
-      {
-        label: 'Tickets Sold',
-        data: data.events?.map(event => event.totalQuantity) || [],
-        backgroundColor: '#d8b4fe',
-        yAxisID: 'y1',
-      },
-      {
-        label: 'Revenue',
-        data: data.events?.map(event => event.totalRevenue) || [],
-        backgroundColor: '#fed7aa',
-        yAxisID: 'y2',
-      },
-    ],
-  };
+
 
   // Doughnut Chart: Event Type Distribution
   const eventTypeCount = data.events?.reduce((acc, event) => {
@@ -251,7 +234,7 @@ const DashboardPage = () => {
         borderColor: '#ffffff',
       },
     ],
-  };
+  }
 
   // Line Chart: Revenue Over Time
   const revenueOverTimeData = {
@@ -267,85 +250,6 @@ const DashboardPage = () => {
     ],
   };
 
-  // Pie Chart: Booking Status Distribution
-  const bookingStatusData = {
-    labels: data.bookingStatusData?.labels || [],
-    datasets: [
-      {
-        data: data.bookingStatusData?.datasets?.[0]?.data || [],
-        backgroundColor: ['#a5d8ff', '#d8b4fe', '#f87171'],
-        hoverOffset: 4,
-        borderWidth: 1,
-        borderColor: '#ffffff',
-      },
-    ],
-  };
-
-  // Bar Chart: Active vs Inactive Users
-  const userActivityData = {
-    labels: data.userActivityData?.labels || [],
-    datasets: [
-      {
-        label: 'User Count',
-        data: data.userActivityData?.datasets?.[0]?.data || [],
-        backgroundColor: ['#a7f3d0', '#fed7aa'],
-      },
-    ],
-  };
-
-  // Pie Chart: Payment Method Distribution
-  const paymentMethodData = {
-    labels: data.paymentMethodData?.labels || [],
-    datasets: [
-      {
-        data: data.paymentMethodData?.datasets?.[0]?.data || [],
-        backgroundColor: ['#a5d8ff', '#a7f3d0', '#d8b4fe', '#fed7aa'],
-        hoverOffset: 4,
-        borderWidth: 1,
-        borderColor: '#ffffff',
-      },
-    ],
-  };
-
-  // Line Chart: Refunds Over Time
-  const refundsOverTimeData = {
-    labels: data.refundsOverTime?.labels || [],
-    datasets: [
-      {
-        label: 'Refunds',
-        data: data.refundsOverTime?.data || [],
-        fill: false,
-        borderColor: '#f87171',
-        tension: 0.1,
-      },
-    ],
-  };
-
-  // Doughnut Chart: Event Status Distribution
-  const eventStatusData = {
-    labels: data.eventStatusData?.labels || [],
-    datasets: [
-      {
-        data: data.eventStatusData?.datasets?.[0]?.data || [],
-        backgroundColor: ['#a5d8ff', '#d8b4fe', '#f87171', '#fed7aa'],
-        hoverOffset: 4,
-        borderWidth: 1,
-        borderColor: '#ffffff',
-      },
-    ],
-  };
-
-  // Bar Chart: Organizer Activity
-  const organizerActivityData = {
-    labels: data.organizerActivityData?.labels || [],
-    datasets: [
-      {
-        label: 'Events Organized',
-        data: data.organizerActivityData?.datasets?.[0]?.data || [],
-        backgroundColor: '#3b82f6',
-      },
-    ],
-  };
 
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
@@ -359,6 +263,7 @@ const DashboardPage = () => {
   };
 
   return (
+    
     <section className="space-y-6 overflow-y-auto">
       <div className="bg-white rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
@@ -454,15 +359,15 @@ const DashboardPage = () => {
             currentEvents.map((event) => (
               <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
                 <div className="w-1/2 flex items-center space-x-4 text-[13px]">
-                  {event.eventImage ? (
+                  {event.eventImages && event.eventImages.length > 0 ? (
                     <img
                       src={event.eventImages[0]}
                       alt={event.eventName}
-                      className="w-16 h-16 object-cover rounded-md"
+                      className="w-16 h-16 sm:w-20 h-20 object-cover rounded-lg shadow-sm"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-                      <span className="text-gray-500">No Image</span>
+                    <div className="w-16 h-16 sm:w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
+                      <span className="text-gray-500 text-xs sm:text-sm">No image</span>
                     </div>
                   )}
                   <div>

@@ -44,8 +44,8 @@ const FilterSidebar = ({
 
   const eventStarts = [
     { id: "all-times", label: "All time" },
-    { id: "this weeek", label: "This week" },
-    { id: "this month", label: "This month" },
+    { id: "this-week", label: "This week" },
+    { id: "this-month", label: "This month" },
   ];
   const ticketTypes = [
     { id: "all-types", label: "All types" },
@@ -57,16 +57,7 @@ const FilterSidebar = ({
     <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200 overflow-y-auto h-screen">
       <div className="flex justify-between items-center border-b pb-4">
         <h2 className="text-xl font-bold text-gray-800">Filters</h2>
-        <button
-          onClick={() => {
-            setSelectedCategories("all-types");
-            setSelectedEventLocation("all-locations");
-            onFilterChange([]);
-          }}
-          className="text-red-500 hover:text-red-700 font-semibold transition-colors duration-200 text-[13px]"
-        >
-          Delete filter
-        </button>
+
       </div>
 
       <div>
@@ -238,6 +229,7 @@ const SearchPage = () => {
     };
 
     fetchEvents();
+    window.scrollTo(0, 0);
   }, [
     selectedCategories,
     selectedEventLocation,
@@ -252,8 +244,9 @@ const SearchPage = () => {
     </div>
   ) : (
     <>
-      <div className="mx-auto px-6 py-4">
-        <h1 className="text-3xl font-bold text-gray-700 mt-4">
+     <div 
+        className="mx-auto px-6 py-4">
+        <h1 className="text-3xl font-bold text-gray-700 mt-4 font-montserrat">
           {searchTitle
             ? `Upcoming events for ${searchTitle}`
             : "Upcoming events"}
@@ -272,7 +265,7 @@ const SearchPage = () => {
               setSelectedTicketType={setSelectedTicketType}
             />
           </div>
-          <div className="w-full md:w-3/4 overflow-y-auto">
+          <div className="w-full md:w-3/4 overflow-y-auto h-screen">
             {events.length > 0 ? (
               <EventList event={events} />
             ) : (

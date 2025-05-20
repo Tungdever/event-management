@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import ProgressBar from "./ProgressBar";
-import BackIcon from "./BackIcon";
+import Backicon from "./BackIcon";
 import Swal from 'sweetalert2';
 
 const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
@@ -86,17 +86,17 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
 
       
        Swal.fire ({
-        Icon: 'success',
-        Title: 'ssuccess',
-        Text: 'Registration successful!',
+        icon: 'success',
+        title: 'ssuccess',
+        text: 'Registration successful!',
       });
       onComplete();
     } catch (error) {
      
       Swal.fire ({
-        Icon: 'error',
-        Title: 'error',
-        Text: 'Registration failed. Please try again.',
+        icon: 'error',
+        title: 'error',
+        text: 'Registration failed. Please try again.',
       });
     }
   };
@@ -108,7 +108,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col w-[600px]">
           <div className="p-6 rounded-t">
             <h2 className="text-2xl font-bold flex items-center">
-              <BackIcon onClick={onPrev} />
+              <Backicon onClick={onPrev} />
               Organizer Information
             </h2>
           </div>

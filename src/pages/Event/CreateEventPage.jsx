@@ -240,10 +240,10 @@ useEffect(() => {
 
       setEvent(updatedEvent);
       setIsLoading(false);
-      Swal.fire ({
-        Icon: 'Success',
-        Title: 'Success',
-        Text: `The event is successfully published! ID: $ {Eventid}`,
+      Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: `The event is successfully published! ID: ${eventId}`,
       });
       setTimeout(() => navigate('/'), 300);
     } catch (error) {

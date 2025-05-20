@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../Auth/AuthProvider";
 import Loader from "../../components/Loading";
 import { useNavigate } from "react-router-dom";
-
+import Footer from "../../components/Footer";
 const EventPage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("favorite");
@@ -67,7 +67,7 @@ const EventPage = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+       <> <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
             <div className="max-w-5xl mx-auto">
                 {/* Tiêu đề */}
                 <h2 className="text-3xl font-bold text-gray-900 mb-6">Favorite Events</h2>
@@ -129,6 +129,8 @@ const EventPage = () => {
                 )}
             </div>
         </div>
+            <Footer/>
+       </>
     );
 };
 

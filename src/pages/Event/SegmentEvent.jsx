@@ -55,8 +55,20 @@ const ImageUploader = ({ onImageUpload }) => {
   );
 };
 
-const SegmentFormPopup = ({isOpen,onClose,newSegment,handleChange,handleImageUpload,
-  desc,setDesc,actor,setActor,onSave,isEditing,loading,}) => {
+const SegmentFormPopup = ({
+  isOpen,
+  onClose,
+  newSegment,
+  handleChange,
+  handleImageUpload,
+  desc,
+  setDesc,
+  actor,
+  setActor,
+  onSave,
+  isEditing,
+  loading,
+}) => {
   if (!isOpen) return null;
 
   return (
@@ -67,7 +79,10 @@ const SegmentFormPopup = ({isOpen,onClose,newSegment,handleChange,handleImageUpl
         </h2>
         <div className="space-y-6">
           <div>
-            <label className="block text-gray-700 mb-2 font-medium" htmlFor="title">
+            <label
+              className="block text-gray-700 mb-2 font-medium"
+              htmlFor="title"
+            >
               Title<span className="text-red-500">*</span>
             </label>
             <input
@@ -82,7 +97,10 @@ const SegmentFormPopup = ({isOpen,onClose,newSegment,handleChange,handleImageUpl
           </div>
           <div className="flex space-x-4">
             <div className="flex-1">
-              <label className="block text-gray-700 mb-2 font-medium" htmlFor="start-time">
+              <label
+                className="block text-gray-700 mb-2 font-medium"
+                htmlFor="start-time"
+              >
                 Start Time<span className="text-red-500">*</span>
               </label>
               <input
@@ -95,7 +113,10 @@ const SegmentFormPopup = ({isOpen,onClose,newSegment,handleChange,handleImageUpl
               />
             </div>
             <div className="flex-1">
-              <label className="block text-gray-700 mb-2 font-medium" htmlFor="end-time">
+              <label
+                className="block text-gray-700 mb-2 font-medium"
+                htmlFor="end-time"
+              >
                 End Time<span className="text-red-500">*</span>
               </label>
               <input
@@ -230,7 +251,13 @@ const SegmentFormPopup = ({isOpen,onClose,newSegment,handleChange,handleImageUpl
   );
 };
 
-const SectionEvent = ({ eventId, segmentData, onSegmentUpdate, eventStart, eventEnd }) => {
+const SectionEvent = ({
+  eventId,
+  segmentData,
+  onSegmentUpdate,
+  eventStart,
+  eventEnd,
+}) => {
   const [segments, setSegments] = useState(segmentData || []);
   const [newSegment, setNewSegment] = useState({
     eventId: eventId || "",
@@ -426,7 +453,9 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate, eventStart, event
     }
 
     // Check for time overlap and event boundaries
-    if (!checkTimeOverlap(newSegment.startTime, newSegment.endTime, editIndex)) {
+    if (
+      !checkTimeOverlap(newSegment.startTime, newSegment.endTime, editIndex)
+    ) {
       return;
     }
 
@@ -476,52 +505,69 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate, eventStart, event
   };
 
   // Handle deleting a segment
-  const handleDeleteSegment = async (index) => {
+const handleDeleteSegment = async (index) => {
     const segmentToDelete = segments[index];
-    if (segmentToDelete.isLocal) {
-      const updatedSegments = segments.filter((_, i) => i !== index);
-      setSegments(updatedSegments);
-      onSegmentUpdate(updatedSegments);
+    
+    // Show confirmation dialog
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to delete the segment "${segmentToDelete.segmentTitle}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel",
+    });
 
-      // Swal.fire({
-      //   icon: "success",
-      //   title: "Success",
-      //   text: "Segment deleted successfully",
-      // });
-    } else if (segmentToDelete.segmentId) {
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            method: "DELETE",
+    // Proceed only if user clicks "Yes"
+    if (result.isConfirmed) {
+      if (segmentToDelete.isLocal) {
+        const updatedSegments = segments.filter((_, i) => i !== index);
+        setSegments(updatedSegments);
+        onSegmentUpdate(updatedSegments);
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Segment deleted successfully",
+        });
+      } else if (segmentToDelete.segmentId) {
+        try {
+          const response = await fetch(
+            `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+              method: "DELETE",
+            }
+          );
+
+          if (response.ok) {
+            const updatedSegments = segments.filter((_, i) => i !== index);
+            setSegments(updatedSegments);
+            onSegmentUpdate(updatedSegments);
+            Swal.fire({
+              icon: "success",
+              title: "Success",
+              text: "Segment deleted successfully",
+            });
+          } else {
+            Swal.fire({
+              icon: "warning",
+              title: "Warning",
+              text: "Failed to delete segment",
+            });
           }
-        );
-
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Segment deleted successfully",
-          });
-        } else {
+        } catch (error) {
+          console.error("Error deleting segment:", error);
           Swal.fire({
             icon: "warning",
             title: "Warning",
-            text: "Failed to delete segment",
+            text: "An error occurred while deleting the segment",
           });
         }
-      } catch (error) {
-        console.error("Error deleting segment:", error);
-
-        Swal.fire({
-          icon: "warning",
-          title: "Warning",
-          text: "An error occurred while deleting the segment",
-        });
       }
     }
   };
@@ -550,59 +596,61 @@ const SectionEvent = ({ eventId, segmentData, onSegmentUpdate, eventStart, event
       </div>
 
       {/* Segment list */}
-{segments.length > 0 &&
-  segments.map((segment, index) => (
-    <div
-      key={index}
-      className="bg-white p-3 sm:p-4 rounded-xl mb-4 shadow-md hover:shadow-lg transition border border-gray-200"
-    >
-      <div className="border-l-4 border-blue-400 pl-3 space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-blue-500 font-medium text-sm sm:text-base">
-            {segment.startTime} - {segment.endTime}
-          </span>
-          <div className="flex space-x-1">
-            <button
-              className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-blue-600 transition-colors"
-              onClick={() => handleEditSegment(index)}
-            >
-              <i className="fa-solid fa-pencil"></i>
-            </button>
-            <button
-              className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-red-600 transition-colors"
-              onClick={() => handleDeleteSegment(index)}
-            >
-              <i className="fa-solid fa-trash"></i>
-            </button>
+      {segments.length > 0 &&
+        segments.map((segment, index) => (
+          <div
+            key={index}
+            className="bg-white p-3 sm:p-4 rounded-xl mb-4 shadow-md hover:shadow-lg transition border border-gray-200"
+          >
+            <div className="border-l-4 border-blue-400 pl-3 space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-blue-500 font-medium text-sm sm:text-base">
+                  {segment.startTime} - {segment.endTime}
+                </span>
+                <div className="flex space-x-1">
+                  <button
+                    className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-blue-600 transition-colors"
+                    onClick={() => handleEditSegment(index)}
+                  >
+                    <i className="fa-solid fa-pencil"></i>
+                  </button>
+                  <button
+                    className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-red-600 transition-colors"
+                    onClick={() => handleDeleteSegment(index)}
+                  >
+                    <i className="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+              <span className="font-semibold text-gray-800 text-base sm:text-lg block py-1">
+                {segment.segmentTitle}
+              </span>
+              <p className="text-gray-700 text-xs sm:text-sm border-t border-gray-200 pt-1">
+                {segment.segmentDesc}
+              </p>
+              {segment.speaker && (
+                <div className="flex items-start gap-2 mt-1">
+                  {segment.speaker.speakerImage && (
+                    <img
+                      src={segment.speaker.speakerImage}
+                      alt={segment.speaker.speakerName}
+                      className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
+                      onError={(e) => {
+                        e.target.src =
+                          "https://via.placeholder.com/50?text=No+Image";
+                      }}
+                    />
+                  )}
+                  <p className="text-gray-700 text-xs sm:text-sm">
+                    <span className="font-medium">Speaker:</span>{" "}
+                    {segment.speaker.speakerName} -{" "}
+                    {segment.speaker.speakerDesc}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        <span className="font-semibold text-gray-800 text-base sm:text-lg block py-1">
-          {segment.segmentTitle}
-        </span>
-        <p className="text-gray-700 text-xs sm:text-sm border-t border-gray-200 pt-1">
-          {segment.segmentDesc}
-        </p>
-        {segment.speaker && (
-          <div className="flex items-start gap-2 mt-1">
-            {segment.speaker.speakerImage && (
-              <img
-                src={segment.speaker.speakerImage}
-                alt={segment.speaker.speakerName}
-                className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
-                onError={(e) => {
-                  e.target.src = "https://via.placeholder.com/50?text=No+Image";
-                }}
-              />
-            )}
-            <p className="text-gray-700 text-xs sm:text-sm">
-              <span className="font-medium">Speaker:</span> {segment.speaker.speakerName} -{" "}
-              {segment.speaker.speakerDesc}
-            </p>
-          </div>
-        )}
-      </div>
-    </div>
-  ))}
+        ))}
 
       {/* Popup form */}
       <SegmentFormPopup

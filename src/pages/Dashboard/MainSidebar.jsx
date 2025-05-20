@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { CiMenuBurger } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
 
 const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }) => {
@@ -52,9 +51,9 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
         </button>
         <button 
           onClick={toggleSidebar}
-          className="block"
+          className="lg:block hidden"
         >
-          <CiMenuBurger className="text-2xl" />
+          <i className="fas fa-bars text-2xl"></i>
         </button>
       </div>
       <nav className="flex-1 px-6 py-4 text-sm text-gray-600">
