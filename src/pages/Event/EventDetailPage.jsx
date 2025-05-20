@@ -10,7 +10,11 @@ import ListEventScroll from "../../components/EventListScroll";
 import DOMPurify from "dompurify";
 import { format, parseISO } from "date-fns";
 import { useNavigate } from "react-router-dom";
-//  : Format date and time
+import { User, MessageCircle } from "lucide-react";
+import ChatBubble from "../ChatBox/ChatBubble";
+import { useAuth } from "../Auth/AuthProvider";
+
+// : Format date and time
 const formatDateTime = (isoString) => {
   if (!isoString) return "N/A";
   try {
@@ -21,7 +25,7 @@ const formatDateTime = (isoString) => {
   }
 };
 
-//  : Format time only
+// : Format time only
 const formatTime = (isoString) => {
   if (!isoString) return "N/A";
   try {
@@ -32,7 +36,7 @@ const formatTime = (isoString) => {
   }
 };
 
-//  : Calculate new ticket count
+// : Calculate new ticket count
 const calculateNewCount = (current, delta, max, ticketType) => {
   const updated = current + delta;
   if (updated < 0) return 0;
@@ -41,7 +45,7 @@ const calculateNewCount = (current, delta, max, ticketType) => {
   return updated;
 };
 
-//  : Update selected tickets
+// : Update selected tickets
 const updateTickets = (prev, ticketId, newCount) => {
   if (newCount === 0) {
     const { [ticketId]: _, ...rest } = prev;
@@ -113,7 +117,7 @@ const Timeline = ({ segments }) => {
           <p className="text-sm sm:text-base lg:text-lg font-bold text-indigo-700 mt-1">
             "{segment.segmentTitle || "Untitled Segment"}"
           </p>
-           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
+          <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
             "{segment.segmentDesc || "Untitled Segment"}"
           </p>
         </div>
@@ -123,8 +127,15 @@ const Timeline = ({ segments }) => {
 };
 
 // OrganizedBy Component
-const OrganizedBy = ({ organizer }) => {
+const OrganizedBy = ({ organizer, currentUser }) => {
   const navigate = useNavigate();
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
+  const handleChatClick = () => {
+    if (organizer?.organizerEmail) {
+      setIsChatOpen(true);
+    }
+  };
 
   const handleOrganizerClick = () => {
     if (organizer?.organizerName) {
@@ -134,19 +145,19 @@ const OrganizedBy = ({ organizer }) => {
       );
     }
   };
+
   return (
     <div className="mt-10 mb-8 max-w-3xl font-inter">
       <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
         Organized by
       </h2>
-      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 border border-gray-200">
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 relative">
         <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
           <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
             <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full animate-pulse-subtle" />
-
             <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
               <img
-                src={organizer?.organizerLogo ||"https://i.pinimg.com/736x/40/dc/20/40dc204e1681aea04a030aaa6d1aac39.jpg"}
+                src={organizer?.organizerLogo || "https://i.pinimg.com/736x/40/dc/20/40dc204e1681aea04a030aaa6d1aac39.jpg"}
                 alt="Logo Tổ Chức"
                 className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-md"
               />
@@ -159,19 +170,38 @@ const OrganizedBy = ({ organizer }) => {
             >
               {organizer?.organizerName || "N/A"}
             </h3>
-
             <p className="text-gray-700 text-sm sm:text-base font-inter leading-relaxed max-w-lg mx-auto sm:mx-0 italic">
               {organizer?.organizerDesc || "No description available"}
             </p>
           </div>
+          {currentUser?.email !== organizer?.organizerEmail && (
+            <button
+              onClick={handleChatClick}
+              className="absolute top-4 right-4 p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-200"
+              title="Chat with Organizer"
+            >
+              <MessageCircle className="w-5 h-5 text-blue-600" />
+            </button>
+          )}
         </div>
       </div>
+      {isChatOpen && (
+        <ChatBubble
+          currentUser={currentUser}
+          initialSelectedUser={{
+            userId: organizer?.organizerId,
+            email: organizer?.organizerEmail,
+            name: organizer?.organizerName || "Organizer",
+          }}
+          onClose={() => setIsChatOpen(false)}
+        />
+      )}
     </div>
   );
 };
 
 // EventInfo Component
-const EventInfo = ({ eventData, organizerData }) => (
+const EventInfo = ({ eventData, organizerData, currentUser }) => (
   <div className="flex-1">
     <div className="text-gray-500 text-sm sm:text-base mb-2">
       {formatDateTime(eventData?.eventStart)}
@@ -179,9 +209,8 @@ const EventInfo = ({ eventData, organizerData }) => (
     <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
       {eventData?.eventName || "Unnamed Event"}
     </h1>
-    <OrganizedBy organizer={organizerData} />
-    <div className="mt-6 mb-6  pt-6">
-     
+    <OrganizedBy organizer={organizerData} currentUser={currentUser} />
+    <div className="mt-6 mb-6 pt-6">
       <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
         Date and Time
       </h2>
@@ -252,8 +281,8 @@ const OverviewContent = ({ eventData }) => (
 );
 
 // TicketSelector Component
-const TicketSelector = ({tickets,selectedTickets,onQuantityChange,onSelect,}) => (
-  <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10  top-6">
+const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }) => (
+  <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
     <div className="mb-4 p-4 border-2 border-red-400 rounded-lg">
       {!tickets ? (
         <p className="text-gray-700 text-sm font-inter">Loading tickets...</p>
@@ -380,8 +409,8 @@ const EventDetail = () => {
   const [tickets, setTickets] = useState(null);
   const [sponsors, setSponsors] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
-
   const { data, loading, error } = useEventData(eventId);
+  const { user } = useAuth();
 
   useEffect(() => {
     if (data) {
@@ -491,7 +520,7 @@ const EventDetail = () => {
         <div className="rounded-lg px-4 sm:px-6 pt-4 leading-normal">
           <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-2">
             <div className="w-full lg:flex-1 ml-4 sm:ml-6 lg:ml-10">
-              <EventInfo eventData={eventData} organizerData={organizer} />
+              <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} />
               <OverviewContent eventData={eventData} />
               <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
                 Speakers

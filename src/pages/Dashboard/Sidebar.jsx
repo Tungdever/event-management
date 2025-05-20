@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";  
 import { FaTachometerAlt, FaUsers, FaChartLine, FaTicketAlt, FaMicrophone } from "react-icons/fa"; 
+import { RiTeamLine } from "react-icons/ri";
 import { MdEvent } from "react-icons/md";
 import { useAuth } from "../Auth/AuthProvider";
 
@@ -22,6 +23,12 @@ const createMenuItems = (eventId) => [
     path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,
     displayName: "Ticket",
     icon: <FaTicketAlt />,
+    roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+  },
+  {
+    path: `/dashboard/my-team${eventId ? `/${eventId}` : ''}`,
+    displayName: "Teams",
+    icon: <RiTeamLine />,
     roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
   }
 ];

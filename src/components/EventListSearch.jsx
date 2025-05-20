@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaUserFriends, FaHeart, FaShareAlt } from "react-icons/fa";
-
+import { useNavigate } from "react-router-dom";
 const isValidUrl = (url) => {
   try {
     new URL(url);
@@ -11,10 +11,14 @@ const isValidUrl = (url) => {
 };
 
 const EventList = ({ event }) => {
+  const navigate = useNavigate();
   const [imageError, setImageError] = useState({});
 const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
     return text.substring(0, maxLength) + "...";
+  };
+  const handleEventClick = (eventId) => {
+    navigate(`/event/${eventId}`);
   };
   const handleImageError = (eventId) => {
     setImageError((prev) => ({ ...prev, [eventId]: true }));
@@ -44,7 +48,8 @@ const truncateText = (text, maxLength) => {
         {event.map((eventItem) => (
           <div
             key={eventItem.eventId}
-            className="flex items-center w-[730px] bg-white shadow rounded-[8px] overflow-hidden p-4 hover:shadow-lg transition-all duration-300 border border-gray-200"
+            className="flex items-center w-[730px] bg-white shadow rounded-[8px] overflow-hidden p-4 hover:shadow-lg transition-all duration-300 border border-gray-200 hover:cursor-pointer"
+            onClick={() => handleEventClick(eventItem.eventId)}
           >
             {imageError[eventItem.eventId] || 
             !eventItem.eventImages || 

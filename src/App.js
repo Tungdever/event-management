@@ -135,9 +135,9 @@ const MainLayout = () => {
     console.log(`Clicked event with ID: ${eventId}`);
   };
 
-  const hideChatBubbleOnPages = ["/createEvent", "/chat"].includes(
-    location.pathname
-  );
+  const hideChatBubbleOnPages =
+    ["/createEvent", "/chat"].includes(location.pathname) ||
+    location.pathname.startsWith("/event/");
 
   return (
     <WebSocketProvider>
@@ -376,6 +376,7 @@ const MainLayout = () => {
                       "TICKET MANAGER",
                       "EVENT ASSISTANT",
                       "CHECK-IN STAFF",
+                    "ATTENDEE"
                     ]}
                   >
                     <ViewProfile />

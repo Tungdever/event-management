@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { useAuth } from "../Auth/AuthProvider";
 
 const uploadFilesToCloudinary = async (files) => {
   if (!files || (Array.isArray(files) && files.length === 0)) return [];
@@ -51,6 +52,7 @@ const uploadFilesToCloudinary = async (files) => {
 };
 
 const EditProfile = ({ onClose, userData, onUpdate }) => {
+  const { user } = useAuth();
   const token = localStorage.getItem("token");
   const [formData, setFormData] = useState({
     userId: userData?.userId || 2,
@@ -105,12 +107,14 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
     if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
-    if (!formData.organizer.organizerName.trim())
-      newErrors.organizerName = "Organizer name is required";
-    if (formData.organizer.organizerWebsite && !/^https?:\/\/.*/.test(formData.organizer.organizerWebsite))
-      newErrors.organizerWebsite = "Website must start with http:// or https://";
-    if (formData.organizer.organizerPhone && !/^\d{10,15}$/.test(formData.organizer.organizerPhone))
-      newErrors.organizerPhone = "Phone number must be 10-15 digits";
+    if (user?.primaryRoles?.includes("ORGANIZER")) {
+      if (!formData.organizer.organizerName.trim())
+        newErrors.organizerName = "Organizer name is required";
+      if (formData.organizer.organizerWebsite && !/^https?:\/\/.*/.test(formData.organizer.organizerWebsite))
+        newErrors.organizerWebsite = "Website must start with http:// or https://";
+      if (formData.organizer.organizerPhone && !/^\d{10,15}$/.test(formData.organizer.organizerPhone))
+        newErrors.organizerPhone = "Phone number must be 10-15 digits";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -123,7 +127,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
     setIsSubmitting(true);
     try {
       let organizerLogo = formData.organizer.organizerLogo;
-      if (logoFile) {
+      if (logoFile && user?.primaryRoles?.includes("ORGANIZER")) {
         const uploadedIds = await uploadFilesToCloudinary([logoFile]);
         if (uploadedIds.length > 0) {
           organizerLogo = uploadedIds[0];
@@ -134,10 +138,10 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
 
       const updatedData = {
         ...formData,
-        organizer: {
+        organizer: user?.primaryRoles?.includes("ORGANIZER") ? {
           ...formData.organizer,
           organizerLogo,
-        },
+        } : null,
       };
 
       const response = await axios.put(
@@ -157,7 +161,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
           title: "Success",
           text: "Profile updated successfully!",
         });
-        if (onUpdate) onUpdate(response.data); // Update parent component
+        if (onUpdate) onUpdate(response.data);
         onClose();
       }
     } catch (error) {
@@ -258,101 +262,103 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
           </div>
         </div>
 
-        {/* Organizer Information */}
-        <div className="border-t pt-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">
-            Organizer Information
-          </h3>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Name *
-              </label>
-              <input
-                type="text"
-                name="organizer.organizerName"
-                value={formData.organizer.organizerName}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-              {errors.organizerName && (
-                <p className="text-red-500 text-xs mt-1">{errors.organizerName}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Logo
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleLogoChange}
-                className="w-full p-2 border border-gray-300 rounded-lg"
-              />
-              {logoPreview && (
-                <img
-                  src={logoPreview}
-                  alt="Organizer Logo Preview"
-                  className="mt-2 w-24 h-24 rounded-full object-cover"
+        {/* Organizer Information (only for ORGANIZER role) */}
+        {user?.primaryRoles?.includes("ORGANIZER") && (
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+              Organizer Information
+            </h3>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Name *
+                </label>
+                <input
+                  type="text"
+                  name="organizer.organizerName"
+                  value={formData.organizer.organizerName}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Address
-              </label>
-              <input
-                type="text"
-                name="organizer.organizerAddress"
-                value={formData.organizer.organizerAddress}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Website
-              </label>
-              <input
-                type="url"
-                name="organizer.organizerWebsite"
-                value={formData.organizer.organizerWebsite}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-              {errors.organizerWebsite && (
-                <p className="text-red-500 text-xs mt-1">{errors.organizerWebsite}</p>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Phone
-              </label>
-              <input
-                type="text"
-                name="organizer.organizerPhone"
-                value={formData.organizer.organizerPhone}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-              />
-              {errors.organizerPhone && (
-                <p className="text-red-500 text-xs mt-1">{errors.organizerPhone}</p>
-              )}
-            </div>
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Organizer Description
-              </label>
-              <textarea
-                name="organizer.organizerDesc"
-                value={formData.organizer.organizerDesc}
-                onChange={handleChange}
-                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-                rows="4"
-              />
+                {errors.organizerName && (
+                  <p className="text-red-500 text-xs mt-1">{errors.organizerName}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Logo
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleLogoChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                />
+                {logoPreview && (
+                  <img
+                    src={logoPreview}
+                    alt="Organizer Logo Preview"
+                    className="mt-2 w-24 h-24 rounded-full object-cover"
+                  />
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Address
+                </label>
+                <input
+                  type="text"
+                  name="organizer.organizerAddress"
+                  value={formData.organizer.organizerAddress}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Website
+                </label>
+                <input
+                  type="url"
+                  name="organizer.organizerWebsite"
+                  value={formData.organizer.organizerWebsite}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+                {errors.organizerWebsite && (
+                  <p className="text-red-500 text-xs mt-1">{errors.organizerWebsite}</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Phone
+                </label>
+                <input
+                  type="text"
+                  name="organizer.organizerPhone"
+                  value={formData.organizer.organizerPhone}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                />
+                {errors.organizerPhone && (
+                  <p className="text-red-500 text-xs mt-1">{errors.organizerPhone}</p>
+                )}
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Organizer Description
+                </label>
+                <textarea
+                  name="organizer.organizerDesc"
+                  value={formData.organizer.organizerDesc}
+                  onChange={handleChange}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  rows="4"
+                />
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Buttons */}
         <div className="flex justify-end space-x-4 mt-6">

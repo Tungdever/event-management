@@ -175,11 +175,11 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           }));
         })
         .catch((error) => {
-          Swal.fire({
-            icon: "error",
-            title: "error",
-            text: "RUnable to load chat history. Please try again.",
-          });
+          // Swal.fire({
+          //   icon: "error",
+          //   title: "error",
+          //   text: "RUnable to load chat history. Please try again.",
+          // });
         });
     }
   }, [selectedUser, currentUser.userId, token]);
