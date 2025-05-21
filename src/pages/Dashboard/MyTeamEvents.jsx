@@ -79,7 +79,7 @@ const MyTeamEvents = () => {
   }
 
   return (
-    <div className="mx-auto max-w-6xl min-h-screen p-6 bg-gray-50">
+    <div className="max-w-6xl min-h-screen p-6 bg-gray-50">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">

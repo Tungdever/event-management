@@ -13,7 +13,7 @@ const defaultMenuItems = [
       { title: "Overview", component: "Dashboard", roles: ["ORGANIZER"] },
       { title: "Events", component: "Events", roles: ["ORGANIZER"] },
       { title: "Calendar", component: "Calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
-      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
+      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER"] },
     ],
   },
   {

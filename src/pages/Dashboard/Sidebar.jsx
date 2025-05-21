@@ -11,19 +11,19 @@ const createMenuItems = (eventId) => [
     path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}`,
     displayName: "Events",
     icon: <MdEvent />,
-    roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+    roles: ["ORGANIZER", ]
   },
   {
     path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
     displayName: "Sponsor",
     icon: <FaUsers />,
-    roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+    roles: ["ORGANIZER", "EVENT ASSISTANT",]
   },
   {
     path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,
     displayName: "Ticket",
     icon: <FaTicketAlt />,
-    roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
+    roles: ["ORGANIZER", "TICKET MANAGER","CHECK-IN STAFF"]
   },
   {
     path: `/dashboard/my-team${eventId ? `/${eventId}` : ''}`,
@@ -47,7 +47,7 @@ const Sidebar = ({ id }) => {
   };
 
   return (
-    <div className="w-64 h-screen bg-white text-black p-3 border border-r-1 fixed top-0 left-0 overflow-y-auto">
+    <div className="w-64 h-screen bg-white text-black p-3 border border-r-1 fixed top-0 left-0 overflow-y-auto z-50">
       <h1 className="text-xl sm:text-2xl lg:text-[24px] font-bold text-orange-500 mb-6 sm:mb-7 lg:mb-8 mt-2 hover:cursor-pointer truncate" onClick={handleHomepage}>Management Event</h1>
       <ul>
         {menuItems.map((menu) => (

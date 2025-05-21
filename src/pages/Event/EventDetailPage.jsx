@@ -127,7 +127,7 @@ const Timeline = ({ segments }) => {
 };
 
 // OrganizedBy Component
-const OrganizedBy = ({ organizer, currentUser }) => {
+const OrganizedBy = ({ organizer, currentUser ,hostId}) => {
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -189,7 +189,7 @@ const OrganizedBy = ({ organizer, currentUser }) => {
         <ChatBubble
           currentUser={currentUser}
           initialSelectedUser={{
-            userId: organizer?.organizerId,
+            userId: hostId,
             email: organizer?.organizerEmail,
             name: organizer?.organizerName || "Organizer",
           }}
@@ -209,7 +209,7 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
       {eventData?.eventName || "Unnamed Event"}
     </h1>
-    <OrganizedBy organizer={organizerData} currentUser={currentUser} />
+    <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
     <div className="mt-6 mb-6 pt-6">
       <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
         Date and Time

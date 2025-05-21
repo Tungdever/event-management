@@ -195,7 +195,7 @@ const AssignedEvents = () => {
                 {/* Role and Permissions */}
                 <div className="md:w-48 relative">
                   <h3 className="text-sm font-semibold text-gray-700">
-                    Vai trò: {roleName.replace("ROLE_", "")}
+                    Roles: {roleName.replace("ROLE_", "")}
                   </h3>
                   <ul className="mt-2 text-sm text-gray-600">
                     {permissions.map((perm, idx) => (

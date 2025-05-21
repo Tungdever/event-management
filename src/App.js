@@ -285,7 +285,9 @@ const MainLayout = () => {
               <Route
                 path="/dashboard"
                 element={
-                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
+                  <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "TICKET MANAGER",
+                      "EVENT ASSISTANT",
+                      "CHECK-IN STAFF",]}>
                     <OrganizerLayout />
                   </RoleBasedRouteGroup>
                 }
