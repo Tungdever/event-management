@@ -187,7 +187,7 @@ const OrganizerDashboard = () => {
 
         {/* Charts Section */}
         <h1 className="font-bold text-lg mb-4 select-none">Statistics</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
           {/* Line Chart: Revenue Over Time */}
           <div className="bg-[#f9fafb] rounded-xl p-4">
             <h2 className="text-sm font-semibold mb-4">Revenue Over Time</h2>
@@ -210,7 +210,7 @@ const OrganizerDashboard = () => {
           </div>
 
           {/* Bar Chart: Tickets Sold vs Revenue */}
-          <div className="bg-[#f9fafb] rounded-xl p-4 col-span-2">
+          {/* <div className="bg-[#f9fafb] rounded-xl p-4 col-span-2">
             <h2 className="text-sm font-semibold mb-4">Tickets Sold vs Revenue per Event</h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <Bar
@@ -242,7 +242,7 @@ const OrganizerDashboard = () => {
                 }}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Event List */}

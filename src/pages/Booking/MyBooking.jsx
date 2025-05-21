@@ -215,7 +215,7 @@ export default function MyInvoice() {
                   </div>
                   <div className="text-right mt-4 sm:mt-0">
                     <p className="text-lg font-semibold text-blue-600">
-                      Total: ${order.transaction.transactionAmount}
+                      Total: {order.transaction.transactionAmount} Đ
                     </p>
                     <p className="text-sm text-blue-500 font-medium">
                       {isOpen ? "Hide Details ▲" : "View Details ▼"}

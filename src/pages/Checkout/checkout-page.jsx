@@ -156,14 +156,14 @@ const CheckoutPage = (props) => {
                     <div key={index} className="w-full">
                       <div className="flex w-full items-center justify-between bg-white py-1.5">
                         <span>{ticket.ticketName} x{ticket.quantity}</span>
-                        <span className="text-right w-24">{s?.toFixed(2)}Đ</span>
+                        <span className="text-right w-24">{s?.toLocaleString()}Đ</span>
                       </div>
                     </div>
                   );
                 })}
               <div className="mt-2.5 flex w-full items-center justify-between bg-white border-t border-[#E7E9EB] pt-2">
                 <span className="font-semibold">Total</span>
-                <span className="text-right w-24 font-semibold">{total?.toFixed(2)}Đ</span>
+                <span className="text-right w-24 font-semibold">{total?.toLocaleString()}Đ</span>
               </div>
             </div>
 

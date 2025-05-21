@@ -1061,3 +1061,14 @@
 .sponsor-container .text-gray-9 {
     color: #111827;
 }
+#existing-sponsors .modal-body {
+    overflow-y: auto !important;
+    max-height: calc(100vh - 200px); /* Điều chỉnh dựa trên chiều cao của header/footer */
+}
+.modal-open #existing-sponsors .modal-body {
+    overflow-y: auto !important;
+}
+#add-sponsor .modal-body {
+    overflow-y: auto !important;
+    max-height: calc(100vh - 200px); /* Điều chỉnh dựa trên chiều cao header/footer */
+}
