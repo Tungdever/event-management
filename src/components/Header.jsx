@@ -212,8 +212,8 @@ const Header = () => {
     navigate("/dashboard");
     setIsMobileMenuOpen(false);
   };
-  const handleChat = () => {
-    navigate("/chat");
+  const handleViewProfile = () => {
+    navigate("/view");
     setIsMobileMenuOpen(false);
   };
   const handleNoti = () => {
@@ -268,13 +268,14 @@ const Header = () => {
     },
      { title: "Invoices", action: handleMyInvoices ,roles: ["ORGANIZER","ATTENDEE"]},
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
-    { title: "Log out", action: handleLogout },
-    // { title: "Chatbox", action: handleChat, roles: ["ATTENDEE"] },
+    { title: "Profile", action: handleViewProfile, roles: [ "ATTENDEE"] },
     {
       title: "Up to Organizer",
       action: () => setOpenUpgradeDialog(true),
       roles: ["ATTENDEE"],
     },
+    { title: "Log out", action: handleLogout },
+    
   ];
 
   const filteredMenuPopup = menuPopup.filter(

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import Footer from "../../components/Footer";
-
+import DOMPurify from "dompurify";
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -92,7 +92,15 @@ const SearchByType = () => {
       slogan: "Ideas That Inspire!"
     }
   ];
-
+const sanitizeAndTruncate = (html, maxLength) => {
+    const sanitizedHtml = DOMPurify.sanitize(html || "");
+    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
+    if (plainText.length <= maxLength) {
+      return sanitizedHtml;
+    }
+    const truncatedPlainText = truncateText(plainText, maxLength);
+    return `<p>${truncatedPlainText}</p>`;
+  };
   // Tìm thông tin tương ứng với categoryName
   const selectedCategory = wallper.find(item => item.type.toLowerCase() === categoryName.toLowerCase()) || {
     wallper: "https://via.placeholder.com/480x290",
@@ -192,8 +200,16 @@ const SearchByType = () => {
                       {truncateText(event.eventName, 25) || "Unnamed Event"}
                     </h3>
                     <p className="text-gray-600 text-sm mt-1 truncate">
-                      {truncateText(event.eventDesc, 30) || "No description"}
-                    </p>
+                  {event?.eventDesc ? (
+                    <span
+                      dangerouslySetInnerHTML={{
+                        __html: sanitizeAndTruncate(event.eventDesc, 30),
+                      }}
+                    />
+                  ) : (
+                    "No description available"
+                  )}
+                </p>
                     <p className="text-gray-700 text-sm mt-2">
                       <span className="font-medium">Ngày:</span>{" "}
                       {new Date(event.eventStart).toLocaleDateString("vi-VN")}

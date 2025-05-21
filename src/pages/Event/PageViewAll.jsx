@@ -126,6 +126,7 @@ const AllEvent = () => {
   useEffect(() => {
     fetchAllEvents();
   }, []);
+
   const sanitizeAndTruncate = (html, maxLength) => {
     const sanitizedHtml = DOMPurify.sanitize(html || "");
     const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
@@ -135,6 +136,7 @@ const AllEvent = () => {
     const truncatedPlainText = truncateText(plainText, maxLength);
     return `<p>${truncatedPlainText}</p>`;
   };
+  
   const handleViewMore = () => {
     if (displayedEvents.length >= events.length) return;
 

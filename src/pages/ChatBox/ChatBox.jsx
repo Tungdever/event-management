@@ -8,6 +8,7 @@ import { IoIosLink } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import Swal from "sweetalert2";
+
 const ChatBox = () => {
   const { stompClient, isConnected } = useWebSocket();
   const [users, setUsers] = useState([]);
@@ -31,16 +32,19 @@ const ChatBox = () => {
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
+
   const openPreview = (mediaUrl, contentType) => {
     console.log("Opening preview:", { mediaUrl, contentType });
     setPreviewMedia({ url: `${MEDIA_BASE_URL}${mediaUrl}`, type: contentType });
     setIsPreviewOpen(true);
   };
+
   const closePreview = () => {
     console.log("Closing preview");
     setIsPreviewOpen(false);
     setPreviewMedia({ url: "", type: "" });
   };
+
   useEffect(() => {
     if (token) {
       try {
@@ -57,7 +61,6 @@ const ChatBox = () => {
           userId: payload.userId,
           email: payload.sub,
         };
-
         setCurrentUser(user);
       } catch (e) {
         Swal.fire({
@@ -97,13 +100,15 @@ const ChatBox = () => {
         userId: user.userId,
         email: user.email,
         name: user.fullName || "Unknown",
+        unreadCount: user.unreadCount || 0,
       }));
       setUsers(formattedUsers);
     } catch (error) {
+      console.error("Error fetching user list:", error);
       Swal.fire({
         icon: "error",
         title: "error",
-        text: "Unable to load user list",
+        text: "Unable to load user list.",
       });
     }
   };
@@ -115,7 +120,7 @@ const ChatBox = () => {
   }, [currentUser.userId]);
 
   const searchUsers = async (query) => {
-    if (!query.trim()) {
+    if (!query.trim() || query.length < 2) {
       setSearchedUsers([]);
       return;
     }
@@ -123,7 +128,7 @@ const ChatBox = () => {
       const response = await axios.get(
         `http://localhost:8080/chat/search?query=${encodeURIComponent(
           query
-        )}¤tUserId=${currentUser.userId}`,
+        )}&currentUserId=${currentUser.userId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -132,14 +137,13 @@ const ChatBox = () => {
         userId: user.userId,
         email: user.email,
         name: user.fullName || "Unknown",
+        unreadCount: user.unreadCount || 0,
       }));
       setSearchedUsers(formattedUsers);
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "error",
-        text: "Unable to find user. Please try again.",
-      });
+      console.error("Error searching users:", error);
+      // Do not show Swal for normal search failures
+      setSearchedUsers([]);
     }
   };
 
@@ -165,8 +169,24 @@ const ChatBox = () => {
         )
         .then((response) => {
           setMessages(response.data);
+          // Clear unread count for the selected user
+          setUsers((prev) =>
+            prev.map((user) =>
+              user.userId === selectedUser.userId
+                ? { ...user, unreadCount: 0 }
+                : user
+            )
+          );
+          setSearchedUsers((prev) =>
+            prev.map((user) =>
+              user.userId === selectedUser.userId
+                ? { ...user, unreadCount: 0 }
+                : user
+            )
+          );
         })
         .catch((error) => {
+          console.error("Error fetching chat history:", error);
           Swal.fire({
             icon: "error",
             title: "error",
@@ -182,7 +202,6 @@ const ChatBox = () => {
         `/user/${currentUser.email}/chat`,
         (message) => {
           const receivedMessage = JSON.parse(message.body);
-
           if (
             selectedUser &&
             (receivedMessage.senderEmail === selectedUser.email ||
@@ -204,6 +223,23 @@ const ChatBox = () => {
               }
               return [...prevMessages, receivedMessage];
             });
+          } else {
+            // Update unread count for the sender
+            const senderEmail = receivedMessage.senderEmail;
+            setUsers((prev) =>
+              prev.map((user) =>
+                user.email === senderEmail && user.userId !== selectedUser?.userId
+                  ? { ...user, unreadCount: (user.unreadCount || 0) + 1 }
+                  : user
+              )
+            );
+            setSearchedUsers((prev) =>
+              prev.map((user) =>
+                user.email === senderEmail && user.userId !== selectedUser?.userId
+                  ? { ...user, unreadCount: (user.unreadCount || 0) + 1 }
+                  : user
+              )
+            );
           }
         }
       );
@@ -212,7 +248,6 @@ const ChatBox = () => {
         `/user/${currentUser.email}/typing`,
         (message) => {
           const typingData = JSON.parse(message.body);
-
           setTypingStatus((prev) => ({
             ...prev,
             [typingData.senderEmail]: typingData.isTyping,
@@ -286,9 +321,9 @@ const ChatBox = () => {
       console.log("Sending messageDTO:", messageDTO);
 
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
-      // Thêm tin nhắn vào messages cục bộ để kích hoạt scrollToBottom
       setMessages((prev) => [...prev, messageDTO]);
     } catch (error) {
+      console.error("Error uploading file:", error);
       Swal.fire({
         icon: "error",
         title: "error",
@@ -314,7 +349,7 @@ const ChatBox = () => {
       stompClient.send("/app/chat", {}, JSON.stringify(messageDTO));
       setMessages((prevMessages) => [...prevMessages, messageDTO]);
       if (!users.some((user) => user.userId === selectedUser.userId)) {
-        setUsers((prev) => [...prev, selectedUser]);
+        setUsers((prev) => [...prev, { ...selectedUser, unreadCount: 0 }]);
       }
       setInputMessage("");
       setShowEmojiPicker(false);
@@ -377,7 +412,6 @@ const ChatBox = () => {
       if (msg.contentType === "TEXT" || msg.contentType === "EMOJI") {
         return <p>{msg.content || "(trống)"}</p>;
       }
-
       return (
         <p>
           {typeof msg.content === "string"
@@ -399,7 +433,7 @@ const ChatBox = () => {
         <FaBars className="text-lg" />
       </button>
       <div
-        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300  w-80 sm:w-1/3 lg:w-1/4 ${
+        className={`fixed sm:static top-0 left-0 h-full bg-white border-r border-gray-200 transition-transform duration-300 w-80 sm:w-1/3 lg:w-1/4 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } sm:translate-x-0`}
       >
@@ -424,7 +458,7 @@ const ChatBox = () => {
                   key={user.userId}
                   className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
                     selectedUser?.userId === user.userId ? "bg-teal-100" : ""
-                  }`}
+                  } ${user.unreadCount > 0 ? "font-semibold bg-gray-100" : ""}`}
                   onClick={() => {
                     setSelectedUser(user);
                     setIsSidebarOpen(false);
@@ -433,13 +467,13 @@ const ChatBox = () => {
                   <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
                     {user.name[0]}
                   </div>
-                  <div className="ml-3 flex-1">
-                    <p className="font-semibold text-sm truncate">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
+                  <div className="ml-3 flex-1 flex items-center">
+                    <p className="text-sm truncate">{user.name}</p>
+                    {user.unreadCount > 0 && (
+                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                        {user.unreadCount}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))
@@ -454,7 +488,7 @@ const ChatBox = () => {
                 key={user.userId}
                 className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
                   selectedUser?.userId === user.userId ? "bg-teal-100" : ""
-                }`}
+                } ${user.unreadCount > 0 ? "font-semibold bg-gray-100" : ""}`}
                 onClick={() => {
                   setSelectedUser(user);
                   setIsSidebarOpen(false);
@@ -463,9 +497,13 @@ const ChatBox = () => {
                 <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
                   {user.name[0]}
                 </div>
-                <div className="ml-3 flex-1">
-                  <p className="font-semibold text-sm truncate">{user.name}</p>
-                  <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                <div className="ml-3 flex-1 flex items-center">
+                  <p className="text-sm truncate">{user.name}</p>
+                  {user.unreadCount > 0 && (
+                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {user.unreadCount}
+                    </span>
+                  )}
                 </div>
               </div>
             ))
@@ -480,7 +518,7 @@ const ChatBox = () => {
         {selectedUser ? (
           <>
             <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
-              <div className=" w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+              <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
                 {selectedUser.name[0]}
               </div>
               <h2 className="ml-3 text-lg font-semibold text-gray-800 truncate">

@@ -13,7 +13,7 @@ const defaultMenuItems = [
       { title: "Overview", component: "Dashboard", roles: ["ORGANIZER"] },
       { title: "Events", component: "Events", roles: ["ORGANIZER"] },
       { title: "Calendar", component: "Calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
-      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER", "EVENT ASSISTANT"] },
+      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER"] },
     ],
   },
   {
@@ -87,7 +87,7 @@ const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent }) => {
   return (
     <div
       className={`fixed top-0 left-0 h-screen bg-white text-black border-r border-gray-200 overflow-y-auto transition-transform duration-300 z-40
-        w-[240px] sm:w-56 lg:w-64 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
+        w-[240px] sm:w-64 lg:w-70 ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
     >
       <div className="p-2 sm:p-3 lg:p-4">
         <div className="flex items-center justify-between mb-6 sm:mb-7 lg:mb-8 mt-2">

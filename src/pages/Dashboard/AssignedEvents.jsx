@@ -131,7 +131,7 @@ const AssignedEvents = () => {
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">
-          Sự kiện được phân công
+          Assigned Events 
         </h1>
       </div>
 
@@ -139,7 +139,7 @@ const AssignedEvents = () => {
       <div className="space-y-4">
         {events.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            Không có sự kiện nào được phân công.
+            No events are assigned.
           </p>
         ) : (
           events.map(({ event, roleName, permissions }, index) => (
@@ -195,7 +195,7 @@ const AssignedEvents = () => {
                 {/* Role and Permissions */}
                 <div className="md:w-48 relative">
                   <h3 className="text-sm font-semibold text-gray-700">
-                    Vai trò: {roleName.replace("ROLE_", "")}
+                    Roles: {roleName.replace("ROLE_", "")}
                   </h3>
                   <ul className="mt-2 text-sm text-gray-600">
                     {permissions.map((perm, idx) => (
