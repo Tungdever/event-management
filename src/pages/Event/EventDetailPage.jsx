@@ -211,6 +211,12 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
       {eventData?.eventName || "Unnamed Event"}
     </h1>
+    <div className="text-gray-700 text-sm sm:text-base flex items-center mb-2">
+      <i className="fa-solid fa-eye mr-4"></i>
+      <span className="text-[14px] font-bold">
+        {eventData?.viewCount ? `${eventData.viewCount} views` : "0 views"}
+      </span>
+    </div>
     <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
     <div className="mt-6 mb-6 pt-6">
       <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
@@ -511,51 +517,66 @@ const EventDetail = () => {
               ></div>
               <img
                 src="https://via.placeholder.com/1200x500"
-                alt="Placeholder event image"
+                alt="Default event banner"
                 className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
               />
             </div>
           )}
         </Carousel>
       </div>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-8 mt-6 sm:mt-8 flex flex-col lg:flex-row gap-6 sm:gap-8">
-        <EventInfo
-          eventData={eventData}
-          organizerData={organizer}
-          currentUser={user}
-        />
-        <TicketSelector
-          tickets={tickets}
-          selectedTickets={selectedTickets}
-          onQuantityChange={handleQuantityChange}
-          onSelect={() => setShowPopup(true)}
-        />
+      <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        <div className="rounded-lg px-4 sm:px-6 pt-4 leading-normal">
+          <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-2">
+            <div className="w-full lg:flex-1 ml-4 sm:ml-6 lg:ml-10">
+              <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} />
+              <OverviewContent eventData={eventData} />
+              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
+                Speakers
+              </h2>
+              <SliderSpeaker speakers={speakers} />
+              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
+                Schedule
+              </h2>
+              <Timeline segments={segmentData} />
+              <Sponsors sponsors={sponsors} />
+              <div>
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 mt-3 sm:mt-4">
+                  Tags
+                </h2>
+                <div className="flex flex-wrap gap-2 sm:gap-3">
+                  {eventData?.tags?.split("|").map((tag, index) => (
+                    <span
+                      key={index}
+                      className="bg-gray-100 text-gray-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm"
+                    >
+                      {tag.trim()}
+                    </span>
+                  )) || (
+                    <span className="text-gray-600 text-xs sm:text-sm">
+                      No tags available
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+            <TicketSelector
+              tickets={tickets}
+              selectedTickets={selectedTickets}
+              onQuantityChange={handleQuantityChange}
+              onSelect={() => setShowPopup(true)}
+            />
+          </div>
+        </div>
       </div>
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-8 mt-6 sm:mt-8">
-        <OverviewContent eventData={eventData} />
-        <Sponsors sponsors={sponsors} />
-        <h2 className="text-lg sm:text-xl lg:text-xl font-bold mb-3 sm:mb-4">
-          Timeline
-        </h2>
-        <Timeline segments={segmentData} />
-        {speakers?.length > 0 && (
-          <>
-            <h2 className="text-lg sm:text-xl lg:text-xl font-bold mb-3 sm:mb-4">
-              Speakers
-            </h2>
-            <SliderSpeaker speakers={speakers} />
-          </>
-        )}
-      </div>
-      <ListEventScroll />
-      <Footer />
       {showPopup && (
         <Checkout
-          tickets={getSelectedTicketsData()}
           onClose={() => setShowPopup(false)}
-          event={eventData}
+          selectedTickets={getSelectedTicketsData()}
+          eventData={eventData}
         />
       )}
+      <ListEventScroll />
+      <Footer />
     </div>
   );
 };
