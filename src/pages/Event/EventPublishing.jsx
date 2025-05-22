@@ -3,7 +3,7 @@ import Loader from "../../components/Loading";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useAuth } from "../Auth/AuthProvider";
 import axios from "axios";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {
@@ -51,12 +51,7 @@ const TagsInput = ({ tags, setTags }) => {
   );
 };
 
-const PublishSettings = ({
-  refunds,
-  setRefunds,
-  validityDays,
-  setValidityDays,
-}) => {
+const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays }) => {
   const handleChange = (event) => {
     setValidityDays(event.target.value);
   };
@@ -147,19 +142,40 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setEventTypes(response.data);
+        const types = response.data;
+        console.log("Fetched event types:", types); // Ghi log để debug
+        if (!types || types.length === 0) {
+          Swal.fire({
+            icon: "warning",
+            title: "Cảnh báo",
+            text: "Không có loại sự kiện nào được tải. Vui lòng kiểm tra API.",
+          });
+        }
+        setEventTypes(types);
       } catch (err) {
         console.error("Error fetching event types:", err);
         Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: 'Không thể tải danh sách loại sự kiện.',
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể tải danh sách loại sự kiện.",
         });
       }
     };
     fetchEventTypes();
   }, [token]);
 
+  // Kiểm tra đồng bộ eventType với eventTypes
+  useEffect(() => {
+    if (event.eventType && eventTypes.length > 0) {
+      const selectedType = eventTypes.find((type) => String(type.id) === String(event.eventType));
+      if (!selectedType) {
+        console.warn("Selected eventType not found in eventTypes:", event.eventType);
+        setEvent((prev) => ({ ...prev, eventType: "" }));
+      }
+    }
+  }, [eventTypes, event.eventType, setEvent]);
+
+  // Fetch organizer name
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -169,7 +185,7 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
             Authorization: `Bearer ${token}`,
           },
         });
-        const fetchedOrganizerName = response.data.organizer.organizerName || "Unknown Organizer";
+        const fetchedOrganizerName = response.data.organizer?.organizerName || "Unknown Organizer";
         setOrganizerName(fetchedOrganizerName);
         setEvent((prev) => ({ ...prev, eventHost: fetchedOrganizerName }));
       } catch (err) {
@@ -181,6 +197,7 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
     fetchUserData();
   }, [user.email, token, setEvent]);
 
+  // Simulate loading
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -275,20 +292,26 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
             <p className="text-gray-600 mb-4">
               Your type and category help your event appear in more searches.
             </p>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-lg mb-4"
-              value={event.eventType || ""}
-              onChange={(e) =>
-                setEvent((prev) => ({ ...prev, eventType: e.target.value }))
-              }
-            >
-              <option value="">Select Type</option>
-              {eventTypes.map((type) => (
-                <option key={type.id} value={type.id}>
-                  {type.typeName}
-                </option>
-              ))}
-            </select>
+            {eventTypes.length === 0 ? (
+              <p className="text-red-500">
+                No event types available. Please try again later.
+              </p>
+            ) : (
+              <select
+                className="w-full p-2 border border-gray-300 rounded-lg mb-4"
+                value={event.eventType || ""}
+                onChange={(e) =>
+                  setEvent((prev) => ({ ...prev, eventType: e.target.value }))
+                }
+              >
+                <option value="">Select Type</option>
+                {eventTypes.map((type) => (
+                  <option key={type.id} value={type.id}>
+                    {type.typeName}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
           <div>
             <h3 className="text-gray-900 font-semibold mb-2">Tags</h3>

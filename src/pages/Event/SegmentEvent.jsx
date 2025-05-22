@@ -1,27 +1,63 @@
-// SectionEvent.jsx
 import { useState, useRef } from "react";
 import { FaList, FaUser } from "react-icons/fa";
 import Swal from "sweetalert2";
+import ImageCropper from "../../components/ImageCropper";
 
 const ImageUploader = ({ onImageUpload }) => {
   const [selectedFile, setSelectedFile] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handleFileChange = async (event) => {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
+      if (file.size > 10 * 1024 * 1024) {
         Swal.fire({
           icon: "warning",
           title: "Warning",
-          text: "Please upload an image file.",
+          text: "Image size exceeds 10MB.",
         });
         return;
       }
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedFile(imageUrl);
-      onImageUpload({ file, imageUrl });
+      const img = new Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        console.log("Uploaded image:", {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          naturalWidth: img.naturalWidth,
+          naturalHeight: img.naturalHeight,
+        });
+        setImageToCrop(URL.createObjectURL(file));
+      };
+      img.onerror = () => {
+        console.error("Failed to load image:", file.name);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Invalid image file. Please try another image.",
+        });
+      };
     }
+  };
+
+  const handleCropComplete = (croppedImage) => {
+    if (!croppedImage) {
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Failed to crop image. Please try again.",
+      });
+      return;
+    }
+    setSelectedFile(croppedImage.url);
+    onImageUpload(croppedImage);
+    setImageToCrop(null);
+  };
+
+  const handleCropCancel = () => {
+    setImageToCrop(null);
   };
 
   const handleIconClick = () => {
@@ -29,31 +65,44 @@ const ImageUploader = ({ onImageUpload }) => {
   };
 
   return (
-    <div
-      className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-[50px] h-[50px] cursor-pointer overflow-hidden hover:border-blue-500 transition-colors"
-      onClick={handleIconClick}
-    >
-      {selectedFile ? (
-        <img
-          src={selectedFile}
-          alt="Uploaded Preview"
-          className="w-full h-full object-cover rounded-full"
+    <div>
+      {imageToCrop ? (
+        <ImageCropper
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          aspectRatio={1}
         />
       ) : (
-        <div>
-          <i className="fa-solid fa-image text-gray-600 text-xl"></i>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            onChange={handleFileChange}
-          />
+        <div
+          className="flex items-center justify-center border-2 border-dashed border-gray-300 rounded-full w-[50px] h-[50px] cursor-pointer overflow-hidden hover:border-blue-500 transition-colors"
+          onClick={handleIconClick}
+        >
+          {selectedFile ? (
+            <img
+              src={selectedFile}
+              alt="Uploaded Preview"
+              className="w-full h-full object-cover rounded-full"
+            />
+          ) : (
+            <div>
+              <i className="fa-solid fa-image text-gray-600 text-xl"></i>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>
   );
 };
+
+
 
 const SegmentFormPopup = ({
   isOpen,
@@ -353,7 +402,7 @@ const SectionEvent = ({
   const handleImageUpload = (data) => {
     setNewSegment((prevData) => ({
       ...prevData,
-      speakerImage: data ? data.imageUrl : "",
+      speakerImage: data ? data.url : "",
       speakerImageFile: data ? data.file : null,
     }));
   };
@@ -505,7 +554,7 @@ const SectionEvent = ({
   };
 
   // Handle deleting a segment
-const handleDeleteSegment = async (index) => {
+  const handleDeleteSegment = async (index) => {
     const segmentToDelete = segments[index];
     
     // Show confirmation dialog

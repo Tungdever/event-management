@@ -3,7 +3,7 @@ import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useLocation } from "react-router-dom";
-import Swal from 'sweetalert2';
+import Swal from "sweetalert2";
 import Loader from "../../components/Loading";
 
 const EditEvent = () => {
@@ -48,6 +48,7 @@ const EditEvent = () => {
 
   const fetchEventData = async (id) => {
     try {
+      setIsLoading(true);
       const response = await fetch(`http://localhost:8080/api/events/edit/${id}`, {
         headers: {
           "Content-Type": "application/json",
@@ -67,7 +68,7 @@ const EditEvent = () => {
       const transformedEvent = {
         eventName: data.event.eventName || "",
         eventDesc: data.event.eventDesc || "",
-        eventType: data.event.eventType?.id || "", // Lưu id của eventType
+        eventType: String(data.event.eventTypeId || ""), // Sử dụng eventTypeId và chuyển thành chuỗi
         eventHost: data.event.eventHost || "",
         eventStatus: data.event.eventStatus || "",
         eventStart: data.event.eventStart || "",
@@ -118,13 +119,17 @@ const EditEvent = () => {
         })) || [],
       };
 
+      console.log("Fetched event data:", transformedEvent); // Ghi log để debug
       setEvent(transformedEvent);
     } catch (error) {
+      console.error("Error fetching event:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
+        icon: "error",
+        title: "Lỗi",
         text: `Không thể tải dữ liệu sự kiện: ${error.message}`,
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -152,15 +157,24 @@ const EditEvent = () => {
           blob = file;
         } else {
           Swal.fire({
-            icon: 'warning',
-            title: 'Cảnh báo',
-            text: 'Loại file không hợp lệ, bỏ qua!',
+            icon: "warning",
+            title: "Warning",
+            text: "Invalid file type, skipping!",
+          });
+          continue;
+        }
+
+        if (blob.size > 10 * 1024 * 1024) {
+          Swal.fire({
+            icon: "warning",
+            title: "Warning",
+            text: "Image size exceeds 10MB, skipping!",
           });
           continue;
         }
 
         const formData = new FormData();
-        formData.append("file", blob);
+        formData.append("file", blob, "cropped_image.jpg");
 
         const response = await fetch("http://localhost:8080/api/storage/upload", {
           method: "POST",
@@ -172,19 +186,16 @@ const EditEvent = () => {
           throw new Error(`Upload failed: ${errorText}`);
         }
 
-        const result = await response.text();
-        const publicId = result;
-        if (!publicId)
-          throw new Error("Invalid public_id in response: " + result);
-
+        const publicId = await response.text();
+        if (!publicId) throw new Error("No public_id received");
         uploadedIds.push(publicId);
       } catch (error) {
+        console.error("Upload error:", error);
         Swal.fire({
-          icon: 'error',
-          title: 'Lỗi',
-          text: `Lỗi khi tải file: ${error.message}`,
+          icon: "error",
+          title: "Error",
+          text: `Failed to upload file: ${error.message}`,
         });
-        uploadedIds.push(null);
       }
     }
 
@@ -215,10 +226,8 @@ const EditEvent = () => {
       const newMediaIds = newMedia.length > 0 ? await uploadFilesToCloudinary(newMedia) : [];
       const mediaContent = [...existingMediaIds, ...newMediaIds];
 
-      const ticketData = [];
-      if (event.tickets?.length > 0) {
-        for (const ticket of event.tickets) {
-          ticketData.push({
+      const ticketData = event.tickets?.length > 0
+        ? event.tickets.map((ticket) => ({
             ticketId: ticket.ticketId || null,
             ticketName: ticket.ticketName || "",
             ticketType: ticket.ticketType || "Paid",
@@ -226,9 +235,8 @@ const EditEvent = () => {
             quantity: ticket.quantity || 0,
             startTime: ticket.startTime || "",
             endTime: ticket.endTime || "",
-          });
-        }
-      }
+          }))
+        : [];
 
       const segmentData = [];
       if (event.segment?.length > 0) {
@@ -269,7 +277,7 @@ const EditEvent = () => {
           eventId: eventId || null,
           eventName: event.eventName || "",
           eventDesc: event.eventDesc || "",
-          eventTypeId: event.eventType || "", // Sử dụng eventTypeId thay vì eventType
+          eventTypeId: event.eventType || "", // Sử dụng eventTypeId
           eventHost: event.eventHost || "OFFICE",
           eventStatus: event.eventStatus || "public",
           eventStart:
@@ -281,9 +289,9 @@ const EditEvent = () => {
               ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
               : "2025-04-05T14:06:00",
           eventLocation: {
-            date: event.eventStart.split('T')[0],
-            startTime: event.eventStart.split('T')[1].slice(0, 5),
-            endTime: event.eventEnd.split('T')[1].slice(0, 5),
+            date: event.eventStart.split("T")[0],
+            startTime: event.eventStart.split("T")[1]?.slice(0, 5),
+            endTime: event.eventEnd.split("T")[1]?.slice(0, 5),
             locationType: event.eventLocation.locationType || "venue",
             venueName: event.eventLocation.venueName || "",
             venueSlug: event.eventLocation.venueSlug || "",
@@ -303,6 +311,8 @@ const EditEvent = () => {
         segment: segmentData,
       };
 
+      console.log("Submitting payload:", payload); // Ghi log payload
+
       const response = await fetch("http://localhost:8080/api/events/edit", {
         headers: {
           "Content-Type": "application/json",
@@ -317,19 +327,19 @@ const EditEvent = () => {
         throw new Error(`Failed to edit event: ${errorText}`);
       }
 
-      const result = await response.json();
-      setIsLoading(false);
       Swal.fire({
-        icon: 'success',
-        title: 'Thành công',
-        text: 'Sự kiện đã được chỉnh sửa thành công!',
+        icon: "success",
+        title: "Thành công",
+        text: "Sự kiện đã được chỉnh sửa thành công!",
       });
     } catch (error) {
+      console.error("Edit error:", error);
       Swal.fire({
-        icon: 'error',
-        title: 'Lỗi',
+        icon: "error",
+        title: "Lỗi",
         text: `Không thể chỉnh sửa sự kiện: ${error.message}`,
       });
+    } finally {
       setIsLoading(false);
     }
   };
@@ -391,14 +401,14 @@ const EditEvent = () => {
                     : "Date and time not set"}
                 </span>
               </div>
-              <div className="flex items-center mt-4">
+              {/* <div className="flex items-center mt-4">
                 <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
                   Draft <i className="fas fa-caret-down ml-1"></i>
                 </button>
                 <a href="#" className="text-blue-600">
                   Preview <i className="fas fa-external-link-alt"></i>
                 </a>
-              </div>
+              </div> */}
             </div>
             <h3 className="text-lg font-semibold mb-2">Steps</h3>
             <div className="space-y-2">
