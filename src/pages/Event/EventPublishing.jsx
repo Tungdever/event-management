@@ -3,6 +3,8 @@ import Loader from "../../components/Loading";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useAuth } from "../Auth/AuthProvider";
 import axios from "axios";
+import Swal from 'sweetalert2';
+
 const TagsInput = ({ tags, setTags }) => {
   const removeTag = (tagToRemove) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
@@ -130,9 +132,33 @@ const PublishSettings = ({
 
 const EventPublishing = ({ event, setEvent, onPublish }) => {
   const [loading, setLoading] = useState(true);
+  const [eventTypes, setEventTypes] = useState([]);
   const { user } = useAuth();
   const token = localStorage.getItem("token");
   const [organizerName, setOrganizerName] = useState("");
+
+  // Fetch event types from API
+  useEffect(() => {
+    const fetchEventTypes = async () => {
+      try {
+        const response = await axios.get("http://localhost:8080/api/events-type/get-all-event-types", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setEventTypes(response.data);
+      } catch (err) {
+        console.error("Error fetching event types:", err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi',
+          text: 'Không thể tải danh sách loại sự kiện.',
+        });
+      }
+    };
+    fetchEventTypes();
+  }, [token]);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -145,7 +171,6 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
         });
         const fetchedOrganizerName = response.data.organizer.organizerName || "Unknown Organizer";
         setOrganizerName(fetchedOrganizerName);
-       
         setEvent((prev) => ({ ...prev, eventHost: fetchedOrganizerName }));
       } catch (err) {
         console.error("Error fetching user data:", err);
@@ -258,15 +283,11 @@ const EventPublishing = ({ event, setEvent, onPublish }) => {
               }
             >
               <option value="">Select Type</option>
-              <option value="Conference">Conference</option>
-              <option value="Performing">Performing</option>
-              <option value="Holidays">Holidays</option>
-              <option value="Food & Drink">Food & Drink</option>
-              <option value="Business">Business</option>
-              <option value="Hobbies">Hobbies</option>
-              <option value="Dating">Dating</option>
-              <option value="Nightlife">Nightlife</option>
-              <option value="Music">Music</option>
+              {eventTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.typeName}
+                </option>
+              ))}
             </select>
           </div>
           <div>

@@ -1,11 +1,10 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import EventForm from "./EventForm";
 import AddTicket from "../Ticket/AddTicket";
 import EventPublishing from "./EventPublishing";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
-
 import Swal from 'sweetalert2';
 
 const CRUDEvent = () => {
@@ -41,10 +40,11 @@ const CRUDEvent = () => {
     segment: [],
   });
   const token = localStorage.getItem("token");
-useEffect(() => {
 
+  useEffect(() => {
     window.scrollTo(0, 0);
-  },[])
+  }, []);
+
   const uploadFilesToCloudinary = async (files) => {
     if (!files || (Array.isArray(files) && files.length === 0)) return [];
 
@@ -96,54 +96,55 @@ useEffect(() => {
   const handlePublish = async () => {
     setIsLoading(true);
     try {
-     // Xử lý uploadedImages
-    const existingImageIds = event.uploadedImages
-      .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
-    const newImages = event.uploadedImages
-      .filter((item) => item instanceof File) || [];
-    const newImageIds = await uploadFilesToCloudinary(newImages);
-    const uploadedImageIds = [...existingImageIds, ...newImageIds];
+      // Xử lý uploadedImages
+      const existingImageIds = event.uploadedImages
+        .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+      const newImages = event.uploadedImages
+        .filter((item) => item instanceof File) || [];
+      const newImageIds = await uploadFilesToCloudinary(newImages);
+      const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
-    // Xử lý overviewContent.media
-    const existingMediaIds = event.overviewContent.media
-      .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
-      .map((item) => item.url) || [];
-    const newMediaFiles = event.overviewContent.media
-      .filter((item) => item.file instanceof File)
-      .map((item) => item.file) || []; // Lấy file gốc
-    const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
-    const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
+      // Xử lý overviewContent.media
+      const existingMediaIds = event.overviewContent.media
+        .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
+        .map((item) => item.url) || [];
+      const newMediaFiles = event.overviewContent.media
+        .filter((item) => item.file instanceof File)
+        .map((item) => item.file) || [];
+      const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
+      const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
-    const dataEvent = {
-      eventName: event.eventName || "",
-      eventDesc: event.eventDesc || "",
-      eventType: event.eventType || "",
-      eventHost: event.eventHost || "",
-      eventStatus: event.eventStatus || "public",
-      eventStart: event.eventLocation.date && event.eventLocation.startTime
-        ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
-        : "",
-      eventEnd: event.eventLocation.date && event.eventLocation.endTime
-        ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
-        : "",
-      eventLocation: {
-        locationType: event.eventLocation.locationType || "online",
-        venueName: event.eventLocation.venueName || "",
-        venueSlug: event.eventLocation.venueSlug || "",
-        address: event.eventLocation.address || "",
-        city: event.eventLocation.city || "",
-      },
-      tags: event.tags?.join("|") || "",
-      eventVisibility: event.eventVisibility || "public",
-      publishTime: event.publishTime || new Date().toISOString(),
-      refunds: event.refunds || "no",
-      validityDays: event.validityDays || 7,
-      eventImages: uploadedImageIds,
-      textContent: event.overviewContent?.text || "",
-      mediaContent: uploadedMediaIds,
-      userId: user.userId,
-    };
-    console.log("Data sent to API:", dataEvent);
+      const dataEvent = {
+        eventName: event.eventName || "",
+        eventDesc: event.eventDesc || "",
+        eventTypeId: event.eventType || "", // Sử dụng eventTypeId thay vì eventType
+        eventHost: event.eventHost || "",
+        eventStatus: event.eventStatus || "public",
+        eventStart: event.eventLocation.date && event.eventLocation.startTime
+          ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+          : "",
+        eventEnd: event.eventLocation.date && event.eventLocation.endTime
+          ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+          : "",
+        eventLocation: {
+          locationType: event.eventLocation.locationType || "online",
+          venueName: event.eventLocation.venueName || "",
+          venueSlug: event.eventLocation.venueSlug || "",
+          address: event.eventLocation.address || "",
+          city: event.eventLocation.city || "",
+        },
+        tags: event.tags?.join("|") || "",
+        eventVisibility: event.eventVisibility || "public",
+        publishTime: event.publishTime || new Date().toISOString(),
+        refunds: event.refunds || "no",
+        validityDays: event.validityDays || 7,
+        eventImages: uploadedImageIds,
+        textContent: event.overviewContent?.text || "",
+        mediaContent: uploadedMediaIds,
+        userId: user.userId,
+      };
+
+      console.log("Data sent to API:", dataEvent);
       const eventResponse = await fetch("http://localhost:8080/api/events/create", {
         headers: {
           "Content-Type": "application/json",
@@ -160,8 +161,6 @@ useEffect(() => {
 
       const responseData = await eventResponse.json();
       const eventId = responseData.data.eventId || responseData;
-
-     
 
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
@@ -241,9 +240,9 @@ useEffect(() => {
       setEvent(updatedEvent);
       setIsLoading(false);
       Swal.fire({
-          icon: 'success',
-          title: 'Success',
-          text: `The event is successfully published! ID: ${eventId}`,
+        icon: 'success',
+        title: 'Success',
+        text: `The event is successfully published! ID: ${eventId}`,
       });
       setTimeout(() => navigate('/'), 300);
     } catch (error) {

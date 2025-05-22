@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import DOMPurify from "dompurify";
 import FavoriteButton from "./FavoriteButton";
+import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
+import { FaEye } from "react-icons/fa6";
 
 const ListEventGrid = ({ events: propEvents }) => {
   const [events, setLocalEvents] = useState([]);
@@ -163,29 +165,35 @@ const ListEventGrid = ({ events: propEvents }) => {
                 }}
               />
               <div className="mt-3 space-y-1 text-sm text-gray-700">
-                <p>
-                  <span className="font-medium">Date:</span>{" "}
-                  {new Date(event.eventStart).toLocaleDateString("vi-VN")}
-                </p>
-                <p>
-                  <span className="font-medium">Time:</span>{" "}
-                  {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}{" "}
-                  -{" "}
-                  {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </p>
-                <p className="line-clamp-1">
-                  <span className="font-medium">Location:</span>{" "}
-                  {getLocation(event.eventLocation)}
-                </p>
-              </div>
+              <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+                              <CiCalendarDate className="inline-block mr-1" />{" "}
+                              {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+                            </p>
+                            <p className="text-gray-700 text-xs sm:text-sm">
+                              <CiTimer className="inline-block mr-1" />{" "}
+                              {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}{" "}
+                              -{" "}
+                              {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </p>
+                            <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+                              <CiLocationOn className="inline-block mr-1" />{" "}
+                              {getLocation(event.eventLocation)}
+                            </p>
+                            <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                              <FaEye className="inline-block mr-1" />{" "}
+                              {event?.viewCount ? `${event.viewCount}` : "0"}
+                            </p>
+                          </div>
+              
+           
             </div>
-
+              
             {/* Tags */}
             <div className="px-4 pb-4 flex flex-wrap gap-2">
               {event.tags && typeof event.tags === "string" ? (

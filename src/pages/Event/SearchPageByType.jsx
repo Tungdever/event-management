@@ -3,6 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import Footer from "../../components/Footer";
 import DOMPurify from "dompurify";
+
+import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
+import { FaEye } from "react-icons/fa6";
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -19,80 +22,89 @@ const SearchByType = () => {
   const eventsPerPage = 4;
 
   const wallper = [
-    { 
-      id: 1, 
-      type: "Music", 
-      wallper: "https://i.pinimg.com/736x/16/91/f8/1691f8d6bea96494d2cf50994b530a3a.jpg",
+    {
+      id: 1,
+      type: "Music",
+      wallper:
+        "https://i.pinimg.com/736x/16/91/f8/1691f8d6bea96494d2cf50994b530a3a.jpg",
       backgroundColor: "bg-gradient-to-r from-blue-500 to-indigo-600",
       textColor: "text-yellow-200",
-      slogan: "Feel the Beat!"
+      slogan: "Feel the Beat!",
     },
-    { 
-      id: 2, 
-      type: "Nightlife", 
-      wallper: "https://i.pinimg.com/736x/d4/87/40/d4874012f8576f9b791082c343e0e6b8.jpg",
+    {
+      id: 2,
+      type: "Nightlife",
+      wallper:
+        "https://i.pinimg.com/736x/d4/87/40/d4874012f8576f9b791082c343e0e6b8.jpg",
       backgroundColor: "bg-gradient-to-r from-purple-600 to-pink-500",
       textColor: "text-white",
-      slogan: "Light Up the Night!"
+      slogan: "Light Up the Night!",
     },
-    { 
-      id: 3, 
-      type: "Performing", 
-      wallper: "https://i.pinimg.com/736x/ad/27/ef/ad27ef55839b1d23659869719d7d246b.jpg",
+    {
+      id: 3,
+      type: "Performing",
+      wallper:
+        "https://i.pinimg.com/736x/ad/27/ef/ad27ef55839b1d23659869719d7d246b.jpg",
       backgroundColor: "bg-red-700",
       textColor: "text-amber-200",
-      slogan: "Shine on Stage!"
+      slogan: "Shine on Stage!",
     },
-    { 
-      id: 4, 
-      type: "Holidays", 
-      wallper: "https://i.pinimg.com/736x/1d/82/aa/1d82aa438152e8cc1918b2c99a4dc845.jpg",
+    {
+      id: 4,
+      type: "Holidays",
+      wallper:
+        "https://i.pinimg.com/736x/1d/82/aa/1d82aa438152e8cc1918b2c99a4dc845.jpg",
       backgroundColor: "bg-gradient-to-r from-[#E8D5A2] to-[#E6B680]",
       textColor: "text-[#28504E]",
-      slogan: "Celebrate the Moment!"
+      slogan: "Celebrate the Moment!",
     },
-    { 
-      id: 5, 
-      type: "Dating", 
-      wallper: "https://i.pinimg.com/736x/fd/bf/35/fdbf357c58c396eea58d49fe63520aad.jpg",
+    {
+      id: 5,
+      type: "Dating",
+      wallper:
+        "https://i.pinimg.com/736x/fd/bf/35/fdbf357c58c396eea58d49fe63520aad.jpg",
       backgroundColor: "bg-rose-400",
       textColor: "text-white",
-      slogan: "Find Your Spark!"
+      slogan: "Find Your Spark!",
     },
-    { 
-      id: 6, 
-      type: "Hobbies", 
-      wallper: "https://i.pinimg.com/736x/62/d0/4e/62d04e9b4ba60658c31775b718f87999.jpg",
+    {
+      id: 6,
+      type: "Hobbies",
+      wallper:
+        "https://i.pinimg.com/736x/62/d0/4e/62d04e9b4ba60658c31775b718f87999.jpg",
       backgroundColor: "bg-teal-400",
       textColor: "text-gray-800",
-      slogan: "Unleash Your Passion!"
+      slogan: "Unleash Your Passion!",
     },
-    { 
-      id: 7, 
-      type: "Business", 
-      wallper: "https://i.pinimg.com/736x/08/42/0a/08420a20017446fdda37f5d3f132dc88.jpg",
+    {
+      id: 7,
+      type: "Business",
+      wallper:
+        "https://i.pinimg.com/736x/08/42/0a/08420a20017446fdda37f5d3f132dc88.jpg",
       backgroundColor: "bg-blue-800",
       textColor: "text-gray-100",
-      slogan: "Connect & Succeed!"
+      slogan: "Connect & Succeed!",
     },
-    { 
-      id: 8, 
-      type: "Food & Drink", 
-      wallper: "https://i.pinimg.com/736x/72/2c/8f/722c8fc121b89f7fb1669c36ffbb09a1.jpg",
+    {
+      id: 8,
+      type: "Food & Drink",
+      wallper:
+        "https://i.pinimg.com/736x/72/2c/8f/722c8fc121b89f7fb1669c36ffbb09a1.jpg",
       backgroundColor: "bg-gradient-to-r from-orange-400 to-red-400",
       textColor: "text-white",
-      slogan: "Savor the Flavor!"
+      slogan: "Savor the Flavor!",
     },
-    { 
-      id: 9, 
-      type: "Conference", 
-      wallper: "https://i.pinimg.com/736x/c8/57/93/c85793cc309c0b82e20138f47625b803.jpg",
+    {
+      id: 9,
+      type: "Conference",
+      wallper:
+        "https://i.pinimg.com/736x/c8/57/93/c85793cc309c0b82e20138f47625b803.jpg",
       backgroundColor: "bg-gradient-to-r from-[#28504E] to-[#1E1C38]",
       textColor: "text-cyan-200",
-      slogan: "Ideas That Inspire!"
-    }
+      slogan: "Ideas That Inspire!",
+    },
   ];
-const sanitizeAndTruncate = (html, maxLength) => {
+  const sanitizeAndTruncate = (html, maxLength) => {
     const sanitizedHtml = DOMPurify.sanitize(html || "");
     const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
     if (plainText.length <= maxLength) {
@@ -102,10 +114,12 @@ const sanitizeAndTruncate = (html, maxLength) => {
     return `<p>${truncatedPlainText}</p>`;
   };
   // Tìm thông tin tương ứng với categoryName
-  const selectedCategory = wallper.find(item => item.type.toLowerCase() === categoryName.toLowerCase()) || {
+  const selectedCategory = wallper.find(
+    (item) => item.type.toLowerCase() === categoryName.toLowerCase()
+  ) || {
     wallper: "https://via.placeholder.com/480x290",
     backgroundColor: "bg-gray-500",
-    textColor: "text-white"
+    textColor: "text-white",
   };
 
   useEffect(() => {
@@ -138,7 +152,17 @@ const sanitizeAndTruncate = (html, maxLength) => {
   };
 
   const [loading, setLoading] = useState(true);
-
+  const getLocation = (location) => {
+    if (!location || (!location.venueName && !location.address && !location.city)) {
+      return "Online";
+    }
+    const parts = [
+      location.venueName,
+      location.address,
+      location.city,
+    ].filter((part) => part && part.trim() !== "");
+    return parts.length > 0 ? parts.join(", ") : "Online";
+  };
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -151,10 +175,17 @@ const sanitizeAndTruncate = (html, maxLength) => {
     </div>
   ) : (
     <>
-      <div className={`w-full h-[290px] ${selectedCategory.backgroundColor} grid grid-cols-2 my-6 gap-6 place-items-center`}>
-        <div className={`${selectedCategory.textColor} font-weight-800 flex flex-col items-start justify-center`}>
+      <div
+        className={`w-full h-[290px] ${selectedCategory.backgroundColor} grid grid-cols-2 my-6 gap-6 place-items-center`}
+      >
+        <div
+          className={`${selectedCategory.textColor} font-weight-800 flex flex-col items-start justify-center`}
+        >
           <h1 className="text-5xl text-center font-extrabold font-mono">
-            {(categoryName ? ` ${categoryName}` : "Popular Events").toUpperCase()}
+            {(categoryName
+              ? ` ${categoryName}`
+              : "Popular Events"
+            ).toUpperCase()}
           </h1>
           <p className="text-lg text-center mt-2">{selectedCategory.slogan}</p>
         </div>
@@ -166,7 +197,10 @@ const sanitizeAndTruncate = (html, maxLength) => {
       </div>
       <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
         <h2 className="text-2xl font-bold text-gray-800 mb-4 font-lato">
-          {(categoryName ? `Popular Events ${categoryName}` : "Upcoming Events").toUpperCase()}
+          {(categoryName
+            ? `Popular Events ${categoryName}`
+            : "Upcoming Events"
+          ).toUpperCase()}
         </h2>
 
         {events.length === 0 ? (
@@ -200,22 +234,22 @@ const sanitizeAndTruncate = (html, maxLength) => {
                       {truncateText(event.eventName, 25) || "Unnamed Event"}
                     </h3>
                     <p className="text-gray-600 text-sm mt-1 truncate">
-                  {event?.eventDesc ? (
-                    <span
-                      dangerouslySetInnerHTML={{
-                        __html: sanitizeAndTruncate(event.eventDesc, 30),
-                      }}
-                    />
-                  ) : (
-                    "No description available"
-                  )}
-                </p>
-                    <p className="text-gray-700 text-sm mt-2">
-                      <span className="font-medium">Ngày:</span>{" "}
+                      {event?.eventDesc ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeAndTruncate(event.eventDesc, 30),
+                          }}
+                        />
+                      ) : (
+                        "No description available"
+                      )}
+                    </p>
+                    <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+                      <CiCalendarDate className="inline-block mr-1" />{" "}
                       {new Date(event.eventStart).toLocaleDateString("vi-VN")}
                     </p>
-                    <p className="text-gray-700 text-sm">
-                      <span className="font-medium">Thời gian:</span>{" "}
+                    <p className="text-gray-700 text-xs sm:text-sm">
+                      <CiTimer className="inline-block mr-1" />{" "}
                       {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
                         hour: "2-digit",
                         minute: "2-digit",
@@ -226,9 +260,13 @@ const sanitizeAndTruncate = (html, maxLength) => {
                         minute: "2-digit",
                       })}
                     </p>
-                    <p className="text-gray-700 text-sm mt-1 truncate">
-                      <span className="font-medium">Địa điểm:</span>{" "}
-                      {truncateText(event.eventLocation.city, 25) || "Không có địa điểm"}
+                    <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+                      <CiLocationOn className="inline-block mr-1" />{" "}
+                      {getLocation(event.eventLocation)}
+                    </p>
+                    <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                      <FaEye className="inline-block mr-1" />{" "}
+                      {event?.viewCount ? `${event.viewCount}` : "0"}
                     </p>
                   </div>
                   <div className="px-4 pb-4 flex flex-wrap gap-2">
@@ -242,7 +280,9 @@ const sanitizeAndTruncate = (html, maxLength) => {
                         </span>
                       ))
                     ) : (
-                      <span className="text-gray-600 text-xs">Không có tag</span>
+                      <span className="text-gray-600 text-xs">
+                        Không có tag
+                      </span>
                     )}
                   </div>
                 </div>
