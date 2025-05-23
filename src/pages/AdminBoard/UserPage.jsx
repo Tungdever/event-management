@@ -162,7 +162,7 @@ const UserPage = () => {
                   <td className="pl-4 py-3 font-semibold">{user.fullName}</td>
                   <td className="py-3">{user.email}</td>
                   <td className="py-3">{user.roles.map((r) => r.name.replace('ROLE_', '')).join(', ')}</td>
-                  <td className="py-3">{user.isActive ? 'Active' : 'Inactive'}</td>
+                  <td className="py-3">{user.active ? 'Active' : 'Inactive'}</td>
                   <td className="pr-4 py-3 text-right">
                     {user.fullName.toLowerCase() !== 'admin' ? (
                       <div className="flex justify-end gap-2">
@@ -243,7 +243,7 @@ const UserPage = () => {
             <p><strong>Name:</strong> {selectedUser.fullName}</p>
             <p><strong>Email:</strong> {selectedUser.email}</p>
             <p><strong>Roles:</strong> {selectedUser.roles.map((r) => r.name.replace('ROLE_', '')).join(', ')}</p>
-            <p><strong>Status:</strong> {selectedUser.isActive ? 'Active' : 'Inactive'}</p>
+            <p><strong>Status:</strong> {selectedUser.active ? 'Active' : 'Inactive'}</p>
             {selectedUser.organizer && (
               <div>
                 <p><strong>Organizer Name:</strong> {selectedUser.organizer.organizerName}</p>
