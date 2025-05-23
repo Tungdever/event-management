@@ -61,6 +61,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import AdminLayout from "./pages/AdminBoard/AdminLayout";
 import OrganizerLayout from "./pages/Dashboard/MainDashboard";
+import ResetPassword from "./pages/Auth/ResetPassword";
 
 const MainLayout = () => {
   const location = useLocation();
@@ -72,7 +73,7 @@ const MainLayout = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const isAuthPage = ["/login", "/signup", "/forgot", "/event-signup"].includes(
+  const isAuthPage = ["/login", "/signup", "/forgot", "/reset-password"].includes(
     location.pathname
   );
 
@@ -147,6 +148,7 @@ const MainLayout = () => {
             <Route path="/login" element={<LoginForm />} />
             <Route path="/signup" element={<EventSignup />} />
             <Route path="/forgot" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
           </Routes>
         )}
 
