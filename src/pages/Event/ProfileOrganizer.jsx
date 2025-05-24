@@ -240,7 +240,7 @@ const ProfileOrganizer = () => {
                       : 'bg-purple-600 text-white hover:bg-purple-700'
                   }`}
                 >
-                  {isFollowing ? 'Bỏ theo dõi' : 'Theo dõi'}
+                  {isFollowing ? 'Unfollow' : 'Follow'}
                 </button>
               )}
               {organizerData?.organizer?.organizerWebsite && (
