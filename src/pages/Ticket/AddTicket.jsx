@@ -27,7 +27,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
   ];
 
   return (
-    <div className="max-w-7xl mx-auto p-4 flex">
+    <div className="flex p-4 mx-auto max-w-7xl">
       <div className="w-2/3 pr-4">
         {tickets.map((ticket, index) => (
           <div
@@ -36,34 +36,34 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
           >
             <div className="mb-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900 pb-2">
+                <h2 className="pb-2 text-lg font-semibold text-gray-900">
                   {ticket.ticketName}
                 </h2>
-                <div className="flex items-center space-x-4 pb-2">
+                <div className="flex items-center pb-2 space-x-4">
                   <span className="text-gray-500">
-                    Sold: 0/{ticket.quantity}
+                    Đã bán: 0/{ticket.quantity}
                   </span>
                   <span className="text-gray-500">
                     {ticket.ticketType === "Paid"
-                      ? `${ticket.price} Đ`
-                      : "Free"}
+                      ? `${ticket.price} VND`
+                      : "Miễn phí"}
                   </span>
                 </div>
               </div>
-              <div className="flex items-center text-sm text-gray-500 border-t border-t-gray-500 pt-4 justify-between">
+              <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
                 <div className="flex items-center">
-                  <span className="text-green-500 mr-2">•</span>
-                  <span>On Sale</span>
+                  <span className="mr-2 text-green-500">•</span>
+                  <span>Đang bán</span>
                   <span className="mx-2">•</span>
-                  <span>Ends at {ticket.endTime}</span>
+                  <span>Kết thúc lúc {ticket.endTime}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <i
-                    className="fa-solid fa-pen-to-square hover:text-blue-600 cursor-pointer text-base"
+                    className="text-base cursor-pointer fa-solid fa-pen-to-square hover:text-blue-600"
                     onClick={() => onEditTicket(ticket)}
                   ></i>
                   <CiTrash
-                    className="text-gray-500 hover:text-red-600 cursor-pointer text-xl"
+                    className="text-xl text-gray-500 cursor-pointer hover:text-red-600"
                     onClick={() => onDeleteTicket(index, ticket)}
                   />
                 </div>
@@ -72,19 +72,19 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
           </div>
         ))}
       </div>
-      <div className="w-1/3 flex flex-col items-end">
+      <div className="flex flex-col items-end w-1/3">
         <div className="relative top-4 right-4">
           <button
             onClick={toggleDropdown}
-            className="bg-orange-600 text-white px-4 py-2 rounded-lg w-full flex items-center justify-between"
+            className="flex items-center justify-between w-full px-4 py-2 text-white bg-orange-600 rounded-lg"
           >
-            Add Ticket <i className="fas fa-caret-down ml-2"></i>
+            Thêm vé <i className="ml-2 fas fa-caret-down"></i>
           </button>
           {isDropdownOpen && (
-            <div className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg p-4 w-64 z-50">
+            <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
               <button
                 onClick={() => setDropdownOpen(false)}
-                className="absolute text-gray-500 text-sm right-2 top-2"
+                className="absolute text-sm text-gray-500 right-2 top-2"
               >
                 <i className="fa-solid fa-xmark"></i>
               </button>
@@ -92,13 +92,13 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                 {ticketOptions.map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-center space-x-2 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                    className="flex items-center p-2 space-x-2 rounded cursor-pointer hover:bg-gray-100"
                     onClick={() => handleSelectType(item.label)}
                   >
                     <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
                       <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
                     </div>
-                    <span>{item.label}</span>
+                    <span>{item.label === "Paid" ? "Có phí" : "Miễn phí"}</span>
                   </div>
                 ))}
               </div>
@@ -106,12 +106,12 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
           )}
         </div>
       </div>
-      <div className="flex items-center justify-end p-4 rounded-lg cursor-pointer w-2/4 absolute bottom-20 right-4">
+      <div className="absolute flex items-center justify-end w-2/4 p-4 rounded-lg cursor-pointer bottom-20 right-4">
         <button
-          className="bg-orange-600 text-white px-6 py-2 rounded-lg"
+          className="px-6 py-2 text-white bg-orange-600 rounded-lg"
           onClick={onSaveAll}
         >
-          Save and continue
+          Lưu và tiếp tục
         </button>
       </div>
     </div>
@@ -174,20 +174,20 @@ const TicketTypeSelector = ({ onSelectType }) => {
               </svg>
             )}
             <div className="ml-4">
-              <h2 className="text-lg font-semibold">{type}</h2>
+              <h2 className="text-lg font-semibold">{type === "Paid" ? "Vé có phí" : "Vé miễn phí"}</h2>
               <p className="text-gray-600">
                 {type === "Paid"
-                  ? "Create a paid ticket."
-                  : "Create a free ticket."}
+                  ? "Tạo vé có phí."
+                  : "Tạo vé miễn phí."}
               </p>
             </div>
           </div>
-          <i className="fas fa-chevron-right text-gray-400"></i>
+          <i className="text-gray-400 fas fa-chevron-right"></i>
         </div>
       ))}
-      <div className="flex items-center justify-end p-4 rounded-lg cursor-pointer w-2/4 absolute bottom-20 right-4">
-        <button className="bg-orange-600 text-white px-6 py-2 rounded-lg">
-          Save and continue
+      <div className="absolute flex items-center justify-end w-2/4 p-4 rounded-lg cursor-pointer bottom-20 right-4">
+        <button className="px-6 py-2 text-white bg-orange-600 rounded-lg">
+          Lưu và tiếp tục
         </button>
       </div>
     </div>
@@ -200,7 +200,7 @@ const formatDateForInput = (isoDate) => {
   return isoDate.split("T")[0];
 };
 
-const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
+const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext }) => {
   const [tickets, setTickets] = useState(ticketData || []);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
@@ -260,6 +260,31 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     setNewTicket((prev) => ({ ...prev, ticketType: typeTicket }));
   }, [typeTicket]);
 
+  const validateTicketDates = (ticket) => {
+    if (!eventStart || !eventEnd) {
+      return { isValid: false, message: "Ngày bắt đầu và kết thúc sự kiện chưa được thiết lập." };
+    }
+
+    const ticketStart = new Date(ticket.startTime);
+    const ticketEnd = new Date(ticket.endTime);
+    const eventStartDate = new Date(eventStart);
+    const eventEndDate = new Date(eventEnd);
+
+    if (ticketStart > eventStartDate) {
+      return { isValid: false, message: "Ngày bắt đầu của vé không được sau ngày bắt đầu sự kiện." };
+    }
+
+    if (ticketStart > eventEndDate) {
+      return { isValid: false, message: "Ngày bắt đầu của vé không được sau ngày kết thúc sự kiện." };
+    }
+
+    if (ticketEnd > eventStartDate) {
+      return { isValid: false, message: "Ngày kết thúc của vé không được sau ngày bắt đầu sự kiện." };
+    }
+
+    return { isValid: true, message: "" };
+  };
+
   const handleSaveTicket = () => {
     if (
       !newTicket.ticketName ||
@@ -269,16 +294,26 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     ) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please fill in all required fields.",
+        title: "Lỗi",
+        text: "Vui lòng điền đầy đủ các trường bắt buộc.",
       });
       return;
     }
     if (newTicket.ticketType === "Paid" && !newTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please enter a price for paid tickets.",
+        title: "Lỗi",
+        text: "Vui lòng nhập giá cho vé có phí.",
+      });
+      return;
+    }
+
+    const dateValidation = validateTicketDates(newTicket);
+    if (!dateValidation.isValid) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: dateValidation.message,
       });
       return;
     }
@@ -321,16 +356,26 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     ) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please fill in all required fields.",
+        title: "Lỗi",
+        text: "Vui lòng điền đầy đủ các trường bắt buộc.",
       });
       return;
     }
     if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please enter a price for paid tickets.",
+        title: "Lỗi",
+        text: "Vui lòng nhập giá cho vé có phí.",
+      });
+      return;
+    }
+
+    const dateValidation = validateTicketDates(editingTicket);
+    if (!dateValidation.isValid) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: dateValidation.message,
       });
       return;
     }
@@ -351,11 +396,11 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
   const handleDeleteTicket = async (index, ticket) => {
     const confirm = await Swal.fire({
       icon: "warning",
-      title: "Confirm Deletion",
-      text: "Are you sure you want to delete this ticket?",
+      title: "Xác nhận xóa",
+      text: "Bạn có chắc muốn xóa vé này không?",
       showCancelButton: true,
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
+      confirmButtonText: "Xóa",
+      cancelButtonText: "Hủy",
     });
 
     if (!confirm.isConfirmed) return;
@@ -367,8 +412,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
       onTicketsUpdate(updatedTickets);
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "Ticket deleted successfully.",
+        title: "Thành công",
+        text: "Vé đã được xóa thành công.",
       });
     } else {
       // Database ticket: call API
@@ -383,20 +428,20 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
             },
           }
         );
-        const data = await response.json()
+        const data = await response.json();
         if (data.data === true) {
           const updatedTickets = tickets.filter((_, i) => i !== index);
           setTickets(updatedTickets);
           onTicketsUpdate(updatedTickets);
           Swal.fire({
             icon: "success",
-            title: "Success",
-            text: "Ticket deleted successfully.",
+            title: "Thành công",
+            text: "Vé đã được xóa thành công.",
           });
         } else {
           Swal.fire({
             icon: "error",
-            title: "Error",
+            title: "Lỗi",
             text: data.msg,
           });
         }
@@ -404,8 +449,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
         console.error("Error deleting ticket:", error);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "An error occurred while deleting the ticket.",
+          title: "Lỗi",
+          text: "Đã xảy ra lỗi khi xóa vé.",
         });
       }
     }
@@ -415,8 +460,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     if (tickets.length === 0) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "No tickets to save.",
+        title: "Cảnh báo",
+        text: "Không có vé để lưu.",
       });
       return;
     }
@@ -427,12 +472,12 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, onNext }) => {
     <Loader />
   ) : (
     <div className="flex flex-col lg:flex-row bg-gray-50">
-      <main className="flex-1 p-6 min-h-screen">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Create tickets
+      <main className="flex-1 min-h-screen p-6">
+        <h1 className="mb-4 text-4xl font-bold text-gray-900">
+          Tạo vé
         </h1>
-        <p className="text-gray-600 mb-6">
-          Choose a ticket type or build a section with multiple ticket types.
+        <p className="mb-6 text-gray-600">
+          Chọn loại vé hoặc tạo một phần với nhiều loại vé.
         </p>
         {!showOverview && tickets.length === 0 ? (
           <TicketTypeSelector onSelectType={handleTicketClick} />
