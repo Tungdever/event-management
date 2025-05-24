@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FaUserFriends, FaHeart, FaShareAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { FaEye } from "react-icons/fa6";
 const isValidUrl = (url) => {
   try {
     new URL(url);
@@ -76,6 +77,7 @@ const truncateText = (text, maxLength) => {
                 <i className="fa-solid fa-location-dot mr-2 text-orange-300"></i>
                  {getLocation(eventItem.eventLocation)}
               </p>
+              
               <div className="flex items-center text-gray-600 mt-1">
                 <FaUserFriends className="mr-2 text-blue-500" /> {eventItem.eventHost}
               </div>

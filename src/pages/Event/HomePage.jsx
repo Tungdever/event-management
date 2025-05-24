@@ -311,7 +311,7 @@ const HomePage = () => {
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
-    }, 250);
+    }, 150);
   }, []);
 
   return loading ? (

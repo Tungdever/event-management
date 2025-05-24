@@ -7,6 +7,8 @@ import { useAuth } from "../pages/Auth/AuthProvider";
 import { api } from "../pages/Auth/api";
 import Swal from "sweetalert2";
 import UpgradeOrganizerDialog from "./UpgradeOrganizerDialog";
+import { AiFillAlipayCircle } from "react-icons/ai";
+import { AiFillCodeSandboxCircle } from "react-icons/ai";
 
 const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
@@ -310,10 +312,10 @@ const Header = () => {
       <div className="w-full px-4 py-2 sm:py-3 md:py-3 lg:py-4 h-auto sm:h-auto md:h-14 lg:h-16 flex flex-col sm:flex-col md:flex-row justify-between items-center">
         <div className="flex justify-between items-center w-full sm:w-full md:w-auto">
           <div
-            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300"
+            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300 font-josefin flex"
             onClick={handleHomepage}
           >
-            Manage Event
+            <AiFillCodeSandboxCircle  className="mx-2 text-[30px]"/> Event
           </div>
           <button
             className="md:hidden text-gray-500"

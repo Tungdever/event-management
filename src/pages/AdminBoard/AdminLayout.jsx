@@ -6,6 +6,7 @@ import UserPage from './UserPage';
 import UserEditPopup from './UserEditPopup';
 import RolePermissionPage from './RolePage';
 import Navbar from '../Dashboard/Navbar';
+import EventTypeManagement from "./EventTypeManagement";
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -23,6 +24,8 @@ const AdminLayout = () => {
         return <UserPage />;
       case "Role":
         return <RolePermissionPage />;
+      case "Types":
+        return <EventTypeManagement/>
       default:
         return <DashboardPage />;
     }

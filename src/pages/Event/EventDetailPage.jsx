@@ -55,7 +55,7 @@ const updateTickets = (prev, ticketId, newCount) => {
 };
 
 // Custom hook for fetching event data
-const useEventData = (eventId) => {
+const useEventData = (eventId, userId) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -65,8 +65,10 @@ const useEventData = (eventId) => {
       setLoading(true);
       setError(null);
       try {
+        // Thêm userId vào query string nếu có để ghi lượt xem
+        const query = userId ? `?userId=${userId}` : '';
         const response = await fetch(
-          `http://localhost:8080/api/events/detail/${eventId}`,
+          `http://localhost:8080/api/events/detail/${eventId}${query}`,
           {
             headers: { "Content-Type": "application/json" },
           }
@@ -81,7 +83,7 @@ const useEventData = (eventId) => {
       }
     };
     fetchData();
-  }, [eventId]);
+  }, [eventId, userId]);
 
   return { data, loading, error };
 };
@@ -127,7 +129,7 @@ const Timeline = ({ segments }) => {
 };
 
 // OrganizedBy Component
-const OrganizedBy = ({ organizer, currentUser ,hostId}) => {
+const OrganizedBy = ({ organizer, currentUser, hostId }) => {
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -209,6 +211,12 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
       {eventData?.eventName || "Unnamed Event"}
     </h1>
+    <div className="text-gray-700 text-sm sm:text-base flex items-center mb-2">
+      <i className="fa-solid fa-eye mr-4"></i>
+      <span className="text-[14px] font-bold">
+        {eventData?.viewCount ? `${eventData.viewCount} views` : "0 views"}
+      </span>
+    </div>
     <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
     <div className="mt-6 mb-6 pt-6">
       <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
@@ -409,8 +417,8 @@ const EventDetail = () => {
   const [tickets, setTickets] = useState(null);
   const [sponsors, setSponsors] = useState(null);
   const [selectedTickets, setSelectedTickets] = useState({});
-  const { data, loading, error } = useEventData(eventId);
   const { user } = useAuth();
+  const { data, loading, error } = useEventData(eventId, user?.userId);
 
   useEffect(() => {
     if (data) {

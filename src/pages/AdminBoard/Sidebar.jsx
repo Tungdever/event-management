@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { CiMenuBurger } from "react-icons/ci";
 import { useNavigate } from "react-router-dom";
-
+import { MdTypeSpecimen } from "react-icons/md";
 const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const navigate = useNavigate();
@@ -25,6 +25,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
   const conceptItems = [
     { name: "User", icon: "fas fa-user", component: "User", hasDropdown: true },
     { name: "Role", icon: "fas fa-box", component: "Role", hasDropdown: true },
+    { name: "Event types", icon: "fas fa-box", component: "Types", hasDropdown: true },
   ];
 
   const handleItemClick = (component) => {
@@ -83,7 +84,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
               <button
                 onClick={() => handleItemClick(item.component)}
                 className={`flex items-center gap-2 w-full text-left ${
-                  item.component === "User" || item.component === "Role"
+                  item.component === "User" || item.component === "Role"|| item.component === "Types"
                     ? "text-[#3b82f6] font-semibold"
                     : "hover:text-[#3b82f6]"
                 }`}

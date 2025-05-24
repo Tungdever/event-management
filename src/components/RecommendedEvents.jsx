@@ -4,7 +4,8 @@ import DOMPurify from "dompurify";
 import Loader from "./Loading";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import FavoriteButton from "./FavoriteButton";
-
+import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
+import { FaEye } from "react-icons/fa6";
 const ListEventScroll = ({ apiUrl, title }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -153,11 +154,11 @@ const ListEventScroll = ({ apiUrl, title }) => {
                 }}
               />
               <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
-                <span className="font-medium">Date:</span>{" "}
+                <CiCalendarDate className="inline-block mr-1" />{" "}
                 {new Date(event.eventStart).toLocaleDateString("vi-VN")}
               </p>
               <p className="text-gray-700 text-xs sm:text-sm">
-                <span className="font-medium">Time:</span>{" "}
+                <CiTimer className="inline-block mr-1" />{" "}
                 {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -169,11 +170,15 @@ const ListEventScroll = ({ apiUrl, title }) => {
                 })}
               </p>
               <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
-                <span className="font-medium">Location:</span>{" "}
+                <CiLocationOn className="inline-block mr-1" />{" "}
                 {getLocation(event.eventLocation)}
               </p>
+              <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                <FaEye className="inline-block mr-1" />{" "}
+                {event?.viewCount ? `${event.viewCount}` : "0"}
+              </p>
             </div>
-
+            
             {/* Tags */}
             <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex flex-wrap gap-1 sm:gap-2">
               {event.tags && typeof event.tags === "string" ? (

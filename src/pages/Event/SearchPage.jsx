@@ -54,7 +54,8 @@ const FilterSidebar = ({
   ];
 
   return (
-    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200 overflow-y-auto h-screen">
+    //overflow-y-auto h-screen
+    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200 ">
       <div className="flex justify-between items-center border-b pb-4">
         <h2 className="text-xl font-bold text-gray-800">Filters</h2>
 
@@ -265,7 +266,7 @@ const SearchPage = () => {
               setSelectedTicketType={setSelectedTicketType}
             />
           </div>
-          <div className="w-full md:w-3/4 overflow-y-auto h-screen">
+          <div className="w-full md:w-3/4">
             {events.length > 0 ? (
               <EventList event={events} />
             ) : (
