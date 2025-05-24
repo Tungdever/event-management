@@ -14,14 +14,20 @@ const createMenuItems = (eventId) => [
     roles: ["ORGANIZER", ]
   },
   {
+    path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`,
+    displayName: "Speakers",
+    icon: <FaUsers />,
+    roles: ["ORGANIZER", "EVENT ASSISTANT",]
+  },
+  {
     path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
-    displayName: "Sponsor",
+    displayName: "Sponsors",
     icon: <FaUsers />,
     roles: ["ORGANIZER", "EVENT ASSISTANT",]
   },
   {
     path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,
-    displayName: "Ticket",
+    displayName: "Tickets",
     icon: <FaTicketAlt />,
     roles: ["ORGANIZER", "TICKET MANAGER","CHECK-IN STAFF"]
   },

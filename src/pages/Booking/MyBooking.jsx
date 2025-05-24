@@ -302,7 +302,7 @@ export default function MyInvoice() {
                     Download Invoice
                   </button>
 
-                  {order.transaction.transactionStatus !== "REFUNDED" && (
+                  {order.transaction.transactionStatus !== "REFUNDED" && order.transaction.paymentMethod !== "N/A" && (
                     <button
                       onClick={() => setSelectedOrderId(order.orderId)}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"

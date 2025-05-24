@@ -12,9 +12,9 @@ const LocationDropdown = ({ onLocationChange }) => {
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
- 
+
   const locations = [
-    {slug:"all-locations",name:"All-locations"},
+    { slug: "all-locations", name: "All-locations" },
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
     { slug: "da-nang", name: "Đà Nẵng" },
@@ -208,6 +208,10 @@ const Header = () => {
     navigate("/myinvoices");
     setIsMobileMenuOpen(false);
   };
+   const handleViewAllTickets = () => {
+    navigate("/view-all-tickets");
+    setIsMobileMenuOpen(false);
+  };
   const handleDashboard = () => {
     navigate("/dashboard");
     setIsMobileMenuOpen(false);
@@ -266,16 +270,17 @@ const Header = () => {
         "CHECK-IN STAFF",
       ],
     },
-     { title: "Invoices", action: handleMyInvoices ,roles: ["ORGANIZER","ATTENDEE"]},
+    { title: "Invoices", action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: "View all tickets", action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
-    { title: "Profile", action: handleViewProfile, roles: [ "ATTENDEE"] },
+    { title: "Profile", action: handleViewProfile, roles: ["ATTENDEE"] },
     {
       title: "Up to Organizer",
       action: () => setOpenUpgradeDialog(true),
       roles: ["ATTENDEE"],
     },
     { title: "Log out", action: handleLogout },
-    
+
   ];
 
   const filteredMenuPopup = menuPopup.filter(

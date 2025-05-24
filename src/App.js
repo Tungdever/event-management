@@ -55,6 +55,7 @@ import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 
 import PaymentResult from "./pages/Checkout/PaymentResult";
 import MyInvoice from "./pages/Booking/MyBooking";
+import ViewAllTickets from "./pages/Ticket/ViewAllTickets"
 import ReportOrder from "./pages/report/order";
 import ViewTicket from "./pages/Ticket/ViewTicket";
 import { ToastContainer } from "react-toastify";
@@ -88,6 +89,7 @@ const MainLayout = () => {
       "/all-event",
       "/payment-result",
       "/myinvoices",
+      "/view-all-tickets",
       "/notification",
     ].includes(location.pathname) ||
     location.pathname.startsWith("/event/") ||
@@ -128,17 +130,13 @@ const MainLayout = () => {
   const isDetailOfEvent = eventDetailBasePaths.some((path) =>
     location.pathname.startsWith(path)
   );
-
   const isAdminPage = location.pathname.startsWith("/admin");
-
   const handleEventClick = (eventId) => {
     console.log(`Clicked event with ID: ${eventId}`);
   };
-
   const hideChatBubbleOnPages =
     ["/createEvent", "/chat"].includes(location.pathname) ||
     location.pathname.startsWith("/event/");
-
   return (
     <WebSocketProvider>
       <div className="w-full min-h-screen bg-white">
@@ -239,6 +237,16 @@ const MainLayout = () => {
                       allowedRoles={["ORGANIZER", "ATTENDEE"]}
                     >
                       <MyInvoice />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/view-all-tickets"
+                  element={
+                    <RoleBasedRouteGroup
+                      allowedRoles={["ORGANIZER", "ATTENDEE"]}
+                    >
+                      <ViewAllTickets />
                     </RoleBasedRouteGroup>
                   }
                 />
@@ -468,6 +476,21 @@ const MainLayout = () => {
                       ]}
                     >
                       <Sponsor />
+                    </RoleBasedRouteGroup>
+                  }
+                />
+                <Route
+                  path="/dashboard/speaker/:eventId"
+                  element={
+                    <RoleBasedRouteGroup
+                      allowedRoles={[
+                        "ORGANIZER",
+                        "TICKET MANAGER",
+                        "EVENT ASSISTANT",
+                        "CHECK-IN STAFF",
+                      ]}
+                    >
+                      <Speaker />
                     </RoleBasedRouteGroup>
                   }
                 />
