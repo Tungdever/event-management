@@ -215,7 +215,7 @@ export default function MyInvoice() {
                   </div>
                   <div className="text-right mt-4 sm:mt-0">
                     <p className="text-lg font-semibold text-blue-600">
-                      Total: ${order.transaction.transactionAmount}
+                      Total: {order.transaction.transactionAmount} Đ
                     </p>
                     <p className="text-sm text-blue-500 font-medium">
                       {isOpen ? "Hide Details ▲" : "View Details ▼"}
@@ -302,7 +302,7 @@ export default function MyInvoice() {
                     Download Invoice
                   </button>
 
-                  {order.transaction.transactionStatus !== "REFUNDED" && (
+                  {order.transaction.transactionStatus !== "REFUNDED" && order.transaction.paymentMethod !== "N/A" && (
                     <button
                       onClick={() => setSelectedOrderId(order.orderId)}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"

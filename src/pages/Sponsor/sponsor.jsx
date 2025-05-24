@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "@tabler/icons-webfont/dist/tabler-icons.min.css";
-import "./sponsor.css";
 import * as XLSX from 'xlsx';
 import { pdf } from '@react-pdf/renderer';
 import "../../fonts/Times New Roman";
@@ -12,6 +10,7 @@ import ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import SponsorPDFDocument from './SponsorPDFDocument';
 import { toast } from 'react-toastify';
+import uploadImg from '../../assets/image.png';
 const Sponsor = () => {
   const { eventId } = useParams();
   const [selectedLevel, setSelectedLevel] = useState("");
@@ -25,47 +24,30 @@ const Sponsor = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState(null);
+  const [existingSponsors, setExistingSponsors] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSponsors, setTotalSponsors] = useState(0);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sponsorToDelete, setSponsorToDelete] = useState(null);
   useEffect(() => {
     if (toastMessage && toastType) {
-      if (toastType === "info") {
-        toast.info(toastMessage);
-      }
-      else if (toastType === "success") {
-        toast.success(toastMessage);
-      }
-      else if (toastType === "error") {
-        toast.error(toastMessage);
-      }
-      else if (toastType === "warn") {
-        toast.warn(toastMessage);
-      }
-      setToastType(null)
+      if (toastType === "info") toast.info(toastMessage);
+      else if (toastType === "success") toast.success(toastMessage);
+      else if (toastType === "error") toast.error(toastMessage);
+      else if (toastType === "warn") toast.warn(toastMessage);
+      setToastType(null);
       setToastMessage(null);
     }
   }, [toastMessage]);
 
-  // =====================================================================
-  // Màu sắc và icon của từng Level
   const levelClass = {
-    Diamond: { class: "badge-diamond", icon: "ti ti-diamond" },
-    Gold: { class: "badge-gold", icon: "ti ti-coins" },
-    Silver: { class: "badge-silver", icon: "ti ti-coins" },
+    Diamond: { class: "bg-cyan-400 text-white", icon: "ti ti-diamond" },
+    Gold: { class: "bg-yellow-400 text-white", icon: "ti ti-coins" },
+    Silver: { class: "bg-gray-400 text-white", icon: "ti ti-coins" },
   };
 
-  // =====================================================================
-  // Danh sách sponsor
-  const [sponsors, setSponsors] = useState([]);
-  const filteredSponsors = sponsors.filter((sponsor) => {
-    const matchesSearch =
-      sponsor.sponsorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sponsor.sponsorEmail?.toLowerCase().includes(searchTerm.toLowerCase());
-
-    const matchesLevel =
-      selectedLevel === "" || sponsor.sponsorLevel === selectedLevel;
-
-    return matchesSearch && matchesLevel;
-  });
-  const [newSponsor, setNewSponsor] = useState({
+  const initialSponsorState = {
+    sponsorId: "",
     sponsorName: "",
     sponsorLogoFile: "",
     sponsorLogo: "",
@@ -79,60 +61,98 @@ const Sponsor = () => {
     sponsorPhone: "",
     sponsorWebsite: "",
     sponsorType: "",
-    sponsorAmount: "",
-    sponsorContribution: "",
     sponsorStatus: "",
-    sponsorContractFile: "",
     sponsorStartDate: "",
     sponsorEndDate: "",
-  });
-  const fetchSponsors = async () => {
-    axios
-      .get(`http://localhost:8080/api/v1/myevent/${eventId}/sponsor`, {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      })
-      .then((response) => {
-        setSponsors(response.data.data);
-      })
-      .catch((error) => {
-        const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
-        setToastMessage(errorMessage);
-        setToastType("error");
+  };
+
+  const [sponsors, setSponsors] = useState([]);
+  const [newSponsor, setNewSponsor] = useState(initialSponsorState);
+  const currentSponsors = sponsors;
+
+  const fetchSponsors = async (page = 1, size = rowsPerPage, search = searchTerm, level = selectedLevel) => {
+    try {
+      const params = new URLSearchParams({
+        page: page - 1, // Backend sử dụng page bắt đầu từ 0
+        size,
+        ...(search && { search }), // Chỉ thêm search nếu có giá trị
+        ...(level && { level })    // Chỉ thêm level nếu có giá trị
       });
+      const response = await axios.get(`http://localhost:8080/api/v1/myevent/${eventId}/sponsor?${params.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSponsors(response.data.data.content);
+      setTotalPages(response.data.data.totalPages);
+      setTotalSponsors(response.data.data.totalElements);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
+      setToastMessage(errorMessage);
+      setToastType("error");
+    }
+  };
+
+  const fetchExistingSponsors = async () => {
+    let userId;
+    if (token) {
+      try {
+        const payload = token.split('.')[1];
+        const decodedPayload = JSON.parse(atob(payload));
+        userId = decodedPayload.userId;
+      } catch (e) {
+        return;
+      }
+    } else {
+      return;
+    }
+    try {
+      const response = await axios.get(`http://localhost:8080/api/v1/${userId}/sponsor`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setExistingSponsors(response.data.data || []);
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to fetch existing sponsors!';
+      setToastMessage(errorMessage);
+      setToastType('error');
+    }
   };
 
   useEffect(() => {
     fetchSponsors();
+    fetchExistingSponsors();
   }, []);
-  console.log(sponsors);
 
-  // =====================================================================
-  //  Thống kê số lượng nhà tài trợ
-  const totalSponsors = sponsors.length;
+
   const diamondSponsors = Array.isArray(sponsors) ? sponsors.filter(sponsor => sponsor.sponsorLevel === "Diamond").length : 0;
   const goldSponsors = Array.isArray(sponsors) ? sponsors.filter(sponsor => sponsor.sponsorLevel === "Gold").length : 0;
   const silverSponsors = Array.isArray(sponsors) ? sponsors.filter(sponsor => sponsor.sponsorLevel === "Silver").length : 0;
 
-  // =====================================================================
-  // Xử lý Dropdown (Export & Level)
   const toggleDropdownExport = () => {
     setIsOpenExport(!isOpenExport);
     setIsOpenLevel(false);
   };
+
   const toggleDropdownLevel = () => {
     setIsOpenLevel(!isOpenLevel);
     setIsOpenExport(false);
   };
+
   const handleLevel = (option) => {
-    setSelectedLevel(option === "All Levels" ? "" : option);
+    const newLevel = option === "All Levels" ? "" : option;
+    setSelectedLevel(newLevel);
+    setCurrentPage(1);
+    fetchSponsors(1, rowsPerPage, searchTerm, newLevel);
     setIsOpenLevel(false);
   };
-
-
-  // =====================================================================
-  // Kiểm tra dữ liệu nhập (Validation)
+  const handleSearch = (event) => {
+    const newSearchTerm = event.target.value;
+    setSearchTerm(newSearchTerm);
+    setCurrentPage(1);
+    fetchSponsors(1, rowsPerPage, newSearchTerm, selectedLevel);
+  };
   const checkInput = (sponsor, newEmpty) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const phoneRegex = /^(0[1-9][0-9]{8}|84[1-9][0-9]{8})$/;
@@ -150,38 +170,27 @@ const Sponsor = () => {
     } else if (!emailRegex.test(sponsor.sponsorRepresentativeEmail)) {
       newEmpty.sponsorRepresentativeEmail = "Invalid email.";
     }
-
     if (!sponsor.sponsorRepresentativePhone?.trim()) {
       newEmpty.sponsorRepresentativePhone = "Please fill in field.";
-    }
-    else if (!phoneRegex.test(sponsor.sponsorRepresentativePhone)) {
+    } else if (!phoneRegex.test(sponsor.sponsorRepresentativePhone)) {
       newEmpty.sponsorRepresentativePhone = "Invalid Phone.";
     }
     if (!sponsor.sponsorRepresentativePosition?.trim()) newEmpty.sponsorRepresentativePosition = "Please fill in field.";
-
     if (!sponsor.sponsorAddress?.trim()) newEmpty.sponsorAddress = "Please fill in field.";
     if (!sponsor.sponsorPhone?.trim()) {
       newEmpty.sponsorPhone = "Please fill in field.";
-    }
-    else if (!phoneRegex.test(sponsor.sponsorPhone)) {
+    } else if (!phoneRegex.test(sponsor.sponsorPhone)) {
       newEmpty.sponsorPhone = "Invalid Phone.";
     }
     if (!sponsor.sponsorWebsite?.trim()) {
       newEmpty.sponsorWebsite = "Please fill in field.";
-    }
-    else if (!websiteRegex.test(sponsor.sponsorWebsite)) {
+    } else if (!websiteRegex.test(sponsor.sponsorWebsite)) {
       newEmpty.sponsorWebsite = "Invalid website.";
     }
-    // if (!sponsor.sponsorContractFile?.trim()) newEmpty.sponsorContractFile = "Please fill in field.";
-    if (!sponsor.sponsorContribution?.trim()) newEmpty.sponsorContribution = "Please fill in field.";
-    // Nếu có lỗi, cập nhật state và dừng submit
-  }
+  };
 
-  // =====================================================================
-  // Xử lý Thêm, Sửa, Xóa Sponsor
   const addSponsorHandle = async (e) => {
     e.preventDefault();
-    // Check input
     let newEmpty = {};
     checkInput(newSponsor, newEmpty);
     if (Object.keys(newEmpty).length > 0) {
@@ -193,7 +202,7 @@ const Sponsor = () => {
       if (value) {
         if (value instanceof File) {
           formData.append(key, value);
-        } else if (key !== "sponsorLogo") {
+        } else {
           formData.append(key, value);
         }
       }
@@ -205,39 +214,53 @@ const Sponsor = () => {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data"
-          }
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
-      console.log("Upload thành công:", response.data);
-      if (response.data.statusCode === "1" || response.data.statusCode === 1) {
-        setToastMessage(response.data.msg);
-        setToastType("success");
-        // Cập nhật danh sách tài trợ ngay sau khi upload thành công
-        setSponsors((prevSponsors) => [
-          ...prevSponsors,
-          { ...newSponsor, sponsorId: String(prevSponsors.length + 1) },
-        ]);
-        // Reset form
-        setNewSponsor({});
-        setEmpty({});
-        // Đóng modal
-        document.querySelector("#add-sponsor .btn-close").click();
-      }
-      else {
-        setToastMessage(response.data.msg);
-        setToastType("error");
 
-      }
+      setToastMessage(response.data.msg);
+      setToastType("success");
+      setNewSponsor(initialSponsorState); // Reset form
+      setEmpty({});
+      document.querySelector("#add-sponsor [data-dismiss='modal']").click();
+      fetchSponsors(); // Refresh sponsor list
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
+      const errorMessage = error.response?.data?.message || "Can't process sponsor!";
       setToastMessage(errorMessage);
       setToastType("error");
     }
   };
+
+  const addExistingSponsor = (sponsor) => {
+    setNewSponsor({
+      sponsorId: sponsor.sponsorId || "",
+      sponsorName: sponsor.sponsorName || "",
+      sponsorLogoFile: "",
+      sponsorLogo: sponsor.sponsorLogo || "",
+      sponsorEmail: sponsor.sponsorEmail || "",
+      sponsorAddress: sponsor.sponsorAddress || "",
+      sponsorLevel: sponsor.sponsorLevel || "",
+      sponsorRepresentativeName: sponsor.sponsorRepresentativeName || "",
+      sponsorRepresentativePosition: sponsor.sponsorRepresentativePosition || "",
+      sponsorRepresentativeEmail: sponsor.sponsorRepresentativeEmail || "",
+      sponsorRepresentativePhone: sponsor.sponsorRepresentativePhone || "",
+      sponsorPhone: sponsor.sponsorPhone || "",
+      sponsorWebsite: sponsor.sponsorWebsite || "",
+      sponsorType: sponsor.sponsorType || "",
+      sponsorStatus: sponsor.sponsorStatus || "",
+      sponsorStartDate: sponsor.sponsorStartDate || "",
+      sponsorEndDate: sponsor.sponsorEndDate || "",
+    });
+    document.querySelector('#existing-sponsors [data-dismiss="modal"]').click();
+    const addSponsorModalElement = document.getElementById('add-sponsor');
+    addSponsorModalElement.classList.add('block');
+    addSponsorModalElement.classList.remove('hidden');
+    document.body.classList.add('overflow-hidden');
+  };
+
   const editSponsorHandle = async (e) => {
     e.preventDefault();
-    // Check input
     let newEmpty = {};
     checkInput(selectedSponsor, newEmpty);
     if (Object.keys(newEmpty).length > 0) {
@@ -256,17 +279,16 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor`,
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (response.data.statusCode === "1" || response.data.statusCode === 1) {
-
         setToastMessage(response.data.msg);
         setToastType("success");
         setSponsors((prevSponsors) =>
@@ -274,115 +296,117 @@ const Sponsor = () => {
             sponsor.sponsorId === selectedSponsor.sponsorId ? selectedSponsor : sponsor
           )
         );
-
-        // Reset form
-        setSelectedSponsor(null);
+        setSelectedSponsor(null); // Reset form
         setEmpty({});
-        // Đóng modal
-        document.querySelector("#edit-sponsor .btn-close").click();
-      }
-      else {
+        document.querySelector("#edit-sponsor [data-dismiss='modal']").click();
+      } else {
         setToastMessage(response.data.msg);
         setToastType("error");
-
       }
-
     } catch (error) {
       const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
       setToastMessage(errorMessage);
       setToastType("error");
-
     }
-
   };
+
   const handleDeleteSponsor = async (selectedSponsor) => {
+    setSponsorToDelete(selectedSponsor);
+    setShowDeleteConfirm(true);
+  };
+  const confirmDeleteSponsor = async () => {
+    if (!sponsorToDelete) return;
+
     try {
       const response = await axios.delete(
-        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
+        `http://localhost:8080/api/v1/myevent/${eventId}/sponsor/${sponsorToDelete.sponsorId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
       if (response.data.statusCode === "1" || response.data.statusCode === 1) {
         setToastMessage(response.data.msg);
         setToastType("success");
-      }
-      else {
+      } else {
         setToastType("error");
         setToastMessage(response.data.msg);
       }
+      const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsorId !== sponsorToDelete.sponsorId);
+      setSponsors(updatedSponsors);
+      setSelectedSponsor(null);
     } catch (error) {
-      const errorMessage = error.response?.data?.message || "Can't get the list of sponsors!";
+      const errorMessage = error.response?.data?.message || "Can't delete sponsor!";
       setToastType("error");
       setToastMessage(errorMessage);
+    } finally {
+      setShowDeleteConfirm(false);
+      setSponsorToDelete(null);
     }
-    const updatedSponsors = sponsors.filter(sponsor => sponsor.sponsorId !== selectedSponsor.sponsorId);
-    setSponsors(updatedSponsors);
-    setSelectedSponsor(null);
   };
 
-  // =====================================================================
-  // Xử lý Phân trang
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
-  const totalPages = Math.ceil(filteredSponsors.length / rowsPerPage);
-  const startIndex = (currentPage - 1) * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, filteredSponsors.length);
-  const currentSponsors = filteredSponsors.slice(startIndex, endIndex);
 
-  const handlePrevPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handlePrevPage = () => {
+    const newPage = Math.max(currentPage - 1, 1);
+    setCurrentPage(newPage);
+    fetchSponsors(newPage, rowsPerPage, searchTerm, selectedLevel);
+  };
+
+  const handleNextPage = () => {
+    const newPage = Math.min(currentPage + 1, totalPages);
+    setCurrentPage(newPage);
+    fetchSponsors(newPage, rowsPerPage, searchTerm, selectedLevel);
+  };
+
   const handleRowsPerPageChange = (event) => {
-    setRowsPerPage(parseInt(event.target.value));
+    const newRowsPerPage = parseInt(event.target.value);
+    setRowsPerPage(newRowsPerPage);
     setCurrentPage(1);
+    fetchSponsors(1, newRowsPerPage, searchTerm, selectedLevel);
   };
 
-  // =====================================================================
-  // Export dữ liệu (PDF, Excel)
   const exportToPDF = async () => {
-    const blob = await pdf(<SponsorPDFDocument sponsors={sponsors} />).toBlob();
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'sponsors.pdf';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+
+    try {
+      const doc = <SponsorPDFDocument sponsors={sponsors} />;
+      const asPdf = pdf([]);
+      asPdf.updateContainer(doc);
+      const blob = await asPdf.toBlob();
+      saveAs(blob, 'sponsor_list.pdf');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      setToastMessage('Failed to generate PDF');
+      setToastType('error');
+    }
   };
+
   const exportToExcel = async () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet('Sponsors');
 
-    // Header
     worksheet.columns = [
       { header: 'ID', key: 'sponsorId', width: 10 },
       { header: 'Name', key: 'sponsorName', width: 20 },
       { header: 'Email', key: 'sponsorEmail', width: 30 },
       { header: 'Phone', key: 'sponsorPhone', width: 15 },
       { header: 'Website', key: 'sponsorWebsite', width: 30 },
-
       { header: 'Address', key: 'sponsorAddress', width: 30 },
       { header: 'Level', key: 'sponsorLevel', width: 20 },
       { header: 'Representative Name', key: 'sponsorRepresentativeName', width: 30 },
       { header: 'Representative Position', key: 'sponsorRepresentativePosition', width: 20 },
-
       { header: 'Sponsor Type', key: 'sponsorType', width: 15 },
       { header: 'Amount', key: 'sponsorAmount', width: 20 },
       { header: 'Contribution', key: 'sponsorContribution', width: 20 },
-
       { header: 'Status', key: 'sponsorStatus', width: 15 },
-      { header: 'Start Date', key: 'sponsorStartDate', width: 20 },
-      { header: 'End Date', key: 'sponsorEndDate', width: 20 },
     ];
 
-    // Add data
     sponsors.forEach(s => {
       worksheet.addRow(s);
     });
 
-    // Style header
     worksheet.getRow(1).eachCell((cell) => {
       cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
       cell.fill = {
@@ -397,6 +421,7 @@ const Sponsor = () => {
     const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     saveAs(blob, 'sponsors.xlsx');
   };
+
   const handleExport = (option) => {
     if (option === "Export as PDF") {
       exportToPDF();
@@ -406,27 +431,22 @@ const Sponsor = () => {
     setIsOpenExport(false);
   };
 
-  // =====================================================================
-  // Xử lí import
   const fileInputRef = useRef();
   const handleImport = (e) => {
     e.preventDefault();
     fileInputRef.current.click();
-  }
+  };
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
-    console.log("Selected file:", file);
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (evt) => {
       try {
         const data = new Uint8Array(evt.target.result);
         const workbook = XLSX.read(data, { type: 'array' });
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rawData = XLSX.utils.sheet_to_json(sheet); // Đọc dòng tiêu đề làm key
-        console.log("Raw data:", rawData);
-
+        const rawData = XLSX.utils.sheet_to_json(sheet);
         const sponsorsFile = rawData.map((item) => ({
           sponsorId: item["ID"],
           sponsorName: item["Name"],
@@ -444,31 +464,25 @@ const Sponsor = () => {
           sponsorStartDate: item["Start Date"],
           sponsorEndDate: item["End Date"],
         }));
-
-        // Gọi API
         const response = await axios.post(
           `http://localhost:8080/api/v1/myevent/${eventId}/sponsors/import`,
           sponsorsFile,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              'Content-Type': 'application/json',
+            },
           }
         );
-
         if (response.data.statusCode === 1 || response.data.statusCode === "1") {
           setToastMessage(response.data.msg);
           setToastType("success");
-
           fetchSponsors();
         } else {
           setToastMessage(response.data.msg);
           setToastType("error");
         }
-
       } catch (error) {
-        console.error(error);
         const errorMessage = error.response?.data?.message || "Can't add sponsor to event!";
         setToastMessage(errorMessage);
         setToastType("error");
@@ -477,43 +491,40 @@ const Sponsor = () => {
     reader.readAsArrayBuffer(file);
   };
 
-
-  // =====================================================================
-  // Xử lí khi click outside dropdown
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (
-        dropdownExportRef.current &&
-        !dropdownExportRef.current.contains(event.target)
-      ) {
+      if (dropdownExportRef.current && !dropdownExportRef.current.contains(event.target)) {
         setIsOpenExport(false);
       }
-      if (
-        dropdownLevelRef.current &&
-        !dropdownLevelRef.current.contains(event.target)
-      ) {
+      if (dropdownLevelRef.current && !dropdownLevelRef.current.contains(event.target)) {
         setIsOpenLevel(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // =====================================================================
-  // Component Upload-Image
+  const closeAddSponsorModal = () => {
+    document.getElementById('add-sponsor').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    setNewSponsor(initialSponsorState);
+    setEmpty({});
+  };
+
+  const closeEditSponsorModal = () => {
+    document.getElementById('edit-sponsor').classList.add('hidden');
+    document.body.classList.remove('overflow-hidden');
+    setSelectedSponsor(null);
+    setEmpty({});
+  };
+
   const SponsorUpload = ({ sponsor, setSponsor }) => {
     const fileInputRef = useRef(null);
 
-    const handleButtonClick = () => {
-      fileInputRef.current.click(); // Kích hoạt input file
-    };
+    const handleButtonClick = () => fileInputRef.current.click();
 
     const handleFileChange = (e) => {
       const file = e.target.files[0];
-      console.log("File chọn:", file);
       setSponsor((prev) => ({ ...prev, sponsorLogoFile: file }));
       if (file) {
         const reader = new FileReader();
@@ -523,16 +534,17 @@ const Sponsor = () => {
         };
       }
     };
+
     return (
-      <div className="avatar-container">
-        <div className="custom-avatar">
-          <img src={sponsor?.sponsorLogo || ""} alt="Sponsor" />
+      <div className="flex flex-wrap items-center gap-4 bg-gray-100 w-full rounded-lg p-4 mb-4">
+        <div className="flex items-center justify-center w-20 h-20 rounded-full border border-gray-300 overflow-hidden flex-shrink-0 mr-2 text-gray-800 font-bold">
+          <img src={sponsor?.sponsorLogo || uploadImg} alt="Sponsor" className="w-[70%] h-[70%]" />
         </div>
-        <div className="profile-upload">
-          <div className="upload-title">Upload Sponsor Image</div>
-          <p className="upload-subtext">Image should be below 4 MB</p>
-          <div className="upload-btn">
-            <label onClick={handleButtonClick}>Upload</label>
+        <div className="flex-1">
+          <div className="text-base font-bold mb-2">Upload Sponsor Image</div>
+          <p className="text-xs text-gray-600">Image should be below 4 MB</p>
+          <div className="flex items-center gap-2.5">
+            <label onClick={handleButtonClick} className="text-xs px-2 py-1 bg-orange-500 text-white rounded cursor-pointer">Upload</label>
             <input
               type="file"
               ref={fileInputRef}
@@ -540,878 +552,668 @@ const Sponsor = () => {
               className="hidden"
               onChange={handleFileChange}
             />
-            <a className="cancel-btn" onClick={() => setSponsor((prev) => ({ ...prev, sponsorLogo: "" }))}>
-              Cancel
-            </a>
+            <a onClick={() => setSponsor((prev) => ({ ...prev, sponsorLogo: "" }))} className="text-sm bg-gray-200 rounded cursor-pointer text-gray-900 hover:bg-gray-300">Cancel</a>
           </div>
         </div>
       </div>
     );
   };
 
-  // =====================================================================
-  // Component Upload-File
-  const UploadContract = ({ sponsor, setSponsor }) => {
-    const fileInputRef = useRef(null);
-
-    const handleButtonClick = () => {
-      fileInputRef.current.click(); // Kích hoạt input file
-    };
-
-    const handleFileChange = (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        setSponsor((prev) => ({ ...prev, sponsorContractFile: file }));
-      }
-    };
-
-    return (
-      <div className="input-field">
-        <div className="upload-btn flex flex-col">
-          <div>
-            {sponsor?.sponsorContractFile && (
-              <p className="text-sm text-gray-600 mt-2">{sponsor.sponsorContractFile.name}</p>
-            )}
-          </div>
-          <div>
-            <label className="mr-2" onClick={handleButtonClick}>Upload</label>
-            <input
-              type="file"
-              ref={fileInputRef}
-              accept="*"
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <a
-              className="cancel-btn"
-              onClick={() => setSponsor((prev) => ({ ...prev, sponsorContractFile: "" }))}
-            >
-              Cancel
-            </a>
-          </div>
-
-        </div>
-      </div>
-    );
-  };
   return (
-    <div className="sponsor-container">
-      <div className="modal fade" id="add-sponsor" tabindex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered modal-lg" >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Add New Sponsor</h4>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form>
-              <div className="modal-body">
-                <div className="row">
-                  {/* Avatar và upload */}
-                  <div className="col-md-12">
-                    <SponsorUpload sponsor={newSponsor} setSponsor={setNewSponsor} />
+    <div className="p-6 text-gray-500 font-roboto text-sm">
+      {/* Add Sponsor Modal */}
+      <div id="add-sponsor" className="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-hidden="true">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-900">Add New Sponsor</h4>
+            <button type="button" className="text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close" onClick={closeAddSponsorModal}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <form>
+            <div className="p-4 pt-0">
+              <div className="flex flex-wrap -mx-3">
+                <div className="w-full px-3">
+                  <SponsorUpload sponsor={newSponsor} setSponsor={setNewSponsor} />
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Name <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorName}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorName: e.target.value })}
+                    />
                   </div>
-
-                  {/* Form input */}
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="email" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorName: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorName && <p className="text-red-500 text-sm ">{empty.sponsorName}</p>}
-                    </div>
+                  {empty.sponsorName && <p className="text-red-500 text-sm">{empty.sponsorName}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Email <span className="text-red-500">*</span></label>
+                    <input
+                      type="email"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorEmail}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorEmail: e.target.value })}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="email" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorEmail: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorEmail && <p className="text-red-500 text-sm ">{empty.sponsorEmail}</p>}
-                    </div>
+                  {empty.sponsorEmail && <p className="text-red-500 text-sm">{empty.sponsorEmail}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Address <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorAddress}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorAddress: e.target.value })}
+                    />
                   </div>
-
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Address <span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorAddress: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorAddress && <p className="text-red-500 text-sm ">{empty.sponsorAddress}</p>}
-                    </div>
-
+                  {empty.sponsorAddress && <p className="text-red-500 text-sm">{empty.sponsorAddress}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Phone Number <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorPhone}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorPhone: e.target.value })}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorPhone: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorPhone && <p className="text-red-500 text-sm ">{empty.sponsorPhone}</p>}
-                    </div>
+                  {empty.sponsorPhone && <p className="text-red-500 text-sm">{empty.sponsorPhone}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Website <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorWebsite}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorWebsite: e.target.value })}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Website <span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorWebsite: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorWebsite && <p className="text-red-500 text-sm ">{empty.sponsorWebsite}</p>}
-                    </div>
-
+                  {empty.sponsorWebsite && <p className="text-red-500 text-sm">{empty.sponsorWebsite}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Name <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorRepresentativeName}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorRepresentativeName: e.target.value })}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Name <span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorRepresentativeName: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorRepresentativeName && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativeName}</p>}
-                    </div>
+                  {empty.sponsorRepresentativeName && <p className="text-red-500 text-sm">{empty.sponsorRepresentativeName}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Position <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorRepresentativePosition}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorRepresentativePosition: e.target.value })}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Positon<span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorRepresentativePosition: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorRepresentativePosition && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativePosition}</p>}
-                    </div>
+                  {empty.sponsorRepresentativePosition && <p className="text-red-500 text-sm">{empty.sponsorRepresentativePosition}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Email <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorRepresentativeEmail}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorRepresentativeEmail: e.target.value })}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Email<span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorRepresentativeEmail: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorRepresentativeEmail && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativeEmail}</p>}
-                    </div>
+                  {empty.sponsorRepresentativeEmail && <p className="text-red-500 text-sm">{empty.sponsorRepresentativeEmail}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Phone <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={newSponsor.sponsorRepresentativePhone}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorRepresentativePhone: e.target.value })}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Phone<span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorRepresentativePhone: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorRepresentativePhone && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativePhone}</p>}
-                    </div>
+                  {empty.sponsorRepresentativePhone && <p className="text-red-500 text-sm">{empty.sponsorRepresentativePhone}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Type <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={newSponsor.sponsorType}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorType: e.target.value })}
+                    >
+                      <option value="">-- Select Type --</option>
+                      <option value="Financialive">Financial Sponsorship</option>
+                      <option value="In-kind">In-kind Sponsorship</option>
+                      <option value="Media">Media Sponsorship</option>
+                      <option value="Promotional">Promotional Partners</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Type<span className="required">*</span></label>
-                        <select
-                          className="input-select"
-                          onChange={(e) =>
-                            setNewSponsor({ ...newSponsor, sponsorType: e.target.value })
-                          }
-                        >
-                          <option value="">-- Select Type --</option>
-                          <option value="Financialive">Financial Sponsorship</option>
-                          <option value="In-kind">In-kind Sponsorship</option>
-                          <option value="Media">Media Sponsorship</option>
-                          <option value="Promotional">Promotional Partners</option>
-                        </select>
-                      </div>
-                    </div>
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Level <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={newSponsor.sponsorLevel}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorLevel: e.target.value })}
+                    >
+                      <option value="">-- Select Level --</option>
+                      <option value="Diamond">Diamond</option>
+                      <option value="Gold">Gold</option>
+                      <option value="Silver">Silver</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Amount<span className="required">*</span></label>
-                        <input type="number" min="0" onKeyDown={(e) => {
-                          if (e.key === "-" || e.key === "e" || e.key === "E") {
-                            e.preventDefault(); // Ngăn không cho nhập "-"
-                          }
-                        }} className="input-field input-field-number" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorAmount: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorAmount && <p className="text-red-500 text-sm ">{empty.sponsorAmount}</p>}
-                    </div>
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Status <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={newSponsor.sponsorStatus}
+                      onChange={(e) => setNewSponsor({ ...newSponsor, sponsorStatus: e.target.value })}
+                    >
+                      <option value="">-- Select Status --</option>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Level<span className="required">*</span></label>
-                        <select
-                          className="input-select"
-                          onChange={(e) =>
-                            setNewSponsor({ ...newSponsor, sponsorLevel: e.target.value })
-                          }
-                        >
-                          <option value="">-- Select Level --</option>
-                          <option value="Diamond">Diamond</option>
-                          <option value="Gold">Gold</option>
-                          <option value="Silver">Silver</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Contribution<span className="required">*</span></label>
-                        <input type="text" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorContribution: e.target.value })
-                        } />
-                      </div>
-                      {empty.sponsorContribution && <p className="text-red-500 text-sm ">{empty.sponsorContribution}</p>}
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Contract<span className="required">*</span></label>
-                        <UploadContract sponsor={newSponsor} setSponsor={setNewSponsor} />
-                      </div>
-                      {empty.sponsorContractFile && <p className="text-red-500 text-sm ">{empty.sponsorContractFile}</p>}
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Status<span className="required">*</span></label>
-
-                        <select
-                          className="input-select"
-                          onChange={(e) =>
-                            setNewSponsor({ ...newSponsor, sponsorStatus: e.target.value })
-                          }
-                        >
-                          <option value="">-- Select Status --</option>
-                          <option value="Active">Active</option>
-                          <option value="Inactive">Inactive</option>
-                        </select>
-
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Start Date<span className="required">*</span></label>
-                        <input type="date" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorStartDate: e.target.value })
-                        } />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">End Date<span className="required">*</span></label>
-                        <input type="date" className="input-field" onChange={(e) =>
-                          setNewSponsor({ ...newSponsor, sponsorEndDate: e.target.value })
-                        } />
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary" onClick={addSponsorHandle}>
-                  Add Sponsor
-                </button>
-              </div>
-            </form>
+            </div>
+            <div className="flex items-center justify-end p-4 border-t border-gray-200">
+              <button type="button" className="px-3 py-2 text-sm font-semibold text-gray-900 bg-gray-200 rounded hover:bg-gray-300" data-dismiss="modal" onClick={closeAddSponsorModal}>
+                Cancel
+              </button>
+              <button type="submit" className="ml-2 px-3 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600" onClick={addSponsorHandle}>
+                Add Sponsor
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Existing Sponsors Modal */}
+      <div id="existing-sponsors" className="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-hidden="true">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-900">Select Existing Sponsor</h4>
+            <button type="button" className="text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close" onClick={() => document.getElementById('existing-sponsors').classList.add('hidden')}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div className="p-4 max-h-[calc(80vh-120px)] overflow-y-auto">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="p-2 text-left">Sponsor Name</th>
+                    <th className="p-2 text-left">Email</th>
+                    <th className="p-2 text-left">Phone</th>
+                    <th className="p-2 text-left">Website</th>
+                    <th className="p-2 text-left">Address</th>
+                    <th className="p-2 text-left">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Array.isArray(existingSponsors) && existingSponsors.length > 0 ? (
+                    existingSponsors.map((sponsor, index) => {
+                      const isAdded = sponsors.some((s) => s.sponsorId === sponsor.sponsorId);
+                      return (
+                        <tr key={index} className={isAdded ? "opacity-60" : ""}>
+                          <td className="p-2 border-b border-gray-200">{sponsor.sponsorName}</td>
+                          <td className="p-2 border-b border-gray-200">{sponsor.sponsorEmail}</td>
+                          <td className="p-2 border-b border-gray-200">{sponsor.sponsorPhone}</td>
+                          <td className="p-2 border-b border-gray-200">{sponsor.sponsorWebsite}</td>
+                          <td className="p-2 border-b border-gray-200">{sponsor.sponsorAddress}</td>
+                          <td className="p-2 border-b border-gray-200">
+                            {isAdded ? (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold text-white bg-green-500 rounded">Already Added</span>
+                            ) : (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold text-white bg-gray-500 rounded">Not Added</span>
+                            )}
+                          </td>
+                          <td className="p-2 border-b border-gray-200">
+                            <button
+                              className="px-3 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600 disabled:opacity-50"
+                              onClick={() => addExistingSponsor(sponsor)}
+                              disabled={isAdded}
+                            >
+                              Add to Event
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center p-2 border-b border-gray-200">
+                        No existing sponsors found.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div className="flex items-center justify-end p-4 border-t border-gray-200">
+            <button type="button" className="px-3 py-2 text-sm font-semibold text-gray-900 bg-gray-200 rounded hover:bg-gray-300" data-dismiss="modal" onClick={() => document.getElementById('existing-sponsors').classList.add('hidden')}>
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="ml-2 px-3 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600"
+              onClick={() => {
+                document.getElementById('existing-sponsors').classList.add('hidden');
+                document.getElementById('add-sponsor').classList.remove('hidden');
+              }}
+            >
+              Create New Sponsor
+            </button>
           </div>
         </div>
       </div>
-      <div className="modal fade" id="sponsor-detail" tabindex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered modal-lg" >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Sponsor detail</h4>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div className="moday-body">
-              {selectedSponsor ? (
-                <>
-                  <div className="p-3">
-                    <div className="custom-body-header p-3">
-                      <div className="file-name-icon">
-                        <a href="#" className="custom-avatar-2">
-                          <img src={`http://localhost:8080/api/storage/view/${selectedSponsor.sponsorLogo}`} className="img-fluid" alt="img"></img>
-                        </a>
-                        <div>
-                          <p className="custom-text mb-0">{selectedSponsor.sponsorName}</p>
-                          <p>{selectedSponsor.sponsorEmail}</p>
-                        </div>
-                      </div>
-                      <span className={`badge ${levelClass[selectedSponsor.sponsorLevel]?.class}`}>
-                        <i className={levelClass[selectedSponsor.sponsorLevel]?.icon}></i>
-                        {selectedSponsor.sponsorLevel}
-                      </span>
 
-                    </div>
-                  </div>
-                  <div className="p-3">
-                    <p className="custom-text">Basic Info</p>
-                    <div className="custom-content-1">
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Phone Number</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorPhone}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Website</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorWebsite}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Address</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorAddress}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Represent</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorRepresentativeName}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Represent Positon</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorRepresentativePosition}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Represent Phone</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorRepresentativePhone}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Represent Email</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorRepresentativeEmail}</p>
-                          </div>
-                        </div>
+      {/* Sponsor Detail Modal */}
+      <div id="sponsor-detail" className="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-hidden="true">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-900">Sponsor Detail</h4>
+            <button type="button" className="text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close" onClick={() => document.getElementById('sponsor-detail').classList.add('hidden')}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div className="p-4">
+            {selectedSponsor ? (
+              <>
+                <div className="p-4">
+                  <div className="flex justify-between items-center p-4 rounded-lg bg-gray-100">
+                    <div className="flex items-center">
+                      <a href="#" className="w-8 h-8 rounded-full border border-gray-200 mr-2">
+                        <img src={selectedSponsor?.sponsorLogo || uploadImg} className="w-[70%] h-[70%]" alt="img" />
+                      </a>
+                      <div>
+                        <p className="text-gray-900 font-medium mb-0">{selectedSponsor.sponsorName}</p>
+                        <p>{selectedSponsor.sponsorEmail}</p>
                       </div>
                     </div>
-                    <p className="custom-text">Contract detail</p>
-                    <div>
-                      <div className="row align-items-center">
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Contract</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorContract}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Amount</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorAmount}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Contribution</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorContribution}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Status</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorStatus}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">Start</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorStartDate}</p>
-                          </div>
-                        </div>
-                        <div className="col-md-4">
-                          <div className="mb-3">
-                            <p className="fs-12 mb-0">End</p>
-                            <p className="text-gray-9">{selectedSponsor.sponsorEndDate}</p>
-                          </div>
-                        </div>
+                    <span className={`inline-block px-2 py-1 text-xs font-semibold rounded ${levelClass[selectedSponsor.sponsorLevel]?.class}`}>
+                      <i className={levelClass[selectedSponsor.sponsorLevel]?.icon}></i>
+                      {selectedSponsor.sponsorLevel}
+                    </span>
+                  </div>
+                </div>
+                <div className="p-4">
+                  <p className="text-gray-900 font-medium">Basic Info</p>
+                  <div className="pb-1 border-b border-gray-200 mb-6">
+                    <div className="flex flex-wrap -mx-3">
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Phone Number</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorPhone}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Website</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorWebsite}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Address</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorAddress}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Represent</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorRepresentativeName}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Represent Position</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorRepresentativePosition}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Represent Phone</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorRepresentativePhone}</p>
+                      </div>
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Represent Email</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorRepresentativeEmail}</p>
                       </div>
                     </div>
                   </div>
-                </>
-              ) : (<p>No data available</p>)}
-            </div>
+                  <p className="text-gray-900 font-medium">Contract Detail</p>
+                  <div>
+                    <div className="flex flex-wrap -mx-3">
+                      <div className="w-full md:w-1/3 px-3 mb-4">
+                        <p className="text-xs mb-0">Status</p>
+                        <p className="text-gray-900">{selectedSponsor.sponsorStatus}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (<p>No data available</p>)}
           </div>
         </div>
       </div>
-      <div className="modal fade" id="edit-sponsor" tabindex="-1" aria-hidden="true">
-        <div className="modal-dialog modal-dialog-centered modal-lg" >
-          <div className="modal-content">
-            <div className="modal-header">
-              <h4 className="modal-title">Edit Sponsor</h4>
-              <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form>
-              <div className="modal-body">
-                <div className="row">
-                  {/* Avatar và upload */}
-                  <div className="col-md-12">
-                    <SponsorUpload sponsor={selectedSponsor} setSponsor={setSelectedSponsor} />
-                  </div>
 
-                  {/* Form input */}
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Name <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorName || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorName: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorName && <p className="text-red-500 text-sm ">{empty.sponsorName}</p>}
+      {/* Edit Sponsor Modal */}
+      <div id="edit-sponsor" className="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" aria-hidden="true">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[80vh] overflow-y-auto">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-900">Edit Sponsor</h4>
+            <button type="button" className="text-gray-500 hover:text-gray-700" data-dismiss="modal" aria-label="Close" onClick={closeEditSponsorModal}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <form>
+            <div className="p-4 pt-0">
+              <div className="flex flex-wrap -mx-3">
+                <div className="w-full px-3">
+                  <SponsorUpload sponsor={selectedSponsor} setSponsor={setSelectedSponsor} />
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Name <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorName || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorName: e.target.value }))}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Email <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorEmail || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorEmail: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorEmail && <p className="text-red-500 text-sm ">{empty.sponsorEmail}</p>}
+                  {empty.sponsorName && <p className="text-red-500 text-sm">{empty.sponsorName}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Email <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorEmail || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorEmail: e.target.value }))}
+                    />
                   </div>
-
-                  <div className="col-md-12">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Address <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorAddress || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorAddress: e.target.value,
-                            }))
-                          } />
-                      </div>
-                      {empty.sponsorAddress && <p className="text-red-500 text-sm ">{empty.sponsorAddress}</p>}
-                    </div>
-
+                  {empty.sponsorEmail && <p className="text-red-500 text-sm">{empty.sponsorEmail}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Address <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorAddress || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorAddress: e.target.value }))}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Phone Number <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorPhone || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorPhone: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorPhone && <p className="text-red-500 text-sm ">{empty.sponsorPhone}</p>}
+                  {empty.sponsorAddress && <p className="text-red-500 text-sm">{empty.sponsorAddress}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Phone Number <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorPhone || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorPhone: e.target.value }))}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Website <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorWebsite || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorWebsite: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorWebsite && <p className="text-red-500 text-sm ">{empty.sponsorWebsite}</p>}
+                  {empty.sponsorPhone && <p className="text-red-500 text-sm">{empty.sponsorPhone}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Website <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorWebsite || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorWebsite: e.target.value }))}
+                    />
                   </div>
-
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Name <span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorRepresentativeName || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorRepresentativeName: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorRepresentativeName && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativeName}</p>}
+                  {empty.sponsorWebsite && <p className="text-red-500 text-sm">{empty.sponsorWebsite}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Name <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorRepresentativeName || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorRepresentativeName: e.target.value }))}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Positon<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorRepresentativePosition || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorRepresentativePosition: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorRepresentativePosition && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativePosition}</p>}
+                  {empty.sponsorRepresentativeName && <p className="text-red-500 text-sm">{empty.sponsorRepresentativeName}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Position <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorRepresentativePosition || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorRepresentativePosition: e.target.value }))}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Email<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorRepresentativeEmail || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorRepresentativeEmail: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorRepresentativeEmail && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativeEmail}</p>}
+                  {empty.sponsorRepresentativePosition && <p className="text-red-500 text-sm">{empty.sponsorRepresentativePosition}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Email <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorRepresentativeEmail || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorRepresentativeEmail: e.target.value }))}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Represent Phone<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorRepresentativePhone || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorRepresentativePhone: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorRepresentativePhone && <p className="text-red-500 text-sm ">{empty.sponsorRepresentativePhone}</p>}
+                  {empty.sponsorRepresentativeEmail && <p className="text-red-500 text-sm">{empty.sponsorRepresentativeEmail}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Represent Phone <span className="text-red-500">*</span></label>
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded text-sm text-gray-900"
+                      value={selectedSponsor?.sponsorRepresentativePhone || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorRepresentativePhone: e.target.value }))}
+                    />
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Type<span className="required">*</span></label>
-                        <select
-                          className="input-select"
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorType: e.target.value,
-                            }))
-                          }
-                          value={selectedSponsor?.sponsorType}
-                        >
-                          <option value="">-- Select Type --</option>
-                          <option value="Financialive">Financial Sponsorship</option>
-                          <option value="In-kind">In-kind Sponsorship</option>
-                          <option value="Media">Media Sponsorship</option>
-                          <option value="Promotional">Promotional Partners</option>
-                        </select>
-                      </div>
-                    </div>
+                  {empty.sponsorRepresentativePhone && <p className="text-red-500 text-sm">{empty.sponsorRepresentativePhone}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Type <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={selectedSponsor?.sponsorType || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorType: e.target.value }))}
+                    >
+                      <option value="">-- Select Type --</option>
+                      <option value="Financialive">Financial Sponsorship</option>
+                      <option value="In-kind">In-kind Sponsorship</option>
+                      <option value="Media">Media Sponsorship</option>
+                      <option value="Promotional">Promotional Partners</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Amount<span className="required">*</span></label>
-                        <input type="number" min="0" onKeyDown={(e) => {
-                          if (e.key === "-" || e.key === "e" || e.key === "E") {
-                            e.preventDefault(); // Ngăn không cho nhập "-"
-                          }
-                        }}
-                          value={selectedSponsor?.sponsorAmount || 0}
-                          className="input-field input-field-number"
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorAmount: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorAmount && <p className="text-red-500 text-sm ">{empty.sponsorAmount}</p>}
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Level <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={selectedSponsor?.sponsorLevel || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorLevel: e.target.value }))}
+                    >
+                      <option value="">-- Select Level --</option>
+                      <option value="Diamond">Diamond</option>
+                      <option value="Gold">Gold</option>
+                      <option value="Silver">Silver</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Level<span className="required">*</span></label>
-                        <select
-                          className="input-select"
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorLevel: e.target.value,
-                            }))
-                          }
-                          value={selectedSponsor?.sponsorLevel}
-                        >
-                          <option value="">-- Select Level --</option>
-                          <option value="Diamond">Diamond</option>
-                          <option value="Gold">Gold</option>
-                          <option value="Silver">Silver</option>
-                        </select>
-                      </div>
-                    </div>
+                </div>
+                <div className="w-full md:w-1/2 px-3 mb-4">
+                  <div className="form-group">
+                    <label className="text-gray-900 text-sm font-normal">Status <span className="text-red-500">*</span></label>
+                    <select
+                      className="w-full p-2 border border-gray-300 rounded text-sm"
+                      value={selectedSponsor?.sponsorStatus || ""}
+                      onChange={(e) => setSelectedSponsor((prev) => ({ ...prev, sponsorStatus: e.target.value }))}
+                    >
+                      <option value="">-- Select Status --</option>
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
                   </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Contribution<span className="required">*</span></label>
-                        <input type="text" className="input-field" value={selectedSponsor?.sponsorContribution || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorContribution: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                    {empty.sponsorContribution && <p className="text-red-500 text-sm ">{empty.sponsorContribution}</p>}
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Contract<span className="required">*</span></label>
-                        <UploadContract sponsor={selectedSponsor} setSponsor={setSelectedSponsor} />
-                      </div>
-                    </div>
-                    {empty.sponsorContractFile && <p className="text-red-500 text-sm ">{empty.sponsorContractFile}</p>}
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Status<span className="required">*</span></label>
-                        <select
-                          className="input-select"
-                          value={selectedSponsor?.sponsorStatus || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorStatus: e.target.value,
-                            }))
-                          }
-                        >
-                          <option value="">-- Select Status --</option>
-                          <option value="Active">Active</option>
-                          <option value="Inactive">Inactive</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">Start Date<span className="required">*</span></label>
-                        <input type="date" className="input-field" value={selectedSponsor?.sponsorStartDate || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorStartDate: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="col-md-6">
-                    <div className="mb-3">
-                      <div className="form-group">
-                        <label className="form-label">End Date<span className="required">*</span></label>
-                        <input type="date" className="input-field" value={selectedSponsor?.sponsorEndDate || ""}
-                          onChange={(e) =>
-                            setSelectedSponsor((prev) => ({
-                              ...prev,
-                              sponsorEndDate: e.target.value,
-                            }))
-                          } />
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn cancel-btn" data-bs-dismiss="modal">Cancel</button>
-                <button type="submit" className="btn btn-primary" onClick={editSponsorHandle}>Save changes</button>
-              </div>
-            </form>
-          </div>
+            </div>
+            <div className="flex items-center justify-end p-4 border-t border-gray-200">
+              <button type="button" className="px-3 py-2 text-sm font-semibold text-gray-900 bg-gray-200 rounded hover:bg-gray-300" data-dismiss="modal" onClick={closeEditSponsorModal}>
+                Cancel
+              </button>
+              <button type="submit" className="ml-2 px-3 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600" onClick={editSponsorHandle}>
+                Save changes
+              </button>
+            </div>
+          </form>
         </div>
       </div>
-      <div className="page-breadcrumb">
-        <div my-auto mb-2>
-          <h2 className="container-title">Sponsor</h2>
+
+      <div className="flex flex-wrap justify-between mb-4">
+        <div className="my-auto">
+          <h2 className="text-2xl font-bold text-gray-900">Sponsor</h2>
           <nav aria-label="breadcrumb">
-            <ol className="breadcrumb">
-              <li className="breadcrumb-item">
-                <a href="#">Dashboard</a>
+            <ol className="flex flex-wrap list-none rounded-md">
+              <li className="flex items-center">
+                <a href="#" className="text-blue-500 hover:text-blue-700">Dashboard</a>
               </li>
-              <li className="breadcrumb-item active" aria-current="page">
+              <li className="flex items-center before:content-['/'] before:px-2 before:text-gray-500 text-gray-500 pointer-events-none">
                 Sponsor
               </li>
             </ol>
           </nav>
         </div>
-        <div className="export-add-sponsor">
-          <div>
-            <div className="custom-dropdown" ref={dropdownExportRef}>
-
-              <button className="custom-dropdown-toggle" onClick={toggleDropdownExport}>
-                <i className="ti ti-file-export me-1"></i> Export
-              </button>
-              {isOpenExport && (
-                <ul className="custom-dropdown-menu">
-                  {["Export as PDF", "Export as Excel"].map((option) => (
-                    <li key={option} onClick={() => handleExport(option)}>
-                      {option}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-
+        <div className="flex gap-2">
+          <div className="relative inline-block mr-4 z-10">
+            <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded text-sm" onClick={toggleDropdownExport}>
+              <i className="ti ti-file-export mr-1"></i> Export
+            </button>
+            {isOpenExport && (
+              <ul className="absolute top-full right-0 bg-white border border-gray-300 rounded w-40 mt-1 shadow-lg">
+                {["Export as PDF", "Export as Excel"].map((option) => (
+                  <li key={option} onClick={() => handleExport(option)} className="px-3 py-2 cursor-pointer hover:bg-blue-50 hover:text-orange-500">
+                    {option}
+                  </li>
+                ))}
+              </ul>
+            )}
           </div>
-          <div className="mb-2">
-            <a href="#" className="btn btn-primary mr-2" onClick={handleImport}>
-              <i className="ti ti-file-arrow-left"></i> Import
+          <div>
+            <a href="#" className="inline-block px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600" onClick={handleImport}>
+              <i className="ti ti-file-arrow-left mr-2"></i> Import
             </a>
             <input
               type="file"
               ref={fileInputRef}
-              style={{ display: "none" }}
+              className="hidden"
               accept=".xlsx, .xls"
               onChange={handleFileChange}
             />
-
           </div>
-
-          <div className="mb-2">
-            <a href="#" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#add-sponsor">
-              <i className="ti ti-circle-plus me-2"></i> Add Sponsor
+          <div>
+            <a href="#" className="inline-block px-4 py-2 text-sm font-semibold text-white bg-orange-500 rounded hover:bg-orange-600" onClick={() => document.getElementById('existing-sponsors').classList.remove('hidden')}>
+              <i className="ti ti-circle-plus mr-2"></i> Add Sponsor
             </a>
           </div>
-
         </div>
-
       </div>
-      <div className="row">
-        <div className="col-custom col-lg-3 col-md-6">
-          <div className="card flex-fill">
-            <div className="custom-card-body">
-              <div className="custom-card-content">
-
-                <span className="card-avatar total">
-                  <i className="ti ti-building fs-16"></i>
+      <div className="flex flex-wrap -mx-3">
+        <div className="w-full lg:w-1/4 md:w-1/2 px-3">
+          <div className="flex flex-col bg-white rounded border border-gray-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center">
+                <span className="w-11 h-11 flex items-center justify-center rounded bg-orange-500 border border-orange-500 text-white text-base flex-shrink-0">
+                  <i className="ti ti-building text-lg"></i>
                 </span>
-                <div className="ms-2">
-                  <p className="card-title">Total sponsors</p>
-                  <h4 className="number">{totalSponsors}</h4>
+                <div className="ml-2">
+                  <p className="text-xs font-medium">Total sponsors</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{totalSponsors}</h4>
                 </div>
-
               </div>
-
             </div>
           </div>
         </div>
-        <div className="col-custom col-lg-3 col-md-6">
-          <div className="card flex-fill">
-            <div className="custom-card-body">
-              <div className="custom-card-content">
-                <span className="card-avatar diamond">
+        <div className="w-full lg:w-1/4 md:w-1/2 px-3">
+          <div className="flex flex-col bg-white rounded border border-gray-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center">
+                <span className="w-11 h-11 flex items-center justify-center rounded bg-cyan-400 border border-cyan-400 text-white text-base flex-shrink-0">
                   <i className="ti ti-diamond"></i>
                 </span>
-                <div className="ms-2">
-                  <p className="card-title">Diamond</p>
-                  <h4 className="number">{diamondSponsors}</h4>
+                <div className="ml-2">
+                  <p className="text-xs font-medium">Diamond</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{diamondSponsors}</h4>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        <div className="col-custom col-lg-3 col-md-6">
-          <div className="card flex-fill">
-            <div className="custom-card-body">
-
-              <div className="custom-card-content">
-
-                <span className="card-avatar gold">
+        <div className="w-full lg:w-1/4 md:w-1/2 px-3">
+          <div className="flex flex-col bg-white rounded border border-gray-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center">
+                <span className="w-11 h-11 flex items-center justify-center rounded bg-yellow-400 border border-yellow-400 text-white text-base flex-shrink-0">
                   <i className="ti ti-coins"></i>
                 </span>
-                <div className="ms-2">
-                  <p className="card-title">Gold</p>
-                  <h4 className="number">{goldSponsors}</h4>
+                <div className="ml-2">
+                  <p className="text-xs font-medium">Gold</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{goldSponsors}</h4>
                 </div>
-
               </div>
-
             </div>
           </div>
         </div>
-        <div className="col-custom col-lg-3 col-md-6">
-          <div className="card flex-fill">
-            <div className="custom-card-body">
-              <div className="custom-card-content">
-
-                <span className="card-avatar silver">
+        <div className="w-full lg:w-1/4 md:w-1/2 px-3">
+          <div className="flex flex-col bg-white rounded border border-gray-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between p-5">
+              <div className="flex items-center">
+                <span className="w-11 h-11 flex items-center justify-center rounded bg-gray-400 border border-gray-400 text-white text-base flex-shrink-0">
                   <i className="ti ti-coins"></i>
                 </span>
-                <div className="ms-2">
-                  <p className="card-title">Silver</p>
-                  <div className="number">{silverSponsors}</div>
+                <div className="ml-2">
+                  <p className="text-xs font-medium">Silver</p>
+                  <h4 className="text-lg font-semibold text-gray-900">{silverSponsors}</h4>
                 </div>
-
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <div className="card">
-        <div className="card-header">
-          <h5>
-            Sponsor List
-          </h5>
-          <div className="custom-dropdown" ref={dropdownLevelRef}>
-            <button className="custom-dropdown-toggle" onClick={toggleDropdownLevel}>
+      <div className="bg-white rounded border border-gray-200 shadow-sm">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+          <h5 className="text-base font-semibold text-gray-900">Sponsor List</h5>
+          <div className="relative inline-block z-10">
+            <button className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded text-sm" onClick={toggleDropdownLevel}>
               {selectedLevel === "" ? "All Levels" : selectedLevel}
             </button>
             {isOpenLevel && (
-              <ul className="custom-dropdown-menu">
+              <ul className="absolute top-full right-0 bg-white border border-gray-300 rounded w-40 mt-1 shadow-lg">
                 {["All Levels", "Diamond", "Gold", "Silver"].map((option) => (
-                  <li key={option} onClick={() => handleLevel(option)}>
+                  <li key={option} onClick={() => handleLevel(option)} className="px-3 py-2 cursor-pointer hover:bg-blue-50 hover:text-orange-500">
                     {option}
                   </li>
                 ))}
@@ -1419,92 +1221,108 @@ const Sponsor = () => {
             )}
           </div>
         </div>
-        <div className="row table-length-filter">
-          <div className="col-custom">
-            <div className="dataTables_length" id="DataTables_Table_0_length">
-              <label>
-                Round Per page <select value={rowsPerPage} onChange={handleRowsPerPageChange} name="DataTables_Table_0_length" aria-controls="DataTables_Table_0" className="form-select form-select-sm">
-                  {[10, 25, 50, 100].map((num) => (
-                    <option key={num} value={num}>
-                      {num}
-                    </option>
-                  ))}
-                </select>
-                Entries
-              </label>
-            </div>
+        <div className="flex flex-wrap items-center justify-between p-4">
+          <div className="flex items-center">
+            <label className="flex items-center text-sm text-gray-800">
+              Round Per page
+              <select
+                value={rowsPerPage}
+                onChange={handleRowsPerPageChange}
+                className="mx-2 border border-gray-200 rounded text-sm bg-white appearance-none"
+                style={{
+                  backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
+                  backgroundSize: '1.25rem',
+                  backgroundPosition: 'right 0px center',
+                  backgroundRepeat: 'no-repeat',
+                  paddingRight: '20px',
+                }}
+              >
+                {[10, 25, 50, 100].map((num) => (
+                  <option key={num} value={num}>
+                    {num}
+                  </option>
+                ))}
+              </select>
+              Entries
+            </label>
           </div>
-          <div className="col-custom">
-            <div className="dataTables_filter">
-              <label>
-                <input
-                  type="search"
-                  value={searchTerm}
-                  className="form-control form-control-sm"
-                  placeholder="Search by sponsor name, email"
-                  aria-controls="DataTables_Table_0"
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </label>
-            </div>
+          <div className="flex items-center">
+            <label>
+              <input
+                type="search"
+                value={searchTerm}
+                className="text-xs p-1 border border-gray-200 rounded"
+                placeholder="Search by sponsor name, email"
+                onChange={handleSearch}
+              />
+            </label>
           </div>
         </div>
-        <div className="col-sm-12 table-responsive">
-          <table className="table table-hover">
-            <thead className="thead-light">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead className="bg-gray-200">
               <tr>
-                <th>Sponsor name</th>
-                <th>Sponsorship Level</th>
-                <th>Email</th>
-                <th>Represent</th>
-                <th>Tel</th>
-                <th>Website</th>
-                <th>Status</th>
-                <th></th>
+                <th className="p-2 text-left">Sponsor name</th>
+                <th className="p-2 text-left">Sponsorship Level</th>
+                <th className="p-2 text-left">Email</th>
+                <th className="p-2 text-left">Represent</th>
+                <th className="p-2 text-left">Tel</th>
+                <th className="p-2 text-left">Website</th>
+                <th className="p-2 text-left">Status</th>
+                <th className="p-2 text-left"></th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(currentSponsors) && currentSponsors.map((sponsor, index) => (
                 <tr key={index}>
-                  <td>
-                    <div className="avt-name">
-                      <div className="avatar">
+                  <td className="p-2 border-b border-gray-200">
+                    <div className="flex items-center">
+                      <div className="w-7 h-7">
                         <img
-                          src={`http://localhost:8080/api/storage/view/${sponsor.sponsorLogo}`}
+                          src={sponsor.sponsorLogo}
                           alt={sponsor.sponsorName}
-                          className="img-fluid"
-                          style={{ width: "28px", height: "28px", objectFit: "cover" }}
+                          className="w-full h-full object-cover rounded-full"
                         />
                       </div>
-                      <div className="ms-2">
-                        <a href="#">
-                          <h6>{sponsor.sponsorName}</h6>
-                        </a>
+                      <div className="ml-2">
+                        <a href="#" className="text-base font-semibold">{sponsor.sponsorName}</a>
                       </div>
                     </div>
                   </td>
-                  <td>{sponsor.sponsorLevel}</td>
-                  <td>{sponsor.sponsorEmail}</td>
-                  <td>{sponsor.sponsor_contact}</td>
-                  <td>{sponsor.sponsorPhone}</td>
-                  <td>{sponsor.sponsorWebsite}</td>
-                  <td>
-                    <span
-                      className={`badge bg-${sponsor.status === "Approved" ? "success" : sponsor.status === "Pending" ? "warning" : "danger"}`}
-                    >
-                      {sponsor.status}
+                  <td className="p-2 border-b border-gray-200">{sponsor.sponsorLevel}</td>
+                  <td className="p-2 border-b border-gray-200">{sponsor.sponsorEmail}</td>
+                  <td className="p-2 border-b border-gray-200">{sponsor.sponsorRepresentativeName}</td>
+                  <td className="p-2 border-b border-gray-200">{sponsor.sponsorPhone}</td>
+                  <td className="p-2 border-b border-gray-200">{sponsor.sponsorWebsite}</td>
+                  <td className="p-2 border-b border-gray-200">
+                    <span className={`inline-block px-2 py-1 text-xs font-semibold text-white rounded ${sponsor.sponsorStatus === "Active" ? "bg-green-500" : "bg-red-500"}`}>
+                      {sponsor.sponsorStatus}
                     </span>
                   </td>
-                  <td>
-                    <div className="table-action">
-                      <button className="btn btn-detail" data-bs-toggle="modal" data-bs-target="#sponsor-detail" onClick={() => setSelectedSponsor(sponsor)} >
+                  <td className="p-2 border-b border-gray-200">
+                    <div className="flex gap-2">
+                      <button
+                        className="px-3 py-2 bg-red-100 rounded"
+                        onClick={() => {
+                          setSelectedSponsor(sponsor);
+                          document.getElementById('sponsor-detail').classList.remove('hidden');
+                        }}
+                      >
                         <i className="ti ti-eye"></i>
                       </button>
-
-                      <button className="btn btn-edit" data-bs-toggle="modal" data-bs-target="#edit-sponsor" onClick={() => { setSelectedSponsor(sponsor); console.log(selectedSponsor) }}>
+                      <button
+                        className="px-3 py-2 bg-teal-100 text-teal-600 rounded"
+                        onClick={() => {
+                          setSelectedSponsor(sponsor);
+                          document.getElementById('edit-sponsor').classList.remove('hidden');
+                        }}
+                      >
                         <i className="ti ti-pencil"></i>
                       </button>
-                      <button className="btn btn-delete" onClick={() => handleDeleteSponsor(sponsor)}>
+                      <button
+                        className="px-3 py-2 bg-red-100 text-red-600 rounded"
+                        onClick={() => handleDeleteSponsor(sponsor)}
+                      >
                         <i className="ti ti-trash"></i>
                       </button>
                     </div>
@@ -1514,37 +1332,66 @@ const Sponsor = () => {
             </tbody>
           </table>
         </div>
-        <div className="row table-info-paginate">
-          <div className="col-custom">
-            <div className="dataTables_info" id="DataTables_Table_0_info">
-              Showing {startIndex + 1} - {endIndex} of {sponsors.length} entries
-            </div>
+        <div className="flex items-center justify-between p-4">
+          <div>
+            Showing {(currentPage - 1) * rowsPerPage + 1} - {Math.min(currentPage * rowsPerPage, totalSponsors)} of {totalSponsors} entries
           </div>
-          <div className="col-custom">
-            <div className="dataTables_paginate paging_numbers" id="DataTables_Table_0_paginate">
-              <ul className="pagination">
-                <li className="paginate_button">
-                  <button className="page-link"
-                    onClick={handlePrevPage} disabled={currentPage === 1}>
-                    <i className="ti ti-chevron-left" style={{ opacity: `${currentPage === 1 ? "0.5" : "1"}`, fontWeight: "600" }}></i>
-                  </button>
-                </li>
-                <li className="paginate_button page-item active">
-                  <a aria-controls="DataTables_Table_0" role="link" aria-current="page" data-dt-idx="0" tabindex="0" className="page-link">{currentPage}</a>
-                </li>
-                <li className="paginate_button">
-                  <button className="page-link"
-                    onClick={handleNextPage} disabled={currentPage === totalPages}>
-                    <i className="ti ti-chevron-right" style={{ opacity: `${currentPage === totalPages ? "0.5" : "1"}`, fontWeight: "600" }}></i>
-                  </button>
-                </li>
-              </ul>
-            </div>
+          <div className="flex gap-1 justify-end mr-4">
+            <button
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-transparent text-gray-900"
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+              style={{ opacity: currentPage === 1 ? "0.5" : "1" }}
+            >
+              <i className="ti ti-chevron-left font-semibold"></i>
+            </button>
+            <a className="w-6 h-6 flex items-center justify-center rounded-full bg-orange-500 text-white">{currentPage}</a>
+            <button
+              className="w-6 h-6 flex items-center justify-center rounded-full bg-transparent text-gray-900"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              style={{ opacity: currentPage === totalPages ? "0.5" : "1" }}
+            >
+              <i className="ti ti-chevron-right font-semibold"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div id="delete-confirm" className={`${showDeleteConfirm ? 'block' : 'hidden'} fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50`} aria-hidden="true">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+          <div className="flex items-center justify-between p-4 border-b border-gray-200">
+            <h4 className="text-xl font-semibold text-gray-900">Confirm Delete</h4>
+            <button type="button" className="text-gray-500 hover:text-gray-700" onClick={() => setShowDeleteConfirm(false)}>
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+            </button>
+          </div>
+          <div className="p-4">
+            <p className="text-gray-900">Are you sure you want to delete <strong>{sponsorToDelete?.sponsorName}</strong>? This action cannot be undone.</p>
+          </div>
+          <div className="flex items-center justify-end p-4 border-t border-gray-200">
+            <button
+              type="button"
+              className="px-3 py-2 text-sm font-semibold text-gray-900 bg-gray-200 rounded hover:bg-gray-300"
+              onClick={() => setShowDeleteConfirm(false)}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="ml-2 px-3 py-2 text-sm font-semibold text-white bg-red-500 rounded hover:bg-red-600"
+              onClick={confirmDeleteSponsor}
+            >
+              Delete
+            </button>
           </div>
         </div>
       </div>
     </div>
+
   );
+
 };
 
 export default Sponsor;

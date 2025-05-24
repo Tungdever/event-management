@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Bar, Pie, Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import SidebarAdminBoard from "./Sidebar";
+
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -35,7 +36,7 @@ const DashboardPage = () => {
         const monthStr = transaction.transactionDate.substring(4, 6);
         const monthIndex = parseInt(monthStr, 10) - 1;
         if (monthIndex >= 0 && monthIndex < 12) {
-          revenueByMonth[monthIndex] += transaction.transactionAmount;
+          revenueByMonth[monthIndex] += (transaction.transactionAmount * 0.05);
         }
       });
       const revenueOverTime = { labels: months, data: revenueByMonth };
@@ -120,7 +121,7 @@ const DashboardPage = () => {
       // 7. Tính số lượng sự kiện theo tổ chức
       const organizerActivityCount = {};
       response.data.data.events?.forEach(event => {
-        const organizerName = event.user?.name || 'Unknown'; // Giả định user là organizer
+        const organizerName = event.user?.name || 'Unknown';
         organizerActivityCount[organizerName] = (organizerActivityCount[organizerName] || 0) + 1;
       });
       const organizerActivityData = {
@@ -144,15 +145,15 @@ const DashboardPage = () => {
           ...event,
           totalQuantity,
           totalRevenue,
-          eventImage: event.eventImages?.[0] || '', // Lấy ảnh đầu tiên nếu có
-          eventLocation: event.eventLocation?.venueName || '', // Lấy venueName từ eventLocation
+          eventImage: event.eventImages?.[0] || '',
+          eventLocation: event.eventLocation?.venueName || '',
         };
       });
 
       console.log(response.data.data);
       setData({
         ...response.data.data,
-        events: eventsWithStats, // Cập nhật events với totalQuantity và totalRevenue
+        events: eventsWithStats,
         revenueOverTime,
         bookingStatusData,
         userActivityData,
@@ -181,8 +182,8 @@ const DashboardPage = () => {
 
   const stats = [
     { title: 'Total Active Events', value: data.totalActiveEvents ?? 0, icon: 'fas fa-calendar-check', color: '#a5d8ff', change: '' },
-    { title: 'Revenue YTD (2025)', value: `$${data.totalRevenueYTD?.toLocaleString() ?? 0}`, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: '' },
-    { title: 'Average Ticket Price', value: `$${data.averageTicketPrice?.toFixed(2) ?? 0}`, icon: 'fas fa-ticket-alt', color: '#d8b4fe', change: '' },
+    { title: 'Revenue YTD (2025)', value: `${data.totalRevenueYTD?.toLocaleString() ?? 0} Đ`, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: '' },
+    { title: 'Average Ticket Price', value: `${data.averageTicketPrice?.toLocaleString() ?? 0} Đ`, icon: 'fas fa-ticket-alt', color: '#d8b4fe', change: '' },
     { title: 'Refund Rate', value: `${data.refundRate ?? 0}%`, icon: 'fas fa-undo', color: '#f87171', change: '' },
     { title: 'New Organizers This Month', value: data.newOrganizersThisMonth ?? 0, icon: 'fas fa-user-plus', color: '#a7f3d0', change: '' },
     { title: 'Booking Conversion Rate', value: `${data.bookingConversionRate ?? 0}%`, icon: 'fas fa-check-circle', color: '#22c55e', change: '' },
@@ -193,8 +194,6 @@ const DashboardPage = () => {
   useEffect(() => {
     fetchAllEvent();
   }, []);
-
-
 
   // Doughnut Chart: Event Type Distribution
   const eventTypeCount = data.events?.reduce((acc, event) => {
@@ -208,33 +207,19 @@ const DashboardPage = () => {
       {
         data: Object.values(eventTypeCount),
         backgroundColor: [
-          '#a5d8ff', // Xanh dương nhạt
-          '#a7f3d0', // Xanh lá nhạt
-          '#d8b4fe', // Tím nhạt
-          '#fed7aa', // Cam nhạt
-          '#f87171', // Đỏ nhạt
-          '#6ee7b7', // Xanh ngọc
-          '#f472b6', // Hồng
-          '#93c5fd', // Xanh dương trung
-          '#facc15', // Vàng
+          '#a5d8ff', '#ffff6e', '#d8b4fe', '#fed7aa', '#f87171',
+          '#6ee7b7', '#f472b6', '#93c5fd', '#facc15',
         ],
         hoverBackgroundColor: [
-          '#87c7ff', // Xanh dương nhạt sáng hơn
-          '#8eebbb', // Xanh lá nhạt sáng hơn
-          '#c89eff', // Tím nhạt sáng hơn
-          '#f5c08f', // Cam nhạt sáng hơn
-          '#e55e5e', // Đỏ nhạt sáng hơn
-          '#4ade80', // Xanh ngọc sáng hơn
-          '#ec4899', // Hồng sáng hơn
-          '#60a5fa', // Xanh dương trung sáng hơn
-          '#eab308', // Vàng sáng hơn
+          '#87c7ff', '#ffff28', '#c89eff', '#f5c08f', '#e55e5e',
+          '#4ade80', '#ec4899', '#60a5fa', '#eab308',
         ],
         hoverOffset: 4,
         borderWidth: 1,
         borderColor: '#ffffff',
       },
     ],
-  }
+  };
 
   // Line Chart: Revenue Over Time
   const revenueOverTimeData = {
@@ -250,7 +235,6 @@ const DashboardPage = () => {
     ],
   };
 
-
   const indexOfLastEvent = currentPage * eventsPerPage;
   const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
   const currentEvents = data.events?.slice(indexOfFirstEvent, indexOfLastEvent);
@@ -262,13 +246,49 @@ const DashboardPage = () => {
     }
   };
 
-  return (
+  // Generate pagination buttons with ellipsis
+  const getPaginationButtons = () => {
+    const maxButtons = 5; // Maximum number of page buttons to show
+    const buttons = [];
+    const halfMax = Math.floor(maxButtons / 2);
     
+    let startPage = Math.max(1, currentPage - halfMax);
+    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
+    // Adjust startPage if endPage is at the totalPages
+    if (endPage - startPage + 1 < maxButtons) {
+      startPage = Math.max(1, endPage - maxButtons + 1);
+    }
+
+    // Add first page and ellipsis if needed
+    if (startPage > 1) {
+      buttons.push(1);
+      if (startPage > 2) {
+        buttons.push('...');
+      }
+    }
+
+    // Add page numbers
+    for (let i = startPage; i <= endPage; i++) {
+      buttons.push(i);
+    }
+
+    // Add last page and ellipsis if needed
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        buttons.push('...');
+      }
+      buttons.push(totalPages);
+    }
+
+    return buttons;
+  };
+
+  return (
     <section className="space-y-6 overflow-y-auto">
       <div className="bg-white rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="font-bold text-sm text-[#1e1e2d] select-none">Overview</h1>
-      
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 max-w-[1440px]">
           {stats.map((stat) => (
@@ -372,7 +392,7 @@ const DashboardPage = () => {
                   )}
                   <div>
                     <h3 className="text-[16px] font-semibold">{event.eventName}</h3>
-                    <p className="text-gray-600">{event.eventLocation}</p> {/* Sử dụng eventLocation đã được ánh xạ */}
+                    <p className="text-gray-600">{event.eventLocation}</p>
                     <p className="text-gray-600">{event.eventType}</p>
                   </div>
                 </div>
@@ -391,21 +411,26 @@ const DashboardPage = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md text-sm ${currentPage === 1
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+              className={`px-3 py-1 rounded-md text-sm ${
+                currentPage === 1
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
               Previous
             </button>
-            {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+            {getPaginationButtons().map((page, index) => (
               <button
-                key={page}
-                onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-md text-sm ${currentPage === page
-                  ? 'bg-[#3b82f6] text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+                key={index}
+                onClick={() => typeof page === 'number' && handlePageChange(page)}
+                className={`px-3 py-1 rounded-md text-sm ${
+                  page === '...' 
+                    ? 'bg-gray-200 text-gray-700 cursor-default'
+                    : currentPage === page
+                    ? 'bg-[#3b82f6] text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+                disabled={page === '...'}
               >
                 {page}
               </button>
@@ -413,10 +438,11 @@ const DashboardPage = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md text-sm ${currentPage === totalPages
-                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+              className={`px-3 py-1 rounded-md text-sm ${
+                currentPage === totalPages
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
             >
               Next
             </button>

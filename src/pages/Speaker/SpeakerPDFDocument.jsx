@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 
-// Định nghĩa style
+// Define styles
 const styles = StyleSheet.create({
   page: {
     padding: 20,
@@ -25,7 +26,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   tableColHeader: {
-    width: '16.66%',
+    width: '12.5%',
     borderStyle: 'solid',
     borderColor: '#bfbfbf',
     borderBottomWidth: 1,
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   tableCol: {
-    width: '16.66%',
+    width: '12.5%',
     borderStyle: 'solid',
     borderColor: '#bfbfbf',
     borderBottomWidth: 1,
@@ -48,21 +49,23 @@ const styles = StyleSheet.create({
   },
 });
 
-// Các cột hiển thị (giới hạn 7 cột để fit trang ngang)
+// Columns to display (limited to 8 to fit landscape page)
 const headers = [
   'ID',
   'Name',
   'Email',
   'Phone',
-  'Type',
-  'Level'
+  'Biography',
+  'Experience',
+  'Social Media',
+  'Status',
 ];
 
-// Component PDF
-const SponsorPDFDocument = ({ sponsors }) => (
+// PDF Component
+const SpeakerPDFDocument = ({ speakers }) => (
   <Document>
     <Page size="A4" style={styles.page}>
-      <Text style={styles.title}>Sponsor List</Text>
+      <Text style={styles.title}>Speaker List</Text>
       <View style={styles.table}>
         {/* Header row */}
         <View style={styles.tableRow}>
@@ -74,25 +77,31 @@ const SponsorPDFDocument = ({ sponsors }) => (
         </View>
 
         {/* Data rows */}
-        {sponsors.map((sponsor, rowIndex) => (
+        {speakers.map((speaker, rowIndex) => (
           <View style={styles.tableRow} key={rowIndex}>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorId}</Text>
+              <Text style={styles.cellText}>{speaker.speakerId}</Text>
             </View>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorName}</Text>
+              <Text style={styles.cellText}>{speaker.speakerName}</Text>
             </View>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorEmail}</Text>
+              <Text style={styles.cellText}>{speaker.speakerEmail}</Text>
             </View>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorPhone}</Text>
+              <Text style={styles.cellText}>{speaker.speakerPhone}</Text>
             </View>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorType}</Text>
+              <Text style={styles.cellText}>{speaker.speakerDesc}</Text>
             </View>
             <View style={styles.tableCol}>
-              <Text style={styles.cellText}>{sponsor.sponsorLevel}</Text>
+              <Text style={styles.cellText}>{speaker.speakerExperience}</Text>
+            </View>
+            <View style={styles.tableCol}>
+              <Text style={styles.cellText}>{speaker.speakerSocialMedia}</Text>
+            </View>
+            <View style={styles.tableCol}>
+              <Text style={styles.cellText}>{speaker.speakerStatus}</Text>
             </View>
           </View>
         ))}
@@ -101,4 +110,4 @@ const SponsorPDFDocument = ({ sponsors }) => (
   </Document>
 );
 
-export default SponsorPDFDocument;
+export default SpeakerPDFDocument;

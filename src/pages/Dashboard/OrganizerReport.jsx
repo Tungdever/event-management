@@ -12,6 +12,8 @@ const OrganizerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
   const eventsPerPage = 4;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -32,7 +34,7 @@ const OrganizerDashboard = () => {
         revenueOverTime: {
           labels: months,
           data: response.data.revenueByMonth,
-        },       
+        },
       });
     } catch (error) {
       setError(error.message);
@@ -59,11 +61,69 @@ const OrganizerDashboard = () => {
     fetchDashboardData();
   }, [navigate, token]);
 
+  // Handle search input
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page when searching
+  };
+
+  // Filter events based on search term
+  const filteredEvents = data.events?.filter(event =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.eventType.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    event.eventLocation.venueName.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  // Handle sorting
+  const handleSort = (key) => {
+    let direction = 'asc';
+    if (sortConfig.key === key && sortConfig.direction === 'asc') {
+      direction = 'desc';
+    } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
+      direction = null; // Reset to default
+    }
+    setSortConfig({ key, direction });
+  };
+
+  // Sort events
+  const sortedEvents = [...filteredEvents].sort((a, b) => {
+    if (!sortConfig.key || !sortConfig.direction) return 0;
+
+    const aValue = sortConfig.key === 'event' ? a.eventName.toLowerCase() :
+                   sortConfig.key === 'location' ? a.eventLocation.venueName.toLowerCase() :
+                   sortConfig.key === 'sold' ? a.sold :
+                   sortConfig.key === 'gross' ? a.eventRevenue :
+                   a.eventStatus.toLowerCase();
+    const bValue = sortConfig.key === 'event' ? b.eventName.toLowerCase() :
+                   sortConfig.key === 'location' ? b.eventLocation.venueName.toLowerCase() :
+                   sortConfig.key === 'sold' ? b.sold :
+                   sortConfig.key === 'gross' ? b.eventRevenue :
+                   b.eventStatus.toLowerCase();
+
+    if (sortConfig.direction === 'asc') {
+      return aValue > bValue ? 1 : -1;
+    } else {
+      return aValue < bValue ? 1 : -1;
+    }
+  });
+
+  // Pagination
+  const indexOfLastEvent = currentPage * eventsPerPage;
+  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
+  const currentEvents = sortedEvents.slice(indexOfFirstEvent, indexOfLastEvent);
+  const totalPages = Math.ceil(sortedEvents.length / eventsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber >= 1 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
   // Overview stats
   const stats = [
     { title: 'Total Events', value: data.totalEvents, icon: 'fas fa-calendar-check', color: '#a5d8ff' },
     { title: 'Tickets Sold', value: data.totalTicketsSold, icon: 'fas fa-ticket-alt', color: '#d8b4fe' },
-    { title: 'Total Revenue', value: `$${data.totalRevenue}`, icon: 'fas fa-dollar-sign', color: '#fed7aa' },
+    { title: 'Total Revenue', value: `${data.totalRevenue} Đ`, icon: 'fas fa-dollar-sign', color: '#fed7aa' },
     { title: 'Sponsors', value: data.totalSponsors, icon: 'fas fa-handshake', color: '#a7f3d0' },
   ];
 
@@ -100,19 +160,6 @@ const OrganizerDashboard = () => {
     ],
   };
 
-
-  // Pagination
-  const indexOfLastEvent = currentPage * eventsPerPage;
-  const indexOfFirstEvent = indexOfLastEvent - eventsPerPage;
-  const currentEvents = data.events?.slice(indexOfFirstEvent, indexOfLastEvent);
-  const totalPages = Math.ceil(data.events?.length / eventsPerPage);
-
-  const handlePageChange = (pageNumber) => {
-    if (pageNumber >= 1 && pageNumber <= totalPages) {
-      setCurrentPage(pageNumber);
-    }
-  };
-
   return (
     <section className="space-y-6 overflow-y-auto p-6">
       <div className="bg-white rounded-xl p-6">
@@ -140,7 +187,7 @@ const OrganizerDashboard = () => {
 
         {/* Charts Section */}
         <h1 className="font-bold text-lg mb-4 select-none">Statistics</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
           {/* Line Chart: Revenue Over Time */}
           <div className="bg-[#f9fafb] rounded-xl p-4">
             <h2 className="text-sm font-semibold mb-4">Revenue Over Time</h2>
@@ -162,9 +209,8 @@ const OrganizerDashboard = () => {
             </div>
           </div>
 
-         
           {/* Bar Chart: Tickets Sold vs Revenue */}
-          <div className="bg-[#f9fafb] rounded-xl p-4 col-span-2">
+          {/* <div className="bg-[#f9fafb] rounded-xl p-4 col-span-2">
             <h2 className="text-sm font-semibold mb-4">Tickets Sold vs Revenue per Event</h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <Bar
@@ -196,18 +242,77 @@ const OrganizerDashboard = () => {
                 }}
               />
             </div>
-          </div>
+          </div> */}
         </div>
 
         {/* Event List */}
         <h1 className="font-bold text-lg mb-4 select-none">Your Events</h1>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search by event name, type, or venue..."
+            value={searchTerm}
+            onChange={handleSearch}
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+          />
+        </div>
         <div className="mt-6 bg-white rounded-md shadow text-[14px]">
           <div className="flex items-center p-4 border-b border-gray-200">
-            <div className="w-1/2 text-gray-600">Event</div>
-            <div className="w-1/6 text-gray-600">Location</div>
-            <div className="w-1/6 text-gray-600">Sold</div>
-            <div className="w-1/6 text-gray-600">Gross</div>
-            <div className="w-1/6 text-gray-600">Status</div>
+            <div
+              className="w-1/2 text-gray-600 cursor-pointer flex items-center"
+              onClick={() => handleSort('event')}
+            >
+              Event
+              {sortConfig.key === 'event' && (
+                <span className="ml-2">
+                  {sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : ''}
+                </span>
+              )}
+            </div>
+            <div
+              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              onClick={() => handleSort('location')}
+            >
+              Location
+              {sortConfig.key === 'location' && (
+                <span className="ml-2">
+                  {sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : ''}
+                </span>
+              )}
+            </div>
+            <div
+              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              onClick={() => handleSort('sold')}
+            >
+              Sold
+              {sortConfig.key === 'sold' && (
+                <span className="ml-2">
+                  {sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : ''}
+                </span>
+              )}
+            </div>
+            <div
+              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              onClick={() => handleSort('gross')}
+            >
+              Gross
+              {sortConfig.key === 'gross' && (
+                <span className="ml-2">
+                  {sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : ''}
+                </span>
+              )}
+            </div>
+            <div
+              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              onClick={() => handleSort('status')}
+            >
+              Status
+              {sortConfig.key === 'status' && (
+                <span className="ml-2">
+                  {sortConfig.direction === 'asc' ? '↑' : sortConfig.direction === 'desc' ? '↓' : ''}
+                </span>
+              )}
+            </div>
           </div>
           {loading ? (
             <div className="p-4 text-center text-gray-600">Loading...</div>
@@ -237,7 +342,7 @@ const OrganizerDashboard = () => {
                 </div>
                 <div className="w-1/6 text-gray-600">{event.eventLocation.venueName}</div>
                 <div className="w-1/6 text-gray-600">{event.sold}</div>
-                <div className="w-1/6 text-gray-600">${event.eventRevenue}</div>
+                <div className="w-1/6 text-gray-600">{event.eventRevenue} Đ</div>
                 <div className="w-1/6 text-gray-600">{event.eventStatus}</div>
               </div>
             ))
