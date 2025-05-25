@@ -16,29 +16,38 @@ const LoginForm = () => {
     try {
       const response = await api.login(email, password);
       const token = response.data;
-      if (!token) throw new Error('No token received');
+      if (!token) throw new Error('Không nhận được token');
 
       const decoded = jwtDecode(token);
       login(token, decoded);
 
-      const primaryRole = decoded.roles.includes('ROLE_ADMIN') ? 'ADMIN' :
-                         decoded.roles.includes('ROLE_ORGANIZER') ? 'ORGANIZER' : 'ATTENDEE';
-      
-      if (primaryRole === 'ADMIN') navigate('/admin');
-      else if (primaryRole === 'ORGANIZER') navigate('/dashboard');
-      else navigate('/');
+      // Kiểm tra redirectEventId trong localStorage
+      const redirectEventId = localStorage.getItem('redirectEventId');
+      if (redirectEventId) {
+        // Chuyển hướng về trang chi tiết sự kiện
+        navigate(`/event/${redirectEventId}`);
+        // Xóa redirectEventId sau khi sử dụng
+        localStorage.removeItem('redirectEventId');
+      } else {
+        // Chuyển hướng mặc định dựa trên vai trò
+        const primaryRole = decoded.roles.includes('ROLE_ADMIN') ? 'ADMIN' :
+                           decoded.roles.includes('ROLE_ORGANIZER') ? 'ORGANIZER' : 'ATTENDEE';
+        if (primaryRole === 'ADMIN') navigate('/admin');
+        else if (primaryRole === 'ORGANIZER') navigate('/dashboard');
+        else navigate('/');
+      }
     } catch (error) {
-      setError(error.msg || error.message || 'Login failed. Please check your credentials.');
+      setError(error.msg || error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
     }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
-      <div className="bg-white p-10 rounded-xl shadow-md w-full max-w-md sm:max-w-lg transform transition-all duration-300 animate-in">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Welcome Back</h2>
+      <div className="w-full max-w-md p-10 transition-all duration-300 transform bg-white shadow-md rounded-xl sm:max-w-lg animate-in">
+        <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Chào mừng trở lại</h2>
         {error && (
-          <div className="flex items-center p-4 mb-6 bg-red-50 border border-red-200 rounded-lg text-red-600">
-            <i className="fas fa-exclamation-circle mr-2"></i>
+          <div className="flex items-center p-4 mb-6 text-red-600 border border-red-200 rounded-lg bg-red-50">
+            <i className="mr-2 fas fa-exclamation-circle"></i>
             <p id="error-message" className="text-sm">{error}</p>
           </div>
         )}
@@ -46,52 +55,52 @@ const LoginForm = () => {
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <div className="relative mt-1">
-              <i className="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <i className="absolute text-gray-400 transform -translate-y-1/2 fas fa-envelope left-3 top-1/2"></i>
               <input
                 type="email"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-colors"
+                className="block w-full py-3 pl-10 pr-3 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
                 required
-                aria-label="Email address"
+                aria-label="Địa chỉ email"
                 aria-describedby={error ? "error-message" : undefined}
               />
             </div>
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Mật khẩu</label>
             <div className="relative mt-1">
-              <i className="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+              <i className="absolute text-gray-400 transform -translate-y-1/2 fas fa-lock left-3 top-1/2"></i>
               <input
                 type="password"
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400 transition-colors"
+                className="block w-full py-3 pl-10 pr-3 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
                 required
-                aria-label="Password"
+                aria-label="Mật khẩu"
                 aria-describedby={error ? "error-message" : undefined}
               />
             </div>
           </div>
           <button
             type="submit"
-            className="w-full bg-orange-500 text-white py-3 rounded-lg font-medium hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2 transition-colors"
+            className="w-full py-3 font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
           >
-            Sign In
+            Đăng nhập
           </button>
         </form>
-        <div className="mt-6 text-center space-y-2">
+        <div className="mt-6 space-y-2 text-center">
           <p>
-            <a href="/forgot" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">
-              Forgot Password?
+            <a href="/forgot" className="font-medium text-orange-500 transition-colors hover:text-orange-600">
+              Quên mật khẩu?
             </a>
           </p>
           <p className="text-gray-600">
-            Don’t have an account?{' '}
-            <a href="/signup" className="text-orange-500 hover:text-orange-600 font-medium transition-colors">
-              Sign Up
+            Chưa có tài khoản?{' '}
+            <a href="/signup" className="font-medium text-orange-500 transition-colors hover:text-orange-600">
+              Đăng ký
             </a>
           </p>
         </div>

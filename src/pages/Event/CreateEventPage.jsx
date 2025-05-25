@@ -278,8 +278,8 @@ const CRUDEvent = () => {
       setIsLoading(false);
       Swal.fire({
         icon: 'success',
-        title: 'Success',
-        text: `The event is successfully published! ID: ${eventId}`,
+        title: 'Thành công',
+        text: `Sự kiện đã được xuất bản thành công! ID: ${eventId}`,
       });
       setTimeout(() => navigate('/'), 300);
     } catch (error) {
@@ -371,6 +371,12 @@ const CRUDEvent = () => {
             ticketData={event.tickets}
             onTicketsUpdate={handleTicketsUpdate}
             eventId={1}
+            eventStart={event.eventLocation.date && event.eventLocation.startTime
+              ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+              : ""}
+            eventEnd={event.eventLocation.date && event.eventLocation.endTime
+              ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+              : ""}
             onNext={() => setSelectedStep("publish")}
           />
         );
@@ -392,22 +398,22 @@ const CRUDEvent = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
-          <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
-            <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <div className="flex flex-col items-start justify-center min-h-screen p-6 space-y-4 bg-gray-50 lg:flex-row lg:items-stretch lg:space-y-0 lg:space-x-2">
+          <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
+            <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "The event has no title"}
+                {event.eventName || "Sự kiện chưa có tiêu đề"}
               </h2>
-              <div className="flex items-center text-gray-500 mt-2">
-                <i className="far fa-calendar-alt mr-2"></i>
+              <div className="flex items-center mt-2 text-gray-500">
+                <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Not yet established date and time"}
+                    : "Chưa xác định ngày và giờ"}
                 </span>
               </div>
             </div>
-            <h3 className="text-lg font-semibold mb-2">Steps</h3>
+            <h3 className="mb-2 text-lg font-semibold">Các bước</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -423,15 +429,15 @@ const CRUDEvent = () => {
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
                   <span>
-                    {step === "build" && "Build event"}
-                    {step === "tickets" && "Add ticket"}
-                    {step === "publish" && "Publish"}
+                    {step === "build" && "Tạo sự kiện"}
+                    {step === "tickets" && "Thêm vé"}
+                    {step === "publish" && "Xuất bản"}
                   </span>
                 </label>
               ))}
             </div>
           </aside>
-          <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
+          <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
     </>

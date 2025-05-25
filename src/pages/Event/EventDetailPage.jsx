@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import { User, MessageCircle } from "lucide-react";
 import ChatBubble from "../ChatBox/ChatBubble";
 import { useAuth } from "../Auth/AuthProvider";
+import Swal from "sweetalert2";
 
 // : Format date and time
 const formatDateTime = (isoString) => {
@@ -65,7 +66,6 @@ const useEventData = (eventId, userId) => {
       setLoading(true);
       setError(null);
       try {
-        // Thêm userId vào query string nếu có để ghi lượt xem
         const query = userId ? `?userId=${userId}` : '';
         const response = await fetch(
           `http://localhost:8080/api/events/detail/${eventId}${query}`,
@@ -92,8 +92,8 @@ const useEventData = (eventId, userId) => {
 const Timeline = ({ segments }) => {
   if (!segments?.length) {
     return (
-      <div className="my-4 sm:my-6 mx-4 sm:mx-8 lg:mx-16 text-gray-600 text-sm sm:text-base">
-        No segments available
+      <div className="mx-4 my-4 text-sm text-gray-600 sm:my-6 sm:mx-8 lg:mx-16 sm:text-base">
+        Không có lịch trình nào
       </div>
     );
   }
@@ -103,24 +103,24 @@ const Timeline = ({ segments }) => {
       {segments.map((segment, index) => (
         <div
           key={segment.segmentId}
-          className="relative pl-4 sm:pl-16 lg:pl-32 py-4 sm:py-6 group"
+          className="relative py-4 pl-4 sm:pl-16 lg:pl-32 sm:py-6 group"
         >
           <time className="relative sm:absolute left-0 sm:-left-12 lg:-left-16 translate-y-0.5 inline-flex items-center text-[10px] sm:text-xs lg:text-sm font-semibold uppercase min-w-max h-5 sm:h-6 lg:h-7 mb-2 sm:mb-0 text-emerald-600 bg-emerald-100 rounded-full whitespace-nowrap px-2 sm:px-3 lg:px-4 py-1 sm:py-1 lg:py-2">
             {formatTime(segment.startTime)} - {formatTime(segment.endTime)}
           </time>
           <div className="flex flex-col sm:flex-row items-start mb-1 group-last:before:hidden before:absolute before:left-0 sm:before:left-6 lg:before:left-10 before:h-full before:px-px before:bg-slate-300 sm:before:ml-6 lg:before:ml-8 before:self-start before:-translate-x-1/2 before:translate-y-3 after:absolute after:left-0 sm:after:left-6 lg:after:left-10 after:w-2 after:h-2 after:bg-indigo-600 after:border-4 after:box-content after:border-slate-50 after:rounded-full sm:after:ml-6 lg:after:ml-8 after:-translate-x-1/2 after:translate-y-1.5">
-            <div className="text-base sm:text-lg lg:text-xl font-bold text-slate-900">
+            <div className="text-base font-bold sm:text-lg lg:text-xl text-slate-900">
               {segment.speaker?.speakerName || ""}
             </div>
           </div>
           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
             {segment.speaker?.speakerDesc || ""}
           </p>
-          <p className="text-sm sm:text-base lg:text-lg font-bold text-indigo-700 mt-1">
-            "{segment.segmentTitle || "Untitled Segment"}"
+          <p className="mt-1 text-sm font-bold text-indigo-700 sm:text-base lg:text-lg">
+            "{segment.segmentTitle || "Không có tiêu đề"}"
           </p>
           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
-            "{segment.segmentDesc || "Untitled Segment"}"
+            "{segment.segmentDesc || "Không có mô tả"}"
           </p>
         </div>
       ))}
@@ -149,38 +149,38 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
   };
 
   return (
-    <div className="mt-10 mb-8 max-w-3xl font-inter">
-      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
-        Organized by
+    <div className="max-w-3xl mt-10 mb-8 font-inter">
+      <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
+        Được tổ chức bởi
       </h2>
-      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-gray-200 relative">
-        <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
-          <div className="relative w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0">
-            <div className="absolute inset-0 bg-gradient-to-br from-pink-400 to-blue-400 rounded-full animate-pulse-subtle" />
-            <div className="relative w-full h-full bg-white rounded-full flex items-center justify-center border-2 border-gray-100 shadow-sm">
+      <div className="relative p-6 bg-white border border-gray-200 sm:p-8 rounded-2xl">
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
+          <div className="relative flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20">
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-pink-400 to-blue-400 animate-pulse-subtle" />
+            <div className="relative flex items-center justify-center w-full h-full bg-white border-2 border-gray-100 rounded-full shadow-sm">
               <img
                 src={organizer?.organizerLogo || "https://i.pinimg.com/736x/40/dc/20/40dc204e1681aea04a030aaa6d1aac39.jpg"}
                 alt="Logo Tổ Chức"
-                className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-md"
+                className="object-cover w-20 h-20 border-4 border-purple-100 rounded-full shadow-md"
               />
             </div>
           </div>
-          <div className="text-center sm:text-left flex-1">
+          <div className="flex-1 text-center sm:text-left">
             <h3
-              className="text-lg sm:text-xl lg:text-2xl font-playfair font-semibold text-gray-900 mb-3 leading-tight hover:text-red-500 hover:underline cursor-pointer transition-colors duration-300"
+              className="mb-3 text-lg font-semibold leading-tight text-gray-900 transition-colors duration-300 cursor-pointer sm:text-xl lg:text-2xl font-playfair hover:text-red-500 hover:underline"
               onClick={handleOrganizerClick}
             >
               {organizer?.organizerName || "N/A"}
             </h3>
-            <p className="text-gray-700 text-sm sm:text-base font-inter leading-relaxed max-w-lg mx-auto sm:mx-0 italic">
-              {organizer?.organizerDesc || "No description available"}
+            <p className="max-w-lg mx-auto text-sm italic leading-relaxed text-gray-700 sm:text-base font-inter sm:mx-0">
+              {organizer?.organizerDesc || "Không có mô tả"}
             </p>
           </div>
           {currentUser?.email !== organizer?.organizerEmail && (
             <button
               onClick={handleChatClick}
-              className="absolute top-4 right-4 p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-200"
-              title="Chat with Organizer"
+              className="absolute p-2 transition-colors duration-200 bg-blue-100 rounded-full top-4 right-4 hover:bg-blue-200"
+              title="Chat với nhà tổ chức"
             >
               <MessageCircle className="w-5 h-5 text-blue-600" />
             </button>
@@ -205,25 +205,25 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
 // EventInfo Component
 const EventInfo = ({ eventData, organizerData, currentUser }) => (
   <div className="flex-1">
-    <div className="text-gray-500 text-sm sm:text-base mb-2">
+    <div className="mb-2 text-sm text-gray-500 sm:text-base">
       {formatDateTime(eventData?.eventStart)}
     </div>
-    <h1 className="text-2xl sm:text-3xl lg:text-5xl font-bold text-blue-900 mb-3 sm:mb-4">
-      {eventData?.eventName || "Unnamed Event"}
+    <h1 className="mb-3 text-2xl font-bold text-blue-900 sm:text-3xl lg:text-5xl sm:mb-4">
+      {eventData?.eventName || "Sự kiện không tên"}
     </h1>
-    <div className="text-gray-700 text-sm sm:text-base flex items-center mb-2">
-      <i className="fa-solid fa-eye mr-4"></i>
+    <div className="flex items-center mb-2 text-sm text-gray-700 sm:text-base">
+      <i className="mr-4 fa-solid fa-eye"></i>
       <span className="text-[14px] font-bold">
-        {eventData?.viewCount ? `${eventData.viewCount} views` : "0 views"}
+        {eventData?.viewCount ? `${eventData.viewCount} lượt xem` : "0 lượt xem"}
       </span>
     </div>
     <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
-    <div className="mt-6 mb-6 pt-6">
-      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
-        Date and Time
+    <div className="pt-6 mt-6 mb-6">
+      <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
+        Ngày và Giờ
       </h2>
-      <div className="text-gray-700 text-sm sm:text-base flex items-center">
-        <i className="fa-regular fa-calendar-days mr-4"></i>
+      <div className="flex items-center text-sm text-gray-700 sm:text-base">
+        <i className="mr-4 fa-regular fa-calendar-days"></i>
         <span className="text-[14px] font-bold">
           {formatDateTime(eventData?.eventStart)} -{" "}
           {formatDateTime(eventData?.eventEnd)}
@@ -231,15 +231,15 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
       </div>
     </div>
     <div className="mb-6">
-      <h2 className="text-lg sm:text-xl font-playfair font-semibold text-gray-800 mb-3">
-        Location
+      <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
+        Địa điểm
       </h2>
-      <div className="text-gray-700 text-sm sm:text-base flex items-center">
-        <i className="fa-solid fa-location-dot mr-4"></i>
+      <div className="flex items-center text-sm text-gray-700 sm:text-base">
+        <i className="mr-4 fa-solid fa-location-dot"></i>
         <span className="text-[14px] font-bold">
           {eventData?.eventLocation?.venueName
             ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
-            : "No location specified"}
+            : "Không có địa điểm cụ thể"}
         </span>
       </div>
     </div>
@@ -248,28 +248,28 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
 
 // OverviewContent Component
 const OverviewContent = ({ eventData }) => (
-  <div className="mb-4 sm:mb-6 flex-1">
-    <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
-      Description
+  <div className="flex-1 mb-4 sm:mb-6">
+    <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
+      Mô tả
     </h2>
     <div
-      className="text-gray-700 text-sm sm:text-base text-justify mb-3 sm:mb-4 prose max-w-none"
+      className="mb-3 text-sm prose text-justify text-gray-700 sm:text-base sm:mb-4 max-w-none"
       dangerouslySetInnerHTML={{
         __html: eventData?.eventDesc
           ? DOMPurify.sanitize(eventData.eventDesc)
-          : "No description available",
+          : "Không có mô tả",
       }}
     />
-    <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
-      Overview
+    <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
+      Tổng quan
     </h2>
-    <div className="text-gray-700 text-sm sm:text-base text-justify">
+    <div className="text-sm text-justify text-gray-700 sm:text-base">
       <p
         className="mb-3 sm:mb-4"
         dangerouslySetInnerHTML={{
           __html: eventData?.textContent
             ? DOMPurify.sanitize(eventData.textContent)
-            : "No description available",
+            : "Không có mô tả",
         }}
       />
       {eventData?.mediaContent?.length > 0 ? (
@@ -278,7 +278,7 @@ const OverviewContent = ({ eventData }) => (
             key={index}
             src={mediaContent}
             alt={`${eventData.eventName} media ${index + 1}`}
-            className="w-full h-auto object-cover rounded-lg mb-3 sm:mb-4"
+            className="object-cover w-full h-auto mb-3 rounded-lg sm:mb-4"
           />
         ))
       ) : (
@@ -289,93 +289,192 @@ const OverviewContent = ({ eventData }) => (
 );
 
 // TicketSelector Component
-const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect }) => (
-  <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
-    <div className="mb-4 p-4 border-2 border-red-400 rounded-lg">
-      {!tickets ? (
-        <p className="text-gray-700 text-sm font-inter">Loading tickets...</p>
-      ) : tickets.length === 0 ? (
-        <p className="text-gray-700 text-sm font-inter">No tickets available</p>
-      ) : (
-        <div className="space-y-4">
-          {tickets.map((ticket) => (
-            <div
-              key={ticket.ticketId}
-              className="border border-gray-400 rounded-lg p-4 bg-gray-100 hover:shadow-md transition-all duration-300"
-            >
-              <div className="flex justify-between items-center mb-2">
-                <div>
-                  <p className="text-gray-900 font-semibold text-base font-inter">
-                    {ticket.ticketName}
-                  </p>
-                  <p className="text-gray-700 text-sm font-inter">
-                    {ticket.price.toLocaleString()} VND
-                    {ticket.ticketType === "Free" && (
-                      <span className="text-gray-500 text-xs ml-2">
-                        (Max 1 ticket)
-                      </span>
-                    )}
-                  </p>
+const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, user }) => {
+  const { eventId } = useParams();
+   const token = localStorage.getItem("token");
+  const checkTicketLimit = async (ticketId, ticketType, currentCount) => {
+    if (!user?.email) {
+      // Lưu eventId trước khi chuyển hướng
+      localStorage.setItem("redirectEventId", eventId);
+      // User chưa đăng nhập, áp dụng giới hạn mặc định
+      if (ticketType === "Free" && currentCount > 1) {
+        Swal.fire({
+          icon: "warning",
+          title: "Giới hạn vé",
+          text: "Bạn đã đạt giới hạn . Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
+          confirmButtonText: "Đăng nhập",
+          showCancelButton: true,
+          cancelButtonText: "Hủy",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/login";
+          }
+        });
+        return false;
+      }
+      if (ticketType !== "Free" && currentCount > 10) {
+        Swal.fire({
+          icon: "warning",
+          title: "Giới hạn vé",
+          text: "Bạn đã đạt giới hạn . Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
+          confirmButtonText: "Đăng nhập",
+          showCancelButton: true,
+          cancelButtonText: "Hủy",
+        }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = "/login";
+          }
+        });
+        return false;
+      }
+      return true;
+    }
+
+    // User đã đăng nhập, gọi API để kiểm tra
+    try {
+      const response = await fetch(
+        `http://localhost:8080/api/ticket/${user.email}/check/${eventId}`,
+        {
+           headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        }
+      );
+      if (!response.ok) throw new Error("Không thể kiểm tra giới hạn vé");
+      const result = await response.json();
+
+      if (result.statusCode !== 200) {
+        Swal.fire({
+          icon: "error",
+          title: "Giới hạn vé",
+          text: result.msg,
+        });
+        return false;
+      }
+
+      const { remainingFreeTickets, remainingPaidTickets } = result.data;
+      if (ticketType === "Free" && currentCount > remainingFreeTickets) {
+        Swal.fire({
+          icon: "error",
+          title: "Giới hạn vé",
+          text: result.msg,
+        });
+        return false;
+      }
+      if (ticketType !== "Free" && currentCount > remainingPaidTickets) {
+        Swal.fire({
+          icon: "error",
+          title: "Giới hạn vé",
+          text: result.msg,
+        });
+        return false;
+      }
+      return true;
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể kiểm tra giới hạn vé. Vui lòng thử lại sau.",
+      });
+      return false;
+    }
+  };
+
+  return (
+    <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
+      <div className="p-4 mb-4 border-2 border-red-400 rounded-lg">
+        {!tickets ? (
+          <p className="text-sm text-gray-700 font-inter">Đang tải vé...</p>
+        ) : tickets.length === 0 ? (
+          <p className="text-sm text-gray-700 font-inter">Không có vé nào</p>
+        ) : (
+          <div className="space-y-4">
+            {tickets.map((ticket) => (
+              <div
+                key={ticket.ticketId}
+                className="p-4 transition-all duration-300 bg-gray-100 border border-gray-400 rounded-lg hover:shadow-md"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="text-base font-semibold text-gray-900 font-inter">
+                      {ticket.ticketName}
+                    </p>
+                    <p className="text-sm text-gray-700 font-inter">
+                      {ticket.price.toLocaleString()} VND
+                      {ticket.ticketType === "Free" && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          (Tối đa 1 vé)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      className="bg-gray-200 text-gray-600 px-3 py-1 rounded-[4px] hover:bg-gray-300 transition text-sm font-inter"
+                      onClick={() =>
+                        onQuantityChange(
+                          ticket.ticketId,
+                          ticket.quantity - ticket.sold,
+                          -1,
+                          ticket.ticketType
+                        )
+                      }
+                      disabled={(selectedTickets[ticket.ticketId] || 0) === 0}
+                      aria-label={`Giảm số lượng cho ${ticket.ticketName}`}
+                    >
+                      -
+                    </button>
+                    <span className="w-8 text-sm font-semibold text-center text-gray-900 font-inter">
+                      {selectedTickets[ticket.ticketId] || 0}
+                    </span>
+                    <button
+                      className="bg-red-500 text-white px-3 py-1 rounded-[4px] hover:bg-red-600 transition text-sm font-inter"
+                      onClick={async () => {
+                        const currentCount = (selectedTickets[ticket.ticketId] || 0) + 1;
+                        const canIncrease = await checkTicketLimit(
+                          ticket.ticketId,
+                          ticket.ticketType,
+                          currentCount
+                        );
+                        if (canIncrease) {
+                          onQuantityChange(
+                            ticket.ticketId,
+                            ticket.quantity - ticket.sold,
+                            1,
+                            ticket.ticketType
+                          );
+                        }
+                      }}
+                      disabled={
+                        (selectedTickets[ticket.ticketId] || 0) >=
+                        (ticket.quantity - ticket.sold)
+                      }
+                      aria-label={`Tăng số lượng cho ${ticket.ticketName}`}
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <button
-                    className="bg-gray-200 text-gray-600 px-3 py-1 rounded-[4px] hover:bg-gray-300 transition text-sm font-inter"
-                    onClick={() =>
-                      onQuantityChange(
-                        ticket.ticketId,
-                        ticket.quantity,
-                        -1,
-                        ticket.ticketType
-                      )
-                    }
-                    disabled={(selectedTickets[ticket.ticketId] || 0) === 0}
-                    aria-label={`Decrease quantity for ${ticket.ticketName}`}
-                  >
-                    -
-                  </button>
-                  <span className="text-gray-900 font-semibold text-sm w-8 text-center font-inter">
-                    {selectedTickets[ticket.ticketId] || 0}
-                  </span>
-                  <button
-                    className="bg-red-500 text-white px-3 py-1 rounded-[4px] hover:bg-red-600 transition text-sm font-inter"
-                    onClick={() =>
-                      onQuantityChange(
-                        ticket.ticketId,
-                        ticket.quantity,
-                        1,
-                        ticket.ticketType
-                      )
-                    }
-                    disabled={
-                      (selectedTickets[ticket.ticketId] || 0) >=
-                        ticket.quantity ||
-                      (ticket.ticketType === "Free" &&
-                        (selectedTickets[ticket.ticketId] || 0) >= 1)
-                    }
-                    aria-label={`Increase quantity for ${ticket.ticketName}`}
-                  >
-                    +
-                  </button>
+                <div className="text-xs text-gray-600 font-inter">
+                  <p>Còn lại: {ticket.quantity - ticket.sold}</p>
                 </div>
               </div>
-              <div className="text-gray-600 text-xs font-inter">
-                <p>Available: {ticket.quantity}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
+      <button
+        className="w-full py-3 text-base font-semibold text-white transition bg-red-500 rounded-lg shadow-md hover:bg-red-600 disabled:bg-gray-400 font-inter"
+        onClick={onSelect}
+        disabled={Object.keys(selectedTickets).length === 0}
+        aria-label="Chọn vé"
+      >
+        Chọn vé
+      </button>
     </div>
-    <button
-      className="bg-red-500 text-white w-full py-3 rounded-lg hover:bg-red-600 transition disabled:bg-gray-400 text-base font-semibold font-inter shadow-md"
-      onClick={onSelect}
-      disabled={Object.keys(selectedTickets).length === 0}
-      aria-label="Select tickets"
-    >
-      Select Tickets
-    </button>
-  </div>
-);
+  );
+};
 
 // Sponsors Component
 const Sponsors = ({ sponsors }) => {
@@ -385,8 +484,8 @@ const Sponsors = ({ sponsors }) => {
 
   return (
     <div className="my-4 sm:my-6">
-      <h2 className="text-lg sm:text-xl lg:text-xl font-bold mb-3 sm:mb-4">
-        Sponsors
+      <h2 className="mb-3 text-lg font-bold sm:text-xl lg:text-xl sm:mb-4">
+        Nhà tài trợ
       </h2>
       <div className="flex flex-wrap gap-4">
         {sponsors.map((sponsor) => (
@@ -394,7 +493,7 @@ const Sponsors = ({ sponsors }) => {
             <img
               src={sponsor.sponsorLogo}
               alt={`${sponsor.sponsorName} logo`}
-              className="w-16 h-16 object-contain"
+              className="object-contain w-16 h-16"
             />
             <span className="ml-2 text-sm sm:text-base">
               {sponsor.sponsorName}
@@ -460,7 +559,7 @@ const EventDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen">
+      <div className="flex items-center justify-center h-screen">
         <Loader />
       </div>
     );
@@ -468,8 +567,8 @@ const EventDetail = () => {
 
   if (error) {
     return (
-      <div className="text-center text-red-600 p-4 sm:p-8 text-sm sm:text-base">
-        Error: {error}. Please try again later.
+      <div className="p-4 text-sm text-center text-red-600 sm:p-8 sm:text-base">
+        Lỗi: {error}. Vui lòng thử lại sau.
       </div>
     );
   }
@@ -497,63 +596,63 @@ const EventDetail = () => {
             eventData.eventImages.map((imageUrl, index) => (
               <div key={index} className="relative w-full h-full">
                 <div
-                  className="absolute inset-0 bg-cover bg-center blur-lg scale-110"
+                  className="absolute inset-0 scale-110 bg-center bg-cover blur-lg"
                   style={{ backgroundImage: `url(${imageUrl})` }}
                 ></div>
                 <img
                   src={imageUrl}
-                  alt={`Event image ${index + 1}`}
-                  className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
+                  alt={`Hình ảnh sự kiện ${index + 1}`}
+                  className="absolute inset-0 object-contain w-auto h-auto max-w-full max-h-full m-auto"
                 />
               </div>
             ))
           ) : (
             <div className="relative w-full h-full">
               <div
-                className="absolute inset-0 bg-cover bg-center blur-lg scale-110"
+                className="absolute inset-0 scale-110 bg-center bg-cover blur-lg"
                 style={{
                   backgroundImage: `url(https://via.placeholder.com/1200x500)`,
                 }}
               ></div>
               <img
                 src="https://via.placeholder.com/1200x500"
-                alt="Default event banner"
-                className="absolute inset-0 m-auto w-auto h-auto max-w-full max-h-full object-contain"
+                alt="Hình ảnh sự kiện mặc định"
+                className="absolute inset-0 object-contain w-auto h-auto max-w-full max-h-full m-auto"
               />
             </div>
           )}
         </Carousel>
       </div>
-      <div className="px-4 sm:px-6 lg:px-8 pt-6 sm:pt-8">
-        <div className="rounded-lg px-4 sm:px-6 pt-4 leading-normal">
-          <div className="flex flex-col lg:flex-row items-start gap-4 sm:gap-6 lg:gap-2">
-            <div className="w-full lg:flex-1 ml-4 sm:ml-6 lg:ml-10">
+      <div className="px-4 pt-6 sm:px-6 lg:px-8 sm:pt-8">
+        <div className="px-4 pt-4 leading-normal rounded-lg sm:px-6">
+          <div className="flex flex-col items-start gap-4 lg:flex-row sm:gap-6 lg:gap-2">
+            <div className="w-full ml-4 lg:flex-1 sm:ml-6 lg:ml-10">
               <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} />
               <OverviewContent eventData={eventData} />
-              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
-                Speakers
+              <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
+                Diễn giả
               </h2>
               <SliderSpeaker speakers={speakers} />
-              <h2 className="text-lg sm:text-xl lg:text-xl font-bold text-gray-800 mb-2">
-                Schedule
+              <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
+                Lịch trình
               </h2>
               <Timeline segments={segmentData} />
               <Sponsors sponsors={sponsors} />
               <div>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4 mt-3 sm:mt-4">
-                  Tags
+                <h2 className="mt-3 mb-3 text-lg font-bold sm:text-xl lg:text-2xl sm:mb-4 sm:mt-4">
+                  Thẻ
                 </h2>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {eventData?.tags?.split("|").map((tag, index) => (
                     <span
                       key={index}
-                      className="bg-gray-100 text-gray-800 px-3 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm"
+                      className="px-3 py-1 text-xs text-gray-800 bg-gray-100 rounded-full sm:px-4 sm:py-2 sm:text-sm"
                     >
                       {tag.trim()}
                     </span>
                   )) || (
-                    <span className="text-gray-600 text-xs sm:text-sm">
-                      No tags available
+                    <span className="text-xs text-gray-600 sm:text-sm">
+                      Không có thẻ nào
                     </span>
                   )}
                 </div>
@@ -564,6 +663,7 @@ const EventDetail = () => {
               selectedTickets={selectedTickets}
               onQuantityChange={handleQuantityChange}
               onSelect={() => setShowPopup(true)}
+              user={user}
             />
           </div>
         </div>
