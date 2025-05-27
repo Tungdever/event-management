@@ -4,6 +4,7 @@ import axios from 'axios';
 import FavoriteButton from "../../components/FavoriteButton";
 import { useParams } from 'react-router-dom';
 import { useAuth } from "../Auth/AuthProvider";
+import DOMPurify from "dompurify";
 
 const ProfileOrganizer = () => {
   const { organizerName } = useParams();
@@ -170,7 +171,15 @@ const ProfileOrganizer = () => {
       hour12: true,
     });
   };
-
+  const sanitizeAndTruncate = (html, maxLength) => {
+    const sanitizedHtml = DOMPurify.sanitize(html || "");
+    const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
+    if (plainText.length <= maxLength) {
+      return sanitizedHtml;
+    }
+    const truncatedPlainText = truncateText(plainText, maxLength);
+    return `<p>${truncatedPlainText}</p>`;
+  };
   const truncateText = (text, maxLength) => {
     if (!text) return "";
     return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -343,9 +352,17 @@ const ProfileOrganizer = () => {
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
                   {truncateText(event.eventName, 25) || "Event Name"}
                 </h3>
-                <p className="mt-1 text-sm text-gray-600 truncate">
-                  {truncateText(event.eventDesc, 30) || "No description"}
-                </p>
+                 <p className="mt-1 text-sm text-gray-600 truncate">
+                      {event?.eventDesc ? (
+                        <span
+                          dangerouslySetInnerHTML={{
+                            __html: sanitizeAndTruncate(event.eventDesc, 30),
+                          }}
+                        />
+                      ) : (
+                        "No description available"
+                      )}
+                    </p>
                 <p className="mt-2 text-sm text-gray-700">
                   <span className="font-medium">Date:</span>{" "}
                   {new Date(event.eventStart).toLocaleDateString("en-US")}

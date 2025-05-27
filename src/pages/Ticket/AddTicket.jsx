@@ -200,7 +200,7 @@ const formatDateForInput = (isoDate) => {
   return isoDate.split("T")[0];
 };
 
-const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext }) => {
+const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext ,isReadOnly}) => {
   const [tickets, setTickets] = useState(ticketData || []);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
@@ -238,6 +238,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
   }, []);
 
   const handleChange = (e) => {
+    if (isReadOnly) return;
     const { name, value } = e.target;
     if (editingTicket) {
       setEditingTicket((prev) => ({ ...prev, [name]: value }));
@@ -286,6 +287,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
   };
 
   const handleSaveTicket = () => {
+    if (isReadOnly) return;
     if (
       !newTicket.ticketName ||
       !newTicket.quantity ||
@@ -338,6 +340,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
   };
 
   const handleEditTicket = (ticket) => {
+    if (isReadOnly) return;
     setEditingTicket({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
@@ -394,6 +397,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
   };
 
   const handleDeleteTicket = async (index, ticket) => {
+    if (isReadOnly) return;
     const confirm = await Swal.fire({
       icon: "warning",
       title: "Xác nhận xóa",
@@ -509,6 +513,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
             setShowForm(false);
             setEditingTicket(null);
           }}
+          isReadOnly={isReadOnly}
         />
       )}
     </div>

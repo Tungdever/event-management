@@ -44,7 +44,7 @@ const LoginForm = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="w-full max-w-md p-10 transition-all duration-300 transform bg-white shadow-md rounded-xl sm:max-w-lg animate-in">
-        <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Chào mừng trở lại</h2>
+        <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">Welcome Back</h2>
         {error && (
           <div className="flex items-center p-4 mb-6 text-red-600 border border-red-200 rounded-lg bg-red-50">
             <i className="mr-2 fas fa-exclamation-circle"></i>
@@ -63,13 +63,13 @@ const LoginForm = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 className="block w-full py-3 pl-10 pr-3 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
                 required
-                aria-label="Địa chỉ email"
+                aria-label="Email"
                 aria-describedby={error ? "error-message" : undefined}
               />
             </div>
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Mật khẩu</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <div className="relative mt-1">
               <i className="absolute text-gray-400 transform -translate-y-1/2 fas fa-lock left-3 top-1/2"></i>
               <input
@@ -79,7 +79,7 @@ const LoginForm = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="block w-full py-3 pl-10 pr-3 transition-colors border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300 focus:border-orange-400"
                 required
-                aria-label="Mật khẩu"
+                aria-label="Password"
                 aria-describedby={error ? "error-message" : undefined}
               />
             </div>
@@ -88,19 +88,19 @@ const LoginForm = () => {
             type="submit"
             className="w-full py-3 font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
           >
-            Đăng nhập
+            Log In
           </button>
         </form>
         <div className="mt-6 space-y-2 text-center">
           <p>
             <a href="/forgot" className="font-medium text-orange-500 transition-colors hover:text-orange-600">
-              Quên mật khẩu?
+              Forgot Password?
             </a>
           </p>
           <p className="text-gray-600">
-            Chưa có tài khoản?{' '}
+            Don’t have an account?{' '}
             <a href="/signup" className="font-medium text-orange-500 transition-colors hover:text-orange-600">
-              Đăng ký
+              Sign Up
             </a>
           </p>
         </div>

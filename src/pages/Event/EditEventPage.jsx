@@ -12,6 +12,7 @@ const EditEvent = () => {
   const eventId = location.state?.eventId || undefined;
   const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
+ 
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -45,7 +46,7 @@ const EditEvent = () => {
       fetchEventData(eventId);
     }
   }, [eventId]);
-
+ const isReadOnly = event.eventStatus === "Complete";
   const fetchEventData = async (id) => {
     try {
       setIsLoading(true);
@@ -203,6 +204,14 @@ const EditEvent = () => {
   };
 
   const handleEdit = async (event) => {
+    if (isReadOnly) {
+  Swal.fire({
+    icon: "info",
+    title: "Thông báo",
+    text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
+  });
+  return;
+}
     setIsLoading(true);
     try {
       const isFile = (item) =>
@@ -345,6 +354,7 @@ const EditEvent = () => {
   };
 
   const handleTicketsUpdate = (updatedTickets) => {
+    if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets,
@@ -359,6 +369,7 @@ const EditEvent = () => {
             event={event}
             setEvent={setEvent}
             onNext={() => setSelectedStep("tickets")}
+            isReadOnly={isReadOnly}
           />
         );
       case "tickets":
@@ -367,6 +378,7 @@ const EditEvent = () => {
             ticketData={event.tickets}
             onTicketsUpdate={handleTicketsUpdate}
             onNext={() => setSelectedStep("publish")}
+            isReadOnly={isReadOnly}
           />
         );
       case "publish":
@@ -375,6 +387,7 @@ const EditEvent = () => {
             event={event}
             setEvent={setEvent}
             onPublish={() => handleEdit(event)}
+            isReadOnly={isReadOnly}
           />
         );
       default:
@@ -387,30 +400,27 @@ const EditEvent = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
-          <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
-            <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <div className="flex flex-col items-start justify-center min-h-screen p-6 space-y-4 bg-gray-50 lg:flex-row lg:items-stretch lg:space-y-0 lg:space-x-2">
+          <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
+            <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
                 {event.eventName || "Untitled Event"}
               </h2>
-              <div className="flex items-center text-gray-500 mt-2">
-                <i className="far fa-calendar-alt mr-2"></i>
+              <div className="flex items-center mt-2 text-gray-500">
+                <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
                     : "Date and time not set"}
                 </span>
               </div>
-              {/* <div className="flex items-center mt-4">
-                <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
-                  Draft <i className="fas fa-caret-down ml-1"></i>
-                </button>
-                <a href="#" className="text-blue-600">
-                  Preview <i className="fas fa-external-link-alt"></i>
-                </a>
-              </div> */}
+              {isReadOnly && (
+                  <p className="mt-2 text-red-500">
+                    Sự kiện đã hoàn tất, chỉ có thể xem.
+                  </p>
+                )}
             </div>
-            <h3 className="text-lg font-semibold mb-2">Steps</h3>
+            <h3 className="mb-2 text-lg font-semibold">Steps</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -434,7 +444,7 @@ const EditEvent = () => {
               ))}
             </div>
           </aside>
-          <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
+          <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
     </>

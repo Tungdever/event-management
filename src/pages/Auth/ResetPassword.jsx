@@ -52,7 +52,7 @@ const ResetPassword = () => {
         {message && <p className="mb-4 text-center text-green-500">{message}</p>}
         {error && <p className="mb-4 text-center text-red-500">{error}</p>}
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
+          {/* <div>
             <label className="block text-sm font-medium text-gray-700">Token</label>
             <input
               type="text"
@@ -63,7 +63,7 @@ const ResetPassword = () => {
               required
               disabled={isLoading}
             />
-          </div>
+          </div> */}
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input

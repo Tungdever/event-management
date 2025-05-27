@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel }) => {
+const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOnly }) => {
   const [errors, setErrors] = useState({
     ticketName: "",
     quantity: "",
@@ -87,10 +87,10 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel }) => {
       className="fixed top-0 right-0 h-full w-full sm:w-96 max-h-[700px] mt-[55px] bg-gray-50 border-l border-blue-400 shadow-xl transform transition-transform duration-300 ease-in-out translate-x-0 rounded-l-xl"
     >
       <div className="p-4 sm:p-5">
-        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
+        <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl">
           Create Tickets
         </h2>
-        <div className="flex space-x-3 mb-3">
+        <div className="flex mb-3 space-x-3">
           {["Paid", "Free"].map((type) => (
             <button
               key={type}
@@ -108,36 +108,38 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel }) => {
           ))}
         </div>
         <div className="space-y-3">
-          <label className="block text-gray-700 text-sm sm:text-base font-medium">
+          <label className="block text-sm font-medium text-gray-700 sm:text-base">
             Name *
             <input
               type="text"
               className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               name="ticketName"
+              disabled={isReadOnly}
               value={newTicket.ticketName}
               onChange={handleChange}
             />
             {errors.ticketName && (
-              <p className="text-red-400 text-xs mt-1">{errors.ticketName}</p>
+              <p className="mt-1 text-xs text-red-400">{errors.ticketName}</p>
             )}
           </label>
-          <label className="block text-gray-700 text-sm sm:text-base font-medium">
+          <label className="block text-sm font-medium text-gray-700 sm:text-base">
             Available Quantity *
             <input
               type="number"
               className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
               name="quantity"
               value={newTicket.quantity}
+              disabled={isReadOnly}
               onChange={handleChange}
               min="1"
               step="1"
             />
             {errors.quantity && (
-              <p className="text-red-400 text-xs mt-1">{errors.quantity}</p>
+              <p className="mt-1 text-xs text-red-400">{errors.quantity}</p>
             )}
           </label>
           {typeTicket === "Paid" && (
-            <label className="block text-gray-700 text-sm sm:text-base font-medium">
+            <label className="block text-sm font-medium text-gray-700 sm:text-base">
               Price *
               <div className="flex items-center">
                 <span className="bg-gray-100 px-3 py-2.5 rounded-l-lg border border-r-0 border-gray-200 text-gray-700 text-sm">
@@ -149,47 +151,50 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel }) => {
                   name="price"
                   value={newTicket.price}
                   onChange={handleChange}
+                  disabled={isReadOnly}
                   min="0.01"
                   step="0.01"
                 />
               </div>
               {errors.price && (
-                <p className="text-red-400 text-xs mt-1">{errors.price}</p>
+                <p className="mt-1 text-xs text-red-400">{errors.price}</p>
               )}
             </label>
           )}
           <div className="grid grid-cols-2 gap-3">
-            <label className="block text-gray-700 text-sm sm:text-base font-medium">
+            <label className="block text-sm font-medium text-gray-700 sm:text-base">
               Sales Start *
               <input
                 type="date"
                 className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
                 name="startTime"
                 value={newTicket.startTime}
+                disabled={isReadOnly}
                 onChange={handleChange}
               />
               {errors.startTime && (
-                <p className="text-red-400 text-xs mt-1">{errors.startTime}</p>
+                <p className="mt-1 text-xs text-red-400">{errors.startTime}</p>
               )}
             </label>
-            <label className="block text-gray-700 text-sm sm:text-base font-medium">
+            <label className="block text-sm font-medium text-gray-700 sm:text-base">
               Sales End *
               <input
                 type="date"
                 className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
                 name="endTime"
                 value={newTicket.endTime}
+                disabled={isReadOnly}
                 onChange={handleChange}
               />
               {errors.endTime && (
-                <p className="text-red-400 text-xs mt-1">{errors.endTime}</p>
+                <p className="mt-1 text-xs text-red-400">{errors.endTime}</p>
               )}
             </label>
           </div>
         </div>
-        <div className="flex justify-end space-x-3 mt-4">
+        <div className="flex justify-end mt-4 space-x-3">
           <button
-            className="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+            className="px-4 py-2 text-gray-700 transition bg-gray-100 rounded-lg hover:bg-gray-200"
             onClick={onCancel}
           >
             Cancel
