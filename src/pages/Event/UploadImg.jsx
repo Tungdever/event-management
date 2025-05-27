@@ -4,7 +4,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Swal from "sweetalert2";
 import ImageCropper from "../../components/ImageCropper";
 
-const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
+const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOnly }) => {
   const getCloudinaryUrl = (publicId) =>
     publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
 
@@ -23,6 +23,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
   const [imageToCrop, setImageToCrop] = useState(null);
 
   const handleImageUpload = (event) => {
+    if (isReadOnly) return;
     const files = Array.from(event.target.files);
     if (files.length + images.length > 3) {
       Swal.fire({
@@ -74,6 +75,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
   };
 
   const handleCropComplete = (croppedImage) => {
+    if (isReadOnly) return;
     console.log("Received cropped image in UploadMedia:", croppedImage);
     if (!croppedImage) {
       Swal.fire({
@@ -91,6 +93,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
   };
 
   const handleDeleteImage = (indexToDelete) => {
+    if (isReadOnly) return;
     const updatedImages = images.filter((_, index) => index !== indexToDelete);
     setImages(updatedImages);
     setUploadedImages(updatedImages.map((img) => img.file || img.url));
@@ -106,7 +109,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
 
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4">
-      <h1 className="text-2xl font-semibold mb-4">Add image</h1>
+      <h1 className="mb-4 text-2xl font-semibold">Add image</h1>
 
       {imageToCrop ? (
         <ImageCropper
@@ -117,8 +120,8 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
         />
       ) : (
         <div className="mb-6">
-          <h2 className="text-xl font-semibold mb-2">Image</h2>
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 flex flex-col items-center justify-center mb-2">
+          <h2 className="mb-2 text-xl font-semibold">Image</h2>
+          <div className="flex flex-col items-center justify-center p-6 mb-2 border-2 border-gray-300 border-dashed rounded-lg">
             <img
               src="https://mybic.vn/uploads/news/default/no-image.png"
               alt="Placeholder"
@@ -133,10 +136,11 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
               className="hidden"
               id="upload-input"
               onChange={handleImageUpload}
+              disabled={isReadOnly}
             />
             <label
               htmlFor="upload-input"
-              className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md cursor-pointer"
+              className="px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md cursor-pointer"
             >
               Upload Image
             </label>
@@ -144,32 +148,36 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages }) => {
           <p className="text-sm text-gray-600">
             • Proposed size: 940 x 530px • Maximum capacity: 10MB • Support format: Any image
           </p>
-          <div className="flex gap-2 mt-4 flex-wrap">
+          <div className="flex flex-wrap gap-2 mt-4">
             {images.map((img, index) => (
               <div key={index} className="relative">
                 <img
                   src={img.url}
                   alt="Uploaded"
-                  className="w-24 h-24 object-contain rounded-md"
+                  className="object-contain w-24 h-24 rounded-md"
                 />
-                <button
-                  onClick={() => handleDeleteImage(index)}
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
-                >
-                  X
-                </button>
+                {!isReadOnly && ( 
+                  <button
+                    onClick={() => handleDeleteImage(index)}
+                    className="absolute top-0 right-0 flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full"
+                  >
+                    X
+                  </button>
+                )}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <button
-        onClick={handleComplete}
-        className="bg-blue-500 text-white px-6 py-2 rounded-md mt-4"
-      >
-        Complete
-      </button>
+     {!isReadOnly && ( 
+        <button
+          onClick={handleComplete}
+          className="px-6 py-2 mt-4 text-white bg-blue-500 rounded-md"
+        >
+          Complete
+        </button>
+      )}
     </div>
   );
 };
@@ -192,7 +200,7 @@ const UploadedImagesSlider = ({ images, onEdit }) => {
   );
 };
 
-const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
+const UploadContainer = ({ uploadedImages, setUploadedImages ,isReadOnly}) => {
   const [showUpload, setShowUpload] = useState(false);
 
   const getCloudinaryUrl = (publicId) =>
@@ -210,6 +218,7 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
   };
 
   const handleEditImages = () => {
+    if (isReadOnly) return;
     setShowUpload(true);
   };
 
@@ -224,7 +233,7 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
         ) : (
           <div
             className="relative bg-gray-200 rounded-lg overflow-hidden mb-6 max-w-[710px] min-h-[400px] flex items-center justify-center cursor-pointer"
-            onClick={() => setShowUpload(true)}
+            onClick={isReadOnly ? null : () => setShowUpload(true)}
           >
             <img
               src="https://storage.googleapis.com/a1aa/image/oFssrRGOqYsjeanal5Ggc6TQow520FnOxiqapc7K5xs.jpg"
@@ -232,8 +241,8 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
               className="w-full h-[400px] object-cover opacity-50"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="bg-white bg-opacity-75 p-6 rounded-lg text-center">
-                <i className="fas fa-upload text-2xl text-blue-500 mb-2"></i>
+              <div className="p-6 text-center bg-white bg-opacity-75 rounded-lg">
+                <i className="mb-2 text-2xl text-blue-500 fas fa-upload"></i>
                 <p className="text-blue-500">Upload Images</p>
               </div>
             </div>
@@ -244,6 +253,7 @@ const UploadContainer = ({ uploadedImages, setUploadedImages }) => {
           setShowUpload={setShowUpload}
           uploadedImages={uploadedImages}
           setUploadedImages={setUploadedImages}
+          isReadOnly={isReadOnly}
         />
       )}
     </div>

@@ -14,12 +14,13 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 
-const Overview = ({ setShowOverview, content, setContent }) => {
+const Overview = ({ setShowOverview, content, setContent ,isReadOnly}) => {
   const [media, setMedia] = useState(content.media);
   const [pasteError, setPasteError] = useState('');
 
   // Khởi tạo Tiptap editor
   const editor = useEditor({
+    editable: !isReadOnly,
     extensions: [
       StarterKit.configure({
         history: true,
@@ -34,6 +35,7 @@ const Overview = ({ setShowOverview, content, setContent }) => {
     ],
     content: content.text || '',
     onUpdate: ({ editor }) => {
+      if (isReadOnly) return;
       const html = editor.getHTML();
       const plainText = editor.getText().replace(/\n/g, '');
       if (plainText.length <= 2000) {
@@ -49,6 +51,7 @@ const Overview = ({ setShowOverview, content, setContent }) => {
     },
     editorProps: {
       handlePaste: (view, event) => {
+        if (isReadOnly) return;
         const clipboardData = event.clipboardData.getData('text/plain');
         if (clipboardData) {
           const currentText = view.state.doc.textContent.replace(/\n/g, '');
@@ -122,44 +125,46 @@ const handleMediaUpload = (event, type) => {
 
   return (
     <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
-      <h1 className="text-2xl font-bold mb-2">Overview</h1>
-      <p className="text-gray-600 mb-4">Add details about your event.</p>
-      <div className="border rounded-lg p-4 mb-4">
+      <h1 className="mb-2 text-2xl font-bold">Overview</h1>
+      <p className="mb-4 text-gray-600">Add details about your event.</p>
+      <div className="p-4 mb-4 border rounded-lg">
         <div className="flex items-center justify-between mb-2">
           <span>Text Formatting</span>
           <div className="flex space-x-2">
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`p-2 rounded ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+              disabled={isReadOnly}
+              className={`p-2 rounded ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
+              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaBold />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`p-2 rounded ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+              disabled={isReadOnly}
+              className={`p-2 rounded ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
+              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaItalic />
             </button>
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleUnderline().run()}
-              className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+              disabled={isReadOnly}
+              className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
+              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaUnderline />
             </button>
-            {/* <button
-              type="button"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`p-2 rounded ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
-            >
-              <FaListUl />
-            </button> */}
+          
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleLink({ href: prompt('Enter URL') }).run()}
-              className={`p-2 rounded ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-gray-100'}`}
+              disabled={isReadOnly}
+              className={`p-2 rounded ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
+              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaLink />
             </button>
@@ -180,19 +185,20 @@ const handleMediaUpload = (event, type) => {
           />
         </div>
         {pasteError && (
-          <div className="text-red-500 mt-1">{pasteError}</div>
+          <div className="mt-1 text-red-500">{pasteError}</div>
         )}
         {(!content.text || content.text.replace(/<[^>]+>/g, '').trim() === '') && (
-          <div className="text-red-500 mt-1">Event details are required</div>
+          <div className="mt-1 text-red-500">Event details are required</div>
         )}
       </div>
-      <div className="flex space-x-4 mb-4">
-        <label className="cursor-pointer border px-4 py-2 rounded flex items-center">
+      <div className="flex mb-4 space-x-4">
+        <label className="flex items-center px-4 py-2 border rounded cursor-pointer">
           <FaImage className="mr-2" /> Add image
           <input
             type="file"
             accept="image/*"
             className="hidden"
+            disabled={isReadOnly}
             onChange={(e) => handleMediaUpload(e, "image")}
           />
         </label>
@@ -205,17 +211,17 @@ const handleMediaUpload = (event, type) => {
               <img
                 src={item.url}
                 alt="Uploaded"
-                className="w-full max-w-xs rounded-lg mt-2"
+                className="w-full max-w-xs mt-2 rounded-lg"
               />
             ) : (
               <video
                 src={item.url}
                 controls
-                className="w-full max-w-xs rounded-lg mt-2"
+                className="w-full max-w-xs mt-2 rounded-lg"
               />
             )}
             <FaTrashAlt
-              className="absolute top-2 right-2 bg-white p-1 rounded-full cursor-pointer"
+              className="absolute p-1 bg-white rounded-full cursor-pointer top-2 right-2"
               onClick={() => handleDeleteMedia(index)}
             />
           </div>
@@ -223,7 +229,7 @@ const handleMediaUpload = (event, type) => {
       </div>
       <div className="flex justify-end space-x-4">
         <button
-          className="px-4 py-2 bg-gray-300 text-gray-700 rounded"
+          className="px-4 py-2 text-gray-700 bg-gray-300 rounded"
           onClick={handleCancel}
         >
           Cancel
@@ -233,7 +239,7 @@ const handleMediaUpload = (event, type) => {
             isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
           }`}
           onClick={handleComplete}
-          disabled={!isFormValid()}
+          disabled={isReadOnly ||!isFormValid()}
         >
           Complete
         </button>
@@ -258,7 +264,7 @@ const handleMediaUpload = (event, type) => {
   );
 };
 
-const OverviewSection = ({ content, setContent }) => {
+const OverviewSection = ({ content, setContent ,isReadOnly}) => {
   const [showOverview, setShowOverview] = useState(false);
 
   return (
@@ -268,9 +274,9 @@ const OverviewSection = ({ content, setContent }) => {
           className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
           onClick={() => setShowOverview(true)}
         >
-          <h2 className="text-2xl font-semibold mb-2">Overview</h2>
+          <h2 className="mb-2 text-2xl font-semibold">Overview</h2>
           <div
-            className="text-gray-600 prose max-w-none"
+            className="prose text-gray-600 max-w-none"
             dangerouslySetInnerHTML={{ __html: content.text || "Click to add details" }}
           />
           <div className="mt-2">
@@ -280,13 +286,13 @@ const OverviewSection = ({ content, setContent }) => {
                   <img
                     src={item.url}
                     alt="Uploaded"
-                    className="w-full max-w-xs rounded-lg mt-2"
+                    className="w-full max-w-xs mt-2 rounded-lg"
                   />
                 ) : (
                   <video
                     src={item.url}
                     controls
-                    className="w-full max-w-xs rounded-lg mt-2"
+                    className="w-full max-w-xs mt-2 rounded-lg"
                   />
                 )}
               </div>
@@ -298,6 +304,7 @@ const OverviewSection = ({ content, setContent }) => {
           setShowOverview={setShowOverview}
           content={content}
           setContent={setContent}
+          isReadOnly={isReadOnly}
         />
       )}
     </div>
