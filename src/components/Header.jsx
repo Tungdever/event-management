@@ -273,7 +273,7 @@ const Header = () => {
       ],
     },
     { title: "Invoices", action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
-    { title: "View all tickets", action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: "Your tickets", action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
     { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
     { title: "Profile", action: handleViewProfile, roles: ["ATTENDEE"] },
     {

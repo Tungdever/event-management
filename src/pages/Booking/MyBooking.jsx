@@ -227,7 +227,7 @@ export default function MyInvoice() {
                   <div className="w-full md:w-40 mb-4 md:mb-0">
                     <img
                       className="w-full h-32 object-cover rounded-lg"
-                      src={order.event.eventImages || "https://via.placeholder.com/150"}
+                      src={order.event.eventImages[0] || "https://via.placeholder.com/150"}
                       alt={order.event.eventName}
                       onError={(e) => (e.target.src = "https://via.placeholder.com/150")}
                     />

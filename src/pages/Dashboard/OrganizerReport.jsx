@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
-import { Bar, Doughnut, Line } from 'react-chartjs-2';
+import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 
 // Register Chart.js components
@@ -14,17 +14,23 @@ const OrganizerDashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null });
+  const [selectedYear, setSelectedYear] = useState(""); // New state for selected year
   const eventsPerPage = 4;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
 
-  const fetchDashboardData = async () => {
+  // Generate list of years (e.g., from 2020 to current year)
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: currentYear - 2020 + 1 }, (_, i) => 2020 + i);
+
+  const fetchDashboardData = async (year = "") => {
     try {
       const response = await axios.get("http://localhost:8080/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        params: { year }, // Pass year as query parameter
       });
 
       const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -58,13 +64,19 @@ const OrganizerDashboard = () => {
       navigate("/login");
       return;
     }
-    fetchDashboardData();
-  }, [navigate, token]);
+    fetchDashboardData(selectedYear);
+  }, [navigate, token, selectedYear]);
+
+  // Handle year change
+  const handleYearChange = (e) => {
+    setSelectedYear(e.target.value);
+    setCurrentPage(1); // Reset pagination when year changes
+  };
 
   // Handle search input
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page when searching
+    setCurrentPage(1);
   };
 
   // Filter events based on search term
@@ -80,7 +92,7 @@ const OrganizerDashboard = () => {
     if (sortConfig.key === key && sortConfig.direction === 'asc') {
       direction = 'desc';
     } else if (sortConfig.key === key && sortConfig.direction === 'desc') {
-      direction = null; // Reset to default
+      direction = null;
     }
     setSortConfig({ key, direction });
   };
@@ -127,25 +139,6 @@ const OrganizerDashboard = () => {
     { title: 'Sponsors', value: data.totalSponsors, icon: 'fas fa-handshake', color: '#a7f3d0' },
   ];
 
-  // Bar Chart: Tickets Sold vs Revenue per Event
-  const ticketsVsRevenueData = {
-    labels: data.events?.map(event => event.eventName),
-    datasets: [
-      {
-        label: 'Tickets Sold',
-        data: data.events?.map(event => event.sold),
-        backgroundColor: '#d8b4fe',
-        yAxisID: 'y1',
-      },
-      {
-        label: 'Revenue',
-        data: data.events?.map(event => event.eventRevenue),
-        backgroundColor: '#fed7aa',
-        yAxisID: 'y2',
-      },
-    ],
-  };
-
   // Line Chart: Revenue Over Time
   const revenueOverTimeData = {
     labels: data.revenueOverTime?.labels || [],
@@ -167,6 +160,17 @@ const OrganizerDashboard = () => {
           <h1 className="font-bold text-lg text-[#1e1e2d] select-none">
             Organizer Dashboard - {data.organizer}
           </h1>
+          {/* Year Selection Dropdown */}
+          <select
+            value={selectedYear}
+            onChange={handleYearChange}
+            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+          >
+            <option value="">All Years</option>
+            {years.map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
         </div>
 
         {/* Overview Section */}
@@ -188,9 +192,8 @@ const OrganizerDashboard = () => {
         {/* Charts Section */}
         <h1 className="font-bold text-lg mb-4 select-none">Statistics</h1>
         <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
-          {/* Line Chart: Revenue Over Time */}
           <div className="bg-[#f9fafb] rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-4">Revenue Over Time</h2>
+            <h2 className="text-sm font-semibold mb-4">Revenue Over Time {selectedYear ? `(${selectedYear})` : ''}</h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <Line
                 data={revenueOverTimeData}
@@ -199,7 +202,7 @@ const OrganizerDashboard = () => {
                   maintainAspectRatio: false,
                   plugins: {
                     legend: { position: 'top' },
-                    title: { display: true, text: 'Revenue Over Time' },
+                    title: { display: true, text: `Revenue Over Time ${selectedYear ? `(${selectedYear})` : ''}` },
                   },
                   scales: {
                     y: { beginAtZero: true },
@@ -208,41 +211,6 @@ const OrganizerDashboard = () => {
               />
             </div>
           </div>
-
-          {/* Bar Chart: Tickets Sold vs Revenue */}
-          {/* <div className="bg-[#f9fafb] rounded-xl p-4 col-span-2">
-            <h2 className="text-sm font-semibold mb-4">Tickets Sold vs Revenue per Event</h2>
-            <div className="relative" style={{ maxHeight: '300px' }}>
-              <Bar
-                data={ticketsVsRevenueData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'top' },
-                    title: { display: true, text: 'Tickets Sold vs Revenue' },
-                  },
-                  scales: {
-                    y1: {
-                      type: 'linear',
-                      display: true,
-                      position: 'left',
-                      beginAtZero: true,
-                      title: { display: true, text: 'Tickets Sold' },
-                    },
-                    y2: {
-                      type: 'linear',
-                      display: true,
-                      position: 'right',
-                      beginAtZero: true,
-                      title: { display: true, text: 'Revenue ($)' },
-                      grid: { drawOnChartArea: false },
-                    },
-                  },
-                }}
-              />
-            </div>
-          </div> */}
         </div>
 
         {/* Event List */}
