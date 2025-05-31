@@ -49,7 +49,7 @@ import RoleBasedRouteGroup from "./pages/Auth/ProtectedRoute";
 import ChatBubble from "./pages/ChatBox/ChatBubble";
 import AdminRoleAssignment from "./pages/Dashboard/AssignRole";
 import AssignedEvents from "./pages/Dashboard/AssignedEvents";
-import CheckInTicket from "./pages/Ticket/CheckInTicket";
+
 import MyTeamEvents from "./pages/Dashboard/MyTeamEvents";
 import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 
@@ -96,7 +96,6 @@ const MainLayout = () => {
     location.pathname.startsWith("/event/") ||
     location.pathname.startsWith("/list-event-search-by") ||
     location.pathname.startsWith("/view-tickets") ||
-    location.pathname.startsWith("/check-in") ||
     location.pathname.startsWith("/profile-organizer");
 
   const isDashboardPage = [
@@ -166,14 +165,7 @@ const MainLayout = () => {
                   path="/list-event-search-by/:categoryName"
                   element={<SearchByType />}
                 />
-                <Route
-                  path="/check-in/:ticketCode"
-                  element={
-                    <RoleBasedRouteGroup allowedRoles={["ORGANIZER"]}>
-                      <CheckInTicket />
-                    </RoleBasedRouteGroup>
-                  }
-                />
+                
                 <Route
                   path="/checkout"
                   element={

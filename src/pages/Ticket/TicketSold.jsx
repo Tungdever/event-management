@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Pie } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Scanner } from '@yudiel/react-qr-scanner';
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -17,9 +18,11 @@ const TicketDashboard = () => {
   const { eventId } = useParams();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [isScanning, setIsScanning] = useState(false);
+  const [qrResults, setQrResults] = useState([]); // Lưu danh sách các mã QR đã quét
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); 
+    const token = localStorage.getItem("token");
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -46,6 +49,32 @@ const TicketDashboard = () => {
       .then((res) => setCheckInTickets(res.data))
       .catch((err) => toast.error("Failed to fetch check-in tickets"));
   }, [eventId]);
+
+  // Hàm xử lý check-in
+  const handleCheckIn = async (ticketCode) => {
+    const token = localStorage.getItem("token");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/ticket/${eventId}/check-in/${ticketCode}`,
+        config
+      );
+      toast.success(`Check-in successful for ${ticketCode}!`);
+      const updatedTickets = await axios.get(`http://localhost:8080/api/ticket/${eventId}/check-in-tickets`, config);
+      setCheckInTickets(updatedTickets.data);
+      const updatedStats = await axios.get(`http://localhost:8080/api/ticket/${eventId}/stats`, config);
+      setStats(updatedStats.data);
+      return true; // Trả về true để xác nhận check-in thành công
+    } catch (err) {
+      toast.error(`Check-in failed for ${ticketCode}: ${err.response?.data?.message || err.message}`);
+      return false; // Trả về false để xác nhận check-in thất bại
+    }
+  };
 
   // Handle sorting
   const handleSort = (key) => {
@@ -126,14 +155,57 @@ const TicketDashboard = () => {
     <div className="flex-1 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Ticket Dashboard</h1>
-        <input
-          type="text"
-          placeholder="Search tickets..."
-          className="p-2 border border-gray-300 rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="flex items-center gap-4">
+          <input
+            type="text"
+            placeholder="Search tickets..."
+            className="p-2 border border-gray-300 rounded-md"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button
+            onClick={() => setIsScanning(!isScanning)}
+            className="p-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
+          >
+            {isScanning ? 'Close QR Scanner' : 'Scan QR Code'}
+          </button>
+        </div>
       </div>
+
+      {/* QR Scanner */}
+      {isScanning && (
+        <div className="mt-6 bg-white p-4 rounded-md shadow border border-gray-200">
+          <h2 className="text-xl font-bold text-gray-900">Scan QR Code to Check-in</h2>
+          <div className="mt-4" style={{ width: '100%', maxWidth: '400px', margin: 'auto' }}>
+            <Scanner
+              onScan={(result) => {
+                if (result.length > 0) {
+                  const ticketCode = result[0].rawValue;
+                  // Thêm mã vào danh sách nếu chưa tồn tại
+                  if (!qrResults.includes(ticketCode)) {
+                    setQrResults([...qrResults, ticketCode]);
+                    handleCheckIn(ticketCode);
+                  }
+                }
+              }}
+              onError={(error) => {
+                toast.error("Error accessing camera: " + error.message);
+                setIsScanning(false);
+              }}
+            />
+            {qrResults.length > 0 && (
+              <div className="mt-2 text-center">
+                <p className="font-semibold">Scanned Tickets:</p>
+                <ul className="list-disc list-inside">
+                  {qrResults.map((code, index) => (
+                    <li className="list-none" key={index}>{code}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white rounded-md shadow border border-orange-600">
