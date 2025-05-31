@@ -93,13 +93,16 @@ const Timeline = ({ segments }) => {
   if (!segments?.length) {
     return (
       <div className="mx-4 my-4 text-sm text-gray-600 sm:my-6 sm:mx-8 lg:mx-16 sm:text-base">
-        Không có lịch trình nào
+        
       </div>
     );
   }
 
   return (
     <div className="my-4 sm:my-6 mx-4 sm:mx-8 lg:mx-16 sm:ml-12 lg:ml-[100px]">
+      <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
+                Schedule
+              </h2>
       {segments.map((segment, index) => (
         <div
           key={segment.segmentId}
@@ -151,7 +154,7 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
   return (
     <div className="max-w-3xl mt-10 mb-8 font-inter">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Được tổ chức bởi
+        Organized by
       </h2>
       <div className="relative p-6 bg-white border border-gray-200 sm:p-8 rounded-2xl">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -214,13 +217,13 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     <div className="flex items-center mb-2 text-sm text-gray-700 sm:text-base">
       <i className="mr-4 fa-solid fa-eye"></i>
       <span className="text-[14px] font-bold">
-        {eventData?.viewCount ? `${eventData.viewCount} lượt xem` : "0 lượt xem"}
+        {eventData?.viewCount ? `${eventData.viewCount} views` : "0 view"}
       </span>
     </div>
     <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
     <div className="pt-6 mt-6 mb-6">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Ngày và Giờ
+        Date and time
       </h2>
       <div className="flex items-center text-sm text-gray-700 sm:text-base">
         <i className="mr-4 fa-regular fa-calendar-days"></i>
@@ -232,7 +235,7 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     </div>
     <div className="mb-6">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Địa điểm
+        Location
       </h2>
       <div className="flex items-center text-sm text-gray-700 sm:text-base">
         <i className="mr-4 fa-solid fa-location-dot"></i>
@@ -250,7 +253,7 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
 const OverviewContent = ({ eventData }) => (
   <div className="flex-1 mb-4 sm:mb-6">
     <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-      Mô tả
+      Descriptions
     </h2>
     <div
       className="mb-3 text-sm prose text-justify text-gray-700 sm:text-base sm:mb-4 max-w-none"
@@ -261,7 +264,7 @@ const OverviewContent = ({ eventData }) => (
       }}
     />
     <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-      Tổng quan
+      Overview
     </h2>
     <div className="text-sm text-justify text-gray-700 sm:text-base">
       <p
@@ -300,8 +303,8 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       if (ticketType === "Free" && currentCount > 1) {
         Swal.fire({
           icon: "warning",
-          title: "Giới hạn vé",
-          text: "Bạn đã đạt giới hạn . Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
+          title: "    ",
+          text: " Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
           confirmButtonText: "Đăng nhập",
           showCancelButton: true,
           cancelButtonText: "Hủy",
@@ -315,8 +318,8 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       if (ticketType !== "Free" && currentCount > 10) {
         Swal.fire({
           icon: "warning",
-          title: "Giới hạn vé",
-          text: "Bạn đã đạt giới hạn . Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
+          title: "   ",
+          text: " Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
           confirmButtonText: "Đăng nhập",
           showCancelButton: true,
           cancelButtonText: "Hủy",
@@ -347,7 +350,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       if (result.statusCode !== 200) {
         Swal.fire({
           icon: "error",
-          title: "Giới hạn vé",
+          title: "   ",
           text: result.msg,
         });
         return false;
@@ -357,7 +360,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       if (ticketType === "Free" && currentCount > remainingFreeTickets) {
         Swal.fire({
           icon: "error",
-          title: "Giới hạn vé",
+          title: "   ",
           text: result.msg,
         });
         return false;
@@ -365,7 +368,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       if (ticketType !== "Free" && currentCount > remainingPaidTickets) {
         Swal.fire({
           icon: "error",
-          title: "Giới hạn vé",
+          title: "   ",
           text: result.msg,
         });
         return false;
@@ -385,9 +388,9 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
     <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
       <div className="p-4 mb-4 border-2 border-red-400 rounded-lg">
         {!tickets ? (
-          <p className="text-sm text-gray-700 font-inter">Đang tải vé...</p>
+          <p className="text-sm text-gray-700 font-inter">Loading tickets...</p>
         ) : tickets.length === 0 ? (
-          <p className="text-sm text-gray-700 font-inter">Không có vé nào</p>
+          <p className="text-sm text-gray-700 font-inter">No tickets available</p>
         ) : (
           <div className="space-y-4">
             {tickets.map((ticket) => (
@@ -404,7 +407,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
                       {ticket.price.toLocaleString()} VND
                       {ticket.ticketType === "Free" && (
                         <span className="ml-2 text-xs text-gray-500">
-                          (Tối đa 1 vé)
+                          (Max 1 ticket)
                         </span>
                       )}
                     </p>
@@ -457,7 +460,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
                   </div>
                 </div>
                 <div className="text-xs text-gray-600 font-inter">
-                  <p>Còn lại: {ticket.quantity - ticket.sold}</p>
+                  <p>Available: {ticket.quantity - ticket.sold}</p>
                 </div>
               </div>
             ))}
@@ -470,7 +473,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
         disabled={Object.keys(selectedTickets).length === 0}
         aria-label="Chọn vé"
       >
-        Chọn vé
+        Select Tickets
       </button>
     </div>
   );
@@ -485,7 +488,7 @@ const Sponsors = ({ sponsors }) => {
   return (
     <div className="my-4 sm:my-6">
       <h2 className="mb-3 text-lg font-bold sm:text-xl lg:text-xl sm:mb-4">
-        Nhà tài trợ
+        Sponsors
       </h2>
       <div className="flex flex-wrap gap-4">
         {sponsors.map((sponsor) => (
@@ -568,7 +571,7 @@ const EventDetail = () => {
   if (error) {
     return (
       <div className="p-4 text-sm text-center text-red-600 sm:p-8 sm:text-base">
-        Lỗi: {error}. Vui lòng thử lại sau.
+        Error: {error}. Please try again later.
       </div>
     );
   }
@@ -629,18 +632,14 @@ const EventDetail = () => {
             <div className="w-full ml-4 lg:flex-1 sm:ml-6 lg:ml-10">
               <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} />
               <OverviewContent eventData={eventData} />
-              <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-                Diễn giả
-              </h2>
+              
               <SliderSpeaker speakers={speakers} />
-              <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-                Lịch trình
-              </h2>
+              
               <Timeline segments={segmentData} />
               <Sponsors sponsors={sponsors} />
               <div>
                 <h2 className="mt-3 mb-3 text-lg font-bold sm:text-xl lg:text-2xl sm:mb-4 sm:mt-4">
-                  Thẻ
+                  Tags
                 </h2>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {eventData?.tags?.split("|").map((tag, index) => (
@@ -652,7 +651,7 @@ const EventDetail = () => {
                     </span>
                   )) || (
                     <span className="text-xs text-gray-600 sm:text-sm">
-                      Không có thẻ nào
+                      No tags available
                     </span>
                   )}
                 </div>

@@ -11,13 +11,14 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import DOMPurify from 'dompurify';
 
-const EventForm = ({ event, setEvent, onNext }) => {
+const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
   const [showOverview, setShowOverview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pasteError, setPasteError] = useState('');
 
   // Khởi tạo Tiptap editor
   const editor = useEditor({
+    editable: !isReadOnly,
     extensions: [
       StarterKit.configure({
         history: true,
@@ -80,6 +81,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật eventLocation
   const handleLocationUpdate = (updatedLocation) => {
+    if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       eventLocation: updatedLocation,
@@ -88,6 +90,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật segment
   const handleSegmentUpdate = (updatedSegments) => {
+    if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       segment: updatedSegments,
@@ -96,6 +99,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật overviewContent
   const handleContentUpdate = (newContent) => {
+    if (isReadOnly) return;
     setEvent((prev) => ({
       ...prev,
       overviewContent: newContent,
@@ -104,6 +108,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Hàm cập nhật uploadedImages
   const handleImagesUpdate = (newImages) => {
+    if (isReadOnly) return;
     setEvent((prev) => ({
       ...prev,
       uploadedImages: newImages,
@@ -112,6 +117,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Xử lý thay đổi cho các input khác (eventName)
   const handleChange = (e) => {
+    if (isReadOnly) return;
     const { name, value } = e.target;
     setEvent((prevData) => ({
       ...prevData,
@@ -121,6 +127,7 @@ const EventForm = ({ event, setEvent, onNext }) => {
 
   // Xử lý khi nhấn Complete
   const handleComplete = () => {
+    // if (isReadOnly) return;
     if (isFormValid()) {
       setShowOverview(false);
     }
@@ -142,11 +149,17 @@ const EventForm = ({ event, setEvent, onNext }) => {
   return loading ? (
     <Loader />
   ) : (
-    <div className="max-w-3xl mx-auto p-4">
+    <div className="max-w-3xl p-4 mx-auto">
+      {isReadOnly && (
+        <p className="mb-4 text-red-500">
+          Sự kiện đã hoàn tất, chỉ có thể xem, không thể chỉnh sửa.
+        </p>
+      )}
       {/* Image Upload Section */}
       <UploadContainer
         uploadedImages={event.uploadedImages || []}
         setUploadedImages={handleImagesUpdate}
+        isReadOnly={isReadOnly}
       />
 
       {/* Event Overview Section */}
@@ -155,11 +168,11 @@ const EventForm = ({ event, setEvent, onNext }) => {
           className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
           onClick={() => setShowOverview(true)}
         >
-          <h2 className="text-5xl font-semibold mb-2">
+          <h2 className="mb-2 text-5xl font-semibold">
             {event.eventName || "Untitled Event"}
           </h2>
           <div
-            className="prose max-w-none text-gray-600"
+            className="prose text-gray-600 max-w-none"
             dangerouslySetInnerHTML={{
               __html: event.eventDesc
                 ? DOMPurify.sanitize(event.eventDesc)
@@ -169,61 +182,73 @@ const EventForm = ({ event, setEvent, onNext }) => {
         </div>
       ) : (
         <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
-          <h1 className="text-2xl font-bold mb-6">Event Overview</h1>
+          <h1 className="mb-6 text-2xl font-bold">Event Overview</h1>
 
           <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2 flex ">Event title <p className="text-red-500 ml-2">*</p></h2>
+            <h2 className="flex mb-2 text-lg font-semibold ">Event title <p className="ml-2 text-red-500">*</p></h2>
             <label className="block">
               <input
                 type="text"
                 name="eventName"
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 p-2"
+                className="block w-full p-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                 value={event.eventName || ""}
                 onChange={handleChange}
+                disabled={isReadOnly}
               />
               {!event.eventName?.trim() && (
-                <p className="text-red-500 text-sm mt-1">Event title is required</p>
+                <p className="mt-1 text-sm text-red-500">Event title is required</p>
               )}
             </label>
           </div>
 
           <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-2 flex">Summary <p className="text-red-500 ml-2">*</p></h2>
+            <h2 className="flex mb-2 text-lg font-semibold">Summary <p className="ml-2 text-red-500">*</p></h2>
             <label className="block">
-              <div className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm">
+              <div className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm">
                 <div className="p-2 border-b border-gray-200 bg-gray-50 rounded-t-md">
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBold().run()}
-                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-none'}`}
+                    disabled={isReadOnly}
+                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-none'} 
+                    ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+        
                   >
                     Bold
                   </button>
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleItalic().run()}
-                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-none'}`}
+                    disabled={isReadOnly}
+                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-none'}
+                    ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Italic
                   </button>
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleUnderline().run()}
-                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-none'}`}
+                    disabled={isReadOnly}
+                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-none'}
+                    ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Underline
                   </button>
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleBulletList().run()}
-                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-none'}`}
+                    disabled={isReadOnly}
+                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-none'}
+                    ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Bullet List
                   </button>
                   <button
                     type="button"
                     onClick={() => editor.chain().focus().toggleLink({ href: prompt('Enter URL') }).run()}
-                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-none'}`}
+                    disabled={isReadOnly}
+                    className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-none'}
+                    ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Link
                   </button>
@@ -234,22 +259,22 @@ const EventForm = ({ event, setEvent, onNext }) => {
                 />
               </div>
               {(!event.eventDesc || event.eventDesc.replace(/<[^>]+>/g, '').trim() === '') && (
-                <p className="text-red-500 text-sm mt-1">Summary is required</p>
+                <p className="mt-1 text-sm text-red-500">Summary is required</p>
               )}
             </label>
-            <div className="text-right text-gray-600 mt-1">
+            <div className="mt-1 text-right text-gray-600">
               {getCharacterCount()} / 20000
             </div>
             {pasteError && (
-              <div className="text-red-500 mt-1">{pasteError}</div>
+              <div className="mt-1 text-red-500">{pasteError}</div>
             )}
           </div>
 
-          <div className="text-blue-500 flex items-center">
+          <div className="flex items-center text-blue-500">
             <button
               className={`mt-4 px-6 py-2 rounded-lg ${isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
               onClick={handleComplete}
-              disabled={!isFormValid()}
+              disabled={ !isFormValid()}
             >
               Complete
             </button>
@@ -260,26 +285,31 @@ const EventForm = ({ event, setEvent, onNext }) => {
       <DatetimeLocation
         locationData={event.eventLocation || {}}
         onLocationUpdate={handleLocationUpdate}
+        isReadOnly={isReadOnly}
       />
       <SectionEvent
         segmentData={event.segment}
         onSegmentUpdate={handleSegmentUpdate}
-        eventStart={event.eventLocation?.startTime} // Truyền startTime
-        eventEnd={event.eventLocation?.endTime}     // Truyền endTime
+        eventStart={event.eventLocation?.startTime} 
+        eventEnd={event.eventLocation?.endTime}
+        isReadOnly={isReadOnly}   
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}
         setContent={handleContentUpdate}
+        isReadOnly={isReadOnly}
       />
 
       {/* Save Button */}
       <div className="text-right">
-        <button
-          className="bg-orange-600 text-white px-6 py-2 rounded-lg"
-          onClick={onNext}
-        >
-          Save and continue
-        </button>
+      {!isReadOnly && (
+          <button
+            className="px-6 py-2 text-white bg-orange-600 rounded-lg"
+            onClick={onNext}
+          >
+            Save and continue
+          </button>
+        )}
       </div>
 
       {/* CSS tùy chỉnh cho ProseMirror */}

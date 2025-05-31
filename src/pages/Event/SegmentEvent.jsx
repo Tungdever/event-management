@@ -3,12 +3,13 @@ import { FaList, FaUser } from "react-icons/fa";
 import Swal from "sweetalert2";
 import ImageCropper from "../../components/ImageCropper";
 
-const ImageUploader = ({ onImageUpload }) => {
+const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageToCrop, setImageToCrop] = useState(null);
   const fileInputRef = useRef(null);
 
   const handleFileChange = (event) => {
+    if (isReadOnly) return;
     const file = event.target.files[0];
     if (file) {
       if (file.size > 10 * 1024 * 1024) {
@@ -43,6 +44,7 @@ const ImageUploader = ({ onImageUpload }) => {
   };
 
   const handleCropComplete = (croppedImage) => {
+    if (isReadOnly) return;
     if (!croppedImage) {
       Swal.fire({
         icon: "error",
@@ -57,10 +59,12 @@ const ImageUploader = ({ onImageUpload }) => {
   };
 
   const handleCropCancel = () => {
+    if (isReadOnly) return;
     setImageToCrop(null);
   };
 
   const handleIconClick = () => {
+    if (isReadOnly) return;
     fileInputRef.current.click();
   };
 
@@ -82,11 +86,11 @@ const ImageUploader = ({ onImageUpload }) => {
             <img
               src={selectedFile}
               alt="Uploaded Preview"
-              className="w-full h-full object-cover rounded-full"
+              className="object-cover w-full h-full rounded-full"
             />
           ) : (
             <div>
-              <i className="fa-solid fa-image text-gray-600 text-xl"></i>
+              <i className="text-xl text-gray-600 fa-solid fa-image"></i>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -117,64 +121,68 @@ const SegmentFormPopup = ({
   onSave,
   isEditing,
   loading,
+  isReadOnly
 }) => {
-  if (!isOpen) return null;
+  if (!isOpen || isReadOnly) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-8 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+        <h2 className="mb-6 text-2xl font-bold text-gray-800">
           {isEditing ? "Edit Segment" : "Add New Segment"}
         </h2>
         <div className="space-y-6">
           <div>
             <label
-              className="block text-gray-700 mb-2 font-medium"
+              className="block mb-2 font-medium text-gray-700"
               htmlFor="title"
             >
               Title<span className="text-red-500">*</span>
             </label>
             <input
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+              className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               type="text"
               id="segmentTitle"
               placeholder="Enter title"
               name="segmentTitle"
               value={newSegment.segmentTitle}
               onChange={handleChange}
+              disabled={isReadOnly}
             />
           </div>
           <div className="flex space-x-4">
             <div className="flex-1">
               <label
-                className="block text-gray-700 mb-2 font-medium"
+                className="block mb-2 font-medium text-gray-700"
                 htmlFor="start-time"
               >
                 Start Time<span className="text-red-500">*</span>
               </label>
               <input
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 type="time"
                 id="start-time"
                 name="startTime"
                 value={newSegment.startTime}
                 onChange={handleChange}
+                disabled={isReadOnly}
               />
             </div>
             <div className="flex-1">
               <label
-                className="block text-gray-700 mb-2 font-medium"
+                className="block mb-2 font-medium text-gray-700"
                 htmlFor="end-time"
               >
                 End Time<span className="text-red-500">*</span>
               </label>
               <input
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 type="time"
                 id="end-time"
                 name="endTime"
                 value={newSegment.endTime}
                 onChange={handleChange}
+                disabled={isReadOnly}
               />
             </div>
           </div>
@@ -182,49 +190,50 @@ const SegmentFormPopup = ({
           <div className="flex flex-col space-y-4">
             {!desc ? (
               <button
-                className="flex items-center text-blue-600 hover:text-blue-800 transition"
+                className="flex items-center text-blue-600 transition hover:text-blue-800"
                 onClick={() => setDesc(true)}
               >
                 <FaList className="mr-2" /> Add Description
               </button>
             ) : (
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <label className="block text-gray-700 mb-2 font-medium">
+                  <label className="block mb-2 font-medium text-gray-700">
                     Description
                   </label>
                   <textarea
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     rows="4"
                     name="segmentDesc"
                     value={newSegment.segmentDesc}
                     onChange={handleChange}
                     placeholder="Enter description..."
+                    disabled={isReadOnly}
                   />
-                  <div className="text-right text-gray-400 text-sm mt-1">
+                  <div className="mt-1 text-sm text-right text-gray-400">
                     {newSegment.segmentDesc.length} / 1000
                   </div>
                 </div>
                 <i
-                  className="fa-solid fa-xmark text-gray-500 hover:text-red-500 cursor-pointer mt-2"
+                  className="mt-2 text-gray-500 cursor-pointer fa-solid fa-xmark hover:text-red-500"
                   onClick={() => setDesc(false)}
                 ></i>
               </div>
             )}
             {!actor ? (
               <button
-                className="flex items-center text-blue-600 hover:text-blue-800 transition"
+                className="flex items-center text-blue-600 transition hover:text-blue-800"
                 onClick={() => setActor(true)}
               >
                 <FaUser className="mr-2" /> Add Speaker
               </button>
             ) : (
-              <div className="flex justify-between items-start">
+              <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <label className="block text-gray-700 mb-2 font-medium">
+                  <label className="block mb-2 font-medium text-gray-700">
                     Speaker Name <span className="text-red-500">*</span>
                   </label>
-                  <div className="flex space-x-4 items-center mb-4">
+                  <div className="flex items-center mb-4 space-x-4">
                     <input
                       className="w-[200px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                       type="text"
@@ -233,6 +242,7 @@ const SegmentFormPopup = ({
                       name="speakerName"
                       value={newSegment.speakerName}
                       onChange={handleChange}
+                      disabled={isReadOnly}
                     />
                     {newSegment.speakerImage ? (
                       <div className="relative">
@@ -242,33 +252,34 @@ const SegmentFormPopup = ({
                           className="w-[50px] h-[50px] rounded-full object-cover"
                         />
                         <button
-                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                          className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full"
                           onClick={() => handleImageUpload(null)}
                         >
                           ×
                         </button>
                       </div>
                     ) : (
-                      <ImageUploader onImageUpload={handleImageUpload} />
+                      <ImageUploader onImageUpload={handleImageUpload} isReadOnly={isReadOnly}/>
                     )}
                   </div>
-                  <label className="block text-gray-700 mb-2 font-medium">
+                  <label className="block mb-2 font-medium text-gray-700">
                     Speaker Description <span className="text-red-500">*</span>
                   </label>
                   <textarea
-                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
+                    className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     rows="4"
                     name="speakerDesc"
                     value={newSegment.speakerDesc}
                     onChange={handleChange}
+                    disabled={isReadOnly}
                     placeholder="Enter speaker description..."
                   />
-                  <div className="text-right text-gray-400 text-sm mt-1">
+                  <div className="mt-1 text-sm text-right text-gray-400">
                     {newSegment.speakerDesc.length} / 1000
                   </div>
                 </div>
                 <i
-                  className="fa-solid fa-xmark text-gray-500 hover:text-red-500 cursor-pointer mt-2"
+                  className="mt-2 text-gray-500 cursor-pointer fa-solid fa-xmark hover:text-red-500"
                   onClick={() => setActor(false)}
                 ></i>
               </div>
@@ -277,14 +288,14 @@ const SegmentFormPopup = ({
         </div>
         <div className="flex justify-end mt-6 space-x-3">
           <button
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+            className="px-4 py-2 text-gray-700 transition bg-gray-200 rounded-lg hover:bg-gray-300 disabled:opacity-50"
             onClick={onClose}
             disabled={loading}
           >
             Cancel
           </button>
           <button
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+            className="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
             onClick={onSave}
             disabled={loading}
           >
@@ -306,6 +317,7 @@ const SectionEvent = ({
   onSegmentUpdate,
   eventStart,
   eventEnd,
+  isReadOnly
 }) => {
   const [segments, setSegments] = useState(segmentData || []);
   const [newSegment, setNewSegment] = useState({
@@ -392,6 +404,7 @@ const SectionEvent = ({
 
   // Handle input changes
   const handleChange = (e) => {
+    if (isReadOnly) return;
     const { name, value } = e.target;
     setNewSegment((prevData) => ({
       ...prevData,
@@ -400,6 +413,7 @@ const SectionEvent = ({
   };
 
   const handleImageUpload = (data) => {
+    if (isReadOnly) return;
     setNewSegment((prevData) => ({
       ...prevData,
       speakerImage: data ? data.url : "",
@@ -409,6 +423,7 @@ const SectionEvent = ({
 
   // Handle adding a new segment
   const handleAddSlot = () => {
+    if (isReadOnly) return;
     if (
       !newSegment.segmentTitle ||
       !newSegment.startTime ||
@@ -459,6 +474,7 @@ const SectionEvent = ({
 
   // Handle editing an existing segment
   const handleEditSegment = (index) => {
+    if (isReadOnly) return;
     const segment = segments[index];
     setNewSegment({
       eventId: eventId || "",
@@ -480,6 +496,7 @@ const SectionEvent = ({
 
   // Handle saving the edited segment
   const handleSaveEdit = () => {
+    if (isReadOnly) return;
     if (
       !newSegment.segmentTitle ||
       !newSegment.startTime ||
@@ -534,6 +551,7 @@ const SectionEvent = ({
 
   // Reset the form after adding or editing
   const resetForm = () => {
+    if (isReadOnly) return;
     setNewSegment({
       eventId: eventId || "",
       segmentId: "",
@@ -555,6 +573,7 @@ const SectionEvent = ({
 
   // Handle deleting a segment
   const handleDeleteSegment = async (index) => {
+    if (isReadOnly) return;
     const segmentToDelete = segments[index];
     
     // Show confirmation dialog
@@ -623,25 +642,27 @@ const SectionEvent = ({
 
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4 shadow">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold text-gray-800">Segments</h1>
       </div>
-      <p className="text-gray-600 mb-6">
+      <p className="mb-6 text-gray-600">
         Add an itinerary, schedule, or lineup to your event. You can include a
         time, a description of what will happen, and who will host or perform
         during the event.
       </p>
       <div className="flex items-center mb-4">
-        <button className="text-blue-600 border-b-2 border-blue-600 pb-1 mr-4 font-medium">
+        <button className="pb-1 mr-4 font-medium text-blue-600 border-b-2 border-blue-600">
           Segments
         </button>
-        <button
-          className="text-gray-500 hover:text-blue-600 pb-1 transition"
-          onClick={() => setIsAdding(true)}
-          disabled={loading}
-        >
-          + Add New Segment
-        </button>
+        {!isReadOnly && (
+            <button
+              className="pb-1 text-gray-500 transition hover:text-blue-600"
+              onClick={() => setIsAdding(true)}
+              disabled={loading || isReadOnly}
+            >
+              + Add New Segment
+            </button>
+          )}
       </div>
 
       {/* Segment list */}
@@ -649,32 +670,34 @@ const SectionEvent = ({
         segments.map((segment, index) => (
           <div
             key={index}
-            className="bg-white p-3 sm:p-4 rounded-xl mb-4 shadow-md hover:shadow-lg transition border border-gray-200"
+            className="p-3 mb-4 transition bg-white border border-gray-200 shadow-md sm:p-4 rounded-xl hover:shadow-lg"
           >
-            <div className="border-l-4 border-blue-400 pl-3 space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-blue-500 font-medium text-sm sm:text-base">
+            <div className="pl-3 space-y-2 border-l-4 border-blue-400">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-blue-500 sm:text-base">
                   {segment.startTime} - {segment.endTime}
                 </span>
-                <div className="flex space-x-1">
-                  <button
-                    className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-blue-600 transition-colors"
-                    onClick={() => handleEditSegment(index)}
-                  >
-                    <i className="fa-solid fa-pencil"></i>
-                  </button>
-                  <button
-                    className="text-gray-500 text-base p-2 rounded-full hover:bg-gray-100 hover:text-red-600 transition-colors"
-                    onClick={() => handleDeleteSegment(index)}
-                  >
-                    <i className="fa-solid fa-trash"></i>
-                  </button>
-                </div>
+                {!isReadOnly && (
+                    <div className="flex space-x-1">
+                      <button
+                        className="p-2 text-base text-gray-500 transition-colors rounded-full hover:bg-gray-100 hover:text-blue-600"
+                        onClick={() => handleEditSegment(index)}
+                      >
+                        <i className="fa-solid fa-pencil"></i>
+                      </button>
+                      <button
+                        className="p-2 text-base text-gray-500 transition-colors rounded-full hover:bg-gray-100 hover:text-red-600"
+                        onClick={() => handleDeleteSegment(index)}
+                      >
+                        <i className="fa-solid fa-trash"></i>
+                      </button>
+                    </div>
+                  )}
               </div>
-              <span className="font-semibold text-gray-800 text-base sm:text-lg block py-1">
+              <span className="block py-1 text-base font-semibold text-gray-800 sm:text-lg">
                 {segment.segmentTitle}
               </span>
-              <p className="text-gray-700 text-xs sm:text-sm border-t border-gray-200 pt-1">
+              <p className="pt-1 text-xs text-gray-700 border-t border-gray-200 sm:text-sm">
                 {segment.segmentDesc}
               </p>
               {segment.speaker && (
@@ -683,14 +706,14 @@ const SectionEvent = ({
                     <img
                       src={segment.speaker.speakerImage}
                       alt={segment.speaker.speakerName}
-                      className="w-10 h-10 rounded-full object-cover ring-1 ring-gray-200"
+                      className="object-cover w-10 h-10 rounded-full ring-1 ring-gray-200"
                       onError={(e) => {
                         e.target.src =
                           "https://via.placeholder.com/50?text=No+Image";
                       }}
                     />
                   )}
-                  <p className="text-gray-700 text-xs sm:text-sm">
+                  <p className="text-xs text-gray-700 sm:text-sm">
                     <span className="font-medium">Speaker:</span>{" "}
                     {segment.speaker.speakerName} -{" "}
                     {segment.speaker.speakerDesc}
@@ -715,6 +738,7 @@ const SectionEvent = ({
         onSave={isEditing ? handleSaveEdit : handleAddSlot}
         isEditing={isEditing}
         loading={loading}
+        isReadOnly={isReadOnly}
       />
     </div>
   );

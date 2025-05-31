@@ -28,6 +28,7 @@ const CRUDEvent = () => {
       venueName: "",
       address: "",
       city: "",
+      meetingUrl: "", // Thêm trường meetingUrl
     },
     tags: [],
     eventVisibility: "public",
@@ -74,7 +75,6 @@ const CRUDEvent = () => {
           continue;
         }
 
-        // Kiểm tra định dạng và dung lượng
         if (!blob.type.match(/image\/(jpeg|png)/)) {
           Swal.fire({
             icon: "warning",
@@ -123,7 +123,6 @@ const CRUDEvent = () => {
   const handlePublish = async () => {
     setIsLoading(true);
     try {
-      // Xử lý uploadedImages
       const existingImageIds = event.uploadedImages
         .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages
@@ -131,7 +130,6 @@ const CRUDEvent = () => {
       const newImageIds = await uploadFilesToCloudinary(newImages);
       const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
-      // Xử lý overviewContent.media
       const existingMediaIds = event.overviewContent.media
         .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
         .map((item) => item.url) || [];
@@ -141,7 +139,6 @@ const CRUDEvent = () => {
       const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
       const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
-      // Xử lý segment.speaker.speakerImage
       const segmentData = [];
       if (event.segment?.length > 0) {
         for (const segment of event.segment) {
@@ -182,6 +179,7 @@ const CRUDEvent = () => {
           venueSlug: event.eventLocation.venueSlug || "",
           address: event.eventLocation.address || "",
           city: event.eventLocation.city || "",
+          meetingUrl: event.eventLocation.meetingUrl || "", // Thêm meetingUrl
         },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
@@ -313,6 +311,8 @@ const CRUDEvent = () => {
       requiredFields.venueName = event.eventLocation.venueName;
       requiredFields.address = event.eventLocation.address;
       requiredFields.city = event.eventLocation.city;
+    } else if (event.eventLocation.locationType === "online") {
+      requiredFields.meetingUrl = event.eventLocation.meetingUrl; // Yêu cầu meetingUrl cho online
     }
 
     for (const [key, value] of Object.entries(requiredFields)) {
@@ -412,6 +412,18 @@ const CRUDEvent = () => {
                     : "Chưa xác định ngày và giờ"}
                 </span>
               </div>
+              {event.eventLocation.locationType === "online" && event.eventLocation.meetingUrl && (
+                <div className="mt-2">
+                  <a
+                    href={event.eventLocation.meetingUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-500 underline"
+                  >
+                    Link phòng họp: {event.eventLocation.meetingUrl}
+                  </a>
+                </div>
+              )}
             </div>
             <h3 className="mb-2 text-lg font-semibold">Các bước</h3>
             <div className="space-y-2">

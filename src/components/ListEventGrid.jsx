@@ -14,16 +14,10 @@ const ListEventGrid = ({ events: propEvents }) => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
-  const token = localStorage.getItem("token");
 
   const fetchAllEvent = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/search/upcoming", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch("http://localhost:8080/api/events/search/upcoming");
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }
@@ -37,17 +31,20 @@ const ListEventGrid = ({ events: propEvents }) => {
     }
   };
 
-  useEffect(() => {
-    const initializeEvents = async () => {
-      if (propEvents && propEvents.length > 0) {
-        setLocalEvents(propEvents);
-        setLoading(false);
-      } else {
-        await fetchAllEvent();
-      }
-    };
-    initializeEvents();
-  }, [propEvents]);
+useEffect(() => {
+  const initializeEvents = async () => {
+    console.log("propEvents:", propEvents); // Kiểm tra giá trị propEvents
+    if (propEvents && propEvents.length > 0) {
+      console.log("Using propEvents");
+      setLocalEvents(propEvents);
+      setLoading(false);
+    } else {
+      console.log("Calling fetchAllEvent");
+      await fetchAllEvent();
+    }
+  };
+  initializeEvents();
+}, []);
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -85,7 +82,7 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   if (loading) {
     return (
-      <div className="text-center p-6">
+      <div className="p-6 text-center">
         <Loader />
       </div>
     );
@@ -93,7 +90,7 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   if (error) {
     return (
-      <div className="text-center p-6 text-red-600 text-sm sm:text-base font-medium">
+      <div className="p-6 text-sm font-medium text-center text-red-600 sm:text-base">
         Error: {error}. Please try again later.
       </div>
     );
@@ -101,8 +98,8 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   if (!events || events.length === 0) {
     return (
-      <div className="text-center p-6">
-        <p className="text-gray-600 text-sm sm:text-base font-medium">
+      <div className="p-6 text-center">
+        <p className="text-sm font-medium text-gray-600 sm:text-base">
           No events available
         </p>
       </div>
@@ -112,32 +109,32 @@ const ListEventGrid = ({ events: propEvents }) => {
   return (
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
-      <div className="flex justify-between items-center mb-6 sm:mb-8">
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 font-montserrat">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
+        <h2 className="text-2xl font-bold text-gray-800 sm:text-3xl lg:text-4xl font-montserrat">
           Upcoming Events
         </h2>
         <button
           onClick={handlePageAll}
-          className="flex items-center gap-2 text-sm sm:text-base text-gray-600 hover:text-red-600 transition duration-200"
+          className="flex items-center gap-2 text-sm text-gray-600 transition duration-200 sm:text-base hover:text-red-600"
         >
           <span>View all events</span>
-          <i className="fa-solid fa-circle-chevron-right text-sm sm:text-base"></i>
+          <i className="text-sm fa-solid fa-circle-chevron-right sm:text-base"></i>
         </button>
       </div>
 
       {/* Event Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {events.map((event) => (
           <div
             key={event.eventId}
             onClick={() => handleEventClick(event.eventId)}
-            className="group bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden"
+            className="overflow-hidden transition-all duration-300 bg-white border border-gray-200 shadow-sm cursor-pointer group rounded-xl hover:shadow-xl hover:-translate-y-1"
           >
             {/* Event Image */}
-            <div className="relative w-full h-40 sm:h-48 bg-gray-100 overflow-hidden">
+            <div className="relative w-full h-40 overflow-hidden bg-gray-100 sm:h-48">
               {event.eventImages && event.eventImages.length > 0 ? (
                 <div
-                  className="w-full h-full bg-cover bg-center group-hover:scale-102 transition-transform duration-300"
+                  className="w-full h-full transition-transform duration-300 bg-center bg-cover group-hover:scale-102"
                   style={{ backgroundImage: `url(${event.eventImages[0]})` }}
                 >
                   {user && <FavoriteButton eventId={event.eventId} />}
@@ -146,18 +143,18 @@ const ListEventGrid = ({ events: propEvents }) => {
                 <img
                   src="https://via.placeholder.com/300x150?text=No+Image"
                   alt="Default Event"
-                  className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                  className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-102"
                 />
               )}
             </div>
 
             {/* Event Details */}
             <div className="p-4 sm:p-5">
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-900 line-clamp-1">
+              <h3 className="text-lg font-semibold text-gray-900 sm:text-xl line-clamp-1">
                 {truncateText(event.eventName, 30) || "Unnamed Event"}
               </h3>
               <p
-                className="text-gray-600 text-sm mt-2 line-clamp-2"
+                className="mt-2 text-sm text-gray-600 line-clamp-2"
                 dangerouslySetInnerHTML={{
                   __html: event?.eventDesc
                     ? sanitizeAndTruncate(event.eventDesc, 60)
@@ -165,11 +162,11 @@ const ListEventGrid = ({ events: propEvents }) => {
                 }}
               />
               <div className="mt-3 space-y-1 text-sm text-gray-700">
-              <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+              <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
                               <CiCalendarDate className="inline-block mr-1" />{" "}
                               {new Date(event.eventStart).toLocaleDateString("vi-VN")}
                             </p>
-                            <p className="text-gray-700 text-xs sm:text-sm">
+                            <p className="text-xs text-gray-700 sm:text-sm">
                               <CiTimer className="inline-block mr-1" />{" "}
                               {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
                                 hour: "2-digit",
@@ -181,11 +178,11 @@ const ListEventGrid = ({ events: propEvents }) => {
                                 minute: "2-digit",
                               })}
                             </p>
-                            <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+                            <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
                               <CiLocationOn className="inline-block mr-1" />{" "}
                               {getLocation(event.eventLocation)}
                             </p>
-                            <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                            <p className="mt-1 text-xs text-gray-700 sm:text-sm">
                               <FaEye className="inline-block mr-1" />{" "}
                               {event?.viewCount ? `${event.viewCount}` : "0"}
                             </p>
@@ -195,18 +192,18 @@ const ListEventGrid = ({ events: propEvents }) => {
             </div>
               
             {/* Tags */}
-            <div className="px-4 pb-4 flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 px-4 pb-4">
               {event.tags && typeof event.tags === "string" ? (
                 event.tags.split("|").map((tag, index) => (
                   <span
                     key={index}
-                    className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full"
+                    className="px-2 py-1 text-xs text-red-700 bg-red-100 rounded-full"
                   >
                     {truncateText(tag.trim(), 12)}
                   </span>
                 ))
               ) : (
-                <span className="text-gray-600 text-xs">No tags</span>
+                <span className="text-xs text-gray-600">No tags</span>
               )}
             </div>
           </div>

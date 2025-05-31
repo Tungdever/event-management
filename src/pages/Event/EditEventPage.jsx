@@ -12,6 +12,7 @@ const EditEvent = () => {
   const eventId = location.state?.eventId || undefined;
   const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
+ 
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -46,6 +47,8 @@ const EditEvent = () => {
     }
   }, [eventId]);
 
+  const isReadOnly = event.eventStatus === "Complete";
+
   const fetchEventData = async (id) => {
     try {
       setIsLoading(true);
@@ -68,7 +71,7 @@ const EditEvent = () => {
       const transformedEvent = {
         eventName: data.event.eventName || "",
         eventDesc: data.event.eventDesc || "",
-        eventType: String(data.event.eventTypeId || ""), // Sử dụng eventTypeId và chuyển thành chuỗi
+        eventType: String(data.event.eventTypeId || ""),
         eventHost: data.event.eventHost || "",
         eventStatus: data.event.eventStatus || "",
         eventStart: data.event.eventStart || "",
@@ -101,6 +104,7 @@ const EditEvent = () => {
           quantity: ticket.quantity || 0,
           startTime: ticket.startTime || "",
           endTime: ticket.endTime || "",
+          sold: ticket.sold || 0, // Thêm thuộc tính sold
         })) || [],
         segment: data.segment?.map((seg) => ({
           segmentId: seg.segmentId || null,
@@ -119,7 +123,7 @@ const EditEvent = () => {
         })) || [],
       };
 
-      console.log("Fetched event data:", transformedEvent); // Ghi log để debug
+      console.log("Fetched event data:", transformedEvent);
       setEvent(transformedEvent);
     } catch (error) {
       console.error("Error fetching event:", error);
@@ -158,8 +162,8 @@ const EditEvent = () => {
         } else {
           Swal.fire({
             icon: "warning",
-            title: "Warning",
-            text: "Invalid file type, skipping!",
+            title: "Cảnh báo",
+            text: "Loại file không hợp lệ, bỏ qua!",
           });
           continue;
         }
@@ -167,8 +171,8 @@ const EditEvent = () => {
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: "Warning",
-            text: "Image size exceeds 10MB, skipping!",
+            title: "Cảnh báo",
+            text: "Kích thước ảnh vượt quá 10MB, bỏ qua!",
           });
           continue;
         }
@@ -183,18 +187,18 @@ const EditEvent = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Upload failed: ${errorText}`);
+          throw new Error(`Tải lên thất bại: ${errorText}`);
         }
 
         const publicId = await response.text();
-        if (!publicId) throw new Error("No public_id received");
+        if (!publicId) throw new Error("Không nhận được public_id");
         uploadedIds.push(publicId);
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error("Lỗi tải lên:", error);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: `Failed to upload file: ${error.message}`,
+          title: "Lỗi",
+          text: `Không thể tải lên file: ${error.message}`,
         });
       }
     }
@@ -203,6 +207,14 @@ const EditEvent = () => {
   };
 
   const handleEdit = async (event) => {
+    if (isReadOnly) {
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
       const isFile = (item) =>
@@ -235,6 +247,7 @@ const EditEvent = () => {
             quantity: ticket.quantity || 0,
             startTime: ticket.startTime || "",
             endTime: ticket.endTime || "",
+            sold: ticket.sold || 0, // Thêm sold vào payload
           }))
         : [];
 
@@ -277,7 +290,7 @@ const EditEvent = () => {
           eventId: eventId || null,
           eventName: event.eventName || "",
           eventDesc: event.eventDesc || "",
-          eventTypeId: event.eventType || "", // Sử dụng eventTypeId
+          eventTypeId: event.eventType || "",
           eventHost: event.eventHost || "OFFICE",
           eventStatus: event.eventStatus || "public",
           eventStart:
@@ -311,7 +324,7 @@ const EditEvent = () => {
         segment: segmentData,
       };
 
-      console.log("Submitting payload:", payload); // Ghi log payload
+      console.log("Submitting payload:", payload);
 
       const response = await fetch("http://localhost:8080/api/events/edit", {
         headers: {
@@ -345,6 +358,7 @@ const EditEvent = () => {
   };
 
   const handleTicketsUpdate = (updatedTickets) => {
+    if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets,
@@ -359,6 +373,7 @@ const EditEvent = () => {
             event={event}
             setEvent={setEvent}
             onNext={() => setSelectedStep("tickets")}
+            isReadOnly={isReadOnly}
           />
         );
       case "tickets":
@@ -367,6 +382,9 @@ const EditEvent = () => {
             ticketData={event.tickets}
             onTicketsUpdate={handleTicketsUpdate}
             onNext={() => setSelectedStep("publish")}
+            isReadOnly={isReadOnly}
+            eventStart={event.eventStart} // Truyền eventStart
+            eventEnd={event.eventEnd}     // Truyền eventEnd
           />
         );
       case "publish":
@@ -375,6 +393,7 @@ const EditEvent = () => {
             event={event}
             setEvent={setEvent}
             onPublish={() => handleEdit(event)}
+            isReadOnly={isReadOnly}
           />
         );
       default:
@@ -387,30 +406,27 @@ const EditEvent = () => {
       {isLoading ? (
         <Loader />
       ) : (
-        <div className="bg-gray-50 flex flex-col lg:flex-row justify-center items-start lg:items-stretch p-6 space-y-4 lg:space-y-0 lg:space-x-2 min-h-screen">
-          <aside className="bg-white w-full lg:w-1/4 p-4 shadow-sm">
-            <div className="bg-white p-4 rounded-lg shadow-md mb-4">
+        <div className="flex flex-col items-start justify-center min-h-screen p-6 space-y-4 bg-gray-50 lg:flex-row lg:items-stretch lg:space-y-0 lg:space-x-2">
+          <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
+            <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
                 {event.eventName || "Untitled Event"}
               </h2>
-              <div className="flex items-center text-gray-500 mt-2">
-                <i className="far fa-calendar-alt mr-2"></i>
+              <div className="flex items-center mt-2 text-gray-500">
+                <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
                     : "Date and time not set"}
                 </span>
               </div>
-              {/* <div className="flex items-center mt-4">
-                <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md mr-2">
-                  Draft <i className="fas fa-caret-down ml-1"></i>
-                </button>
-                <a href="#" className="text-blue-600">
-                  Preview <i className="fas fa-external-link-alt"></i>
-                </a>
-              </div> */}
+              {isReadOnly && (
+                <p className="mt-2 text-red-500">
+                  Sự kiện đã hoàn tất, chỉ có thể xem.
+                </p>
+              )}
             </div>
-            <h3 className="text-lg font-semibold mb-2">Steps</h3>
+            <h3 className="mb-2 text-lg font-semibold">Steps</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -434,7 +450,7 @@ const EditEvent = () => {
               ))}
             </div>
           </aside>
-          <div className="px-2 w-full lg:w-3/4">{renderStepComponent()}</div>
+          <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
     </>
