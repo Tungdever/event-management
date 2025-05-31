@@ -64,47 +64,47 @@ const CategoriesGrid = ({ categories }) => {
     }
   };
 
-  return (
-    <div className="py-4 my-8 sm:my-10 lg:my-12">
-      <Swiper
-        modules={[Autoplay, Navigation]}
-        spaceBetween={16}
-        slidesPerView={2}
-        autoplay={{
-          delay: 3000,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: true,
-        }}
-        navigation
-        loop={categories.length > 8} // Enable loop only if there are many categories
-        breakpoints={{
-          640: { slidesPerView: 4, spaceBetween: 20 },
-          1024: { slidesPerView: 8, spaceBetween: 24 },
-        }}
-        className="w-full"
-      >
-        {categories.map((category, index) => (
-          <SwiperSlide key={index}>
-            <div
-              className="flex flex-col items-center cursor-pointer group"
-              onClick={() => handleSearchByCategory(category.label)}
-            >
-              <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[#74CEF7] transition-all duration-300">
-                {category.iconType === 'font-awesome' ? (
-                  <i className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]`}></i>
-                ) : (
-                  category.icon
-                )}
-              </div>
-              <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base text-center">
-                {category.label}
-              </p>
+return (
+  <div className="py-4 my-8 sm:my-10 lg:my-12">
+    <Swiper
+      modules={[Autoplay, Navigation]}
+      spaceBetween={16}
+      slidesPerView={2}
+      autoplay={{
+        delay: 3000,
+        disableOnInteraction: false,
+        pauseOnMouseEnter: true,
+      }}
+      navigation
+      loop={categories.length > 8}
+      breakpoints={{
+        640: { slidesPerView: 4, spaceBetween: 20 },
+        1024: { slidesPerView: 8, spaceBetween: 24 },
+      }}
+      className="w-full"
+    >
+      {categories.map((category, index) => (
+        <SwiperSlide key={index}>
+          <div
+            className="flex flex-col items-center cursor-pointer group"
+            onClick={() => handleSearchByCategory(category.label)}
+          >
+            <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-cyan-400 transition-all duration-300">
+              {category.iconType === 'font-awesome' ? (
+                <i className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-blue-600`}></i>
+              ) : (
+                category.icon
+              )}
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
-  );
+            <p className="mt-1 text-xs text-center text-gray-600 sm:mt-2 group-hover:text-blue-600 sm:text-sm lg:text-base">
+              {category.label}
+            </p>
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  </div>
+);
 };
 
 const SliderEvent = () => {

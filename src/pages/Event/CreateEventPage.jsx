@@ -402,14 +402,14 @@ const CRUDEvent = () => {
           <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
             <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "Sự kiện chưa có tiêu đề"}
+                {event.eventName || "The event has no title"}
               </h2>
               <div className="flex items-center mt-2 text-gray-500">
                 <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Chưa xác định ngày và giờ"}
+                    : "Not yet determined date and time"}
                 </span>
               </div>
               {event.eventLocation.locationType === "online" && event.eventLocation.meetingUrl && (
@@ -441,9 +441,9 @@ const CRUDEvent = () => {
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
                   <span>
-                    {step === "build" && "Tạo sự kiện"}
-                    {step === "tickets" && "Thêm vé"}
-                    {step === "publish" && "Xuất bản"}
+                    {step === "build" && "Create event"}
+                    {step === "tickets" && "Add tickets"}
+                    {step === "publish" && "Publish"}
                   </span>
                 </label>
               ))}
