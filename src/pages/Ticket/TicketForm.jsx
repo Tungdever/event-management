@@ -157,7 +157,6 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
                   name="price"
                   value={newTicket.price}
                   onChange={handleChange}
-                  disabled={isReadOnly || newTicket.sold > 0}
                   min="0.01"
                   step="0.01"
                 />
