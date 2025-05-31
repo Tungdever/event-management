@@ -14,12 +14,6 @@ const createMenuItems = (eventId) => [
     roles: ["ORGANIZER", ]
   },
   {
-    path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`,
-    displayName: "Speakers",
-    icon: <FaUsers />,
-    roles: ["ORGANIZER", "EVENT ASSISTANT",]
-  },
-  {
     path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
     displayName: "Sponsors",
     icon: <FaUsers />,
