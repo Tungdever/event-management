@@ -211,7 +211,7 @@ const EditEvent = () => {
       Swal.fire({
         icon: "info",
         title: "Thông báo",
-        text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
+        text: "The event has been completed, can only be viewed, cannot be edited.",
       });
       return;
     }
@@ -422,7 +422,7 @@ const EditEvent = () => {
               </div>
               {isReadOnly && (
                 <p className="mt-2 text-red-500">
-                  Sự kiện đã hoàn tất, chỉ có thể xem.
+                  The event has been completed, can only be viewed.
                 </p>
               )}
             </div>

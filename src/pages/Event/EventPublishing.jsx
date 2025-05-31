@@ -239,7 +239,7 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
 
       {isReadOnly && (
         <p className="mb-4 text-red-500">
-          Sự kiện đã hoàn tất, chỉ có thể xem, không thể chỉnh sửa.
+          The event has been completed, can only be viewed, cannot be edited.
         </p>
       )}
 

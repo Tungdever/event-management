@@ -21,7 +21,7 @@ const defaultMenuItems = [
     icon: <i className="fa-solid fa-chart-simple"></i>,
     submenu: [
       { title: "Assign role", component: "AssignRole", roles: ["ORGANIZER"] },
-      { title: "Assigned Events", component: "AssignedEvents", roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "Assigned Events", component: "AssignedEvents", roles: ["EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
     ],
   },
   {
