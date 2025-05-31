@@ -154,7 +154,7 @@ const DashboardPage = () => {
     { title: 'New Organizers This Month', value: data.newOrganizersThisMonth ?? 0, icon: 'fas fa-user-plus', color: '#a7f3d0', change: data.organizerChange },
     { title: 'Booking Conversion Rate', value: `${data.bookingConversionRate ?? 0}%`, icon: 'fas fa-check-circle', color: '#22c55e', change: data.bookingChange },
     { title: 'Top Event Category', value: data.topEventCategory ?? 'N/A', icon: 'fas fa-chart-line', color: '#3b82f6', change: '' },
-    { title: 'User Engagement Score', value: data.userEngagementScore ?? 0, icon: 'fas fa-users', color: '#9ca3af', change: '' },
+    { title: 'Average Event Attendance Rate', value: `${data.averageAttendanceRate > 0 ? data.averageAttendanceRate?.toFixed(2) : 0}%`, icon: 'fas fa-users', color: '#9ca3af', change: '' },
   ];
   console.log("Stats: ", stats);
   const eventTypeCount = data.events?.reduce((acc, event) => {
