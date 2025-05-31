@@ -14,20 +14,8 @@ const FilterSidebar = ({
   setSelectedEventStart,
   selectedTicketType,
   setSelectedTicketType,
+  eventCategories, // Nhận eventCategories từ props
 }) => {
-  const eventCategories = [
-    { id: "all-types", label: "All types" },
-    { id: "Conference", label: "Conference" },
-    { id: "Food & Drink", label: "Food & Drink" },
-    { id: "Business", label: "Business" },
-    { id: "Hobbies", label: "Hobbies" },
-    { id: "Dating", label: "Dating" },
-    { id: "Holidays", label: "Holidays" },
-    { id: "Performing", label: "Performing" },
-    { id: "Nightlife", label: "Nightlife" },
-    { id: "Music", label: "Music" },
-  ];
-
   const eventLocations = [
     { id: "all-locations", label: "All location" },
     { id: "ho-chi-minh", label: "TP. Hồ Chí Minh" },
@@ -47,6 +35,7 @@ const FilterSidebar = ({
     { id: "this-week", label: "This week" },
     { id: "this-month", label: "This month" },
   ];
+
   const ticketTypes = [
     { id: "all-types", label: "All types" },
     { id: "Free", label: "Free" },
@@ -54,44 +43,44 @@ const FilterSidebar = ({
   ];
 
   return (
-    //overflow-y-auto h-screen
-    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200 ">
-      <div className="flex justify-between items-center border-b pb-4">
+    <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200">
+      <div className="flex items-center justify-between pb-4 border-b">
         <h2 className="text-xl font-bold text-gray-800">Filters</h2>
-
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">
-          Event types
-        </h3>
-        <div className="space-y-3">
-          {eventCategories.map((category) => (
-            <div
-              key={category.id}
-              className="flex items-center space-x-3 text-[13px]"
-            >
-              <input
-                id={category.id}
-                type="radio"
-                name="eventCategory"
-                checked={selectedCategories === category.id}
-                onChange={() => setSelectedCategories(category.id)}
-                className="w-4 h-4 border-2 border-orange-500 accent-red-500"
-              />
-              <label
-                htmlFor={category.id}
-                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+        <h3 className="mb-3 text-lg font-semibold text-gray-700">Event types</h3>
+        {eventCategories.length === 0 ? (
+          <p className="text-sm text-gray-500">Loading event types...</p>
+        ) : (
+          <div className="space-y-3">
+            {eventCategories.map((category) => (
+              <div
+                key={category.id}
+                className="flex items-center space-x-3 text-[13px]"
               >
-                {category.label}
-              </label>
-            </div>
-          ))}
-        </div>
+                <input
+                  id={category.id}
+                  type="radio"
+                  name="eventCategory"
+                  checked={selectedCategories === category.label}
+                  onChange={() => setSelectedCategories(category.label)}
+                  className="w-4 h-4 border-2 border-orange-500 accent-red-500"
+                />
+                <label
+                  htmlFor={category.id}
+                  className="text-gray-600 transition-colors duration-200 cursor-pointer hover:text-red-500"
+                >
+                  {category.label}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Location</h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-700">Location</h3>
         <div className="space-y-3">
           {eventLocations.map((location) => (
             <div
@@ -108,7 +97,7 @@ const FilterSidebar = ({
               />
               <label
                 htmlFor={location.id}
-                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+                className="text-gray-600 transition-colors duration-200 cursor-pointer hover:text-red-500"
               >
                 {location.label}
               </label>
@@ -118,7 +107,7 @@ const FilterSidebar = ({
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Time</h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-700">Time</h3>
         <div className="space-y-3">
           {eventStarts.map((time) => (
             <div
@@ -135,7 +124,7 @@ const FilterSidebar = ({
               />
               <label
                 htmlFor={time.id}
-                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+                className="text-gray-600 transition-colors duration-200 cursor-pointer hover:text-red-500"
               >
                 {time.label}
               </label>
@@ -145,7 +134,7 @@ const FilterSidebar = ({
       </div>
 
       <div>
-        <h3 className="font-semibold text-gray-700 mb-3 text-lg">Price</h3>
+        <h3 className="mb-3 text-lg font-semibold text-gray-700">Price</h3>
         <div className="space-y-3">
           {ticketTypes.map((type) => (
             <div
@@ -162,7 +151,7 @@ const FilterSidebar = ({
               />
               <label
                 htmlFor={type.id}
-                className="text-gray-600 cursor-pointer hover:text-red-500 transition-colors duration-200"
+                className="text-gray-600 transition-colors duration-200 cursor-pointer hover:text-red-500"
               >
                 {type.label}
               </label>
@@ -178,15 +167,48 @@ const SearchPage = () => {
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState("all-types");
-  const [selectedEventLocation, setSelectedEventLocation] =
-    useState("all-locations");
+  const [selectedEventLocation, setSelectedEventLocation] = useState("all-locations");
   const [selectedEventStart, setSelectedEventStart] = useState("all-times");
   const [selectedTicketType, setSelectedTicketType] = useState("all-types");
+  const [eventCategories, setEventCategories] = useState([{ id: "all-types", label: "All types" }]); // Khởi tạo với "All types"
+  const [loadingCategories, setLoadingCategories] = useState(true); // Trạng thái loading cho event types
   const location = useLocation();
-  const [searchTitle, setSearchTitle] = useState(
-    location.state?.searchTerm || ""
-  );
+  const [searchTitle, setSearchTitle] = useState(location.state?.searchTerm || "");
   const token = localStorage.getItem("token");
+
+  // Lấy danh sách event types từ API
+  useEffect(() => {
+    const fetchEventTypes = async () => {
+      setLoadingCategories(true);
+      try {
+        const response = await fetch("http://localhost:8080/api/events-type/get-all-event-types", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) throw new Error("Failed to fetch event types");
+        const data = await response.json();
+        // Giả định dữ liệu API trả về dạng: [{ eventTypeId: number, eventTypeName: string }, ...]
+        const formattedCategories = [
+          { id: "all-types", label: "All types" }, // Giữ tùy chọn "All types"
+          ...data.map((type) => ({
+            id: type.id, // Sử dụng eventTypeName làm id
+            label: type.typeName, // Sử dụng eventTypeName làm label
+          })),
+        ];
+        setEventCategories(formattedCategories);
+      } catch (error) {
+        console.error("Error fetching event types:", error);
+        // Giữ "All types" nếu API thất bại
+        setEventCategories([{ id: "all-types", label: "All types" }]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchEventTypes();
+  }, [token]);
 
   // Thiết lập sự kiện ban đầu từ location.state
   useEffect(() => {
@@ -239,20 +261,19 @@ const SearchPage = () => {
     token,
   ]);
 
-  return loading ? (
-    <div className="flex justify-center items-center h-screen">
+  return loading || loadingCategories ? (
+    <div className="flex items-center justify-center h-screen">
       <Loader />
     </div>
   ) : (
     <>
-     <div 
-        className="mx-auto px-6 py-4">
-        <h1 className="text-3xl font-bold text-gray-700 mt-4 font-montserrat">
+      <div className="px-6 py-4 mx-auto">
+        <h1 className="mt-4 text-3xl font-bold text-gray-700 font-montserrat">
           {searchTitle
             ? `Upcoming events for ${searchTitle}`
             : "Upcoming events"}
         </h1>
-        <div className="flex flex-col md:flex-row gap-2 p-5">
+        <div className="flex flex-col gap-2 p-5 md:flex-row">
           <div className="w-full md:w-1/4">
             <FilterSidebar
               onFilterChange={(filteredEvents) => setEvents(filteredEvents)}
@@ -264,6 +285,7 @@ const SearchPage = () => {
               setSelectedEventStart={setSelectedEventStart}
               selectedTicketType={selectedTicketType}
               setSelectedTicketType={setSelectedTicketType}
+              eventCategories={eventCategories} // Truyền eventCategories vào FilterSidebar
             />
           </div>
           <div className="w-full md:w-3/4">

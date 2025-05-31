@@ -97,20 +97,10 @@ const AllEvent = () => {
   };
 
   const fetchAllEvents = async () => {
-    if (!token) {
-      setError("Không tìm thấy token xác thực");
-      setIsLoading(false);
-      return;
-    }
-
+    
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:8080/api/events/all", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch("http://localhost:8080/api/events/all");
       if (!response.ok) {
         throw new Error("Không thể tải danh sách sự kiện");
       }
@@ -166,7 +156,7 @@ const AllEvent = () => {
   };
   if (isLoading && displayedEvents.length === 0) {
     return (
-      <div className="text-center p-4">
+      <div className="p-4 text-center">
         <Loader />
       </div>
     );
@@ -174,7 +164,7 @@ const AllEvent = () => {
 
   if (error) {
     return (
-      <div className="text-center p-4 text-red-600">
+      <div className="p-4 text-center text-red-600">
         Lỗi: {error}. Vui lòng thử lại sau.
       </div>
     );
@@ -182,7 +172,7 @@ const AllEvent = () => {
 
   if (events.length === 0) {
     return (
-      <div className="text-center p-4 text-gray-600">
+      <div className="p-4 text-center text-gray-600">
         Không có sự kiện nào để hiển thị.
       </div>
     );
@@ -201,17 +191,17 @@ const AllEvent = () => {
           <div className="absolute inset-0 bg-black bg-opacity-50"></div>
 
           {/* Nội dung */}
-          <div className="relative flex flex-col items-start justify-center h-full text-center px-4">
-            <h1 className="text-4xl md:text-5xl text-white font-mono font-bold drop-shadow-lg">
+          <div className="relative flex flex-col items-start justify-center h-full px-4 text-center">
+            <h1 className="font-mono text-4xl font-bold text-white md:text-5xl drop-shadow-lg">
               Popular Events
             </h1>
-            <h2 className="text-lg md:text-xl text-gray-200 font-mono mt-2 drop-shadow-md">
+            <h2 className="mt-2 font-mono text-lg text-gray-200 md:text-xl drop-shadow-md">
               Discover the most exciting experiences
             </h2>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {displayedEvents.map((event) => (
             <div
               key={event.eventId}
@@ -219,12 +209,12 @@ const AllEvent = () => {
               className="max-w-[300px] min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-100 cursor-pointer transition-shadow"
             >
               {/* Hình ảnh sự kiện */}
-              <div className="w-full h-40 bg-gray-100 rounded-t-lg overflow-hidden">
+              <div className="w-full h-40 overflow-hidden bg-gray-100 rounded-t-lg">
                 {event.eventImages && event.eventImages.length > 0 ? (
                  
                   // Trong một component khác, ví dụ SearchPage
                 <div
-                  className="relative w-full h-full bg-cover bg-center"
+                  className="relative w-full h-full bg-center bg-cover"
                   style={{ backgroundImage: `url(${event.eventImages[0]})` }}
                 >
                   <FavoriteButton eventId={event.eventId} />
@@ -233,7 +223,7 @@ const AllEvent = () => {
                   <img
                     src="https://via.placeholder.com/300x150"
                     alt="Default Event"
-                    className="w-full h-full object-cover"
+                    className="object-cover w-full h-full"
                   />
                 )}
               </div>
@@ -243,7 +233,7 @@ const AllEvent = () => {
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
                   {truncateText(event.eventName, 25) || "Sự kiện không tên"}
                 </h3>
-                <p className="text-gray-600 text-sm mt-1 truncate">
+                <p className="mt-1 text-sm text-gray-600 truncate">
                   {event?.eventDesc ? (
                     <span
                       dangerouslySetInnerHTML={{
@@ -254,11 +244,11 @@ const AllEvent = () => {
                     "No description available"
                   )}
                 </p>
-               <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+               <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
                 <CiCalendarDate className="inline-block mr-1" />{" "}
                 {new Date(event.eventStart).toLocaleDateString("vi-VN")}
               </p>
-              <p className="text-gray-700 text-xs sm:text-sm">
+              <p className="text-xs text-gray-700 sm:text-sm">
                 <CiTimer className="inline-block mr-1" />{" "}
                 {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
                   hour: "2-digit",
@@ -270,11 +260,11 @@ const AllEvent = () => {
                   minute: "2-digit",
                 })}
               </p>
-              <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+              <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
                 <CiLocationOn className="inline-block mr-1" />{" "}
                 {getLocation(event.eventLocation)}
               </p>
-              <p className="text-gray-700 text-xs sm:text-sm mt-1">
+              <p className="mt-1 text-xs text-gray-700 sm:text-sm">
                 <FaEye className="inline-block mr-1" />{" "}
                 {event?.viewCount ? `${event.viewCount}` : "0"}
               </p>
@@ -283,18 +273,18 @@ const AllEvent = () => {
               </div>
 
               {/* Tags */}
-              <div className="px-4 pb-4 flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 px-4 pb-4">
                 {event.tags && typeof event.tags === "string" ? (
                   event.tags.split("|").map((tag, index) => (
                     <span
                       key={index}
-                      className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
+                      className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full"
                     >
                       {truncateText(tag.trim(), 10)}
                     </span>
                   ))
                 ) : (
-                  <span className="text-gray-600 text-xs">Không có tag</span>
+                  <span className="text-xs text-gray-600">Không có tag</span>
                 )}
               </div>
             </div>
@@ -312,12 +302,12 @@ const AllEvent = () => {
                 className="px-12 py-4  text-[#6F8579] rounded-[4px] hover:bg-gray-100 transition-colors border border-[#C2C4D0]"
               >
                 View More
-                <i className="fa-solid fa-circle-chevron-down ml-2"></i>
+                <i className="ml-2 fa-solid fa-circle-chevron-down"></i>
               </button>
             )}
           </div>
         )}
-        <h2 className="text-base sm:text-lg lg:text-xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4">
+        <h2 className="mt-6 mb-3 text-base font-bold sm:text-lg lg:text-xl sm:mt-8 sm:mb-4">
                 Popular cities
               </h2>
               <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
@@ -325,7 +315,7 @@ const AllEvent = () => {
                   <a
                     key={index}
                    
-                    className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base"
+                    className="flex items-center px-3 py-1 space-x-1 text-xs text-gray-900 bg-white rounded-full shadow-sm sm:px-4 sm:py-2 sm:space-x-2 sm:text-sm lg:text-base"
                   >
                     <span>Things to do in {city.name}</span>
                    

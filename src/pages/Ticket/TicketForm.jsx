@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOnly }) => {
+const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadOnly, eventStart, eventEnd }) => {
   const [errors, setErrors] = useState({
     ticketName: "",
     quantity: "",
@@ -82,6 +82,12 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOn
     setErrors(computeErrors());
   }, [newTicket, typeTicket]);
 
+  // Format ISO date for input type="date"
+  const formatDateForInput = (isoDate) => {
+    if (!isoDate) return "";
+    return isoDate.split("T")[0];
+  };
+
   return (
     <div
       className="fixed top-0 right-0 h-full w-full sm:w-96 max-h-[700px] mt-[55px] bg-gray-50 border-l border-blue-400 shadow-xl transform transition-transform duration-300 ease-in-out translate-x-0 rounded-l-xl"
@@ -151,7 +157,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOn
                   name="price"
                   value={newTicket.price}
                   onChange={handleChange}
-                  disabled={isReadOnly}
+                  disabled={isReadOnly || newTicket.sold > 0}
                   min="0.01"
                   step="0.01"
                 />
@@ -171,6 +177,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOn
                 value={newTicket.startTime}
                 disabled={isReadOnly}
                 onChange={handleChange}
+                max={formatDateForInput(eventStart)} // Ràng buộc với eventStart
               />
               {errors.startTime && (
                 <p className="mt-1 text-xs text-red-400">{errors.startTime}</p>
@@ -185,6 +192,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel,isReadOn
                 value={newTicket.endTime}
                 disabled={isReadOnly}
                 onChange={handleChange}
+                max={formatDateForInput(eventEnd)} // Ràng buộc với eventEnd
               />
               {errors.endTime && (
                 <p className="mt-1 text-xs text-red-400">{errors.endTime}</p>

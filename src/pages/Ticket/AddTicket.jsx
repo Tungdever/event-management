@@ -41,7 +41,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                 </h2>
                 <div className="flex items-center pb-2 space-x-4">
                   <span className="text-gray-500">
-                    Đã bán: 0/{ticket.quantity}
+                  Sold {ticket.sold} / {ticket.quantity}
                   </span>
                   <span className="text-gray-500">
                     {ticket.ticketType === "Paid"
@@ -350,51 +350,69 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     setShowForm(true);
   };
 
-  const handleUpdateTicket = () => {
-    if (
-      !editingTicket.ticketName ||
-      !editingTicket.quantity ||
-      !editingTicket.startTime ||
-      !editingTicket.endTime
-    ) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng điền đầy đủ các trường bắt buộc.",
-      });
-      return;
-    }
-    if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Vui lòng nhập giá cho vé có phí.",
-      });
-      return;
-    }
+const handleUpdateTicket = () => {
+  if (
+    !editingTicket.ticketName ||
+    !editingTicket.quantity ||
+    !editingTicket.startTime ||
+    !editingTicket.endTime
+  ) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: "Vui lòng điền đầy đủ các trường bắt buộc.",
+    });
+    return;
+  }
+  if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: "Vui lòng nhập giá cho vé có phí.",
+    });
+    return;
+  }
+  // Kiểm tra nếu vé đã bán
+  if (editingTicket.sold > 0 && editingTicket.price !== tickets.find(t => t.ticketId === editingTicket.ticketId).price) {
+    Swal.fire({
+      icon: "warning",
+      title: "Cảnh báo",
+      text: "Vé đã có người mua. Thay đổi giá có thể ảnh hưởng đến khách hàng hiện tại. Bạn có muốn tiếp tục?",
+      showCancelButton: true,
+      confirmButtonText: "Tiếp tục",
+      cancelButtonText: "Hủy",
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      updateTicket();
+    });
+  } else {
+    updateTicket();
+  }
+};
 
-    const dateValidation = validateTicketDates(editingTicket);
-    if (!dateValidation.isValid) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: dateValidation.message,
-      });
-      return;
-    }
+const updateTicket = () => {
+  const dateValidation = validateTicketDates(editingTicket);
+  if (!dateValidation.isValid) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: dateValidation.message,
+    });
+    return;
+  }
 
-    const updatedTickets = tickets.map((ticket) =>
-      ticket.ticketId === editingTicket.ticketId && !ticket.isLocal
-        ? editingTicket
-        : ticket.ticketId === editingTicket.ticketId
-        ? editingTicket
-        : ticket
-    );
-    setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets);
-    setEditingTicket(null);
-    setShowForm(false);
-  };
+  const updatedTickets = tickets.map((ticket) =>
+    ticket.ticketId === editingTicket.ticketId && !ticket.isLocal
+      ? editingTicket
+      : ticket.ticketId === editingTicket.ticketId
+      ? editingTicket
+      : ticket
+  );
+  setTickets(updatedTickets);
+  onTicketsUpdate(updatedTickets);
+  setEditingTicket(null);
+  setShowForm(false);
+};
 
   const handleDeleteTicket = async (index, ticket) => {
     if (isReadOnly) return;
@@ -478,7 +496,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     <div className="flex flex-col lg:flex-row bg-gray-50">
       <main className="flex-1 min-h-screen p-6">
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          Tạo vé
+          Add tickets
         </h1>
         <p className="mb-6 text-gray-600">
           Chọn loại vé hoặc tạo một phần với nhiều loại vé.

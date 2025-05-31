@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { useNavigate } from "react-router-dom";
@@ -6,6 +6,11 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import Swal from 'sweetalert2';
+import { IoMusicalNote } from "react-icons/io5";
+import { GrWorkshop } from "react-icons/gr";
+import { FaGlassCheers } from "react-icons/fa";
+import { MdOutlineSchema } from "react-icons/md";
+import { BiSolidCategoryAlt } from "react-icons/bi";
 
 const images = [
   "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
@@ -14,7 +19,7 @@ const images = [
   "https://cdn.evbstatic.com/s3-build/fe/build/images/389ece7b7e2dc7ff8d28524bad30d52c-dsrp_desktop.webp",
 ];
 
-const categoriesData = [
+const defaultCategories = [
   { icon: "fas fa-microphone-alt", label: "Conference" },
   { icon: "fas fa-glass-martini-alt", label: "Nightlife" },
   { icon: "fas fa-theater-masks", label: "Performing" },
@@ -25,8 +30,17 @@ const categoriesData = [
   { icon: "fas fa-utensils", label: "Food & Drink" },
 ];
 
+const reactIconsMap = {
+  music: <IoMusicalNote className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
+  workshop: <GrWorkshop className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
+  schema: <MdOutlineSchema className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
+  party: <FaGlassCheers className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
+  default: <BiSolidCategoryAlt className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
+};
+
 const CategoriesGrid = ({ categories }) => {
   const navigate = useNavigate();
+
   const handleSearchByCategory = async (categoryName) => {
     try {
       categoryName = categoryName.trim().toLowerCase();
@@ -42,38 +56,101 @@ const CategoriesGrid = ({ categories }) => {
       });
     } catch (error) {
       console.error('Error fetching event data:', error);
-     
-       Swal.fire ({
-        Icon: 'error',
-        Title: 'error',
-        Text: 'Failed to load event data',
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to load event data',
       });
     }
   };
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2 sm:gap-3 lg:gap-4 my-8 sm:my-10 lg:my-12 py-4">
-      {categories.map((category, index) => (
-        <div
-          key={index}
-          className="flex flex-col items-center group"
-          onClick={() => handleSearchByCategory(category.label)}
-        >
-          <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[#74CEF7]">
-            <i
-              className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]`}
-            ></i>
-          </div>
-          <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base">
-            {category.label}
-          </p>
-        </div>
-      ))}
+    <div className="py-4 my-8 sm:my-10 lg:my-12">
+      <Swiper
+        modules={[Autoplay, Navigation]}
+        spaceBetween={16}
+        slidesPerView={2}
+        autoplay={{
+          delay: 3000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        navigation
+        loop={categories.length > 8} // Enable loop only if there are many categories
+        breakpoints={{
+          640: { slidesPerView: 4, spaceBetween: 20 },
+          1024: { slidesPerView: 8, spaceBetween: 24 },
+        }}
+        className="w-full"
+      >
+        {categories.map((category, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className="flex flex-col items-center cursor-pointer group"
+              onClick={() => handleSearchByCategory(category.label)}
+            >
+              <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[#74CEF7] transition-all duration-300">
+                {category.iconType === 'font-awesome' ? (
+                  <i className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]`}></i>
+                ) : (
+                  category.icon
+                )}
+              </div>
+              <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base text-center">
+                {category.label}
+              </p>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   );
 };
 
 const SliderEvent = () => {
+  const [categories, setCategories] = useState(defaultCategories);
+
+  useEffect(() => {
+    const fetchEventTypes = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/events-type/get-all-event-types');
+        if (!response.ok) {
+          throw new Error('Failed to fetch event types');
+        }
+        const eventTypes = await response.json();
+
+        const mappedCategories = eventTypes.map((type) => {
+          const matchedCategory = defaultCategories.find(
+            (cat) => cat.label.toLowerCase() === type.typeName.toLowerCase()
+          );
+          if (matchedCategory) {
+            return {
+              ...matchedCategory,
+              iconType: 'font-awesome',
+            };
+          }
+          return {
+            label: type.typeName,
+            icon: reactIconsMap[type.typeName.toLowerCase()] || reactIconsMap.default,
+            iconType: 'react',
+          };
+        });
+
+        setCategories(mappedCategories);
+      } catch (error) {
+        console.error('Error fetching event types:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to load event types, using default categories',
+        });
+        setCategories(defaultCategories);
+      }
+    };
+
+    fetchEventTypes();
+  }, []);
+
   return (
     <div className="w-full max-w-[1300px] mx-auto my-4 sm:my-5 lg:my-[20px] font-roboto">
       <Swiper
@@ -84,7 +161,7 @@ const SliderEvent = () => {
         pagination={{ clickable: true }}
         autoplay={{ delay: 3000 }}
         loop={true}
-        className="rounded-xl overflow-hidden shadow-lg"
+        className="overflow-hidden shadow-lg rounded-xl"
       >
         {images.map((src, index) => (
           <SwiperSlide key={index}>
@@ -97,7 +174,7 @@ const SliderEvent = () => {
         ))}
       </Swiper>
 
-      <CategoriesGrid categories={categoriesData} />
+      <CategoriesGrid categories={categories} />
     </div>
   );
 };

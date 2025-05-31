@@ -46,7 +46,9 @@ const EditEvent = () => {
       fetchEventData(eventId);
     }
   }, [eventId]);
- const isReadOnly = event.eventStatus === "Complete";
+
+  const isReadOnly = event.eventStatus === "Complete";
+
   const fetchEventData = async (id) => {
     try {
       setIsLoading(true);
@@ -69,7 +71,7 @@ const EditEvent = () => {
       const transformedEvent = {
         eventName: data.event.eventName || "",
         eventDesc: data.event.eventDesc || "",
-        eventType: String(data.event.eventTypeId || ""), // Sử dụng eventTypeId và chuyển thành chuỗi
+        eventType: String(data.event.eventTypeId || ""),
         eventHost: data.event.eventHost || "",
         eventStatus: data.event.eventStatus || "",
         eventStart: data.event.eventStart || "",
@@ -102,6 +104,7 @@ const EditEvent = () => {
           quantity: ticket.quantity || 0,
           startTime: ticket.startTime || "",
           endTime: ticket.endTime || "",
+          sold: ticket.sold || 0, // Thêm thuộc tính sold
         })) || [],
         segment: data.segment?.map((seg) => ({
           segmentId: seg.segmentId || null,
@@ -120,7 +123,7 @@ const EditEvent = () => {
         })) || [],
       };
 
-      console.log("Fetched event data:", transformedEvent); // Ghi log để debug
+      console.log("Fetched event data:", transformedEvent);
       setEvent(transformedEvent);
     } catch (error) {
       console.error("Error fetching event:", error);
@@ -159,8 +162,8 @@ const EditEvent = () => {
         } else {
           Swal.fire({
             icon: "warning",
-            title: "Warning",
-            text: "Invalid file type, skipping!",
+            title: "Cảnh báo",
+            text: "Loại file không hợp lệ, bỏ qua!",
           });
           continue;
         }
@@ -168,8 +171,8 @@ const EditEvent = () => {
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: "Warning",
-            text: "Image size exceeds 10MB, skipping!",
+            title: "Cảnh báo",
+            text: "Kích thước ảnh vượt quá 10MB, bỏ qua!",
           });
           continue;
         }
@@ -184,18 +187,18 @@ const EditEvent = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Upload failed: ${errorText}`);
+          throw new Error(`Tải lên thất bại: ${errorText}`);
         }
 
         const publicId = await response.text();
-        if (!publicId) throw new Error("No public_id received");
+        if (!publicId) throw new Error("Không nhận được public_id");
         uploadedIds.push(publicId);
       } catch (error) {
-        console.error("Upload error:", error);
+        console.error("Lỗi tải lên:", error);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: `Failed to upload file: ${error.message}`,
+          title: "Lỗi",
+          text: `Không thể tải lên file: ${error.message}`,
         });
       }
     }
@@ -205,13 +208,13 @@ const EditEvent = () => {
 
   const handleEdit = async (event) => {
     if (isReadOnly) {
-  Swal.fire({
-    icon: "info",
-    title: "Thông báo",
-    text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
-  });
-  return;
-}
+      Swal.fire({
+        icon: "info",
+        title: "Thông báo",
+        text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
+      });
+      return;
+    }
     setIsLoading(true);
     try {
       const isFile = (item) =>
@@ -244,6 +247,7 @@ const EditEvent = () => {
             quantity: ticket.quantity || 0,
             startTime: ticket.startTime || "",
             endTime: ticket.endTime || "",
+            sold: ticket.sold || 0, // Thêm sold vào payload
           }))
         : [];
 
@@ -286,7 +290,7 @@ const EditEvent = () => {
           eventId: eventId || null,
           eventName: event.eventName || "",
           eventDesc: event.eventDesc || "",
-          eventTypeId: event.eventType || "", // Sử dụng eventTypeId
+          eventTypeId: event.eventType || "",
           eventHost: event.eventHost || "OFFICE",
           eventStatus: event.eventStatus || "public",
           eventStart:
@@ -320,7 +324,7 @@ const EditEvent = () => {
         segment: segmentData,
       };
 
-      console.log("Submitting payload:", payload); // Ghi log payload
+      console.log("Submitting payload:", payload);
 
       const response = await fetch("http://localhost:8080/api/events/edit", {
         headers: {
@@ -379,6 +383,8 @@ const EditEvent = () => {
             onTicketsUpdate={handleTicketsUpdate}
             onNext={() => setSelectedStep("publish")}
             isReadOnly={isReadOnly}
+            eventStart={event.eventStart} // Truyền eventStart
+            eventEnd={event.eventEnd}     // Truyền eventEnd
           />
         );
       case "publish":
@@ -415,10 +421,10 @@ const EditEvent = () => {
                 </span>
               </div>
               {isReadOnly && (
-                  <p className="mt-2 text-red-500">
-                    Sự kiện đã hoàn tất, chỉ có thể xem.
-                  </p>
-                )}
+                <p className="mt-2 text-red-500">
+                  Sự kiện đã hoàn tất, chỉ có thể xem.
+                </p>
+              )}
             </div>
             <h3 className="mb-2 text-lg font-semibold">Steps</h3>
             <div className="space-y-2">

@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import Footer from "../../components/Footer";
 import DOMPurify from "dompurify";
-
 import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
+
 const truncateText = (text, maxLength) => {
   if (!text) return "";
   return text.length > maxLength ? text.substring(0, maxLength) + "..." : text;
@@ -103,7 +103,17 @@ const SearchByType = () => {
       textColor: "text-cyan-200",
       slogan: "Ideas That Inspire!",
     },
+    {
+      id: 10,
+      type: "",
+      wallper:
+        "https://i.pinimg.com/736x/3f/ae/d1/3faed1e0c25ddee73c9bd8579d76b0e9.jpg",
+      backgroundColor: "bg-gradient-to-r from-[#28504E] to-[#1E1C38]",
+      textColor: "text-cyan-200",
+      slogan: "Ideas That Inspire!",
+    },
   ];
+
   const sanitizeAndTruncate = (html, maxLength) => {
     const sanitizedHtml = DOMPurify.sanitize(html || "");
     const plainText = sanitizedHtml.replace(/<[^>]+>/g, "");
@@ -113,14 +123,11 @@ const SearchByType = () => {
     const truncatedPlainText = truncateText(plainText, maxLength);
     return `<p>${truncatedPlainText}</p>`;
   };
-  // Tìm thông tin tương ứng với categoryName
+
+  // Tìm thông tin tương ứng với categoryName, mặc định là wallpaper id: 10
   const selectedCategory = wallper.find(
     (item) => item.type.toLowerCase() === categoryName.toLowerCase()
-  ) || {
-    wallper: "https://via.placeholder.com/480x290",
-    backgroundColor: "bg-gray-500",
-    textColor: "text-white",
-  };
+  ) || wallper.find((item) => item.id === 10);
 
   useEffect(() => {
     if (events && events.length > 0) {
@@ -136,7 +143,6 @@ const SearchByType = () => {
 
   const handleViewMore = () => {
     setIsLoading(true);
-
     setTimeout(() => {
       const startIndex = displayedEvents.length;
       const endIndex = startIndex + eventsPerPage;
@@ -151,18 +157,17 @@ const SearchByType = () => {
     navigate(`/event/${eventId}`);
   };
 
-  const [loading, setLoading] = useState(true);
   const getLocation = (location) => {
     if (!location || (!location.venueName && !location.address && !location.city)) {
       return "Online";
     }
-    const parts = [
-      location.venueName,
-      location.address,
-      location.city,
-    ].filter((part) => part && part.trim() !== "");
+    const parts = [location.venueName, location.address, location.city].filter(
+      (part) => part && part.trim() !== ""
+    );
     return parts.length > 0 ? parts.join(", ") : "Online";
   };
+
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -170,7 +175,7 @@ const SearchByType = () => {
   }, []);
 
   return loading ? (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex items-center justify-center h-screen">
       <Loader />
     </div>
   ) : (
@@ -181,13 +186,10 @@ const SearchByType = () => {
         <div
           className={`${selectedCategory.textColor} font-weight-800 flex flex-col items-start justify-center`}
         >
-          <h1 className="text-5xl text-center font-extrabold font-mono">
-            {(categoryName
-              ? ` ${categoryName}`
-              : "Popular Events"
-            ).toUpperCase()}
+          <h1 className="font-mono text-5xl font-extrabold text-center">
+            {(categoryName ? ` ${categoryName}` : "Popular Events").toUpperCase()}
           </h1>
-          <p className="text-lg text-center mt-2">{selectedCategory.slogan}</p>
+          <p className="mt-2 text-lg text-center">{selectedCategory.slogan}</p>
         </div>
         <img
           src={selectedCategory.wallper}
@@ -196,7 +198,7 @@ const SearchByType = () => {
         />
       </div>
       <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4 font-lato">
+        <h2 className="mb-4 text-2xl font-bold text-gray-800 font-lato">
           {(categoryName
             ? `Popular Events ${categoryName}`
             : "Upcoming Events"
@@ -207,25 +209,25 @@ const SearchByType = () => {
           <p className="text-gray-600">No events found for this category.</p>
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {displayedEvents.map((event) => (
                 <div
                   key={event.eventId}
                   onClick={() => handleEventClick(event.eventId)}
                   className="max-w-[300px] min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-100 cursor-pointer transition-shadow"
                 >
-                  <div className="w-full h-40 bg-gray-100 rounded-t-lg overflow-hidden">
+                  <div className="w-full h-40 overflow-hidden bg-gray-100 rounded-t-lg">
                     {event.eventImages && event.eventImages.length > 0 ? (
                       <img
                         src={event.eventImages[0]}
                         alt={event.eventName}
-                        className="w-full h-full object-cover"
+                        className="object-cover w-full h-full"
                       />
                     ) : (
                       <img
                         src="https://via.placeholder.com/300x150"
                         alt="Default Event"
-                        className="w-full h-full object-cover"
+                        className="object-cover w-full h-full"
                       />
                     )}
                   </div>
@@ -233,7 +235,7 @@ const SearchByType = () => {
                     <h3 className="text-lg font-semibold text-gray-900 truncate">
                       {truncateText(event.eventName, 25) || "Unnamed Event"}
                     </h3>
-                    <p className="text-gray-600 text-sm mt-1 truncate">
+                    <p className="mt-1 text-sm text-gray-600 truncate">
                       {event?.eventDesc ? (
                         <span
                           dangerouslySetInnerHTML={{
@@ -244,11 +246,11 @@ const SearchByType = () => {
                         "No description available"
                       )}
                     </p>
-                    <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
+                    <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
                       <CiCalendarDate className="inline-block mr-1" />{" "}
                       {new Date(event.eventStart).toLocaleDateString("vi-VN")}
                     </p>
-                    <p className="text-gray-700 text-xs sm:text-sm">
+                    <p className="text-xs text-gray-700 sm:text-sm">
                       <CiTimer className="inline-block mr-1" />{" "}
                       {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
                         hour: "2-digit",
@@ -260,29 +262,27 @@ const SearchByType = () => {
                         minute: "2-digit",
                       })}
                     </p>
-                    <p className="text-gray-700 text-xs sm:text-sm mt-1 truncate">
+                    <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
                       <CiLocationOn className="inline-block mr-1" />{" "}
                       {getLocation(event.eventLocation)}
                     </p>
-                    <p className="text-gray-700 text-xs sm:text-sm mt-1">
+                    <p className="mt-1 text-xs text-gray-700 sm:text-sm">
                       <FaEye className="inline-block mr-1" />{" "}
                       {event?.viewCount ? `${event.viewCount}` : "0"}
                     </p>
                   </div>
-                  <div className="px-4 pb-4 flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 px-4 pb-4">
                     {event.tags && typeof event.tags === "string" ? (
                       event.tags.split("|").map((tag, index) => (
                         <span
                           key={index}
-                          className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full"
+                          className="px-2 py-1 text-xs text-gray-700 bg-gray-100 rounded-full"
                         >
                           {truncateText(tag.trim(), 10)}
                         </span>
                       ))
                     ) : (
-                      <span className="text-gray-600 text-xs">
-                        Không có tag
-                      </span>
+                      <span className="text-xs text-gray-600">Không có tag</span>
                     )}
                   </div>
                 </div>
@@ -295,7 +295,7 @@ const SearchByType = () => {
                 ) : (
                   <button
                     onClick={handleViewMore}
-                    className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                    className="px-6 py-2 text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
                   >
                     Xem thêm
                   </button>
