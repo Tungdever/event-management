@@ -119,13 +119,11 @@ const EventsPage = () => {
     );
   };
 
-  const handleActionClick = (action, eventId) => {
-    if (action === "View event details") {
-      navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
-    }
-    if (action === "Delete event") {
-  
-   Swal.fire({
+const handleActionClick = (action, eventId) => {
+  if (action === "View event details") {
+    navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
+  } else if (action === "Delete event") {
+    Swal.fire({
       title: 'Are you sure?',
       text: 'This event will be deleted and cannot be recovered!',
       icon: 'warning',
@@ -136,7 +134,6 @@ const EventsPage = () => {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        // Call deleteEvent if the user confirms
         deleteEvent(eventId);
         Swal.fire(
           'Deleted!',
@@ -145,10 +142,61 @@ const EventsPage = () => {
         );
       }
     });
+  } else if (action === "Publish event") {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This event will be published and visible to the public!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, publish it!',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        publishEvent(eventId);
+        Swal.fire(
+          'Published!',
+          'The event has been published successfully.',
+          'success'
+        );
+      }
+    });
   }
-    setPopupVisible(null);
-  };
-
+  setPopupVisible(null);
+};
+const publishEvent = async (eventId) => {
+  setLoading(true);
+  try {
+    const response = await fetch(`http://localhost:8080/api/events/publish/${eventId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PUT",
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    Swal.fire({
+      title: `${data.msg}`,
+      text: "Sự kiện xuất bản thành công",
+    });
+    if (data.statusCode === 200) {
+      await fetchEventData();
+    }
+  } catch (error) {
+    console.error("Error publishing event:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Unable to publish event',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
   const handleSearchClick = () => {
     setCurrentPage(1); // Reset to first page on search
   };
@@ -223,7 +271,8 @@ const EventsPage = () => {
             >
               <option value="">All</option>
               <option value="public">Public</option>
-              <option value="complete">Complete</option>
+              <option value="Draft">Draft</option>
+              <option value="Complete">Complete</option>
             </select>
             <button
               className="px-3 py-2 text-sm text-white transition-colors duration-300 bg-orange-500 rounded-lg shadow-sm sm:py-3 sm:px-4 hover:bg-orange-600"
@@ -289,7 +338,7 @@ const EventsPage = () => {
                       ref={popupRef}
                       className="absolute right-0 z-10 w-40 mt-2 transition-all duration-200 transform bg-white border border-gray-200 rounded-lg shadow-xl sm:w-48"
                     >
-                      {["View event details", "Delete event"].map((action) => (
+                      {["View event details", event.eventStatus === "Draft" ? "Publish event" : null, "Delete event"].filter(Boolean).map((action) => (
                         <div
                           key={action}
                           className="px-3 py-2 text-xs text-gray-700 transition-colors duration-200 cursor-pointer sm:px-4 hover:bg-teal-100 hover:text-teal-600 sm:text-sm"

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import SidebarAdminBoard from "./Sidebar";
-
+import Swal from 'sweetalert2';
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
 
@@ -145,7 +145,32 @@ const DashboardPage = () => {
     });
     setCurrentPage(1); // Quay về trang đầu khi thay đổi sắp xếp
   };
-
+const handleReportEvent = async (eventId, reason) => {
+  try {
+    const response = await axios.post(`http://localhost:8080/api/events/report/${eventId}`, { reason }, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Report response:', response.data);
+    Swal.fire({
+      icon: 'success',
+      title: 'Success',
+      text: 'Event reported successfully',
+    });
+    // Cập nhật lại danh sách sự kiện
+    const sortParam = sortConfig.key ? `${sortConfig.key},${sortConfig.direction}` : '';
+    getEvents(searchTerm, currentPage - 1, eventsPerPage, sortParam);
+  } catch (err) {
+    console.error('Error reporting event:', err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Failed to report event: ' + (err.response?.data?.message || err.message),
+    });
+  }
+};
   const stats = [
     { title: 'Total Events', value: data.totalEvents ?? 0, icon: 'fas fa-calendar-check', color: '#a5d8ff', change: data.eventChange },
     { title: `Revenue YTD ${selectedYear ? `(${selectedYear})` : ''}`, value: `${data.totalRevenueYTD?.toLocaleString() ?? 0} Đ`, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: data.revenueChange },
@@ -276,8 +301,8 @@ const DashboardPage = () => {
 
   return (
     <section className="space-y-6 overflow-y-auto">
-      <div className="bg-white rounded-xl p-6">
-        <div className="flex justify-between items-center mb-6">
+      <div className="p-6 bg-white rounded-xl">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="font-bold text-sm text-[#1e1e2d] select-none">Overview</h1>
           <div className="flex items-center space-x-4">
             <select
@@ -314,10 +339,10 @@ const DashboardPage = () => {
           ))}
         </div>
 
-        <h1 className="font-bold text-sm mb-4 select-none">Statistics</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <h1 className="mb-4 text-sm font-bold select-none">Statistics</h1>
+        <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
           <div className="bg-[#f9fafb] rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-4">Revenue Over Time {selectedYear ? `(${selectedYear})` : ''}</h2>
+            <h2 className="mb-4 text-sm font-semibold">Revenue Over Time {selectedYear ? `(${selectedYear})` : ''}</h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <Line
                 data={revenueOverTimeData}
@@ -336,7 +361,7 @@ const DashboardPage = () => {
             </div>
           </div>
           <div className="bg-[#f9fafb] rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-4">Event Type Distribution {selectedYear ? `(${selectedYear})` : ''}</h2>
+            <h2 className="mb-4 text-sm font-semibold">Event Type Distribution {selectedYear ? `(${selectedYear})` : ''}</h2>
             <div className="relative" style={{ minHeight: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{ width: '100%', maxWidth: '400px', height: '300px' }}>
                 <Doughnut
@@ -371,7 +396,7 @@ const DashboardPage = () => {
         </div>
 
         <div className="flex items-center justify-between">
-          <h1 className="font-bold text-sm mb-4 select-none">Event List</h1>
+          <h1 className="mb-4 text-sm font-bold select-none">Event List</h1>
           <div className="relative w-64">
             <input
               type="text"
@@ -383,7 +408,7 @@ const DashboardPage = () => {
             {searchTerm.length > 0 && (
               <button
                 onClick={handleClearSearch}
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute text-gray-500 transform -translate-y-1/2 right-2 top-1/2 hover:text-gray-700"
                 title="Clear search"
               >
                 <i className="fas fa-times"></i>
@@ -394,35 +419,35 @@ const DashboardPage = () => {
         <div className="mt-6 bg-white rounded-md shadow text-[14px]">
           <div className="flex items-center p-4 border-b border-gray-200">
             <div
-              className="w-1/2 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/2 text-gray-600 cursor-pointer"
               onClick={() => handleSort('eventName')}
             >
               Event
               <i className={`${getSortIcon('eventName')} ml-2`}></i>
             </div>
             <div
-              className="w-1/6 text-center text-gray-600 cursor-pointer flex justify-center items-center"
+              className="flex items-center justify-center w-1/6 text-center text-gray-600 cursor-pointer"
               onClick={() => handleSort('eventHost')}
             >
               Organizer
               <i className={`${getSortIcon('eventHost')} ml-2`}></i>
             </div>
             <div
-              className="w-1/6 text-center text-gray-600 cursor-pointer flex justify-center items-center"
+              className="flex items-center justify-center w-1/6 text-center text-gray-600 cursor-pointer"
               onClick={() => handleSort('sold')}
             >
               Sold
               <i className={`${getSortIcon('sold')} ml-2`}></i>
             </div>
             <div
-              className="w-1/6 text-center text-gray-600 cursor-pointer flex justify-center items-center"
+              className="flex items-center justify-center w-1/6 text-center text-gray-600 cursor-pointer"
               onClick={() => handleSort('eventRevenue')}
             >
               Gross
               <i className={`${getSortIcon('eventRevenue')} ml-2`}></i>
             </div>
             <div
-              className="w-1/6 text-center text-gray-600 cursor-pointer flex justify-center items-center"
+              className="flex items-center justify-center w-1/6 text-center text-gray-600 cursor-pointer"
               onClick={() => handleSort('eventStatus')}
             >
               Status
@@ -437,17 +462,17 @@ const DashboardPage = () => {
             <div className="p-4 text-center text-gray-600">No events match your search</div>
           ) : (
             events.map((event) => (
-              <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
+              <div key={event.eventId} className="relative flex items-center p-4 hover:bg-gray-100">
                 <div className="w-1/2 flex items-center space-x-4 text-[13px]">
                   {event.eventImages && event.eventImages.length > 0 ? (
                     <img
                       src={event.eventImages[0]}
                       alt={event.eventName}
-                      className="w-16 h-16 sm:w-20 h-20 object-cover rounded-lg shadow-sm"
+                      className="object-cover w-16 h-16 h-20 rounded-lg shadow-sm sm:w-20"
                     />
                   ) : (
-                    <div className="w-16 h-16 sm:w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-gray-500 text-xs sm:text-sm">No image</span>
+                    <div className="flex items-center justify-center w-16 h-16 h-20 bg-gray-100 rounded-lg shadow-sm sm:w-20">
+                      <span className="text-xs text-gray-500 sm:text-sm">No image</span>
                     </div>
                   )}
                   <div>
@@ -460,17 +485,47 @@ const DashboardPage = () => {
                     <p className="text-gray-600">{event.eventType}</p>
                   </div>
                 </div>
-                <div className="w-1/6 text-gray-600 text-center">{event.eventHost}</div>
+                <div className="w-1/6 text-center text-gray-600">{event.eventHost}</div>
                 <div className="w-1/6 text-center text-gray-600">{event.sold}</div>
                 <div className="w-1/6 text-center text-gray-600">{event.eventRevenue.toLocaleString()} Đ</div>
-                <div className="w-1/6 text-center text-gray-600">{event.eventStatus}</div>
+                <div className="flex items-center justify-center w-1/6 text-center text-gray-600">
+      <span>{event.eventStatus}</span>
+      {event.eventStatus !== "Report" && event.eventStatus !== "Complete" && (
+        <button
+          onClick={() => {
+            Swal.fire({
+              title: 'Report Event',
+              input: 'textarea',
+              inputLabel: 'Reason for reporting',
+              inputPlaceholder: 'Enter the reason for reporting this event...',
+              showCancelButton: true,
+              confirmButtonText: 'Report',
+              cancelButtonText: 'Cancel',
+              preConfirm: (reason) => {
+                if (!reason || reason.trim() === '') {
+                  Swal.showValidationMessage('Reason is required');
+                }
+                return reason;
+              },
+            }).then((result) => {
+              if (result.isConfirmed) {
+                handleReportEvent(event.eventId, result.value);
+              }
+            });
+          }}
+          className="ml-2 text-red-500 hover:text-red-700"
+        >
+          <i className="fas fa-flag"></i>
+        </button>
+      )}
+    </div>
               </div>
             ))
           )}
         </div>
 
         {totalPages > 1 && (
-          <div className="mt-4 flex justify-end items-center space-x-2">
+          <div className="flex items-center justify-end mt-4 space-x-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}

@@ -225,7 +225,37 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
     }
     return "https://mybic.vn/uploads/news/default/no-image.png";
   };
+const handleSaveDraft = async () => {
+    setLoading(true);
+    try {
+      setEvent((prev) => ({ ...prev, eventStatus: "Draft" }));
+      await onPublish();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Lỗi khi lưu bản nháp: ${error.message}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const handlePublishEvent = async () => {
+    setLoading(true);
+    try {
+      setEvent((prev) => ({ ...prev, eventStatus: "public" }));
+      await onPublish();
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: `Lỗi khi xuất bản sự kiện: ${error.message}`,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
   return loading ? (
     <Loader />
   ) : (
@@ -358,14 +388,22 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
         }
         isReadOnly={isReadOnly} 
       />
-      <div className="mb-6">
-        {!isReadOnly && ( 
-          <button
-            onClick={onPublish}
-            className="px-4 py-2 text-white bg-orange-600 rounded-md"
-          >
-            Publish now
-          </button>
+      <div className="flex mb-6 space-x-4">
+        {!isReadOnly && (
+          <>
+            <button
+              onClick={handleSaveDraft}
+              className="px-4 py-2 text-white bg-gray-600 rounded-md"
+            >
+              Save as Draft
+            </button>
+            <button
+              onClick={handlePublishEvent}
+              className="px-4 py-2 text-white bg-orange-600 rounded-md"
+            >
+              Publish now
+            </button>
+          </>
         )}
       </div>
     </div>
