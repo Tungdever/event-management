@@ -301,7 +301,7 @@ const DashboardPage = () => {
     return 'fas fa-sort';
   };
 
-  console.log("DashboardPage rendered, events:", events, "currentPage:", currentPage);
+ // console.log("DashboardPage rendered, events:", events, "currentPage:", currentPage);
 
   return (
     <section className="space-y-6 overflow-y-auto">
