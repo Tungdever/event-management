@@ -253,7 +253,7 @@ const token = localStorage.getItem("token");
               <p className="font-semibold">Online Event</p>
             </button> */}
           </div>
-          {eventLocation.locationType === "online" && (
+          {/* {eventLocation.locationType === "online" && (
             <div className="mb-4">
               <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
                 Meeting URL
@@ -275,7 +275,7 @@ const token = localStorage.getItem("token");
                 </p>
               )}
             </div>
-          )}
+          )} */}
           {eventLocation.locationType !== "online" && (
             <div className="w-full max-w-full rounded-lg">
               <form>

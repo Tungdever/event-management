@@ -198,7 +198,7 @@ const publishEvent = async (eventId) => {
   }
 };
   const handleSearchClick = () => {
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1); 
   };
 
   useEffect(() => {
