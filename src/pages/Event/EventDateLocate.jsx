@@ -158,9 +158,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
   const handleComplete = () => {
     if (isReadOnly) return;
     if (isFormValid()) {
-      if (eventLocation.locationType === "online") {
-        createZoomMeeting();
-      }
+     
       setShowDetail(false);
     }
   };
@@ -241,16 +239,19 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
               <i className="mr-2 text-sm text-gray-500 fas fa-map-marker-alt sm:text-base"></i>
               <p className="font-semibold">{t('eventDateLocate.venue')}</p>
             </button>
-            <button
-              disabled={isReadOnly}
-              className={`flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${eventLocation.locationType === "online" ? "border-blue-500 bg-blue-100" : "border-gray-300"}`}
+            {/* <button
+              className={`flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${
+                eventLocation.locationType === "online"
+                  ? "border-blue-500 bg-blue-100"
+                  : "border-gray-300"
+              }`}
               onClick={() => handleLocationTypeChange("online")}
             >
               <i className="mr-2 text-sm text-blue-500 fas fa-video sm:text-base"></i>
-              <p className="font-semibold">{t('eventDateLocate.onlineEvent')}</p>
-            </button>
+              <p className="font-semibold">Online Event</p>
+            </button> */}
           </div>
-          {eventLocation.locationType === "online" && (
+          {/* {eventLocation.locationType === "online" && (
             <div className="mb-4">
               <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
                 {t('eventDateLocate.meetingUrl')}
@@ -270,7 +271,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
                 </p>
               )}
             </div>
-          )}
+          )} */}
           {eventLocation.locationType !== "online" && (
             <div className="w-full max-w-full rounded-lg">
               <form>

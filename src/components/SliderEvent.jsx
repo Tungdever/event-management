@@ -120,11 +120,15 @@ const CategoriesGrid = ({ categories }) => {
                 {getCategoryLabel(category.label)} {/* Use helper to get label */}
               </p>
             </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
-  );
+            <p className="mt-1 text-xs text-center text-gray-600 sm:mt-2 group-hover:text-blue-600 sm:text-sm lg:text-base">
+              {category.label}
+            </p>
+          </div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  </div>
+);
 };
 
 const SliderEvent = () => {

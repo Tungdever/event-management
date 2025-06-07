@@ -122,46 +122,46 @@ const CRUDEvent = () => {
     return uploadedIds.filter((id) => id !== null);
   };
 
-  const handlePublish = async () => {
-    setIsLoading(true);
-    try {
-      const existingImageIds = event.uploadedImages
-        .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
-      const newImages = event.uploadedImages
-        .filter((item) => item instanceof File || item instanceof Blob) || [];
-      const newImageIds = await uploadFilesToCloudinary(newImages);
-      const uploadedImageIds = [...existingImageIds, ...newImageIds];
+const handlePublish = async () => {
+  setIsLoading(true);
+  try {
+    const existingImageIds = event.uploadedImages
+      .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+    const newImages = event.uploadedImages
+      .filter((item) => item instanceof File || item instanceof Blob) || [];
+    const newImageIds = await uploadFilesToCloudinary(newImages);
+    const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
-      const existingMediaIds = event.overviewContent.media
-        .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
-        .map((item) => item.url) || [];
-      const newMediaFiles = event.overviewContent.media
-        .filter((item) => item.file instanceof File || item.file instanceof Blob)
-        .map((item) => item.file) || [];
-      const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
-      const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
+    const existingMediaIds = event.overviewContent.media
+      .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
+      .map((item) => item.url) || [];
+    const newMediaFiles = event.overviewContent.media
+      .filter((item) => item.file instanceof File || item.file instanceof Blob)
+      .map((item) => item.file) || [];
+    const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
+    const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
-      const segmentData = [];
-      if (event.segment?.length > 0) {
-        for (const segment of event.segment) {
-          const uploadedSpeakerId = segment?.speaker?.speakerImage
-            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
-            : null;
-          segmentData.push({
-            segmentTitle: segment.segmentTitle || "",
-            speaker: segment.speaker
-              ? {
-                  speakerImage: uploadedSpeakerId || "",
-                  speakerName: segment.speaker.speakerName || "",
-                  speakerDesc: segment.speaker.speakerDesc || "",
-                }
-              : null,
-            segmentDesc: segment.segmentDesc || "",
-            startTime: `${event.eventLocation.date}T${segment.startTime || "00:00"}:00`,
-            endTime: `${event.eventLocation.date}T${segment.endTime || "00:00"}:00`,
-          });
-        }
+    const segmentData = [];
+    if (event.segment?.length > 0) {
+      for (const segment of event.segment) {
+        const uploadedSpeakerId = segment?.speaker?.speakerImage
+          ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
+          : null;
+        segmentData.push({
+          segmentTitle: segment.segmentTitle || "",
+          speaker: segment.speaker
+            ? {
+                speakerImage: uploadedSpeakerId || "",
+                speakerName: segment.speaker.speakerName || "",
+                speakerDesc: segment.speaker.speakerDesc || "",
+              }
+            : null,
+          segmentDesc: segment.segmentDesc || "",
+          startTime: `${event.eventLocation.date}T${segment.startTime || "00:00"}:00`,
+          endTime: `${event.eventLocation.date}T${segment.endTime || "00:00"}:00`,
+        });
       }
+    }
 
       const dataEvent = {
         eventName: event.eventName || "",
@@ -185,7 +185,7 @@ const CRUDEvent = () => {
         },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
-        publishTime: event.publishTime || new Date().toISOString(),
+      publishTime: event.eventStatus === "public" ? new Date().toISOString() : event.publishTime || null,
         refunds: event.refunds || "no",
         validityDays: event.validityDays || 7,
         eventImages: uploadedImageIds,
@@ -194,39 +194,39 @@ const CRUDEvent = () => {
         userId: user.userId,
       };
 
-      console.log("Data sent to API:", dataEvent);
-      const eventResponse = await fetch("http://localhost:8080/api/events/create", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        method: "POST",
-        body: JSON.stringify(dataEvent),
-      });
+    console.log("Data sent to API:", dataEvent);
+    const eventResponse = await fetch("http://localhost:8080/api/events/create", {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      method: "POST",
+      body: JSON.stringify(dataEvent),
+    });
 
       if (!eventResponse.ok) {
         const errorText = await eventResponse.text();
         throw new Error(t("createEventPage.errors.saveEventFailed", { error: errorText }));
       }
 
-      const responseData = await eventResponse.json();
-      const eventId = responseData.data.eventId || responseData;
+    const responseData = await eventResponse.json();
+    const eventId = responseData.data.eventId || responseData;
 
-      if (segmentData.length > 0) {
-        for (const segment of segmentData) {
-          const segmentapi = {
-            ...segment,
-            eventID: eventId,
-          };
+    if (segmentData.length > 0) {
+      for (const segment of segmentData) {
+        const segmentapi = {
+          ...segment,
+          eventID: eventId,
+        };
 
-          const segmentResponse = await fetch(`http://localhost:8080/api/segment/${eventId}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            method: "POST",
-            body: JSON.stringify(segmentapi),
-          });
+        const segmentResponse = await fetch(`http://localhost:8080/api/segment/${eventId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          method: "POST",
+          body: JSON.stringify(segmentapi),
+        });
 
           if (!segmentResponse.ok) {
             const errorText = await segmentResponse.text();
@@ -234,26 +234,27 @@ const CRUDEvent = () => {
           }
         }
       }
+    }
 
-      if (event.tickets?.length > 0) {
-        for (const ticketData of event.tickets) {
-          const ticketapi = {
-            ticketName: ticketData.ticketName || "",
-            ticketType: ticketData.ticketType || "",
-            price: ticketData.price || 0,
-            quantity: ticketData.quantity || 0,
-            startTime: ticketData.startTime || "",
-            endTime: ticketData.endTime || "",
-          };
+    if (event.tickets?.length > 0) {
+      for (const ticketData of event.tickets) {
+        const ticketapi = {
+          ticketName: ticketData.ticketName || "",
+          ticketType: ticketData.ticketType || "",
+          price: ticketData.price || 0,
+          quantity: ticketData.quantity || 0,
+          startTime: ticketData.startTime || "",
+          endTime: ticketData.endTime || "",
+        };
 
-          const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            method: "POST",
-            body: JSON.stringify(ticketapi),
-          });
+        const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          method: "POST",
+          body: JSON.stringify(ticketapi),
+        });
 
           if (!ticketResponse.ok) {
             const errorText = await ticketResponse.text();
@@ -290,8 +291,36 @@ const CRUDEvent = () => {
       });
       setIsLoading(false);
     }
-  };
 
+    const updatedEvent = {
+      ...event,
+      uploadedImages: uploadedImageIds,
+      overviewContent: {
+        ...event.overviewContent,
+        media: uploadedMediaIds.map((id, index) => ({
+          type: event.overviewContent.media[index]?.type || "image",
+          url: id,
+        })),
+      },
+    };
+
+    setEvent(updatedEvent);
+    setIsLoading(false);
+    Swal.fire({
+      icon: 'success',
+      title: 'Thành công',
+      text: `Sự kiện đã được ${event.eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công! ID: ${eventId}`,
+    });
+    setTimeout(() => navigate('/'), 300);
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Lỗi',
+      text: `Lỗi khi xử lý sự kiện: ${error.message}`,
+    });
+    setIsLoading(false);
+  }
+};
   const handleTicketsUpdate = (updatedTickets) => {
     setEvent((prevEvent) => ({
       ...prevEvent,

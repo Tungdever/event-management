@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from './api';
 import { useAuth } from './AuthProvider';
 import { jwtDecode } from 'jwt-decode';
+import Swal from 'sweetalert2';
 
 const LoginForm = () => {
   const { t } = useTranslation(); // Hook to access translations
@@ -39,7 +40,20 @@ const LoginForm = () => {
         else navigate('/');
       }
     } catch (error) {
-      setError(error.msg || error.message || t('login.errorMessage'));
+      if (error.response?.status === 403) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Tài khoản bị khóa',
+          text: 'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ.',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Lỗi đăng nhập',
+          text: error.msg || error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.',
+        });
+      }
+      setError(error.msg || error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
     }
   };
 
