@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import TicketForm from "./TicketForm";
@@ -6,6 +7,7 @@ import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
 
 const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket }) => {
+  const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -41,21 +43,21 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                 </h2>
                 <div className="flex items-center pb-2 space-x-4">
                   <span className="text-gray-500">
-                    Sold {ticket.sold} / {ticket.quantity}
+                    {t("addTickets.sold", { sold: ticket.sold, quantity: ticket.quantity })}
                   </span>
                   <span className="text-gray-500">
                     {ticket.ticketType === "Paid"
-                      ? `${ticket.price} VND`
-                      : "Free"}
+                      ? t("addTickets.ticketPrice", { price: ticket.price })
+                      : t("addTickets.freeTicket")}
                   </span>
                 </div>
               </div>
               <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
                 <div className="flex items-center">
                   <span className="mr-2 text-green-500">•</span>
-                  <span>On sale</span>
+                  <span>{t("addTickets.onSale")}</span>
                   <span className="mx-2">•</span>
-                  <span>Ends at {ticket.endTime}</span>
+                  <span>{t("addTickets.endsAt", { endTime: ticket.endTime })}</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <i
@@ -78,7 +80,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
             onClick={toggleDropdown}
             className="flex items-center justify-between w-full px-4 py-2 text-white bg-orange-600 rounded-lg"
           >
-            Add ticket <i className="ml-2 fas fa-caret-down"></i>
+            {t("addTickets.addTicketButton")} <i className="ml-2 fas fa-caret-down"></i>
           </button>
           {isDropdownOpen && (
             <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
@@ -98,7 +100,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                     <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
                       <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
                     </div>
-                    <span>{item.label === "Paid" ? "Paid" : "Free"}</span>
+                    <span>{item.label === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</span>
                   </div>
                 ))}
               </div>
@@ -111,7 +113,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
           className="px-6 py-2 text-white bg-orange-600 rounded-lg"
           onClick={onSaveAll}
         >
-          Save and continue
+          {t("addTickets.saveAndContinue")}
         </button>
       </div>
     </div>
@@ -119,6 +121,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
 };
 
 const TicketTypeSelector = ({ onSelectType }) => {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       {["Paid", "Free"].map((type, index) => (
@@ -168,17 +171,17 @@ const TicketTypeSelector = ({ onSelectType }) => {
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
-                  d="M36.0746 26.775H39.5489C39.4388 24.066 36.3104 21.5775 33.0248 20.7743V17.325H29.8807V20.727C29.0476 20.916 28.1672 21.1995 27.4598 21.5775L29.7707 23.8928C30.4152 23.625 31.2013 23.4675 32.1445 23.4675C34.9428 23.4675 35.9803 24.8063 36.0746 26.775ZM18.8764 20.9947L24.2842 26.4127C24.2842 29.6887 26.7366 31.4685 30.4309 32.571L35.9488 38.0992C35.4143 38.8552 34.2982 39.5325 32.1445 39.5325C28.906 39.5325 27.6327 38.0835 27.4598 36.225H24.0012C24.1899 39.6742 26.8624 41.6115 29.8807 42.2572V45.675H33.0248V42.2887C34.534 42.0052 37.3637 41.4225 38.3541 40.5247L41.844 44.0212L44.0763 41.7847L21.1087 18.7582L18.8764 20.9947Z"
+                  d="M36.0746 26.775H39.5489C39.4388 24.066 36.3104 21.5775 33.0248 20.7743V17.325H29.8807V20.727C29.0476 20.916 28.1672 21.1995 27.4598 21.5775L29.7707 23.8928C30.4152 23.625 31.2013 23.4675 32.1445 23.4675C34.9428 23.4675 35.9803 24.8063 36.0746 26.775ZM18.8764 20.9947L24.2842 26.4127C24.2842 29.6887 26.7366 31.4685 30.4309 32.571L35.9488 38.0992C35.4143 38.8552 34.2982 39.5325 32.1445 39.5325C28.906 39.5325 27.6327 38.0835 27.4598 36.225H24.0012C24.1899 39.6742 26.8624 41.6115 29.8797 42.2712V45.6759C32.1447 39.4325C28 39.4545 30.4309 32.43C35.9428 35.0996 38.4312 37.4224 41.842 40.4412L34.0746 41.7845L21.1088 18.7582L18.8766 20.9948Z"
                   fill="#9374E7"
                 />
               </svg>
             )}
             <div className="ml-4">
-              <h2 className="text-lg font-semibold">{type === "Paid" ? "Paid ticket" : "Free ticket"}</h2>
+              <h2 className="text-lg font-semibold">{type === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</h2>
               <p className="text-gray-600">
                 {type === "Paid"
-                  ? "Create a paid ticket."
-                  : "Create a free ticket."}
+                  ? t("addTickets.paidTicketDescription")
+                  : t("addTickets.freeTicketDescription")}
               </p>
             </div>
           </div>
@@ -187,7 +190,7 @@ const TicketTypeSelector = ({ onSelectType }) => {
       ))}
       <div className="absolute flex items-center justify-end w-2/4 p-4 rounded-lg cursor-pointer bottom-20 right-4">
         <button className="px-6 py-2 text-white bg-orange-600 rounded-lg">
-          Save and continue
+          {t("addTickets.saveAndContinue")}
         </button>
       </div>
     </div>
@@ -201,6 +204,7 @@ const formatDateForInput = (isoDate) => {
 };
 
 const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext, isReadOnly }) => {
+  const { t } = useTranslation();
   const [tickets, setTickets] = useState(ticketData || []);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
@@ -263,7 +267,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
   const validateTicketDates = (ticket) => {
     if (!eventStart || !eventEnd) {
-      return { isValid: false, message: "Event start and end dates have not been set." };
+      return { isValid: false, message: t("addTickets.errors.eventDatesNotSet") };
     }
 
     const ticketStart = new Date(ticket.startTime);
@@ -272,15 +276,15 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     const eventEndDate = new Date(eventEnd);
 
     if (ticketStart > eventStartDate) {
-      return { isValid: false, message: "The ticket start date cannot be after the event start date." };
+      return { isValid: false, message: t("addTickets.errors.invalidStartDate") };
     }
 
     if (ticketStart > eventEndDate) {
-      return { isValid: false, message: "The ticket start date cannot be after the event end date." };
+      return { isValid: false, message: t("addTickets.errors.startAfterEventEnd") };
     }
 
     if (ticketEnd > eventStartDate) {
-      return { isValid: false, message: "The ticket end date cannot be after the event start date." };
+      return { isValid: false, message: t("addTickets.errors.endAfterEventStart") };
     }
 
     return { isValid: true, message: "" };
@@ -296,16 +300,16 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     ) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please fill in all required fields.",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.requiredFields"),
       });
       return;
     }
     if (newTicket.ticketType === "Paid" && !newTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please enter a price for the paid ticket.",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.priceRequired"),
       });
       return;
     }
@@ -314,7 +318,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     if (!dateValidation.isValid) {
       Swal.fire({
         icon: "error",
-        title: "Error",
+        title: t("addTickets.errors.title"),
         text: dateValidation.message,
       });
       return;
@@ -359,16 +363,16 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     ) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please fill in all required fields.",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.requiredFields"),
       });
       return;
     }
     if (editingTicket.ticketType === "Paid" && !editingTicket.price) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Please enter a price for the paid ticket.",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.priceRequired"),
       });
       return;
     }
@@ -376,11 +380,11 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     if (editingTicket.sold > 0 && editingTicket.price !== tickets.find(t => t.ticketId === editingTicket.ticketId).price) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "The ticket has already been purchased. Changing the price may affect current customers. Do you want to continue?",
+        title: t("addTickets.errors.ticketSoldWarningTitle"),
+        text: t("addTickets.errors.ticketSoldWarning"),
         showCancelButton: true,
-        confirmButtonText: "Continue",
-        cancelButtonText: "Cancel",
+        confirmButtonText: t("addTickets.confirm"),
+        cancelButtonText: t("addTickets.cancel"),
       }).then((result) => {
         if (!result.isConfirmed) return;
         updateTicket();
@@ -395,7 +399,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     if (!dateValidation.isValid) {
       Swal.fire({
         icon: "error",
-        title: "Error",
+        title: t("addTickets.errors.title"),
         text: dateValidation.message,
       });
       return;
@@ -418,11 +422,11 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     if (isReadOnly) return;
     const confirm = await Swal.fire({
       icon: "warning",
-      title: "Confirm Deletion",
-      text: "Are you sure you want to delete this ticket?",
+      title: t("addTickets.errors.confirmDeletion"),
+      text: t("addTickets.errors.deleteConfirmation"),
       showCancelButton: true,
-      confirmButtonText: "Delete",
-      cancelButtonText: "Cancel",
+      confirmButtonText: t("addTickets.delete"),
+      cancelButtonText: t("addTickets.cancel"),
     });
 
     if (!confirm.isConfirmed) return;
@@ -434,8 +438,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       onTicketsUpdate(updatedTickets);
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "The ticket has been deleted successfully.",
+        title: t("addTickets.success.title"),
+        text: t("addTickets.success.deleteSuccess"),
       });
     } else {
       // Database ticket: call API
@@ -457,22 +461,22 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
           onTicketsUpdate(updatedTickets);
           Swal.fire({
             icon: "success",
-            title: "Success",
-            text: "The ticket has been deleted successfully.",
+            title: t("addTickets.success.title"),
+            text: t("addTickets.success.deleteSuccess"),
           });
         } else {
           Swal.fire({
             icon: "error",
-            title: "Error",
-            text: data.msg,
+            title: t("addTickets.errors.title"),
+            text: data.msg || t("addTickets.errors.deleteError"),
           });
         }
       } catch (error) {
         console.error("Error deleting ticket:", error);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "An error occurred while deleting the ticket.",
+          title: t("addTickets.errors.title"),
+          text: t("addTickets.errors.deleteError"),
         });
       }
     }
@@ -482,8 +486,8 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     if (tickets.length === 0) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "There are no tickets to save.",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.noTicketsToSave"),
       });
       return;
     }
@@ -496,10 +500,10 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     <div className="flex flex-col lg:flex-row bg-gray-50">
       <main className="flex-1 min-h-screen p-6">
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
-          Add tickets
+          {t("addTickets.title")}
         </h1>
         <p className="mb-6 text-gray-600">
-          Choose a ticket type or create a part with a variety of tickets.
+          {t("addTickets.description")}
         </p>
         {!showOverview && tickets.length === 0 ? (
           <TicketTypeSelector onSelectType={handleTicketClick} />

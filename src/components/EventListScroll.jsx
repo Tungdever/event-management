@@ -6,8 +6,10 @@ import { useAuth } from "../pages/Auth/AuthProvider";
 import FavoriteButton from "./FavoriteButton";
 import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
+import { useTranslation } from 'react-i18next';
 
 const ListEventScroll = ({ events: propEvents }) => {
+  const { t } = useTranslation();
   const [events, setLocalEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -69,14 +71,14 @@ const ListEventScroll = ({ events: propEvents }) => {
 
   const getLocation = (location) => {
     if (!location || (!location.venueName && !location.address && !location.city)) {
-      return "Online";
+      return t('eventListScroll.online');
     }
     const parts = [
       location.venueName,
       location.address,
       location.city,
     ].filter((part) => part && part.trim() !== "");
-    return parts.length > 0 ? parts.join(", ") : "Online";
+    return parts.length > 0 ? parts.join(", ") : t('eventListScroll.online');
   };
 
   if (loading) {
@@ -90,7 +92,7 @@ const ListEventScroll = ({ events: propEvents }) => {
   if (error) {
     return (
       <div className="text-center p-4 text-red-600 text-sm sm:text-base">
-        Error: {error}. Please try again later.
+        {t('eventListScroll.error', { message: error })}
       </div>
     );
   }
@@ -98,7 +100,7 @@ const ListEventScroll = ({ events: propEvents }) => {
   if (!events || events.length === 0) {
     return (
       <div className="text-center p-4">
-        <p className="text-gray-600 text-sm sm:text-base">No events available</p>
+        <p className="text-gray-600 text-sm sm:text-base">{t('eventListScroll.noEvents')}</p>
       </div>
     );
   }
@@ -107,14 +109,14 @@ const ListEventScroll = ({ events: propEvents }) => {
     <div className="w-full max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-4 relative">
       <div className="flex justify-between items-center">
         <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-3 sm:mb-4 font-montserrat">
-          Top Notable Events
+          {t('eventListScroll.topNotableEvents')}
         </h2>
         <div
           className="flex items-center gap-1 sm:gap-2 hover:cursor-pointer hover:text-red-500"
           onClick={handlePageAll}
         >
           <p className="text-xs sm:text-sm lg:text-[15px] text-gray-600 hover:text-red-500">
-            View all event
+            {t('eventListScroll.viewAllEvents')}
           </p>
           <i className="fa-solid fa-circle-chevron-right text-xs sm:text-sm"></i>
         </div>
@@ -126,7 +128,6 @@ const ListEventScroll = ({ events: propEvents }) => {
             onClick={() => handleEventClick(event.eventId)}
             className="flex-none w-64 sm:w-72 lg:max-w-[300px] min-h-[360px] sm:min-h-[380px] lg:min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-100 cursor-pointer transition-shadow"
           >
-            {/* Hình ảnh sự kiện */}
             <div className="w-full h-32 sm:h-36 lg:h-40 bg-gray-100 rounded-t-lg overflow-hidden">
               {event.eventImages && event.eventImages.length > 0 ? (
                 <div
@@ -143,8 +144,6 @@ const ListEventScroll = ({ events: propEvents }) => {
                 />
               )}
             </div>
-
-            {/* Thông tin sự kiện */}
             <div className="p-3 sm:p-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
                 {truncateText(event.eventName, 25) || "Unnamed Event"}
@@ -154,7 +153,7 @@ const ListEventScroll = ({ events: propEvents }) => {
                 dangerouslySetInnerHTML={{
                   __html: event?.eventDesc
                     ? sanitizeAndTruncate(event.eventDesc, 30)
-                    : "No description available",
+                    : t('eventListScroll.noDescription'),
                 }}
               />
               <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
@@ -182,8 +181,6 @@ const ListEventScroll = ({ events: propEvents }) => {
                 {event?.viewCount ? `${event.viewCount}` : "0"}
               </p>
             </div>
-
-            {/* Tags */}
             <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex flex-wrap gap-1 sm:gap-2">
               {event.tags && typeof event.tags === "string" ? (
                 event.tags.split("|").map((tag, index) => (
@@ -196,7 +193,7 @@ const ListEventScroll = ({ events: propEvents }) => {
                 ))
               ) : (
                 <span className="text-gray-600 text-[10px] sm:text-xs">
-                  No tags
+                  {t('eventListScroll.noTags')}
                 </span>
               )}
             </div>

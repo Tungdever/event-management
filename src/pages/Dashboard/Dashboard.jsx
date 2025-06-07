@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { FaSearch, FaEllipsisV, FaFileCsv } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
 import Swal from 'sweetalert2';
-
 const EventsPage = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("Events");
@@ -53,8 +54,8 @@ const EventsPage = () => {
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Unable to load event data',
+        title: t('dashboard.errorLoadEventsTitle'),
+        text: t('dashboard.errorLoadEventsText'),
       });
     } finally {
       setLoading(false);
@@ -89,8 +90,8 @@ const EventsPage = () => {
       console.error("Error deleting event:", error);
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Unable to delete event',
+        title: t('dashboard.errorDeleteEventTitle'),
+        text: t('dashboard.errorDeleteEventText'),
       });
     } finally {
       setLoading(false);
@@ -120,17 +121,17 @@ const EventsPage = () => {
   };
 
   const handleActionClick = (action, eventId) => {
-    if (action === "View event details") {
+    if (action === t('dashboard.viewEventDetails')) {
       navigate(`/dashboard/event/detail/${eventId}`, { state: { eventId } });
     }
-    if (action === "Delete event") {
+    if (action === t('dashboard.deleteEvent')) {
       deleteEvent(eventId);
     }
     setPopupVisible(null);
   };
 
   const handleSearchClick = () => {
-    setCurrentPage(1); // Reset to first page on search
+    setCurrentPage(1);
   };
 
   useEffect(() => {
@@ -176,14 +177,14 @@ const EventsPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-6 sm:py-8 md:py-12 font-sans">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-gray-800 mb-6 sm:mb-8">
-          Events
+          {t('dashboard.title')}
         </h1>
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 space-y-4 sm:space-y-0 sm:space-x-4">
           <div className="relative w-full sm:w-auto flex flex-col sm:flex-row items-center space-y-3 sm:space-y-0 sm:space-x-3">
             <input
               type="text"
-              placeholder="Tìm kiếm sự kiện"
+              placeholder={t('dashboard.searchPlaceholder')}
               className="w-full sm:w-80 md:w-96 bg-white border border-gray-200 rounded-lg py-2 sm:py-3 px-3 sm:px-4 text-sm shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all duration-300"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -191,6 +192,7 @@ const EventsPage = () => {
             <button
               onClick={handleSearchClick}
               className="bg-teal-500 text-white p-2 sm:p-3 rounded-lg shadow-md hover:bg-teal-600 transition-colors duration-300"
+              aria-label={t('dashboard.searchButton')}
             >
               <FaSearch className="text-sm sm:text-base" />
             </button>
@@ -201,30 +203,30 @@ const EventsPage = () => {
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
             >
-              <option value="">All</option>
-              <option value="public">Public</option>
-              <option value="complete">Complete</option>
+              <option value="">{t('dashboard.filterAll')}</option>
+              <option value="public">{t('dashboard.filterPublic')}</option>
+              <option value="complete">{t('dashboard.filterComplete')}</option>
             </select>
             <button
               className="bg-orange-500 text-white py-2 sm:py-3 px-3 sm:px-4 rounded-lg text-sm shadow-sm hover:bg-orange-600 transition-colors duration-300"
               onClick={() => navigate("/createEvent")}
             >
-              Create event
+              {t('dashboard.createEvent')}
             </button>
           </div>
         </div>
 
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg overflow-hidden">
           <div className="hidden sm:grid sm:grid-cols-12 gap-2 sm:gap-4 p-4 sm:p-6 bg-gray-50 border-b border-gray-200 text-xs sm:text-sm font-semibold text-gray-600">
-            <div className="col-span-5">Events</div>
+            <div className="col-span-5">{t('dashboard.tableEvents')}</div>
             <div className="col-span-2"></div>
             <div className="col-span-2"></div>
-            <div className="col-span-2">Status</div>
+            <div className="col-span-2">{t('dashboard.tableStatus')}</div>
             <div className="col-span-1"></div>
           </div>
           {currentEvents.length === 0 ? (
             <div className="p-4 sm:p-6 text-center text-gray-500 text-sm sm:text-base">
-              Not found event
+              {t('dashboard.notFound')}
             </div>
           ) : (
             currentEvents.map((event) => (
@@ -241,7 +243,7 @@ const EventsPage = () => {
                     />
                   ) : (
                     <div className="w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 bg-gray-100 rounded-lg flex items-center justify-center shadow-sm">
-                      <span className="text-gray-500 text-xs sm:text-sm">No image</span>
+                      <span className="text-gray-500 text-xs sm:text-sm">{t('dashboard.noImage')}</span>
                     </div>
                   )}
                   <div className="flex-1">
@@ -269,7 +271,7 @@ const EventsPage = () => {
                       ref={popupRef}
                       className="absolute right-0 mt-2 w-40 sm:w-48 bg-white border border-gray-200 rounded-lg shadow-xl z-10 transform transition-all duration-200"
                     >
-                      {["View event details", "Delete event"].map((action) => (
+                      {[t('dashboard.viewEventDetails'), t('dashboard.deleteEvent')].map((action) => (
                         <div
                           key={action}
                           className="px-3 sm:px-4 py-2 text-gray-700 hover:bg-teal-100 hover:text-teal-600 cursor-pointer text-xs sm:text-sm transition-colors duration-200"
@@ -295,7 +297,7 @@ const EventsPage = () => {
                     : "bg-teal-500 text-white hover:bg-teal-600"
                 }`}
               >
-                Previous
+                {t('dashboard.previous')}
               </button>
               <div className="flex space-x-1 sm:space-x-2 my-2 sm:my-0">
                 {Array.from({ length: totalPages }, (_, index) => index + 1)
@@ -326,7 +328,7 @@ const EventsPage = () => {
                     : "bg-teal-500 text-white hover:bg-teal-600"
                 }`}
               >
-                Next
+                {t('dashboard.next')}
               </button>
             </div>
           )}

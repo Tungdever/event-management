@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   FaBold,
   FaItalic,
@@ -14,7 +15,8 @@ import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 
-const Overview = ({ setShowOverview, content, setContent ,isReadOnly}) => {
+const Overview = ({ setShowOverview, content, setContent, isReadOnly }) => {
+  const { t } = useTranslation();
   const [media, setMedia] = useState(content.media);
   const [pasteError, setPasteError] = useState('');
 
@@ -46,7 +48,7 @@ const Overview = ({ setShowOverview, content, setContent ,isReadOnly}) => {
         const newHtml = `<p>${truncatedText}</p>`;
         editor.commands.setContent(newHtml);
         setContent({ text: newHtml, media });
-        setPasteError('Nội dung dán đã vượt quá 2000 ký tự và được cắt bớt.');
+        setPasteError(t('overviewSection.pasteError'));
       }
     },
     editorProps: {
@@ -61,7 +63,7 @@ const Overview = ({ setShowOverview, content, setContent ,isReadOnly}) => {
             view.dispatch(
               view.state.tr.insertText(allowedText, view.state.selection.from)
             );
-            setPasteError('Nội dung dán đã vượt quá 2000 ký tự và được cắt bớt.');
+            setPasteError(t('overviewSection.pasteError'));
             return true;
           }
         }
@@ -89,19 +91,20 @@ const Overview = ({ setShowOverview, content, setContent ,isReadOnly}) => {
     return hasText;
   };
 
-const handleMediaUpload = (event, type) => {
-  const files = Array.from(event.target.files);
-  const newMedia = files.map((file) => ({
-    type,
-    file, // Lưu file gốc
-    url: URL.createObjectURL(file), // URL tạm thời để hiển thị
-  }));
-  setMedia((prev) => {
-    const updatedMedia = [...prev, ...newMedia];
-    setContent({ text: content.text, media: updatedMedia });
-    return updatedMedia;
-  });
-};
+  const handleMediaUpload = (event, type) => {
+    const files = Array.from(event.target.files);
+    const newMedia = files.map((file) => ({
+      type,
+      file, // Lưu file gốc
+      url: URL.createObjectURL(file), // URL tạm thời để hiển thị
+    }));
+    setMedia((prev) => {
+      const updatedMedia = [...prev, ...newMedia];
+      setContent({ text: content.text, media: updatedMedia });
+      return updatedMedia;
+    });
+  };
+
   const handleDeleteMedia = (index) => {
     setMedia((prev) => {
       const updatedMedia = prev.filter((_, i) => i !== index);
@@ -125,18 +128,17 @@ const handleMediaUpload = (event, type) => {
 
   return (
     <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
-      <h1 className="mb-2 text-2xl font-bold">Overview</h1>
-      <p className="mb-4 text-gray-600">Add details about your event.</p>
+      <h1 className="mb-2 text-2xl font-bold">{t('overviewSection.overview')}</h1>
+      <p className="mb-4 text-gray-600">{t('overviewSection.addDetails')}</p>
       <div className="p-4 mb-4 border rounded-lg">
         <div className="flex items-center justify-between mb-2">
-          <span>Text Formatting</span>
+          <span>{t('overviewSection.textFormatting')}</span>
           <div className="flex space-x-2">
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleBold().run()}
               disabled={isReadOnly}
-              className={`p-2 rounded ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
-              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-gray-100'} ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaBold />
             </button>
@@ -144,8 +146,7 @@ const handleMediaUpload = (event, type) => {
               type="button"
               onClick={() => editor.chain().focus().toggleItalic().run()}
               disabled={isReadOnly}
-              className={`p-2 rounded ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
-              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-gray-100'} ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaItalic />
             </button>
@@ -153,18 +154,15 @@ const handleMediaUpload = (event, type) => {
               type="button"
               onClick={() => editor.chain().focus().toggleUnderline().run()}
               disabled={isReadOnly}
-              className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
-              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-gray-100'} ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaUnderline />
             </button>
-          
             <button
               type="button"
               onClick={() => editor.chain().focus().toggleLink({ href: prompt('Enter URL') }).run()}
               disabled={isReadOnly}
-              className={`p-2 rounded ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-gray-100'}
-              ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`p-2 rounded ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-gray-100'} ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <FaLink />
             </button>
@@ -175,7 +173,7 @@ const handleMediaUpload = (event, type) => {
           className="w-full min-h-[100px] border rounded-lg p-2 outline-none focus:ring-0"
         />
         <div className="flex justify-between mt-2">
-          <div className="text-gray-600">{getCharacterCount()} / 2000</div>
+          <div className="text-gray-600">{t('overviewSection.characterCount', { count: getCharacterCount() })}</div>
           <FaTrashAlt
             className="text-gray-500 cursor-pointer"
             onClick={() => {
@@ -188,12 +186,12 @@ const handleMediaUpload = (event, type) => {
           <div className="mt-1 text-red-500">{pasteError}</div>
         )}
         {(!content.text || content.text.replace(/<[^>]+>/g, '').trim() === '') && (
-          <div className="mt-1 text-red-500">Event details are required</div>
+          <div className="mt-1 text-red-500">{t('overviewSection.eventDetailsRequired')}</div>
         )}
       </div>
       <div className="flex mb-4 space-x-4">
         <label className="flex items-center px-4 py-2 border rounded cursor-pointer">
-          <FaImage className="mr-2" /> Add image
+          <FaImage className="mr-2" /> {t('overviewSection.addImage')}
           <input
             type="file"
             accept="image/*"
@@ -202,7 +200,16 @@ const handleMediaUpload = (event, type) => {
             onChange={(e) => handleMediaUpload(e, "image")}
           />
         </label>
-        
+        <label className="flex items-center px-4 py-2 border rounded cursor-pointer">
+          <FaVideo className="mr-2" /> {t('overviewSection.addVideo')}
+          <input
+            type="file"
+            accept="video/*"
+            className="hidden"
+            disabled={isReadOnly}
+            onChange={(e) => handleMediaUpload(e, "video")}
+          />
+        </label>
       </div>
       <div className="mb-4">
         {media.map((item, index) => (
@@ -232,16 +239,14 @@ const handleMediaUpload = (event, type) => {
           className="px-4 py-2 text-gray-700 bg-gray-300 rounded"
           onClick={handleCancel}
         >
-          Cancel
+          {t('overviewSection.cancel')}
         </button>
         <button
-          className={`px-4 py-2 rounded ${
-            isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+          className={`px-4 py-2 rounded ${isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
           onClick={handleComplete}
-          disabled={isReadOnly ||!isFormValid()}
+          disabled={isReadOnly || !isFormValid()}
         >
-          Complete
+          {t('overviewSection.complete')}
         </button>
       </div>
 
@@ -264,7 +269,8 @@ const handleMediaUpload = (event, type) => {
   );
 };
 
-const OverviewSection = ({ content, setContent ,isReadOnly}) => {
+const OverviewSection = ({ content, setContent, isReadOnly }) => {
+  const { t } = useTranslation();
   const [showOverview, setShowOverview] = useState(false);
 
   return (
@@ -272,12 +278,12 @@ const OverviewSection = ({ content, setContent ,isReadOnly}) => {
       {!showOverview ? (
         <div
           className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4"
-          onClick={() => setShowOverview(true)}
+          onClick={isReadOnly ? null : () => setShowOverview(true)}
         >
-          <h2 className="mb-2 text-2xl font-semibold">Overview</h2>
+          <h2 className="mb-2 text-2xl font-semibold">{t('overviewSection.overview')}</h2>
           <div
             className="prose text-gray-600 max-w-none"
-            dangerouslySetInnerHTML={{ __html: content.text || "Click to add details" }}
+            dangerouslySetInnerHTML={{ __html: content.text || t('overviewSection.clickToAddDetails') }}
           />
           <div className="mt-2">
             {content.media.map((item, index) => (

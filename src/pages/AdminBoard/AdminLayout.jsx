@@ -24,7 +24,7 @@ const AdminLayout = () => {
         return <UserPage />;
       case "Role":
         return <RolePermissionPage />;
-      case "Types":
+      case "zTypes":
         return <EventTypeManagement/>
       default:
         return <DashboardPage />;

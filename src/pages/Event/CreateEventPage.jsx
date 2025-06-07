@@ -6,8 +6,10 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
 import Swal from 'sweetalert2';
-
+import { useTranslation } from "react-i18next";
+import Footer from "../../components/Footer";
 const CRUDEvent = () => {
+  const { t } = useTranslation();
   const [selectedStep, setSelectedStep] = useState("build");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +30,7 @@ const CRUDEvent = () => {
       venueName: "",
       address: "",
       city: "",
-      meetingUrl: "", // Thêm trường meetingUrl
+      meetingUrl: "",
     },
     tags: [],
     eventVisibility: "public",
@@ -64,13 +66,13 @@ const CRUDEvent = () => {
           continue;
         } else if (typeof file === "string" && file.startsWith("blob:")) {
           const response = await fetch(file);
-          if (!response.ok) throw new Error(`Failed to fetch blob: ${file}`);
+          if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
         } else {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Loại file không hợp lệ, bỏ qua!",
+            title: t("createEventPage.errors.invalidFile"),
+            text: t("createEventPage.errors.invalidFile"),
           });
           continue;
         }
@@ -78,16 +80,16 @@ const CRUDEvent = () => {
         if (!blob.type.match(/image\/(jpeg|png)/)) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Chỉ hỗ trợ định dạng JPEG hoặc PNG.",
+            title: t("createEventPage.errors.invalidFileType"),
+            text: t("createEventPage.errors.invalidFileType"),
           });
           continue;
         }
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Dung lượng ảnh vượt quá 10MB.",
+            title: t("createEventPage.errors.fileSizeTooLarge"),
+            text: t("createEventPage.errors.fileSizeTooLarge"),
           });
           continue;
         }
@@ -102,17 +104,17 @@ const CRUDEvent = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Tải lên thất bại: ${errorText}`);
+          throw new Error(t("createEventPage.errors.uploadFailed", { message: errorText }));
         }
 
         const publicId = await response.text();
-        if (!publicId) throw new Error("Không nhận được public_id");
+        if (!publicId) throw new Error(t("createEventPage.errors.noPublicId"));
         uploadedIds.push(publicId);
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: `Lỗi khi tải file: ${error.message}`,
+          title: t("createEventPage.errors.uploadFailed", { message: "" }),
+          text: t("createEventPage.errors.uploadFailed", { message: error.message }),
         });
       }
     }
@@ -179,7 +181,7 @@ const CRUDEvent = () => {
           venueSlug: event.eventLocation.venueSlug || "",
           address: event.eventLocation.address || "",
           city: event.eventLocation.city || "",
-          meetingUrl: event.eventLocation.meetingUrl || "", // Thêm meetingUrl
+          meetingUrl: event.eventLocation.meetingUrl || "",
         },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
@@ -204,7 +206,7 @@ const CRUDEvent = () => {
 
       if (!eventResponse.ok) {
         const errorText = await eventResponse.text();
-        throw new Error(`Lưu sự kiện thất bại: ${errorText}`);
+        throw new Error(t("createEventPage.errors.saveEventFailed", { error: errorText }));
       }
 
       const responseData = await eventResponse.json();
@@ -228,7 +230,7 @@ const CRUDEvent = () => {
 
           if (!segmentResponse.ok) {
             const errorText = await segmentResponse.text();
-            throw new Error(`Lưu segment thất bại: ${errorText}`);
+            throw new Error(t("createEventPage.errors.saveSegmentFailed", { error: errorText }));
           }
         }
       }
@@ -255,7 +257,7 @@ const CRUDEvent = () => {
 
           if (!ticketResponse.ok) {
             const errorText = await ticketResponse.text();
-            throw new Error(`Lưu ticket thất bại: ${errorText}`);
+            throw new Error(t("createEventPage.errors.saveTicketFailed", { error: errorText }));
           }
         }
       }
@@ -276,15 +278,15 @@ const CRUDEvent = () => {
       setIsLoading(false);
       Swal.fire({
         icon: 'success',
-        title: 'Thành công',
-        text: `Sự kiện đã được xuất bản thành công! ID: ${eventId}`,
+        title: t("createEventPage.successPublish.title"),
+        text: t("createEventPage.successPublish.text", { eventId }),
       });
       setTimeout(() => navigate('/'), 300);
     } catch (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
-        text: `Lỗi khi xử lý sự kiện: ${error.message}`,
+        title: t("createEventPage.errors.processingError", { message: "" }),
+        text: t("createEventPage.errors.processingError", { message: error.message }),
       });
       setIsLoading(false);
     }
@@ -312,12 +314,17 @@ const CRUDEvent = () => {
       requiredFields.address = event.eventLocation.address;
       requiredFields.city = event.eventLocation.city;
     } else if (event.eventLocation.locationType === "online") {
-      requiredFields.meetingUrl = event.eventLocation.meetingUrl; // Yêu cầu meetingUrl cho online
+      requiredFields.meetingUrl = event.eventLocation.meetingUrl;
     }
 
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
-        return { isValid: false, message: `Vui lòng điền trường ${key}.` };
+        return {
+          isValid: false,
+          message: t("createEventPage.errors.requiredField", {
+            field: t(`createEventPage.fields.${key}`),
+          }),
+        };
       }
     }
 
@@ -329,7 +336,7 @@ const CRUDEvent = () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
+        title: t("createEventPage.errors.processingError", { message: "" }),
         text: validation.message,
       });
       return;
@@ -346,7 +353,7 @@ const CRUDEvent = () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
+        title: t("createEventPage.errors.processingError", { message: "" }),
         text: validation.message,
       });
       return;
@@ -363,6 +370,7 @@ const CRUDEvent = () => {
             setEvent={setEvent}
             onNext={handleNext}
             validateEventForm={validateEventForm}
+            t={t} // Pass t to EventForm
           />
         );
       case "tickets":
@@ -378,6 +386,7 @@ const CRUDEvent = () => {
               ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
               : ""}
             onNext={() => setSelectedStep("publish")}
+            t={t} // Pass t to AddTicket
           />
         );
       case "publish":
@@ -386,10 +395,18 @@ const CRUDEvent = () => {
             event={event}
             setEvent={setEvent}
             onPublish={handlePublish}
+            t={t} // Pass t to EventPublishing
           />
         );
       default:
-        return <EventForm event={event} setEvent={setEvent} validateEventForm={validateEventForm} />;
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            validateEventForm={validateEventForm}
+            t={t}
+          />
+        );
     }
   };
 
@@ -402,14 +419,14 @@ const CRUDEvent = () => {
           <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
             <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "The event has no title"}
+                {event.eventName || t("createEventPage.noTitle")}
               </h2>
               <div className="flex items-center mt-2 text-gray-500">
                 <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Not yet determined date and time"}
+                    : t("createEventPage.noDateTime")}
                 </span>
               </div>
               {event.eventLocation.locationType === "online" && event.eventLocation.meetingUrl && (
@@ -420,12 +437,12 @@ const CRUDEvent = () => {
                     rel="noopener noreferrer"
                     className="text-blue-500 underline"
                   >
-                    Link phòng họp: {event.eventLocation.meetingUrl}
+                    {t("createEventPage.meetingLink", { link: event.eventLocation.meetingUrl })}
                   </a>
                 </div>
               )}
             </div>
-            <h3 className="mb-2 text-lg font-semibold">Steps</h3>
+            <h3 className="mb-2 text-lg font-semibold">{t("createEventPage.stepsTitle")}</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -440,11 +457,7 @@ const CRUDEvent = () => {
                     onChange={() => handleStepChange(step)}
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
-                  <span>
-                    {step === "build" && "Create Event"}
-                    {step === "tickets" && "Add tickets"}
-                    {step === "publish" && "Public"}
-                  </span>
+                  <span>{t(`createEventPage.steps.${step}`)}</span>
                 </label>
               ))}
             </div>
@@ -452,6 +465,7 @@ const CRUDEvent = () => {
           <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
+
     </>
   );
 };

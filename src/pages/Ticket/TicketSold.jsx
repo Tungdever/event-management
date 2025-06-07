@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import imgTicket from "../../assets/NoOrder.png";
 import axios from "axios";
 import { useParams } from "react-router-dom";
@@ -12,6 +13,7 @@ import * as XLSX from "xlsx";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const TicketDashboard = () => {
+  const { t } = useTranslation();
   const [stats, setStats] = useState({});
   const [ticketTypes, setTicketTypes] = useState([]);
   const [recentOrders, setRecentOrders] = useState([]);
@@ -23,8 +25,8 @@ const TicketDashboard = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
   const [isScanning, setIsScanning] = useState(false);
   const [qrResults, setQrResults] = useState([]);
-  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false); // State để kiểm soát dropdown
-  const [exportOption, setExportOption] = useState("all"); // Tùy chọn xuất file
+  const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
+  const [exportOption, setExportOption] = useState("all");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -34,32 +36,27 @@ const TicketDashboard = () => {
       },
     };
 
-    // Fetch stats
     axios
       .get(`http://localhost:8080/api/ticket/${eventId}/stats`, config)
       .then((res) => setStats(res.data))
-      .catch((err) => toast.error("Failed to fetch stats"));
+      .catch((err) => toast.error(t("ticketSold.errors.fetchStatsFailed")));
 
-    // Fetch ticket types
     axios
       .get(`http://localhost:8080/api/ticket/${eventId}/ticket-types`, config)
       .then((res) => setTicketTypes(res.data))
-      .catch((err) => toast.error("Failed to fetch ticket types"));
+      .catch((err) => toast.error(t("ticketSold.errors.fetchTicketTypesFailed")));
 
-    // Fetch recent orders
     axios
       .get(`http://localhost:8080/api/ticket/${eventId}/recent-orders`, config)
       .then((res) => setRecentOrders(res.data))
-      .catch((err) => toast.error("Failed to fetch recent orders"));
+      .catch((err) => toast.error(t("ticketSold.errors.fetchOrdersFailed")));
 
-    // Fetch check-in tickets
     axios
       .get(`http://localhost:8080/api/ticket/${eventId}/check-in-tickets`, config)
       .then((res) => setCheckInTickets(res.data))
-      .catch((err) => toast.error("Failed to fetch check-in tickets"));
+      .catch((err) => toast.error(t("ticketSold.errors.fetchCheckInFailed")));
   }, [eventId]);
 
-  // Hàm xử lý check-in
   const handleCheckIn = async (ticketCode) => {
     const token = localStorage.getItem("token");
     const config = {
@@ -73,7 +70,7 @@ const TicketDashboard = () => {
         `http://localhost:8080/api/ticket/${eventId}/check-in/${ticketCode}`,
         config
       );
-      toast.success(`Check-in successful for ${ticketCode}!`);
+      toast.success(t("ticketSold.success.checkInSuccess", { ticketCode }));
       const updatedTickets = await axios.get(
         `http://localhost:8080/api/ticket/${eventId}/check-in-tickets`,
         config
@@ -87,13 +84,15 @@ const TicketDashboard = () => {
       return true;
     } catch (err) {
       toast.error(
-        `Check-in failed for ${ticketCode}: ${err.response?.data?.message || err.message}`
+        t("ticketSold.errors.checkInFailed", {
+          ticketCode,
+          message: err.response?.data?.message || err.message
+        })
       );
       return false;
     }
   };
 
-  // Handle sorting
   const handleSort = (key) => {
     setSortConfig((prevConfig) => {
       if (prevConfig.key === key && prevConfig.direction === "asc") {
@@ -103,7 +102,6 @@ const TicketDashboard = () => {
     });
   };
 
-  // Sort data based on sortConfig
   const sortData = (data, key, direction) => {
     return [...data].sort((a, b) => {
       if (a[key] < b[key]) return direction === "asc" ? -1 : 1;
@@ -112,7 +110,6 @@ const TicketDashboard = () => {
     });
   };
 
-  // Filter and sort recent orders
   const filteredRecentOrders = recentOrders.filter(
     (order) =>
       order.orderId?.toLowerCase().includes(searchOrderTerm.toLowerCase()) ||
@@ -123,7 +120,6 @@ const TicketDashboard = () => {
     ? sortData(filteredRecentOrders, sortConfig.key, sortConfig.direction)
     : filteredRecentOrders;
 
-  // Filter and sort check-in tickets
   const filteredCheckInTickets = checkInTickets.filter(
     (ticket) =>
       ticket.ticketCode?.toLowerCase().includes(searchTicketTerm.toLowerCase())
@@ -140,36 +136,32 @@ const TicketDashboard = () => {
     setSearchTicketTerm("");
   };
 
-  // Hàm xuất file Excel
   const exportToExcel = () => {
     let dataToExport = [...sortedCheckInTickets];
 
-    // Lọc dữ liệu theo tùy chọn
     if (exportOption === "checked") {
       dataToExport = dataToExport.filter((ticket) => ticket.status === "Checked");
     } else if (exportOption === "unchecked") {
       dataToExport = dataToExport.filter((ticket) => ticket.status !== "Checked");
     }
 
-    // Chuẩn bị dữ liệu cho Excel
     const worksheetData = dataToExport.map((ticket) => ({
-      "Ticket Code": ticket.ticketCode,
-      "Status": ticket.status,
-      "Check-in Date": ticket.checkDate || "N/A",
-      "Ticket Type": ticket.ticketType,
+      [t("ticketSold.table.ticketCode")]: ticket.ticketCode,
+      [t("ticketSold.table.status")]: ticket.status,
+      [t("ticketSold.table.checkInDate")]: ticket.checkDate || t("ticketSold.na"),
+      [t("ticketSold.table.ticketType")]: ticket.ticketType,
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(worksheetData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "CheckInTickets");
+    XLSX.utils.book_append_sheet(workbook, worksheet, t("ticketSold.table.sheetName"));
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
-    FileSaver.saveAs(dataBlob, `CheckInTickets_${eventId}_${exportOption}.xlsx`);
-    toast.success("File exported successfully!");
-    setIsExportDropdownOpen(false); // Đóng dropdown sau khi xuất
+    FileSaver.saveAs(dataBlob, `${t("ticketSold.table.fileName", { eventId, exportOption })}`);
+    toast.success(t("ticketSold.success.exportSuccess"));
+    setIsExportDropdownOpen(false);
   };
 
-  // Pie chart data for ticket type distribution
   const ticketTypeChartData = {
     labels: ticketTypes.map((t) => t.ticketType),
     datasets: [
@@ -181,15 +173,18 @@ const TicketDashboard = () => {
     ],
   };
 
-  // Pie chart data for ticket status
   const ticketStatusChartData = {
-    labels: ["Sold", "Checked", "Canceled"],
+    labels: [
+      t("ticketSold.chart.sold"),
+      t("ticketSold.chart.checked"),
+      t("ticketSold.chart.canceled")
+    ],
     datasets: [
       {
         data: [
           parseInt(stats.ticketsSold?.split("/")[0]) || 0,
           parseInt(stats.ticketsChecked) || 0,
-          parseInt(stats.ticketsCanceled) || 0,
+          parseInt(stats.ticketsCancelled) || 0,
         ],
         backgroundColor: ["#36A2EB", "#4BC0C0", "#FF6384"],
         hoverBackgroundColor: ["#36A2EB", "#4BC0C0", "#FF6384"],
@@ -208,20 +203,20 @@ const TicketDashboard = () => {
   return (
     <div className="flex-1 p-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Ticket Dashboard</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t("ticketSold.title")}</h1>
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsScanning(!isScanning)}
             className="p-2 bg-orange-600 text-white rounded-md hover:bg-orange-700"
           >
-            {isScanning ? "Close QR Scanner" : "Scan QR Code"}
+            {isScanning ? t("ticketSold.closeScanner") : t("ticketSold.scanQR")}
           </button>
           <div className="relative">
             <button
               onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
               className="p-2 bg-green-600 text-white rounded-md hover:bg-green-700"
             >
-              Export to Excel
+              {t("ticketSold.exportExcel")}
             </button>
             {isExportDropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-300 rounded-md shadow-lg z-10">
@@ -232,7 +227,7 @@ const TicketDashboard = () => {
                   }}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
-                  Export All
+                  {t("ticketSold.exportAll")}
                 </button>
                 <button
                   onClick={() => {
@@ -241,7 +236,7 @@ const TicketDashboard = () => {
                   }}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
-                  Export Checked
+                  {t("ticketSold.exportChecked")}
                 </button>
                 <button
                   onClick={() => {
@@ -250,18 +245,16 @@ const TicketDashboard = () => {
                   }}
                   className="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
-                  Export Unchecked
+                  {t("ticketSold.exportUnchecked")}
                 </button>
               </div>
             )}
           </div>
         </div>
       </div>
-
-      {/* QR Scanner */}
       {isScanning && (
         <div className="mt-6 bg-white p-4 rounded-md shadow border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Scan QR Code to Check-in</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.scanTitle")}</h2>
           <div
             className="mt-4"
             style={{ width: "100%", maxWidth: "400px", margin: "auto" }}
@@ -277,13 +270,13 @@ const TicketDashboard = () => {
                 }
               }}
               onError={(error) => {
-                toast.error("Error accessing camera: " + error.message);
+                toast.error(t("ticketSold.errors.cameraError", { message: error.message }));
                 setIsScanning(false);
               }}
             />
             {qrResults.length > 0 && (
               <div className="mt-2 text-center">
-                <p className="font-semibold">Scanned Tickets:</p>
+                <p className="font-semibold">{t("ticketSold.scannedTickets")}</p>
                 <ul className="list-disc list-inside">
                   {qrResults.map((code, index) => (
                     <li className="list-none" key={index}>
@@ -296,45 +289,42 @@ const TicketDashboard = () => {
           </div>
         </div>
       )}
-
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="p-4 bg-white rounded-md shadow border border-orange-600">
-          <div className="text-orange-600 p-2">Tickets Sold</div>
+          <div className="text-orange-600 p-2">{t("ticketSold.stats.ticketsSold")}</div>
           <div className="text-2xl font-bold text-orange-900 p-2">
             {stats.ticketsSold || "0/0"}
           </div>
         </div>
         <div className="p-4 bg-white rounded-md shadow border border-orange-600">
-          <div className="text-orange-600 p-2">Tickets Checked</div>
+          <div className="text-orange-600 p-2">{t("ticketSold.stats.ticketsChecked")}</div>
           <div className="text-2xl font-bold text-orange-900 p-2">
             {stats.ticketsChecked || "0"}
           </div>
         </div>
         <div className="p-4 bg-white rounded-md shadow border border-orange-600">
-          <div className="text-orange-600 p-2">Tickets Canceled</div>
+          <div className="text-orange-600 p-2">{t("ticketSold.stats.ticketsCancelled")}</div>
           <div className="text-2xl font-bold text-orange-900 p-2">
-            {stats.ticketsCanceled || "0"}
+            {stats.ticketsCancelled || "0"}
           </div>
         </div>
       </div>
-
       <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="bg-white p-4 rounded-md shadow border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Ticket Type Distribution</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.chart.ticketTypeDistribution")}</h2>
           <div style={{ height: "300px" }}>
             <Pie data={ticketTypeChartData} options={chartOptions} />
           </div>
         </div>
         <div className="bg-white p-4 rounded-md shadow border border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Ticket Status</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.chart.ticketStatus")}</h2>
           <div style={{ height: "300px" }}>
             <Pie data={ticketStatusChartData} options={chartOptions} />
           </div>
         </div>
       </div>
-
       <div className="mt-6">
-        <h2 className="text-xl font-bold text-gray-900">Sales by Ticket Type</h2>
+        <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.table.salesByTicketType")}</h2>
         <table className="mt-4 w-full bg-white rounded-md border border-gray-200">
           <thead>
             <tr className="text-left bg-gray-200 text-orange-500">
@@ -342,7 +332,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("ticketType")}
               >
-                Ticket Type{" "}
+                {t("ticketSold.table.ticketType")}
                 {sortConfig.key === "ticketType" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -350,7 +340,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("sold")}
               >
-                Sold{" "}
+                {t("ticketSold.table.sold")}
                 {sortConfig.key === "sold" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -358,7 +348,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("price")}
               >
-                Price{" "}
+                {t("ticketSold.table.price")}
                 {sortConfig.key === "price" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -375,14 +365,13 @@ const TicketDashboard = () => {
           </tbody>
         </table>
       </div>
-
       <div className="mt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Recent Orders</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.table.recentOrders")}</h2>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search orders"
+              placeholder={t("ticketSold.searchOrdersPlaceholder")}
               className="p-2 border border-gray-300 rounded-md"
               value={searchOrderTerm}
               onChange={(e) => setSearchOrderTerm(e.target.value)}
@@ -391,7 +380,7 @@ const TicketDashboard = () => {
               <button
                 onClick={handleClearSearchOrder}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                title="Clear search"
+                title={t("ticketSold.clearSearch")}
               >
                 <i className="fas fa-times"></i>
               </button>
@@ -405,7 +394,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("orderId")}
               >
-                Order #{" "}
+                {t("ticketSold.table.orderId")}
                 {sortConfig.key === "orderId" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -413,7 +402,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("name")}
               >
-                Name{" "}
+                {t("ticketSold.table.name")}
                 {sortConfig.key === "name" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -421,7 +410,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("quantity")}
               >
-                Quantity{" "}
+                {t("ticketSold.table.quantity")}
                 {sortConfig.key === "quantity" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -429,7 +418,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("ticketType")}
               >
-                Ticket Type{" "}
+                {t("ticketSold.table.ticketType")}
                 {sortConfig.key === "ticketType" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -437,7 +426,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("price")}
               >
-                Price{" "}
+                {t("ticketSold.table.price")}
                 {sortConfig.key === "price" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -445,7 +434,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("date")}
               >
-                Date{" "}
+                {t("ticketSold.table.date")}
                 {sortConfig.key === "date" && (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
             </tr>
@@ -455,13 +444,13 @@ const TicketDashboard = () => {
               <tr className="border-t">
                 <td colSpan="6" className="px-4 py-8 text-center text-gray-600">
                   <img
-                    alt="No orders icon"
+                    alt={t("ticketSold.noOrdersAlt")}
                     className="mx-auto mb-4"
                     src={imgTicket}
                     width="150"
                     height="150"
                   />
-                  No orders for this event yet
+                  {t("ticketSold.noOrders")}
                 </td>
               </tr>
             ) : (
@@ -479,14 +468,13 @@ const TicketDashboard = () => {
           </tbody>
         </table>
       </div>
-
       <div className="mt-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold text-gray-900">Check-in Tickets</h2>
+          <h2 className="text-xl font-bold text-gray-900">{t("ticketSold.table.checkInTickets")}</h2>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search tickets"
+              placeholder={t("ticketSold.searchTicketsPlaceholder")}
               className="p-2 border border-gray-300 rounded-md"
               value={searchTicketTerm}
               onChange={(e) => setSearchTicketTerm(e.target.value)}
@@ -495,7 +483,7 @@ const TicketDashboard = () => {
               <button
                 onClick={handleClearSearchTicket}
                 className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                title="Clear search"
+                title={t("ticketSold.clearSearch")}
               >
                 <i className="fas fa-times"></i>
               </button>
@@ -509,7 +497,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("ticketCode")}
               >
-                Ticket Code{" "}
+                {t("ticketSold.table.ticketCode")}
                 {sortConfig.key === "ticketCode" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -517,7 +505,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("status")}
               >
-                Status{" "}
+                {t("ticketSold.table.status")}
                 {sortConfig.key === "status" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -525,7 +513,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("checkDate")}
               >
-                Check-in Date{" "}
+                {t("ticketSold.table.checkInDate")}
                 {sortConfig.key === "checkDate" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -533,7 +521,7 @@ const TicketDashboard = () => {
                 className="px-4 py-2 cursor-pointer"
                 onClick={() => handleSort("ticketType")}
               >
-                Ticket Type{" "}
+                {t("ticketSold.table.ticketType")}
                 {sortConfig.key === "ticketType" &&
                   (sortConfig.direction === "asc" ? "↑" : "↓")}
               </th>
@@ -544,20 +532,20 @@ const TicketDashboard = () => {
               <tr className="border-t">
                 <td colSpan="4" className="px-4 py-8 text-center text-gray-600">
                   <img
-                    alt="No check-in tickets icon"
+                    alt={t("ticketSold.noCheckInAlt")}
                     className="mx-auto mb-4"
                     src={imgTicket}
                     width="150"
                     height="150"
                   />
-                  No check-in tickets for this event yet
+                  {t("ticketSold.noCheckInTickets")}
                 </td>
               </tr>
             ) : (
               sortedCheckInTickets.map((ticket, index) => (
                 <tr key={index} className="border-t">
                   <td className="px-4 py-2">{ticket.ticketCode}</td>
-                  <td className="px-4 py-2">{ticket.status}</td>
+                  <td className="px-4 py-2">{ticket.status === 'Checked' ? t('ticketSold.table.checked')  : (ticket.status === 'Uncheck' ? t('ticketSold.table.uncheck') : t('ticketSold.table.cancelled'))}</td>
                   <td className="px-4 py-2">{ticket.checkDate}</td>
                   <td className="px-4 py-2">{ticket.ticketType}</td>
                 </tr>

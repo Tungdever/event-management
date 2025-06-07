@@ -1,4 +1,7 @@
+import { useTranslation } from 'react-i18next';
+
 const ProgressBar = ({ currentStep, totalSteps = 6 }) => {
+  const { t } = useTranslation(); // Hook to access translations
   const progress = (currentStep / totalSteps) * 100;
 
   return (
@@ -10,10 +13,10 @@ const ProgressBar = ({ currentStep, totalSteps = 6 }) => {
         ></div>
       </div>
       <p className="text-center text-sm text-gray-600 mt-2">
-        Step {currentStep} / {totalSteps}
+        {t('progressBar.stepLabel', { currentStep, totalSteps })}
       </p>
     </div>
   );
 };
 
-export default ProgressBar
+export default ProgressBar;

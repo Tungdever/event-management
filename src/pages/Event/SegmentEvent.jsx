@@ -1,9 +1,11 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { FaList, FaUser } from "react-icons/fa";
 import Swal from "sweetalert2";
 import ImageCropper from "../../components/ImageCropper";
 
-const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
+const ImageUploader = ({ onImageUpload, isReadOnly }) => {
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState(null);
   const [imageToCrop, setImageToCrop] = useState(null);
   const fileInputRef = useRef(null);
@@ -15,8 +17,8 @@ const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
       if (file.size > 10 * 1024 * 1024) {
         Swal.fire({
           icon: "warning",
-          title: "Warning",
-          text: "Image size exceeds 10MB.",
+          title: t('segmentEvent.imageSizeError.title'),
+          text: t('segmentEvent.imageSizeError.text'),
         });
         return;
       }
@@ -36,8 +38,8 @@ const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
         console.error("Failed to load image:", file.name);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Invalid image file. Please try another image.",
+          title: t('segmentEvent.invalidImageError.title'),
+          text: t('segmentEvent.invalidImageError.text'),
         });
       };
     }
@@ -48,8 +50,8 @@ const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
     if (!croppedImage) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Failed to crop image. Please try again.",
+        title: t('segmentEvent.cropImageError.title'),
+        text: t('segmentEvent.cropImageError.text'),
       });
       return;
     }
@@ -106,8 +108,6 @@ const ImageUploader = ({ onImageUpload ,isReadOnly}) => {
   );
 };
 
-
-
 const SegmentFormPopup = ({
   isOpen,
   onClose,
@@ -123,13 +123,14 @@ const SegmentFormPopup = ({
   loading,
   isReadOnly
 }) => {
+  const { t } = useTranslation();
   if (!isOpen || isReadOnly) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-8 rounded-xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-200">
         <h2 className="mb-6 text-2xl font-bold text-gray-800">
-          {isEditing ? "Edit Segment" : "Add New Segment"}
+          {isEditing ? t('segmentEvent.editSegment') : t('segmentEvent.addSegment')}
         </h2>
         <div className="space-y-6">
           <div>
@@ -137,13 +138,13 @@ const SegmentFormPopup = ({
               className="block mb-2 font-medium text-gray-700"
               htmlFor="title"
             >
-              Title<span className="text-red-500">*</span>
+              {t('segmentEvent.title')}<span className="text-red-500">*</span>
             </label>
             <input
               className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               type="text"
               id="segmentTitle"
-              placeholder="Enter title"
+              placeholder={t('segmentEvent.titlePlaceholder')}
               name="segmentTitle"
               value={newSegment.segmentTitle}
               onChange={handleChange}
@@ -156,7 +157,7 @@ const SegmentFormPopup = ({
                 className="block mb-2 font-medium text-gray-700"
                 htmlFor="start-time"
               >
-                Start Time<span className="text-red-500">*</span>
+                {t('segmentEvent.startTime')}<span className="text-red-500">*</span>
               </label>
               <input
                 className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -173,7 +174,7 @@ const SegmentFormPopup = ({
                 className="block mb-2 font-medium text-gray-700"
                 htmlFor="end-time"
               >
-                End Time<span className="text-red-500">*</span>
+                {t('segmentEvent.endTime')}<span className="text-red-500">*</span>
               </label>
               <input
                 className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -193,13 +194,13 @@ const SegmentFormPopup = ({
                 className="flex items-center text-blue-600 transition hover:text-blue-800"
                 onClick={() => setDesc(true)}
               >
-                <FaList className="mr-2" /> Add Description
+                <FaList className="mr-2" /> {t('segmentEvent.addDescription')}
               </button>
             ) : (
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <label className="block mb-2 font-medium text-gray-700">
-                    Description
+                    {t('segmentEvent.description')}
                   </label>
                   <textarea
                     className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -207,11 +208,11 @@ const SegmentFormPopup = ({
                     name="segmentDesc"
                     value={newSegment.segmentDesc}
                     onChange={handleChange}
-                    placeholder="Enter description..."
+                    placeholder={t('segmentEvent.descriptionPlaceholder')}
                     disabled={isReadOnly}
                   />
                   <div className="mt-1 text-sm text-right text-gray-400">
-                    {newSegment.segmentDesc.length} / 1000
+                    {t('segmentEvent.characterCount', { count: newSegment.segmentDesc.length })}
                   </div>
                 </div>
                 <i
@@ -225,20 +226,20 @@ const SegmentFormPopup = ({
                 className="flex items-center text-blue-600 transition hover:text-blue-800"
                 onClick={() => setActor(true)}
               >
-                <FaUser className="mr-2" /> Add Speaker
+                <FaUser className="mr-2" /> {t('segmentEvent.addSpeaker')}
               </button>
             ) : (
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   <label className="block mb-2 font-medium text-gray-700">
-                    Speaker Name <span className="text-red-500">*</span>
+                    {t('segmentEvent.speakerName')} <span className="text-red-500">*</span>
                   </label>
                   <div className="flex items-center mb-4 space-x-4">
                     <input
                       className="w-[200px] p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
                       type="text"
                       id="speakerName"
-                      placeholder="Enter speaker name"
+                      placeholder={t('segmentEvent.speakerNamePlaceholder')}
                       name="speakerName"
                       value={newSegment.speakerName}
                       onChange={handleChange}
@@ -263,7 +264,7 @@ const SegmentFormPopup = ({
                     )}
                   </div>
                   <label className="block mb-2 font-medium text-gray-700">
-                    Speaker Description <span className="text-red-500">*</span>
+                    {t('segmentEvent.speakerDescription')} <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     className="w-full p-3 transition border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -272,10 +273,10 @@ const SegmentFormPopup = ({
                     value={newSegment.speakerDesc}
                     onChange={handleChange}
                     disabled={isReadOnly}
-                    placeholder="Enter speaker description..."
+                    placeholder={t('segmentEvent.speakerDescriptionPlaceholder')}
                   />
                   <div className="mt-1 text-sm text-right text-gray-400">
-                    {newSegment.speakerDesc.length} / 1000
+                    {t('segmentEvent.characterCount', { count: newSegment.speakerDesc.length })}
                   </div>
                 </div>
                 <i
@@ -292,7 +293,7 @@ const SegmentFormPopup = ({
             onClick={onClose}
             disabled={loading}
           >
-            Cancel
+            {t('segmentEvent.cancel')}
           </button>
           <button
             className="px-4 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
@@ -300,10 +301,10 @@ const SegmentFormPopup = ({
             disabled={loading}
           >
             {loading
-              ? "Saving..."
+              ? t('segmentEvent.saving')
               : isEditing
-              ? "Save Changes"
-              : "Save Segment"}
+              ? t('segmentEvent.saveChanges')
+              : t('segmentEvent.saveSegment')}
           </button>
         </div>
       </div>
@@ -319,6 +320,7 @@ const SectionEvent = ({
   eventEnd,
   isReadOnly
 }) => {
+  const { t } = useTranslation();
   const [segments, setSegments] = useState(segmentData || []);
   const [newSegment, setNewSegment] = useState({
     eventId: eventId || "",
@@ -349,8 +351,8 @@ const SectionEvent = ({
     if (newEndTime <= newStartTime) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "End time must be before the event end time.",
+        title: t('segmentEvent.endTimeBeforeStartError.title', { defaultValue: 'Warning' }),
+        text: t('segmentEvent.endTimeBeforeStartError'),
       });
       return false;
     }
@@ -363,16 +365,16 @@ const SectionEvent = ({
       if (newStartTime < eventStartTime) {
         Swal.fire({
           icon: "warning",
-          title: "Warning",
-          text: "Segment start time cannot be earlier than the event start time.",
+          title: t('segmentEvent.startTimeBeforeEventStartError.title', { defaultValue: 'Warning' }),
+          text: t('segmentEvent.startTimeBeforeEventStartError'),
         });
         return false;
       }
       if (newEndTime > eventEndTime) {
         Swal.fire({
           icon: "warning",
-          title: "Warning",
-          text: "Segment end time cannot be later than the event end time.",
+          title: t('segmentEvent.endTimeAfterEventEndError.title', { defaultValue: 'Warning' }),
+          text: t('segmentEvent.endTimeAfterEventEndError'),
         });
         return false;
       }
@@ -393,8 +395,8 @@ const SectionEvent = ({
       ) {
         Swal.fire({
           icon: "warning",
-          title: "Warning",
-          text: "This time range overlaps with another segment.",
+          title: t('segmentEvent.timeOverlapError.title', { defaultValue: 'Warning' }),
+          text: t('segmentEvent.timeOverlapError'),
         });
         return false;
       }
@@ -431,16 +433,16 @@ const SectionEvent = ({
     ) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "Please fill in all required fields (Title, Start Time, End Time).",
+        title: t('segmentEvent.requiredFieldsError.title', { defaultValue: 'Warning' }),
+        text: t('segmentEvent.requiredFieldsError'),
       });
       return;
     }
     if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "Please fill in Speaker Name and Speaker Description.",
+        title: t('segmentEvent.speakerFieldsError.title', { defaultValue: 'Warning' }),
+        text: t('segmentEvent.speakerFieldsError'),
       });
       return;
     }
@@ -504,16 +506,16 @@ const SectionEvent = ({
     ) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "Please fill in all required fields (Title, Start Time, End Time).",
+        title: t('segmentEvent.requiredFieldsError.title', { defaultValue: 'Warning' }),
+        text: t('segmentEvent.requiredFieldsError'),
       });
       return;
     }
     if (actor && (!newSegment.speakerName || !newSegment.speakerDesc)) {
       Swal.fire({
         icon: "warning",
-        title: "Warning",
-        text: "Please fill in Speaker Name and Speaker Description.",
+        title: t('segmentEvent.speakerFieldsError.title', { defaultValue: 'Warning' }),
+        text: t('segmentEvent.speakerFieldsError'),
       });
       return;
     }
@@ -578,14 +580,14 @@ const SectionEvent = ({
     
     // Show confirmation dialog
     const result = await Swal.fire({
-      title: "Are you sure?",
-      text: `Do you want to delete the segment "${segmentToDelete.segmentTitle}"?`,
+      title: t('segmentEvent.deleteSegmentConfirm.title'),
+      text: t('segmentEvent.deleteSegmentConfirm.text', { segmentTitle: segmentToDelete.segmentTitle }),
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-      cancelButtonText: "No, cancel",
+      confirmButtonText: t('segmentEvent.deleteSegmentConfirm.confirmButton'),
+      cancelButtonText: t('segmentEvent.deleteSegmentConfirm.cancelButton'),
     });
 
     // Proceed only if user clicks "Yes"
@@ -596,8 +598,8 @@ const SectionEvent = ({
         onSegmentUpdate(updatedSegments);
         Swal.fire({
           icon: "success",
-          title: "Success",
-          text: "Segment deleted successfully",
+          title: t('segmentEvent.deleteSegmentSuccess.title'),
+          text: t('segmentEvent.deleteSegmentSuccess.text'),
         });
       } else if (segmentToDelete.segmentId) {
         try {
@@ -618,22 +620,22 @@ const SectionEvent = ({
             onSegmentUpdate(updatedSegments);
             Swal.fire({
               icon: "success",
-              title: "Success",
-              text: "Segment deleted successfully",
+              title: t('segmentEvent.deleteSegmentSuccess.title'),
+              text: t('segmentEvent.deleteSegmentSuccess.text'),
             });
           } else {
             Swal.fire({
               icon: "warning",
-              title: "Warning",
-              text: "Failed to delete segment",
+              title: t('segmentEvent.deleteSegmentError.title'),
+              text: t('segmentEvent.deleteSegmentError.text'),
             });
           }
         } catch (error) {
           console.error("Error deleting segment:", error);
           Swal.fire({
             icon: "warning",
-            title: "Warning",
-            text: "An error occurred while deleting the segment",
+            title: t('segmentEvent.deleteSegmentGeneralError.title'),
+            text: t('segmentEvent.deleteSegmentGeneralError.text'),
           });
         }
       }
@@ -643,16 +645,14 @@ const SectionEvent = ({
   return (
     <div className="bg-white p-8 rounded-lg border border-blue-500 max-w-[710px] w-full mb-4 shadow">
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-2xl font-semibold text-gray-800">Segments</h1>
+        <h1 className="text-2xl font-semibold text-gray-800">{t('segmentEvent.segments')}</h1>
       </div>
       <p className="mb-6 text-gray-600">
-        Add an itinerary, schedule, or lineup to your event. You can include a
-        time, a description of what will happen, and who will host or perform
-        during the event.
+        {t('segmentEvent.addItinerary')}
       </p>
       <div className="flex items-center mb-4">
         <button className="pb-1 mr-4 font-medium text-blue-600 border-b-2 border-blue-600">
-          Segments
+          {t('segmentEvent.segments')}
         </button>
         {!isReadOnly && (
             <button
@@ -660,7 +660,7 @@ const SectionEvent = ({
               onClick={() => setIsAdding(true)}
               disabled={loading || isReadOnly}
             >
-              + Add New Segment
+              {t('segmentEvent.addNewSegment')}
             </button>
           )}
       </div>
@@ -714,7 +714,7 @@ const SectionEvent = ({
                     />
                   )}
                   <p className="text-xs text-gray-700 sm:text-sm">
-                    <span className="font-medium">Speaker:</span>{" "}
+                    <span className="font-medium">{t('segmentEvent.speaker')}</span>{" "}
                     {segment.speaker.speakerName} -{" "}
                     {segment.speaker.speakerDesc}
                   </p>

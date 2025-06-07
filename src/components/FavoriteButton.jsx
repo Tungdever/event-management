@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../pages/Auth/AuthProvider";
+import { useTranslation } from "react-i18next"; // Import useTranslation
+import Swal from "sweetalert2";
 
 const FavoriteButton = ({ eventId }) => {
+  const { t } = useTranslation(); // Initialize translation hook
   const [isFavorite, setIsFavorite] = useState(false);
   const { user } = useAuth();
   const token = localStorage.getItem("token");
 
-  // Lấy danh sách sự kiện yêu thích
+  // Fetch favorite events
   const getFavorites = async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
@@ -16,17 +19,22 @@ const FavoriteButton = ({ eventId }) => {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch favorite events");
+        throw new Error(t("favoriteButton.errorFetchFavorites")); // Translated error
       }
       const data = await response.json();
       const favoriteEventIds = new Set(data.map(event => event.eventId));
       setIsFavorite(favoriteEventIds.has(eventId));
     } catch (error) {
       console.error("Error fetching favorite events:", error);
+      Swal.fire({
+        icon: 'error',
+        title: t("favoriteButton.errorFetchFavorites"),
+        text: t("favoriteButton.errorFetchFavorites"),
+      });
     }
   };
 
-  // Thêm sự kiện vào danh sách yêu thích
+  // Add event to favorites
   const addFavorite = async () => {
     try {
       const favoriteEvent = { userId: user.userId, eventId };
@@ -39,15 +47,20 @@ const FavoriteButton = ({ eventId }) => {
         body: JSON.stringify(favoriteEvent),
       });
       if (!response.ok) {
-        throw new Error("Failed to add favorite event");
+        throw new Error(t("favoriteButton.errorAddFavorite")); // Translated error
       }
       setIsFavorite(true);
     } catch (error) {
       console.error("Error adding favorite event:", error);
+      Swal.fire({
+        icon: 'error',
+        title: t("favoriteButton.errorAddFavorite"),
+        text: t("favoriteButton.errorAddFavorite"),
+      });
     }
   };
 
-  // Xóa sự kiện khỏi danh sách yêu thích
+  // Remove event from favorites
   const removeFavorite = async () => {
     try {
       const favoriteEvent = { userId: user.userId, eventId };
@@ -60,17 +73,22 @@ const FavoriteButton = ({ eventId }) => {
         body: JSON.stringify(favoriteEvent),
       });
       if (!response.ok) {
-        throw new Error("Failed to remove favorite event");
+        throw new Error(t("favoriteButton.errorRemoveFavorite")); // Translated error
       }
       setIsFavorite(false);
     } catch (error) {
       console.error("Error removing favorite event:", error);
+      Swal.fire({
+        icon: 'error',
+        title: t("favoriteButton.errorRemoveFavorite"),
+        text: t("favoriteButton.errorRemoveFavorite"),
+      });
     }
   };
 
-  // Chuyển đổi trạng thái yêu thích
+  // Toggle favorite status
   const toggleFavorite = (e) => {
-    e.stopPropagation(); // Ngăn sự kiện click lan tỏa
+    e.stopPropagation();
     if (isFavorite) {
       removeFavorite();
     } else {
@@ -78,12 +96,12 @@ const FavoriteButton = ({ eventId }) => {
     }
   };
 
-  // Lấy danh sách yêu thích khi component được mount
+  // Fetch favorites on mount
   useEffect(() => {
     if (user) {
       getFavorites();
     }
-  }, [user, eventId]);
+  }, [user, eventId, t]); // Add t to dependencies for language changes
 
   return (
     <i

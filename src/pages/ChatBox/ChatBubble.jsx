@@ -7,7 +7,10 @@ import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import { MdInsertEmoticon } from "react-icons/md";
 import Swal from "sweetalert2";
+import { useTranslation } from 'react-i18next';
+
 const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
+  const { t } = useTranslation();
   const { stompClient, isConnected } = useWebSocket();
   const [isOpen, setIsOpen] = useState(false);
   const [users, setUsers] = useState([]);
@@ -26,7 +29,6 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
 
   const MEDIA_BASE_URL = "http://localhost:8080/uploads/";
 
-  // Đóng emoji picker khi nhấp ra ngoài
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -78,11 +80,10 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setUsers(formattedUsers);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách người dùng:", error);
-
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Unable to load user list",
+        title: t('errors.generic'),
+        text: t('errors.loadUserListFailed'),
       });
     }
   };
@@ -175,11 +176,12 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           }));
         })
         .catch((error) => {
-          // Swal.fire({
-          //   icon: "error",
-          //   title: "error",
-          //   text: "RUnable to load chat history. Please try again.",
-          // });
+          console.error("Error fetching chat history:", error);
+          Swal.fire({
+            icon: "error",
+            title: t('errors.generic'),
+            text: t('errors.loadChatHistoryFailed'),
+          });
         });
     }
   }, [selectedUser, currentUser.userId, token]);
@@ -258,10 +260,11 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       setMessages((prev) => [...prev, messageDTO]);
       setTimeout(scrollToBottom, 0);
     } catch (error) {
+      console.error("Error uploading file:", error);
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Unable to upload file.",
+        title: t('errors.generic'),
+        text: t('errors.uploadFileFailed'),
       });
     }
   };
@@ -289,14 +292,14 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       if (!isConnected) {
         Swal.fire({
           icon: "error",
-          title: "error",
-          text: "Unable to send message: WebSocket connection lost.",
+          title: t('errors.generic'),
+          text: t('errors.websocketLost'),
         });
       } else if (!selectedUser) {
         Swal.fire({
           icon: "error",
-          title: "error",
-          text: "Please select a user to chat with.",
+          title: t('errors.generic'),
+          text: t('errors.noUserSelected'),
         });
       }
     }
@@ -322,13 +325,13 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     console.log("Rendering message:", msg);
     if (!msg || !msg.contentType) {
       console.error("Invalid message:", msg);
-      return <p className="text-red-500">Tin nhắn không hợp lệ</p>;
+      return <p className="text-red-500">{t('messages.invalidMessage')}</p>;
     }
     try {
       if (msg.contentType === "IMAGE") {
         if (!msg.mediaUrl) {
           console.error("Missing mediaUrl for IMAGE:", msg);
-          return <p className="text-red-500">Không có URL hình ảnh</p>;
+          return <p className="text-red-500">{t('messages.noImageUrl')}</p>;
         }
         return (
           <img
@@ -341,7 +344,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                 `Failed to load image: ${MEDIA_BASE_URL}${msg.mediaUrl}`
               );
               e.target.replaceWith(
-                <span className="text-red-500">Hình ảnh không tải được</span>
+                <span className="text-red-500">{t('messages.imageLoadFailed')}</span>
               );
             }}
             onLoad={() =>
@@ -358,24 +361,24 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
             onClick={() => openPreview(msg.mediaUrl, "VIDEO")}
           >
             <source src={`${MEDIA_BASE_URL}${msg.mediaUrl}`} type="video/mp4" />
-            Trình duyệt của bạn không hỗ trợ video.
+            {t('messages.videoNotSupported')}
           </video>
         );
       }
       if (msg.contentType === "TEXT" || msg.contentType === "EMOJI") {
-        return <p>{msg.content || "(trống)"}</p>;
+        return <p>{msg.content || t('messages.emptyContent')}</p>;
       }
       console.warn("Unknown contentType:", msg.contentType);
       return (
         <p>
           {typeof msg.content === "string"
             ? msg.content
-            : "(nội dung không xác định)"}
+            : t('messages.undefinedContent')}
         </p>
       );
     } catch (error) {
       console.error("Error rendering message:", error, msg);
-      return <p className="text-red-500">Lỗi hiển thị tin nhắn</p>;
+      return <p className="text-red-500">{t('messages.displayError')}</p>;
     }
   };
 
@@ -409,7 +412,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
       {isOpen && (
         <div className="w-80 h-96 bg-white rounded-lg shadow-xl flex flex-col">
           <div className="p-4 bg-blue-500 text-white rounded-t-lg flex justify-between items-center">
-            <h3 className="font-semibold">Tin nhắn</h3>
+            <h3 className="font-semibold">{t('chatBubble.title')}</h3>
             <button
               onClick={() => {
                 setIsOpen(false);
@@ -457,7 +460,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                 ))
               ) : (
                 <p className="p-3 text-gray-500 text-sm">
-                  Chưa có lịch sử trò chuyện
+                  {t('chatBubble.noChatHistory')}
                 </p>
               )}
             </div>
@@ -519,7 +522,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                   </div>
                 ))}
                 {typingStatus[selectedUser.email] && (
-                  <div className="text-sm text-gray-500">Đang nhập...</div>
+                  <div className="text-sm text-gray-500">{t('chatBubble.typing')}</div>
                 )}
                 <div ref={messagesEndRef} style={{ height: "1px" }} />
               </div>
@@ -549,7 +552,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Nhập tin nhắn..."
+                    placeholder={t('chatBubble.messagePlaceholder')}
                     className="flex-1 p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-[13px]"
                   />
                   <button

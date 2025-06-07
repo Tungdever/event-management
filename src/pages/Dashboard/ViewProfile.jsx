@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import axios from "axios";
 import EditProfile from "./EditProfile";
 import { useAuth } from "../Auth/AuthProvider";
@@ -6,6 +7,7 @@ import Footer from "../../components/Footer";
 import Header from "../../components/Header";
 
 const ViewProfile = () => {
+  const { t } = useTranslation();
   const [userData, setUserData] = useState(null);
   const [openEdit, setOpenEdit] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,17 +30,16 @@ const ViewProfile = () => {
         },
       });
       setUserData(response.data);
-      // Fetch follower count (if Organizer) and following count
       if (response.data.organizer) {
         fetchFollowerCount(response.data.organizer.organizerId);
       } else {
-        setFollowerCount(0); // Non-Organizer has 0 followers
+        setFollowerCount(0);
       }
       fetchFollowingCount(user.email);
       setLoading(false);
     } catch (err) {
       console.error("Error fetching user data:", err);
-      setError("Unable to load user data. Please try again.");
+      setError(t('viewProfile.loadingError'));
       setLoading(false);
     }
   };
@@ -90,7 +91,7 @@ const ViewProfile = () => {
       setShowFollowersPopup(true);
     } catch (err) {
       console.error("Error fetching followers:", err);
-      setError("Unable to load followers list");
+      setError(t('viewProfile.followersError'));
     }
   };
 
@@ -106,7 +107,7 @@ const ViewProfile = () => {
       setShowFollowingPopup(true);
     } catch (err) {
       console.error("Error fetching following organizers:", err);
-      setError("Unable to load following organizers list");
+      setError(t('viewProfile.followingError'));
     }
   };
 
@@ -127,7 +128,7 @@ const ViewProfile = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-teal-50 to-gray-100">
-        <div className="text-lg font-bold text-teal-600 sm:text-xl md:text-2xl animate-pulse">Loading...</div>
+        <div className="text-lg font-bold text-teal-600 sm:text-xl md:text-2xl animate-pulse">{t('viewProfile.loading')}</div>
       </div>
     );
   }
@@ -142,22 +143,22 @@ const ViewProfile = () => {
     );
   }
 
-  // Hàm định dạng ngày sinh theo chuẩn MM/DD/YYYY
   const formatDate = (dateString) => {
-    if (!dateString) return "Not Updated";
+    if (!dateString) return t('viewProfile.notUpdated');
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "2-digit",
-      day: "2-digit",
-      year: "numeric",
-    });
+    return date.toLocaleDateString(
+      t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
+      {
+        month: "2-digit",
+        day: "2-digit",
+        year: "numeric"
+      }
+    );
   };
 
-  // Tách fullName thành firstName và lastName
   const [firstName, ...lastNameParts] = userData.fullName.split(" ");
-  const lastName = lastNameParts.join(" ") || "Not Updated";
+  const lastName = lastNameParts.join(" ") || t('viewProfile.notUpdated');
 
-  // Check if user has ATTENDEE role and does not have ORGANIZER role
   const isAttendeeOnly = user?.primaryRoles?.includes("ATTENDEE") && !user?.primaryRoles?.includes("ORGANIZER");
 
   return (
@@ -166,14 +167,13 @@ const ViewProfile = () => {
       <div className={`py-4 sm:py-6 ${isAttendeeOnly ? 'mt-28' : ''}`}>
         <div className="container px-4 mx-auto sm:px-6 lg:px-8">
           <div className="flex flex-col items-stretch gap-4 lg:flex-row sm:gap-6 lg:gap-8">
-            {/* Left Section - Profile Card */}
             <div className="flex w-full lg:w-1/3">
               <div className="flex-1 p-6 transition-all transform bg-white border-t-4 border-teal-500 shadow-lg rounded-xl sm:rounded-2xl sm:shadow-xl sm:p-8 hover:shadow-2xl hover:-translate-y-1">
                 <div className="relative flex justify-center">
                   <img
                     className="object-cover w-24 h-24 transition-transform transform border-4 border-teal-100 rounded-full shadow-md sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 hover:scale-105"
                     src={userData.organizer?.organizerLogo || "https://i.pinimg.com/736x/cd/4b/d9/cd4bd9b0ea2807611ba3a67c331bff0b.jpg"}
-                    alt="Profile"
+                    alt={t('viewProfile.profileAlt')}
                   />
                   <div className="absolute inset-0 bg-teal-500 rounded-full opacity-10 blur-xl"></div>
                 </div>
@@ -184,40 +184,36 @@ const ViewProfile = () => {
                   {userData.roles?.[0]?.name || "User"}
                 </h3>
                 <p className="mt-2 text-xs leading-relaxed text-center text-gray-500 sm:text-sm sm:mt-3">
-                  {userData.organizer?.organizerName || "Not an Organizer"}
+                  {userData.organizer?.organizerName || t('viewProfile.notAnOrganizer')}
                 </p>
                 <div className="p-4 mt-6 rounded-lg shadow-inner sm:mt-8 bg-gray-50 sm:rounded-xl sm:p-6">
                   <ul className="space-y-3 text-xs text-gray-600 sm:space-y-4 sm:text-sm">
                     <li className="flex items-center justify-between">
-                      <span className="font-medium">Status</span>
+                      <span className="font-medium">{t('viewProfile.status')}</span>
                       <span
                         className={`text-xs font-bold px-2 sm:px-3 py-1 rounded-full shadow ${
                           userData.active ? "bg-teal-500 text-white" : "bg-red-500 text-white"
                         }`}
                       >
-                        {userData.active ? "Active" : "Inactive"}
+                        {userData.active ? t('viewProfile.active') : t('viewProfile.inactive')}
                       </span>
                     </li>
                     <li className="flex items-center justify-between">
-                      <span className="font-medium">User ID</span>
-                      <span className="text-gray-700">{userData.userId}</span>
-                    </li>
-                    <li className="flex items-center justify-between">
-                      <span className="font-medium">Followers</span>
+                      <span className="font-medium">{t('viewProfile.followersPopupTitle')}</span>
                       <span
                         className="text-gray-700 cursor-pointer hover:text-teal-600"
                         onClick={() => fetchFollowers(userData.organizer?.organizerId)}
                       >
-                        {followerCount} Người theo dõi
+                        {t('viewProfile.followers', { count: followerCount })}
                       </span>
                     </li>
                     <li className="flex items-center justify-between">
-                      <span className="font-medium">Following</span>
+                      <span className="font-medium">{t('viewProfile.followingPopupTitle')}</span>
                       <span
                         className="text-gray-700 cursor-pointer hover:text-teal-600"
                         onClick={() => fetchFollowingOrganizers(user.email)}
                       >
-                        {followingCount} Đang theo dõi
+                        {t('viewProfile.following', { count: followingCount })}
                       </span>
                     </li>
                   </ul>
@@ -225,7 +221,6 @@ const ViewProfile = () => {
               </div>
             </div>
 
-            {/* Right Section - Details */}
             <div className="flex w-full lg:w-2/3">
               <div className="flex-1 p-6 bg-white shadow-lg rounded-xl sm:rounded-2xl sm:shadow-xl sm:p-8">
                 <div className="flex flex-col items-start justify-between mb-6 sm:flex-row sm:items-center sm:mb-8">
@@ -245,25 +240,25 @@ const ViewProfile = () => {
                       />
                     </svg>
                     <span className="text-lg font-bold tracking-tight text-gray-800 sm:text-xl md:text-2xl">
-                      Personal Information
+                      {t('viewProfile.personalInfo')}
                     </span>
                   </div>
                   <button
                     onClick={handleEditClick}
                     className="mt-3 sm:mt-0 bg-gradient-to-r from-teal-500 to-teal-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg shadow-md hover:from-teal-600 hover:to-teal-700 transition-all duration-300 transform hover:-translate-y-0.5 text-sm sm:text-base"
                   >
-                    <i className="mr-1 fa-solid fa-user-pen sm:mr-2"></i>Edit
+                    <i className="mr-1 fa-solid fa-user-pen sm:mr-2"></i>{t('viewProfile.edit')}
                   </button>
                 </div>
                 <div className="grid grid-cols-1 gap-4 pb-6 text-gray-700 border-b-2 border-gray-100 sm:grid-cols-2 sm:gap-6 sm:pb-8">
                   {[
-                    { label: "First Name", value: firstName },
-                    { label: "Last Name", value: lastName },
-                    { label: "Gender", value: userData.gender || "Not Updated" },
-                    { label: "Birthday", value: formatDate(userData.birthday) },
-                    { label: "Address", value: userData.address || "Not Updated" },
+                    { label: t('viewProfile.firstName'), value: firstName },
+                    { label: t('viewProfile.lastName'), value: lastName },
+                    { label: t('viewProfile.gender'), value: userData.gender || t('viewProfile.notUpdated') },
+                    { label: t('viewProfile.birthday'), value: formatDate(userData.birthday) },
+                    { label: t('viewProfile.address'), value: userData.address || t('viewProfile.notUpdated') },
                     {
-                      label: "Email",
+                      label: t('viewProfile.email'),
                       value: (
                         <a
                           href={`mailto:${userData.email}`}
@@ -271,8 +266,8 @@ const ViewProfile = () => {
                         >
                           {userData.email}
                         </a>
-                      ),
-                    },
+                      )
+                    }
                   ].map((item) => (
                     <div key={item.label} className="flex flex-col gap-1 group">
                       <div className="text-sm font-semibold text-gray-600 transition-colors group-hover:text-teal-600 sm:text-base">
@@ -289,15 +284,15 @@ const ViewProfile = () => {
                     <div className="flex items-center mb-4 space-x-2 sm:space-x-3 sm:mb-6">
                       <i className="text-lg text-teal-600 fa-solid fa-users sm:text-xl"></i>
                       <span className="text-lg font-bold tracking-tight text-gray-800 sm:text-xl md:text-2xl">
-                        Organizational Information
+                        {t('viewProfile.organizationalInfo')}
                       </span>
                     </div>
                     <div className="grid grid-cols-1 gap-4 text-gray-700 sm:grid-cols-2 sm:gap-6">
                       {[
-                        { label: "Organization Name", value: userData.organizer.organizerName },
-                        { label: "Address", value: userData.organizer.organizerAddress },
+                        { label: t('viewProfile.organizationName'), value: userData.organizer.organizerName },
+                        { label: t('viewProfile.address'), value: userData.organizer.organizerAddress },
                         {
-                          label: "Website",
+                          label: t('viewProfile.website'),
                           value: (
                             <a
                               href={userData.organizer.organizerWebsite}
@@ -307,10 +302,10 @@ const ViewProfile = () => {
                             >
                               {userData.organizer.organizerWebsite}
                             </a>
-                          ),
+                          )
                         },
-                        { label: "Phone Number", value: userData.organizer.organizerPhone },
-                        { label: "Description", value: userData.organizer.organizerDesc },
+                        { label: t('viewProfile.phoneNumber'), value: userData.organizer.organizerPhone },
+                        { label: t('viewProfile.description'), value: userData.organizer.organizerDesc }
                       ].map((item) => (
                         <div key={item.label} className="flex flex-col gap-1 group">
                           <div className="text-sm font-semibold text-gray-600 transition-colors group-hover:text-teal-600 sm:text-base">
@@ -329,15 +324,17 @@ const ViewProfile = () => {
           </div>
         </div>
 
-        {/* Followers Popup */}
         {showFollowersPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 bg-black bg-opacity-70">
             <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Người theo dõi ({followerCount})</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                  {t('viewProfile.followersPopupTitle', { count: followerCount })}
+                </h2>
                 <button
                   onClick={() => setShowFollowersPopup(false)}
                   className="text-gray-500 hover:text-gray-700"
+                  aria-label={t('viewProfile.close')}
                 >
                   <i className="text-lg fa-solid fa-times"></i>
                 </button>
@@ -360,22 +357,24 @@ const ViewProfile = () => {
                 </ul>
               ) : (
                 <p className="text-center text-gray-500">
-                  {userData.organizer ? "Chưa có người theo dõi" : "Bạn không phải Organizer"}
+                  {userData.organizer ? t('viewProfile.noFollowers') : t('viewProfile.noFollowersNonOrganizer')}
                 </p>
               )}
             </div>
           </div>
         )}
 
-        {/* Following Organizers Popup */}
         {showFollowingPopup && (
           <div className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 bg-black bg-opacity-70">
             <div className="bg-white rounded-xl p-6 w-full max-w-md max-h-[80vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Đang theo dõi ({followingCount})</h2>
+                <h2 className="text-xl font-bold text-gray-800">
+                  {t('viewProfile.followingPopupTitle', { count: followingCount })}
+                </h2>
                 <button
                   onClick={() => setShowFollowingPopup(false)}
                   className="text-gray-500 hover:text-gray-700"
+                  aria-label={t('viewProfile.close')}
                 >
                   <i className="text-lg fa-solid fa-times"></i>
                 </button>
@@ -391,19 +390,20 @@ const ViewProfile = () => {
                       />
                       <div>
                         <p className="font-semibold text-gray-700">{organizer.organizerName}</p>
-                        <p className="text-sm text-gray-500">{organizer.organizerDesc || "No description"}</p>
+                        <p className="text-sm text-gray-500">
+                          {organizer.organizerDesc || t('viewProfile.noDescription')}
+                        </p>
                       </div>
                     </li>
                   ))}
                 </ul>
               ) : (
-                <p className="text-center text-gray-500">Chưa theo dõi Organizer nào</p>
+                <p className="text-center text-gray-500">{t('viewProfile.noFollowing')}</p>
               )}
             </div>
           </div>
         )}
 
-        {/* Edit Profile Modal */}
         {openEdit && (
           <div className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-500 bg-black bg-opacity-70">
             <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 w-full max-w-[95%] sm:max-w-3xl max-h-[90vh] sm:max-h-[85vh] overflow-y-auto transform transition-all duration-500 scale-100 opacity-100 animate-fadeIn">

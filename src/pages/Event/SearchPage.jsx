@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import EventList from "../../components/EventListSearch";
 import Footer from "../../components/Footer";
 import Loader from "../../components/Loading";
-
+import { useTranslation } from "react-i18next";
 const FilterSidebar = ({
   onFilterChange,
   selectedCategories,
@@ -14,44 +14,61 @@ const FilterSidebar = ({
   setSelectedEventStart,
   selectedTicketType,
   setSelectedTicketType,
-  eventCategories, // Nhận eventCategories từ props
+  eventCategories,
+  t
 }) => {
   const eventLocations = [
-    { id: "all-locations", label: "All location" },
-    { id: "ho-chi-minh", label: "TP. Hồ Chí Minh" },
-    { id: "ha-noi", label: "Hà Nội" },
-    { id: "da-nang", label: "Đà Nẵng" },
-    { id: "hai-phong", label: "Hải Phòng" },
-    { id: "can-tho", label: "Cần Thơ" },
-    { id: "nha-trang", label: "Nha Trang" },
-    { id: "da-lat", label: "Đà Lạt" },
-    { id: "binh-duong", label: "Bình Dương" },
-    { id: "dong-nai", label: "Đồng Nai" },
-    { id: "quang-ninh", label: "Quảng Ninh" },
+    { id: "all-locations", label: t("searchPage.allLocations") },
+    { id: "ho-chi-minh", label: t("searchPage.locations.hoChiMinh") },
+    { id: "ha-noi", label: t("searchPage.locations.haNoi") },
+    { id: "da-nang", label: t("searchPage.locations.daNang") },
+    { id: "hai-phong", label: t("searchPage.locations.haiPhong") },
+    { id: "can-tho", label: t("searchPage.locations.canTho") },
+    { id: "nha-trang", label: t("searchPage.locations.nhaTrang") },
+    { id: "da-lat", label: t("searchPage.locations.daLat") },
+    { id: "binh-duong", label: t("searchPage.locations.binhDuong") },
+    { id: "dong-nai", label: t("searchPage.locations.dongNai") },
+    { id: "quang-ninh", label: t("searchPage.locations.quangNinh") },
   ];
 
   const eventStarts = [
-    { id: "all-times", label: "All time" },
-    { id: "this-week", label: "This week" },
-    { id: "this-month", label: "This month" },
+    { id: "all-times", label: t("searchPage.allTimes") },
+    { id: "this-week", label: t("searchPage.thisWeek") },
+    { id: "this-month", label: t("searchPage.thisMonth") },
   ];
 
   const ticketTypes = [
-    { id: "all-types", label: "All types" },
-    { id: "Free", label: "Free" },
-    { id: "Paid", label: "Paid" },
+    { id: "all-types", label: t("searchPage.allTicketTypes") },
+    { id: "Free", label: t("searchPage.free") },
+    { id: "Paid", label: t("searchPage.paid") },
   ];
-
+  const formatLabel = (label) => {
+    if (!label) return "Unknown";
+    return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+  };
+  const getCategoryLabel = (label, id) => {
+    if (id === "all-types") {
+      return t("searchPage.allTypes"); // Use searchPage.allTypes for "All types"
+    }
+    const translationKey = `sliderEvent.${label.toLowerCase()}`;
+    const translated = t(translationKey);
+    // If translation is the same as the key, it means the key is missing
+    if (translated === translationKey) {
+      console.warn(`Missing translation for: ${translationKey}`);
+      return formatLabel(label); // Fallback to formatted label
+    }
+    return translated;
+  };
   return (
     <div className="w-full bg-white p-6 rounded-[4px] space-y-8 border-r border-gray-200">
       <div className="flex items-center justify-between pb-4 border-b">
-        <h2 className="text-xl font-bold text-gray-800">Filters</h2>
+        <h2 className="text-xl font-bold">{t("searchPage.filters")}</h2>
       </div>
 
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-700">Event types</h3>
+        <h3 className="mb-3 text-lg font-semibold">{t("searchPage.eventTypes")}</h3>
         {eventCategories.length === 0 ? (
-          <p className="text-sm text-gray-500">Loading event types...</p>
+          <p className="text-sm text-gray-500">{t("searchPage.loadingEventTypes")}</p>
         ) : (
           <div className="space-y-3">
             {eventCategories.map((category) => (
@@ -71,7 +88,7 @@ const FilterSidebar = ({
                   htmlFor={category.id}
                   className="text-gray-600 transition-colors duration-200 cursor-pointer hover:text-red-500"
                 >
-                  {category.label}
+                  {getCategoryLabel(category.label, category.id)}
                 </label>
               </div>
             ))}
@@ -80,7 +97,7 @@ const FilterSidebar = ({
       </div>
 
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-700">Location</h3>
+        <h3 className="mb-4 text-lg font-semibold">{t("searchPage.location")}</h3>
         <div className="space-y-3">
           {eventLocations.map((location) => (
             <div
@@ -107,7 +124,7 @@ const FilterSidebar = ({
       </div>
 
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-700">Time</h3>
+        <h3 className="mb-4 text-lg font-semibold">{t("searchPage.time")}</h3>
         <div className="space-y-3">
           {eventStarts.map((time) => (
             <div
@@ -134,7 +151,7 @@ const FilterSidebar = ({
       </div>
 
       <div>
-        <h3 className="mb-3 text-lg font-semibold text-gray-700">Price</h3>
+        <h3 className="mb-4 text-lg font-semibold">{t("searchPage.price")}</h3>
         <div className="space-y-3">
           {ticketTypes.map((type) => (
             <div
@@ -175,7 +192,7 @@ const SearchPage = () => {
   const location = useLocation();
   const [searchTitle, setSearchTitle] = useState(location.state?.searchTerm || "");
   const token = localStorage.getItem("token");
-
+  const { t } = useTranslation();
   // Lấy danh sách event types từ API
   useEffect(() => {
     const fetchEventTypes = async () => {
@@ -191,7 +208,7 @@ const SearchPage = () => {
         const data = await response.json();
         // Giả định dữ liệu API trả về dạng: [{ eventTypeId: number, eventTypeName: string }, ...]
         const formattedCategories = [
-          { id: "all-types", label: "All types" }, // Giữ tùy chọn "All types"
+          { id: "all-types", label: t("searchPage.allTypes") }, // Giữ tùy chọn "All types"
           ...data.map((type) => ({
             id: type.id, // Sử dụng eventTypeName làm id
             label: type.typeName, // Sử dụng eventTypeName làm label
@@ -270,8 +287,8 @@ const SearchPage = () => {
       <div className="px-6 py-4 mx-auto">
         <h1 className="mt-4 text-3xl font-bold text-gray-700 font-montserrat">
           {searchTitle
-            ? `Upcoming events for ${searchTitle}`
-            : "Upcoming events"}
+            ? t("searchPage.upcomingEventsFor", { searchTerm: searchTitle })
+            : t("searchPage.upcomingEvents")}
         </h1>
         <div className="flex flex-col gap-2 p-5 md:flex-row">
           <div className="w-full md:w-1/4">
@@ -285,14 +302,15 @@ const SearchPage = () => {
               setSelectedEventStart={setSelectedEventStart}
               selectedTicketType={selectedTicketType}
               setSelectedTicketType={setSelectedTicketType}
-              eventCategories={eventCategories} // Truyền eventCategories vào FilterSidebar
+              eventCategories={eventCategories}
+              t={t}
             />
           </div>
           <div className="w-full md:w-3/4">
             {events.length > 0 ? (
               <EventList event={events} />
             ) : (
-              <p className="text-gray-500">No event found.</p>
+              <p className="text-gray-500">{t("searchPage.noEvents")}</p>
             )}
           </div>
         </div>

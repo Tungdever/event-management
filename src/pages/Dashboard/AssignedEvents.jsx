@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Calendar, MapPin, Tag, User } from "lucide-react";
 import { useAuth } from "../Auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
 import { FaEllipsisV } from "react-icons/fa";
 import Swal from "sweetalert2";
+
 const AssignedEvents = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const popupRef = useRef(null);
   const [events, setEvents] = useState([]);
@@ -53,24 +56,24 @@ const AssignedEvents = () => {
       setEvents(events.filter((e) => e.event.eventId !== eventId));
 
       Swal.fire({
-        Icon: "success",
-        Title: "success",
-        Text: "Event deleted successfully",
+        icon: "success",
+        title: t('assignedEvents.deleteSuccessTitle'),
+        text: t('assignedEvents.deleteSuccessText'),
       });
     } catch (error) {
       Swal.fire({
-        Icon: "error",
-        Title: "error",
-        Text: "Failed to delete event",
+        icon: "error",
+        title: t('assignedEvents.deleteErrorTitle'),
+        text: t('assignedEvents.deleteErrorText'),
       });
     }
   };
 
   const handleActionClick = (action, eventId) => {
-    if (action === "View detail event") {
+    if (action === t('assignedEvents.viewDetail')) {
       navigate(`/dashboard/my-team/${eventId}`, { state: { eventId } });
-    } else if (action === "Delete event") {
-      if (window.confirm("Are you sure you want to delete this event?")) {
+    } else if (action === t('assignedEvents.deleteEvent')) {
+      if (window.confirm(t('assignedEvents.deleteConfirm'))) {
         deleteEvent(eventId);
       }
     }
@@ -95,32 +98,33 @@ const AssignedEvents = () => {
 
   const formatDateTime = (isoString) => {
     const date = new Date(isoString);
-    return date.toLocaleString("vi-VN", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return date.toLocaleString(
+      t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: t('i18nextLng') === 'en'
+      }
+    );
   };
 
   const getLocation = (location) => {
     if (location.locationType === "online") {
-      return "Online";
+      return t('searchByType.online');
     }
     return `${location.venueName}, ${location.address}, ${location.city}`;
   };
 
-  // Xác định các hành động dựa trên roleName và permissions
   const getAvailableActions = (roleName, permissions) => {
     const actions = [];
 
-    // Hành động "View detail event" luôn khả dụng
-    actions.push("View detail event");
+    actions.push(t('assignedEvents.viewDetail'));
 
-    // Hành động "Delete event" chỉ khả dụng nếu người dùng có quyền DELETE_EVENT hoặc vai trò ORGANIZER
     if (permissions.includes("DELETE_EVENT") || roleName === "ROLE_ORGANIZER") {
-      actions.push("Delete event");
+      actions.push(t('assignedEvents.deleteEvent'));
     }
 
     return actions;
@@ -128,18 +132,16 @@ const AssignedEvents = () => {
 
   return (
     <div className="mx-auto max-w-4xl min-h-screen p-6 bg-gray-50 rounded-[8px]">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-semibold text-gray-900">
-          Assigned Events 
+          {t('assignedEvents.title')}
         </h1>
       </div>
 
-      {/* Events List */}
       <div className="space-y-4">
         {events.length === 0 ? (
           <p className="text-gray-500 text-center py-8">
-            No events are assigned.
+            {t('assignedEvents.noEvents')}
           </p>
         ) : (
           events.map(({ event, roleName, permissions }, index) => (
@@ -148,16 +150,14 @@ const AssignedEvents = () => {
               className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-200"
             >
               <div className="flex flex-col md:flex-row gap-4">
-                {/* Event Image */}
                 {event.eventImages?.[0] && (
                   <img
                     src={event.eventImages[0]}
-                    alt={event.eventName}
+                    alt={t('assignedEvents.eventNameAlt')}
                     className="w-full md:w-48 h-32 object-cover rounded-md"
                   />
                 )}
 
-                {/* Event Details */}
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold text-indigo-700">
                     {event.eventName}
@@ -181,21 +181,20 @@ const AssignedEvents = () => {
                     </div>
                     <div className="flex items-center text-sm text-gray-500">
                       <User className="w-4 h-4 mr-2 text-indigo-500" />
-                      <span>Chủ sự kiện: {event.eventHost}</span>
+                      <span>{t('assignedEvents.eventHost', { host: event.eventHost })}</span>
                     </div>
                     {event.tags && (
                       <div className="flex items-center text-sm text-gray-500">
                         <Tag className="w-4 h-4 mr-2 text-indigo-500" />
-                        <span>{event.tags.split("|").join(", ")}</span>
+                        <span>{t('assignedEvents.tagsLabel')} {event.tags.split("|").join(", ")}</span>
                       </div>
                     )}
                   </div>
                 </div>
 
-                {/* Role and Permissions */}
                 <div className="md:w-48 relative">
                   <h3 className="text-sm font-semibold text-gray-700">
-                    Roles: {roleName.replace("ROLE_", "")}
+                    {t('assignedEvents.rolesLabel', { role: roleName.replace("ROLE_", "") })}
                   </h3>
                   <ul className="mt-2 text-sm text-gray-600">
                     {permissions.map((perm, idx) => (

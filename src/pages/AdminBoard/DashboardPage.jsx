@@ -42,7 +42,7 @@ const DashboardPage = () => {
         const monthStr = transaction.transactionDate.substring(4, 6);
         const monthIndex = parseInt(monthStr, 10) - 1;
         if (monthIndex >= 0 && monthIndex < 12) {
-          revenueByMonth[monthIndex] += (transaction.transactionAmount * 0.05);
+          revenueByMonth[monthIndex] += (transaction.transactionAmount * 0.03);
         }
       });
       const revenueOverTime = { labels: months, data: revenueByMonth };

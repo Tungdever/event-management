@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Loader from "../../components/Loading";
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const Checkout = ({ onClose, selectedTickets, eventData }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  const [isLoading, setIsLoading] = useState(false);
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState(null);
   const totalPrice = selectedTickets.reduce(
@@ -31,19 +33,18 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
   }, [toastMessage]);
 
   const buyFreeTicket = async (checkoutData) => {
-    setIsLoading(true); // Start loading
+    setIsLoading(true);
     const token = localStorage.getItem('token');
     let userId;
 
     if (!token) {
-      setToastMessage("Token does not exist.");
+      setToastMessage(t("checkout.errors.tokenMissing"));
       setToastType("error");
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
       return;
     }
 
     try {
-      // Decode JWT payload to get userId
       const payload = token.split('.')[1];
       const decodedPayload = JSON.parse(atob(payload));
       userId = decodedPayload.userId;
@@ -69,20 +70,19 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
       });
 
       if (response.data.statusCode === 1 || response.data.statusCode === "1") {
-        // Optional: Add a slight delay to ensure spinner is visible
         setTimeout(() => {
           navigate(`/payment-result?orderCode=${response.data.data}`);
-        }, 500); // 500ms delay
+        }, 500);
       } else {
-        setToastMessage("Unexpected response from server.");
+        setToastMessage(t("checkout.errors.unexpectedResponse"));
         setToastType("error");
       }
     } catch (error) {
-      setToastMessage("Payment failed. Please try again.");
+      setToastMessage(t("checkout.errors.paymentFailed"));
       setToastType("error");
       console.error("Error in buyFreeTicket:", error);
     } finally {
-      setIsLoading(false); // Stop loading
+      setIsLoading(false);
     }
   };
 
@@ -103,42 +103,38 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white rounded-lg p-6 w-full max-w-md relative">
-        {/* Show Loader as an overlay when isLoading is true */}
         {isLoading && (
           <div className="absolute inset-0 bg-white bg-opacity-75 flex justify-center items-center">
             <Loader />
           </div>
         )}
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Checkout</h2>
+          <h2 className="text-xl font-semibold">{t("checkout.title")}</h2>
           <button onClick={onClose} className="text-gray-600 hover:text-gray-900" disabled={isLoading}>
             ✕
           </button>
         </div>
 
         <div className="w-full bg-gray-100 p-6 rounded-lg">
-          <h3 className="text-xl font-semibold mb-4">Order summary</h3>
-
-          {/* Hiển thị danh sách vé đã chọn */}
+          <h3 className="text-xl font-semibold mb-4">{t("checkout.orderSummary")}</h3>
           {selectedTickets.length === 0 ? (
-            <p className="text-gray-700 mb-2">No tickets selected</p>
+            <p className="text-gray-700 mb-2">{t("checkout.noTickets")}</p>
           ) : (
             selectedTickets.map((ticket) => (
               <p key={ticket.ticketId} className="text-gray-700 mb-2">
-                {ticket.quantity} x {ticket.ticketName}{" "}
+                {t("checkout.ticketLine", { quantity: ticket.quantity, ticketName: ticket.ticketName })}
                 <span className="float-right">
-                  {(ticket.price * ticket.quantity).toLocaleString()} VND
+                  {(ticket.price * ticket.quantity).toLocaleString()} {t("currency.vnd")}
                 </span>
               </p>
             ))
           )}
-
           <p className="text-gray-700 mb-2">
-            Delivery <span className="float-right">{selectedTickets.length} x eTicket</span>
+            {t("checkout.delivery")} <span className="float-right">{t("checkout.eTicket", { count: selectedTickets.length })}</span>
           </p>
           <hr className="my-4" />
           <p className="text-xl font-semibold">
-            Total <span className="float-right">{totalPrice.toLocaleString()} VND</span>
+            {t("checkout.total")} <span className="float-right">{totalPrice.toLocaleString()} {t("currency.vnd")}</span>
           </p>
         </div>
 
@@ -147,7 +143,7 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
           onClick={checkoutHandle}
           disabled={isLoading}
         >
-          {isLoading ? 'Processing...' : 'Proceed to Payment'}
+          {isLoading ? t("checkout.processing") : t("checkout.proceedToPayment")}
         </button>
       </div>
     </div>

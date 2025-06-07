@@ -15,93 +15,85 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import ListEventGrid from "../../components/ListEventGrid";
 import RecommendedEvents from "../../components/RecommendedEvents";
-
+import { useTranslation } from "react-i18next";
 
 const popularCities = [
   {
     key: "ho-chi-minh",
-    name: "Tp.Hồ Chí Minh",
     image:
       "https://upload.wikimedia.org/wikipedia/commons/f/f4/Ho_Chi_Minh_City_panorama_2019_%28cropped2%29.jpg",
   },
   {
     key: "ha-noi",
-    name: "Hà Nội",
     image:
       "https://tse4.mm.bing.net/th?id=OIP.TG6asWNB6eXi1qmyBhK0MgHaE8&pid=Api",
   },
   {
     key: "da-nang",
-    name: "Đà Nẵng",
     image:
       "https://tse3.mm.bing.net/th?id=OIP.-VeJDm4d4pGItJ2dW1sPhwHaEW&pid=Api",
   },
   {
     key: "hoi-an",
-    name: "Hội An",
     image:
       "https://tse1.mm.bing.net/th?id=OIP.yaHI0xalsVOhjJrMLgwd0gHaEj&pid=Api",
   },
   {
     key: "nha-trang",
-    name: "Nha Trang",
     image:
       "https://tse3.mm.bing.net/th?id=OIP.lmOSh4__DVScQiGPX_z8gAHaE7&pid=Api",
   },
   {
     key: "da-lat",
-    name: "Đà Lạt",
     image:
       "https://tse1.mm.bing.net/th?id=OIP.28LZalVpUhcZFkoxUzgPSAHaFj&pid=Api",
   },
   {
     key: "hue",
-    name: "Huế",
     image:
       "https://tse2.mm.bing.net/th?id=OIP.GjTvs6qKXyVBVqZEr_28xgHaJQ&pid=Api",
   },
   {
     key: "phu-quoc",
-    name: "Phú Quốc",
     image:
       "https://tse3.mm.bing.net/th?id=OIP.iD5WJa5kTTqnP83rCyg72QHaE7&pid=Api",
   },
   {
     key: "sa-pa",
-    name: "Sa Pa",
     image:
       "https://tse3.mm.bing.net/th?id=OIP.vhiR4v7kpNaiZ2JBTogiewHaE8&pid=Api",
   },
   {
     key: "can-tho",
-    name: "Cần Thơ",
     image:
       "https://tse3.mm.bing.net/th?id=OIP.3QDMqoVp2iw0o9c82hgDQgHaEK&pid=Api",
   },
   {
     key: "haiphong",
-    name: "Hải Phòng",
     image:
       "https://tse2.mm.bing.net/th?id=OIP.5LC-cqmLjYiCVWjENF7hbAHaFK&pid=Api",
   },
 ];
 
 const Navbar = ({ setCityEvents }) => {
-  const [selectedLocation, setSelectedLocation] = useState("All location");
+  const { t } = useTranslation();
+  const [selectedLocation, setSelectedLocation] = useState(t('homePage.locations.all-location'));
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const token = localStorage.getItem("token");
 
   const locations = [
-    { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
-    { slug: "ha-noi", name: "Hà Nội" },
-    { slug: "da-nang", name: "Đà Nẵng" },
-    { slug: "hai-phong", name: "Hải Phòng" },
-    { slug: "can-tho", name: "Cần Thơ" },
-    { slug: "nha-trang", name: "Nha Trang" },
-    { slug: "da-lat", name: "Đà Lạt" },
-    { slug: "binh-duong", name: "Bình Dương" },
-    { slug: "dong-nai", name: "Đồng Nai" },
-    { slug: "quang-ninh", name: "Quảng Ninh" },
+    { slug: "all-location"},
+    { slug: "ho-chi-minh" },
+    { slug: "ha-noi" },
+    { slug: "da-nang" },
+    { slug: "hai-phong" },
+    { slug: "can-tho" },
+    { slug: "nha-trang" },
+    { slug: "da-lat" },
+    { slug: "binh-duong" },
+    { slug: "dong-nai" },
+    { slug: "quang-ninh" },
+    { slug: "bac-lieu" },
   ];
 
   const fetchEventsByCity = async (citySlug) => {
@@ -124,7 +116,7 @@ const Navbar = ({ setCityEvents }) => {
       {/* Location Section */}
       <div className="flex items-center space-x-2 relative">
         <span className="text-xs sm:text-sm lg:text-lg font-semibold">
-          Browsing events in
+          {t('homePage.browsingEvents')}
         </span>
         <div className="relative inline-block">
           <button
@@ -139,19 +131,18 @@ const Navbar = ({ setCityEvents }) => {
               {locations.map((location) => (
                 <div
                   key={location.slug}
-                  className={`px-2 sm:px-3 lg:px-4 py-1 sm:py-2 cursor-pointer flex justify-between items-center hover:bg-blue-100 transition duration-200 text-xs sm:text-sm ${
-                    selectedLocation === location.name
-                      ? "text-blue-800 font-semibold"
-                      : "text-gray-700"
-                  }`}
+                  className={`px-2 sm:px-3 lg:px-4 py-1 sm:py-2 cursor-pointer flex justify-between items-center hover:bg-blue-100 transition duration-200 text-xs sm:text-sm ${selectedLocation === t("homePage.locations." + `${location.slug}`)
+                    ? "text-blue-800 font-semibold"
+                    : "text-gray-700"
+                    }`}
                   onClick={() => {
-                    setSelectedLocation(location.name);
-                    fetchEventsByCity(location.slug);
+                    setSelectedLocation(t("homePage.locations." + `${location.slug}`));
+                    fetchEventsByCity(location.slug === 'all-location' ? '' : location.slug);
                     setIsDropdownOpen(false);
                   }}
                 >
-                  {location.name}
-                  {selectedLocation === location.name && (
+                  {t("homePage.locations." +`${location.slug}`)}
+                  {selectedLocation === t("homePage.locations." + `${location.slug}`) && (
                     <i className="bi bi-check text-blue-800"></i>
                   )}
                 </div>
@@ -165,6 +156,7 @@ const Navbar = ({ setCityEvents }) => {
 };
 
 const TopDestinations = () => {
+  const { t } = useTranslation();
   const scrollRef = useRef(null);
   const navigate = useNavigate();
   const [topCities, setTopCities] = useState([]);
@@ -181,7 +173,7 @@ const TopDestinations = () => {
     { slug: "binh-duong", name: "Bình Dương" },
     { slug: "dong-nai", name: "Đồng Nai" },
     { slug: "quang-ninh", name: "Quảng Ninh" },
-    {slug:"bac-lieu",name:"Bạc Liêu"}
+    { slug: "bac-lieu", name: "Bạc Liêu" }
   ];
 
   // Fetch top cities từ API
@@ -195,7 +187,7 @@ const TopDestinations = () => {
         setTopCities(cities);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách thành phố:", error);
-        
+
         setTopCities([
           "Đà Nẵng",
           "TP. Hồ Chí Minh",
@@ -247,7 +239,7 @@ const TopDestinations = () => {
   return (
     <div className="bg-gray-50 text-gray-900 w-full max-w-[1280px] mx-auto p-4 sm:p-6">
       <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-center mb-4 sm:mb-6">
-       Top destination in Vietnam
+        {t('homePage.topDestinations')}
       </h1>
       <div className="relative">
         <div
@@ -285,7 +277,7 @@ const TopDestinations = () => {
         </button>
       </div>
       <h2 className="text-base sm:text-lg lg:text-xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4">
-        Popular city
+        {t('homePage.popularCity')}
       </h2>
       <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
         {topCities.map((city, index) => (
@@ -294,7 +286,7 @@ const TopDestinations = () => {
             onClick={() => handleSearchByCity(city)}
             className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
           >
-            <span>Events at {city}</span>
+            <span>{t('homePage.eventsAt', { city })}</span>
             <FaExternalLinkAlt className="text-xs sm:text-sm" />
           </a>
         ))}
@@ -307,7 +299,6 @@ const HomePage = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const [cityEvents, setCityEvents] = useState([]);
-
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -322,10 +313,10 @@ const HomePage = () => {
     <div className="flex flex-col min-h-screen">
       <SliderEvent />
       {/* <EventListings /> */}
-      <RecommendedEvents/>
+      <RecommendedEvents />
       <Navbar setCityEvents={setCityEvents} />
       <ListEventScroll events={cityEvents} setEvents={setCityEvents} />
-      <ListEventGrid/>
+      <ListEventGrid />
       <TopDestinations />
       <Footer />
     </div>

@@ -1,6 +1,9 @@
 import React from "react";
 import { IoMdClose } from "react-icons/io";
+import { useTranslation } from 'react-i18next';
+
 const MediaPreviewModal = ({ isOpen, onClose, mediaUrl, contentType }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -10,7 +13,7 @@ const MediaPreviewModal = ({ isOpen, onClose, mediaUrl, contentType }) => {
           onClick={onClose}
           className="absolute top-2 right-0 bg-gray-800 text-white rounded-full p-3 hover:bg-gray-700"
         >
-          <IoMdClose  />
+          <IoMdClose />
         </button>
         {contentType === "IMAGE" && (
           <img
@@ -19,7 +22,7 @@ const MediaPreviewModal = ({ isOpen, onClose, mediaUrl, contentType }) => {
             className="w-full h-full object-contain rounded-lg"
             onError={(e) => {
               console.error(`Failed to load preview image: ${mediaUrl}`);
-              e.target.replaceWith(<span className="text-red-500">Hình ảnh không tải được</span>);
+              e.target.replaceWith(<span className="text-red-500">{t('mediaPreview.imageLoadFailed')}</span>);
             }}
           />
         )}
@@ -30,7 +33,7 @@ const MediaPreviewModal = ({ isOpen, onClose, mediaUrl, contentType }) => {
             autoPlay
           >
             <source src={mediaUrl} type="video/mp4" />
-            Trình duyệt của bạn không hỗ trợ video.
+            {t('mediaPreview.videoNotSupported')}
           </video>
         )}
       </div>

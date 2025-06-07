@@ -9,24 +9,26 @@ import Swal from "sweetalert2";
 import UpgradeOrganizerDialog from "./UpgradeOrganizerDialog";
 import { AiFillAlipayCircle } from "react-icons/ai";
 import { AiFillCodeSandboxCircle } from "react-icons/ai";
+import { useTranslation } from 'react-i18next';
 
 const LocationDropdown = ({ onLocationChange }) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const locations = [
-    { slug: "all-locations", name: "All-locations" },
-    { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
-    { slug: "ha-noi", name: "Hà Nội" },
-    { slug: "da-nang", name: "Đà Nẵng" },
-    { slug: "hai-phong", name: "Hải Phòng" },
-    { slug: "can-tho", name: "Cần Thơ" },
-    { slug: "nha-trang", name: "Nha Trang" },
-    { slug: "da-lat", name: "Đà Lạt" },
-    { slug: "binh-duong", name: "Bình Dương" },
-    { slug: "dong-nai", name: "Đồng Nai" },
-    { slug: "quang-ninh", name: "Quảng Ninh" },
+    { slug: "all-locations", name: t('header.allLocations') },
+    { slug: "ho-chi-minh", name: t('header.hoChiMinh') },
+    { slug: "ha-noi", name: t('header.haNoi') },
+    { slug: "da-nang", name: t('header.daNang') },
+    { slug: "hai-phong", name: t('header.haiPhong') },
+    { slug: "can-tho", name: t('header.canTho') },
+    { slug: "nha-trang", name: t('header.nhaTrang') },
+    { slug: "da-lat", name: t('header.daLat') },
+    { slug: "binh-duong", name: t('header.binhDuong') },
+    { slug: "dong-nai", name: t('header.dongNai') },
+    { slug: "quang-ninh", name: t('header.quangNinh') },
   ];
 
   useEffect(() => {
@@ -78,6 +80,7 @@ const LocationDropdown = ({ onLocationChange }) => {
 };
 
 const SearchBar = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh");
@@ -98,14 +101,11 @@ const SearchBar = () => {
   const handleSearch = async () => {
     try {
       const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
-
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.status}`);
       }
-
       const data = await response.json();
-
       if (data && Array.isArray(data)) {
         if (!searchHistory.includes(searchTerm)) {
           setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
@@ -117,16 +117,16 @@ const SearchBar = () => {
         console.error("No valid data received from API");
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: "Không tìm thấy sự kiện nào",
+          title: t('header.error'),
+          text: t('header.errorNoEvents'),
         });
       }
     } catch (error) {
       console.error("Error fetching events:", error.message);
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Failed to search events",
+        title: t('header.error'),
+        text: t('header.errorSearchFailed'),
       });
     }
   };
@@ -139,14 +139,14 @@ const SearchBar = () => {
 
   return (
     <div
-      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl  text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
+      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
       ref={searchRef}
     >
       <div className="flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[180px] sm:w-[220px] md:w-[200px] lg:w-[260px]">
         <i className="fas fa-search text-gray-500 text-sm sm:text-base md:text-sm lg:text-base"></i>
         <input
           type="text"
-          placeholder="Search events by name"
+          placeholder={t('header.searchPlaceholder')}
           className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 outline-none text-gray-500 w-full text-xs sm:text-sm md:text-xs lg:text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -186,6 +186,7 @@ const SearchBar = () => {
 };
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
@@ -210,7 +211,7 @@ const Header = () => {
     navigate("/myinvoices");
     setIsMobileMenuOpen(false);
   };
-   const handleViewAllTickets = () => {
+  const handleViewAllTickets = () => {
     navigate("/view-all-tickets");
     setIsMobileMenuOpen(false);
   };
@@ -223,7 +224,7 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
   const handleNoti = () => {
-    navigate("/notification");
+    navigate("/notifications");
     setIsMobileMenuOpen(false);
   };
   const handleAdmin = () => {
@@ -234,19 +235,13 @@ const Header = () => {
     try {
       await api.logout();
       logout();
-
-      // Swal.fire({
-      //   icon: "success",
-      //   title: "Success",
-      //   text: "Logged out successfully",
-      // });
       navigate("/login");
       setIsMobileMenuOpen(false);
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Logout failed: " + (error.msg || "Server error"),
+        title: t('header.error'),
+        text: t('header.errorLogoutFailed', { message: error.message || 'Server error' }),
       });
     }
   };
@@ -254,35 +249,29 @@ const Header = () => {
   const menuItems = [
     {
       icon: "bi-calendar4-event",
-      text: "Create event",
+      text: t('header.createEvent'),
       action: handleCreateEventClick,
     },
-    { icon: "bi-heart", text: "Likes", action: handleLike },
-    { icon: "bi bi-bell", text: "Noti", action: handleNoti },
+    { icon: "bi-heart", text: t('header.likes'), action: handleLike },
+    { icon: "bi bi-bell", text: t('header.noti'), action: handleNoti },
   ];
 
   const menuPopup = [
     {
-      title: "Manage my events",
+      title: t('header.manageMyEvents'),
       action: handleDashboard,
-      roles: [
-        "ORGANIZER",
-        "TICKET MANAGER",
-        "EVENT ASSISTANT",
-        "CHECK-IN STAFF",
-      ],
+      roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"],
     },
-    { title: "Invoices", action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
-    { title: "Your tickets", action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
-    { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
-    { title: "Profile", action: handleViewProfile, roles: ["ATTENDEE"] },
+    { title: t('header.invoices'), action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: t('header.yourTickets'), action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: t('header.adminDashboard'), action: handleAdmin, roles: ["ADMIN"] },
+    { title: t('header.profile'), action: handleViewProfile, roles: ["ATTENDEE"] },
     {
-      title: "Up to Organizer",
+      title: t('header.upToOrganizer'),
       action: () => setOpenUpgradeDialog(true),
       roles: ["ATTENDEE"],
     },
-    { title: "Log out", action: handleLogout },
-
+    { title: t('header.logout'), action: handleLogout },
   ];
 
   const filteredMenuPopup = menuPopup.filter(
@@ -315,7 +304,8 @@ const Header = () => {
             className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300 font-josefin flex"
             onClick={handleHomepage}
           >
-            <AiFillCodeSandboxCircle  className="mx-2 text-[30px]"/> Event
+            <AiFillCodeSandboxCircle className="mx-2 text-[30px]" />
+            Event
           </div>
           <button
             className="md:hidden text-gray-500"
@@ -374,15 +364,15 @@ const Header = () => {
               <>
                 <a
                   href="/login"
-                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
+                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2px lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
                 >
-                  Login
+                  {t('header.login')}
                 </a>
                 <a
                   href="/signup"
                   className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
                 >
-                  Sign Up
+                  {t('header.signup')}
                 </a>
               </>
             )}
@@ -418,13 +408,13 @@ const Header = () => {
                   href="/login"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
                 >
-                  Login
+                  {t('header.login')}
                 </a>
                 <a
                   href="/signup"
                   className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
                 >
-                  Sign Up
+                  {t('header.signup')}
                 </a>
               </>
             )}

@@ -19,8 +19,9 @@ import Swal from "sweetalert2";
 import { useAuth } from "../pages/Auth/AuthProvider";
 import { api } from "../pages/Auth/api";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
-// Styled components cho giao diện đẹp hơn
+// Styled components
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialog-paper": {
     borderRadius: 16,
@@ -55,7 +56,7 @@ const StyledButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-const uploadFilesToCloudinary = async (files) => {
+const uploadFilesToCloudinary = async (files, t) => {
   if (!files || (Array.isArray(files) && files.length === 0)) return [];
 
   const uploadPromises = files.map(async (file) => {
@@ -67,8 +68,8 @@ const uploadFilesToCloudinary = async (files) => {
       if (!(file instanceof File)) {
         Swal.fire({
           icon: "warning",
-          title: "Warning",
-          text: "Invalid file!",
+          title: t("upgradeOrganizer.errorInvalidFile"),
+          text: t("upgradeOrganizer.errorInvalidFile"),
         });
         return null;
       }
@@ -83,17 +84,17 @@ const uploadFilesToCloudinary = async (files) => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Upload failed: ${errorText}`);
+        throw new Error(t("upgradeOrganizer.errorUploadFailed", { message: errorText }));
       }
 
       const publicId = await response.text();
-      if (!publicId) throw new Error("No public_id received");
+      if (!publicId) throw new Error(t("upgradeOrganizer.errorNoPublicId"));
       return publicId;
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: `Error uploading file: ${error.message}`,
+        title: t("upgradeOrganizer.errorUploadFailed"),
+        text: t("upgradeOrganizer.errorUploadFailed", { message: error.message }),
       });
       return null;
     }
@@ -104,6 +105,7 @@ const uploadFilesToCloudinary = async (files) => {
 };
 
 const UpgradeOrganizerDialog = ({ open, onClose }) => {
+  const { t } = useTranslation(); // Initialize translation hook
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -127,7 +129,6 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
   });
   const [previewUrl, setPreviewUrl] = useState(null);
 
-  // Cập nhật preview khi chọn file ảnh
   useEffect(() => {
     if (formData.organizerLogo instanceof File) {
       const url = URL.createObjectURL(formData.organizerLogo);
@@ -162,15 +163,15 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
       logout();
       Swal.fire({
         icon: "success",
-        title: "Success",
-        text: "Successful account upgrade, please log in again",
+        title: t("upgradeOrganizer.successLogout"),
+        text: t("upgradeOrganizer.successLogout"),
       });
       navigate("/login");
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: `Logout failed: ${error.msg || "Server error"}`,
+        title: t("upgradeOrganizer.errorLogoutFailed"),
+        text: t("upgradeOrganizer.errorLogoutFailed", { message: error.msg || "Server error" }),
       });
     }
   };
@@ -199,30 +200,30 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
     };
 
     if (!formData.organizerName.trim()) {
-      newErrors.organizerName = "Organization name is required";
+      newErrors.organizerName = t("upgradeOrganizer.errorNameRequired");
       isValid = false;
     }
     if (!formData.organizerLogo) {
-      newErrors.organizerLogo = "Organization logo is required";
+      newErrors.organizerLogo = t("upgradeOrganizer.errorLogoRequired");
       isValid = false;
     }
     if (!formData.organizerAddress.trim()) {
-      newErrors.organizerAddress = "Organization address is required";
+      newErrors.organizerAddress = t("upgradeOrganizer.errorAddressRequired");
       isValid = false;
     }
     if (!formData.organizerWebsite.trim()) {
-      newErrors.organizerWebsite = "Organization website is required";
+      newErrors.organizerWebsite = t("upgradeOrganizer.errorWebsiteRequired");
       isValid = false;
     }
     if (!formData.organizerPhone.trim()) {
-      newErrors.organizerPhone = "Organization phone is required";
+      newErrors.organizerPhone = t("upgradeOrganizer.errorPhoneRequired");
       isValid = false;
     } else if (!/^\+?\d{10,15}$/.test(formData.organizerPhone)) {
-      newErrors.organizerPhone = "Invalid phone number";
+      newErrors.organizerPhone = t("upgradeOrganizer.errorInvalidPhone");
       isValid = false;
     }
     if (!formData.organizerDesc.trim()) {
-      newErrors.organizerDesc = "Organization description is required";
+      newErrors.organizerDesc = t("upgradeOrganizer.errorDescRequired");
       isValid = false;
     }
 
@@ -235,21 +236,19 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
 
     setIsLoading(true);
     try {
-      // Upload logo lên Cloudinary
       const organizerLogoId = formData.organizerLogo
-        ? (await uploadFilesToCloudinary([formData.organizerLogo]))[0]
+        ? (await uploadFilesToCloudinary([formData.organizerLogo], t))[0]
         : null;
 
       if (!organizerLogoId) {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Failed to upload logo. Please try again.",
+          title: t("upgradeOrganizer.errorUploadLogo"),
+          text: t("upgradeOrganizer.errorUploadLogo"),
         });
         return;
       }
 
-      // Tạo payload với public_id của logo
       const payload = {
         ...formData,
         organizerLogo: organizerLogoId,
@@ -270,8 +269,8 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
       if (response.ok) {
         Swal.fire({
           icon: "success",
-          title: "Success",
-          text: "Upgrade successful",
+          title: t("upgradeOrganizer.successUpgrade"),
+          text: t("upgradeOrganizer.successUpgrade"),
         });
         setShowForm(false);
         onClose();
@@ -279,16 +278,16 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
         const errorData = await response.json();
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: `Upgrade failed: ${errorData.message || "Please try again"}`,
+          title: t("upgradeOrganizer.errorUpgradeFailed"),
+          text: t("upgradeOrganizer.errorUpgradeFailed", { message: errorData.message || "Please try again" }),
         });
       }
     } catch (error) {
       console.error("Error upgrading to organizer:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "An error occurred while upgrading. Please try again.",
+        title: t("upgradeOrganizer.errorGeneral"),
+        text: t("upgradeOrganizer.errorGeneral"),
       });
     } finally {
       setIsLoading(false);
@@ -308,16 +307,16 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
       {!showForm ? (
         <>
           <DialogTitle sx={{ fontWeight: 600, textAlign: "center" }}>
-            Upgrade to Organizer
+            {t("upgradeOrganizer.upgradeToOrganizer")} {/* Translated title */}
           </DialogTitle>
           <DialogContent>
             <Typography variant="body1" align="center" sx={{ mb: 2 }}>
-              Do you want to upgrade your account to an Organizer role?
+              {t("upgradeOrganizer.confirmUpgrade")} {/* Translated confirmation text */}
             </Typography>
           </DialogContent>
           <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
             <StyledButton onClick={handleCancel} color="inherit">
-              No
+              {t("upgradeOrganizer.no")} {/* Translated "No" */}
             </StyledButton>
             <StyledButton
               onClick={handleConfirm}
@@ -325,25 +324,25 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
               variant="contained"
               disabled={isLoading}
             >
-              Yes
+              {t("upgradeOrganizer.yes")} {/* Translated "Yes" */}
             </StyledButton>
           </DialogActions>
         </>
       ) : (
         <>
           <DialogTitle sx={{ fontWeight: 600, textAlign: "center" }}>
-            Organizer Information
+            {t("upgradeOrganizer.organizerInfo")} {/* Translated title */}
           </DialogTitle>
           <DialogContent>
             <Box sx={{ display: "flex", justifyContent: "center", mb: 2 }}>
               <StyledAvatar
                 src={previewUrl || "/default-logo.png"}
-                alt="Organizer Logo"
+                alt={t("upgradeOrganizer.organizerLogo")} // Translated alt text
               />
             </Box>
             <TextField
               fullWidth
-              label="Organization Logo"
+              label={t("upgradeOrganizer.organizerLogo")} // Translated label
               type="file"
               name="organizerLogo"
               onChange={handleFileChange}
@@ -357,7 +356,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              label="Organization Name"
+              label={t("upgradeOrganizer.organizerName")} // Translated label
               name="organizerName"
               value={formData.organizerName}
               onChange={handleInputChange}
@@ -369,7 +368,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              label="Organization Address"
+              label={t("upgradeOrganizer.organizerAddress")} // Translated label
               name="organizerAddress"
               value={formData.organizerAddress}
               onChange={handleInputChange}
@@ -381,7 +380,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              label="Organization Website"
+              label={t("upgradeOrganizer.organizerWebsite")} // Translated label
               name="organizerWebsite"
               value={formData.organizerWebsite}
               onChange={handleInputChange}
@@ -393,7 +392,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              label="Organization Phone"
+              label={t("upgradeOrganizer.organizerPhone")} // Translated label
               name="organizerPhone"
               value={formData.organizerPhone}
               onChange={handleInputChange}
@@ -405,7 +404,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
             />
             <TextField
               fullWidth
-              label="Organization Description"
+              label={t("upgradeOrganizer.organizerDesc")} // Translated label
               name="organizerDesc"
               value={formData.organizerDesc}
               onChange={handleInputChange}
@@ -420,7 +419,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
           </DialogContent>
           <DialogActions sx={{ justifyContent: "center", pb: 2 }}>
             <StyledButton onClick={handleCancel} color="inherit" disabled={isLoading}>
-              Cancel
+              {t("upgradeOrganizer.cancel")} {/* Translated "Cancel" */}
             </StyledButton>
             <StyledButton
               onClick={handleUpToOrganize}
@@ -431,7 +430,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
               {isLoading ? (
                 <CircularProgress size={24} sx={{ color: "white", mr: 1 }} />
               ) : (
-                "Upgrade to Organizer"
+                t("upgradeOrganizer.upgradeButton") // Translated button text
               )}
             </StyledButton>
           </DialogActions>

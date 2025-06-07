@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import Loader from "../../components/Loading";
 import Footer from "../../components/Footer";
 import DOMPurify from "dompurify";
@@ -12,6 +13,7 @@ const truncateText = (text, maxLength) => {
 };
 
 const SearchByType = () => {
+  const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const categoryName = location.state?.categoryName || "";
@@ -24,94 +26,84 @@ const SearchByType = () => {
   const wallper = [
     {
       id: 1,
-      type: "Music",
+      type: "music",
       wallper:
         "https://i.pinimg.com/736x/16/91/f8/1691f8d6bea96494d2cf50994b530a3a.jpg",
       backgroundColor: "bg-gradient-to-r from-blue-500 to-indigo-600",
-      textColor: "text-yellow-200",
-      slogan: "Feel the Beat!",
+      textColor: "text-yellow-200"
     },
     {
       id: 2,
-      type: "Nightlife",
+      type: "nightlife",
       wallper:
         "https://i.pinimg.com/736x/d4/87/40/d4874012f8576f9b791082c343e0e6b8.jpg",
       backgroundColor: "bg-gradient-to-r from-purple-600 to-pink-500",
-      textColor: "text-white",
-      slogan: "Light Up the Night!",
+      textColor: "text-white"
     },
     {
       id: 3,
-      type: "Performing",
+      type: "performing",
       wallper:
         "https://i.pinimg.com/736x/ad/27/ef/ad27ef55839b1d23659869719d7d246b.jpg",
       backgroundColor: "bg-red-700",
-      textColor: "text-amber-200",
-      slogan: "Shine on Stage!",
+      textColor: "text-amber-200"
     },
     {
       id: 4,
-      type: "Holidays",
+      type: "holidays",
       wallper:
         "https://i.pinimg.com/736x/1d/82/aa/1d82aa438152e8cc1918b2c99a4dc845.jpg",
       backgroundColor: "bg-gradient-to-r from-[#E8D5A2] to-[#E6B680]",
-      textColor: "text-[#28504E]",
-      slogan: "Celebrate the Moment!",
+      textColor: "text-[#28504E]"
     },
     {
       id: 5,
-      type: "Dating",
+      type: "dating",
       wallper:
         "https://i.pinimg.com/736x/fd/bf/35/fdbf357c58c396eea58d49fe63520aad.jpg",
       backgroundColor: "bg-rose-400",
-      textColor: "text-white",
-      slogan: "Find Your Spark!",
+      textColor: "text-white"
     },
     {
       id: 6,
-      type: "Hobbies",
+      type: "hobbies",
       wallper:
         "https://i.pinimg.com/736x/62/d0/4e/62d04e9b4ba60658c31775b718f87999.jpg",
       backgroundColor: "bg-teal-400",
-      textColor: "text-gray-800",
-      slogan: "Unleash Your Passion!",
+      textColor: "text-gray-800"
     },
     {
       id: 7,
-      type: "Business",
+      type: "business",
       wallper:
         "https://i.pinimg.com/736x/08/42/0a/08420a20017446fdda37f5d3f132dc88.jpg",
       backgroundColor: "bg-blue-800",
-      textColor: "text-gray-100",
-      slogan: "Connect & Succeed!",
+      textColor: "text-gray-100"
     },
     {
       id: 8,
-      type: "Food & Drink",
+      type: "foodAndDrink",
       wallper:
         "https://i.pinimg.com/736x/72/2c/8f/722c8fc121b89f7fb1669c36ffbb09a1.jpg",
       backgroundColor: "bg-gradient-to-r from-orange-400 to-red-400",
-      textColor: "text-white",
-      slogan: "Savor the Flavor!",
+      textColor: "text-white"
     },
     {
       id: 9,
-      type: "Conference",
+      type: "conference",
       wallper:
         "https://i.pinimg.com/736x/c8/57/93/c85793cc309c0b82e20138f47625b803.jpg",
       backgroundColor: "bg-gradient-to-r from-[#28504E] to-[#1E1C38]",
-      textColor: "text-cyan-200",
-      slogan: "Ideas That Inspire!",
+      textColor: "text-cyan-200"
     },
     {
       id: 10,
-      type: "",
+      type: "default",
       wallper:
         "https://i.pinimg.com/736x/3f/ae/d1/3faed1e0c25ddee73c9bd8579d76b0e9.jpg",
       backgroundColor: "bg-gradient-to-r from-[#28504E] to-[#1E1C38]",
-      textColor: "text-cyan-200",
-      slogan: "Ideas That Inspire!",
-    },
+      textColor: "text-cyan-200"
+    }
   ];
 
   const sanitizeAndTruncate = (html, maxLength) => {
@@ -124,7 +116,6 @@ const SearchByType = () => {
     return `<p>${truncatedPlainText}</p>`;
   };
 
-  // Tìm thông tin tương ứng với categoryName, mặc định là wallpaper id: 10
   const selectedCategory = wallper.find(
     (item) => item.type.toLowerCase() === categoryName.toLowerCase()
   ) || wallper.find((item) => item.id === 10);
@@ -159,12 +150,12 @@ const SearchByType = () => {
 
   const getLocation = (location) => {
     if (!location || (!location.venueName && !location.address && !location.city)) {
-      return "Online";
+      return t('searchByType.online');
     }
     const parts = [location.venueName, location.address, location.city].filter(
       (part) => part && part.trim() !== ""
     );
-    return parts.length > 0 ? parts.join(", ") : "Online";
+    return parts.length > 0 ? parts.join(", ") : t('searchByType.online');
   };
 
   const [loading, setLoading] = useState(true);
@@ -187,26 +178,31 @@ const SearchByType = () => {
           className={`${selectedCategory.textColor} font-weight-800 flex flex-col items-start justify-center`}
         >
           <h1 className="font-mono text-5xl font-extrabold text-center">
-            {(categoryName ? ` ${categoryName}` : "Popular Events").toUpperCase()}
+            {(categoryName
+              ? t(`searchByType.eventTypes.${selectedCategory.type}`)
+              : t('searchByType.popularEvents')
+            ).toUpperCase()}
           </h1>
-          <p className="mt-2 text-lg text-center">{selectedCategory.slogan}</p>
+          <p className="mt-2 text-lg text-center">
+            {t(`searchByType.slogans.${selectedCategory.type}`)}
+          </p>
         </div>
         <img
           src={selectedCategory.wallper}
           className="w-[480px] h-[290px] object-cover"
-          alt={categoryName || "Upcoming Events"}
+          alt={categoryName ? t(`searchByType.eventTypes.${selectedCategory.type}`) : t('searchByType.upcomingEvents')}
         />
       </div>
       <div className="w-full max-w-[1280px] mx-auto px-8 py-4 relative">
         <h2 className="mb-4 text-2xl font-bold text-gray-800 font-lato">
           {(categoryName
-            ? `Popular Events ${categoryName}`
-            : "Upcoming Events"
+            ? `${t('searchByType.popularEvents')} ${t(`searchByType.eventTypes.${selectedCategory.type}`)}`
+            : t('searchByType.upcomingEvents')
           ).toUpperCase()}
         </h2>
 
         {events.length === 0 ? (
-          <p className="text-gray-600">No events found for this category.</p>
+          <p className="text-gray-600">{t('searchByType.noEventsFound')}</p>
         ) : (
           <>
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
@@ -233,34 +229,36 @@ const SearchByType = () => {
                   </div>
                   <div className="p-4">
                     <h3 className="text-lg font-semibold text-gray-900 truncate">
-                      {truncateText(event.eventName, 25) || "Unnamed Event"}
+                      {truncateText(event.eventName, 25) || t('searchByType.unnamedEvent')}
                     </h3>
                     <p className="mt-1 text-sm text-gray-600 truncate">
                       {event?.eventDesc ? (
                         <span
                           dangerouslySetInnerHTML={{
-                            __html: sanitizeAndTruncate(event.eventDesc, 30),
+                            __html: sanitizeAndTruncate(event.eventDesc, 30)
                           }}
                         />
                       ) : (
-                        "No description available"
+                        t('searchByType.noDescription')
                       )}
                     </p>
                     <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
                       <CiCalendarDate className="inline-block mr-1" />{" "}
-                      {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+                      {new Date(event.eventStart).toLocaleDateString(
+                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US'
+                      )}
                     </p>
                     <p className="text-xs text-gray-700 sm:text-sm">
                       <CiTimer className="inline-block mr-1" />{" "}
-                      {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}{" "}
+                      {new Date(event.eventStart).toLocaleTimeString(
+                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}{" "}
                       -{" "}
-                      {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      {new Date(event.eventEnd).toLocaleTimeString(
+                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
+                        { hour: "2-digit", minute: "2-digit" }
+                      )}
                     </p>
                     <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
                       <CiLocationOn className="inline-block mr-1" />{" "}
@@ -282,7 +280,7 @@ const SearchByType = () => {
                         </span>
                       ))
                     ) : (
-                      <span className="text-xs text-gray-600">Không có tag</span>
+                      <span className="text-xs text-gray-600">{t('searchByType.noTags')}</span>
                     )}
                   </div>
                 </div>
@@ -297,7 +295,7 @@ const SearchByType = () => {
                     onClick={handleViewMore}
                     className="px-6 py-2 text-white transition-colors bg-blue-500 rounded-lg hover:bg-blue-600"
                   >
-                    Xem thêm
+                    {t('searchByType.viewMore')}
                   </button>
                 )}
               </div>
