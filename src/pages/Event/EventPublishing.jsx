@@ -380,13 +380,13 @@ const handleSaveDraft = async () => {
               onClick={handleSaveDraft}
               className="px-4 py-2 text-white bg-gray-600 rounded-md"
             >
-              Save as Draft
+              {t('eventPublishing.draftButton')}
             </button>
             <button
               onClick={handlePublishEvent}
               className="px-4 py-2 text-white bg-orange-600 rounded-md"
             >
-              Publish now
+              {t('eventPublishing.publishButton')}
             </button>
           </>
         )}

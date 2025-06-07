@@ -968,6 +968,7 @@ const resources = {
         refundDaysLabel: 'Days before the event',
         refundDaysHelp: 'Set how many days (1 to 30) before the event that attendees can request refunds.',
         publishButton: 'Publish now',
+        draftButton: 'Save as Draft',
         errorFetchEventTypes: {
           title: 'Error',
           text: 'Failed to load event types list.',
@@ -2443,6 +2444,7 @@ const resources = {
         refundDaysLabel: 'Số ngày trước sự kiện',
         refundDaysHelp: 'Thiết lập số ngày (1 đến 30) trước sự kiện mà người tham dự có thể yêu cầu hoàn tiền.',
         publishButton: 'Xuất bản ngay',
+        draftButton: 'Lưu dưới bản nháp',
         errorFetchEventTypes: {
           title: 'Lỗi',
           text: 'Không thể tải danh sách loại sự kiện.',
