@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
   en: {
     translation: {
-      
+
       signUp: {
         title: "Create an Account",
         fullNameLabel: "Full Name",
@@ -43,6 +43,7 @@ const resources = {
           invalidCodeWarning: "Please enter a valid 6-digit code",
           invalidCodeError: "Invalid verification code",
           successTitle: "Success",
+          warningTitle: "Warning",
           verificationSuccess: "Verification code sent to {{email}}",
           errorTitle: "Error",
           verificationError: "Unable to send verification code"
@@ -766,6 +767,7 @@ const resources = {
         searchButton: 'Search',
         filterAll: 'All',
         filterPublic: 'Public',
+        filterDraft: 'Draft',
         filterComplete: 'Complete',
         createEvent: 'Create Event',
         tableEvents: 'Events',
@@ -779,7 +781,8 @@ const resources = {
         errorLoadEventsTitle: 'Error',
         errorLoadEventsText: 'Unable to load event data',
         errorDeleteEventTitle: 'Error',
-        errorDeleteEventText: 'Unable to delete event'
+        errorDeleteEventText: 'Unable to delete event',
+        publishEvent: 'Public event'
       },
       adminRoleAssignment: {
         title: 'Event Role Management',
@@ -2242,6 +2245,7 @@ const resources = {
         searchButton: 'Tìm kiếm',
         filterAll: 'Tất cả',
         filterPublic: 'Công khai',
+        filterDraft: 'Bản nháp',
         filterComplete: 'Hoàn thành',
         createEvent: 'Tạo Sự Kiện',
         tableEvents: 'Sự Kiện',
@@ -2255,7 +2259,8 @@ const resources = {
         errorLoadEventsTitle: 'Lỗi',
         errorLoadEventsText: 'Không thể tải dữ liệu sự kiện',
         errorDeleteEventTitle: 'Lỗi',
-        errorDeleteEventText: 'Không thể xóa sự kiện'
+        errorDeleteEventText: 'Không thể xóa sự kiện',
+        publishEvent: "Xuất bản sự kiện"
       },
       adminRoleAssignment: {
         title: 'Quản Lý Vai Trò Sự Kiện',
@@ -2669,6 +2674,9 @@ const resources = {
         successPublish: {
           title: 'Thành công',
           text: 'Sự kiện đã được tạo thành công! ID: {{eventId}}',
+        },
+        draftSuccess: {
+          text: 'Sự kiện đã được lưu dưới dạng bản nháp thành công! ID: {{eventId}}',
         },
         errors: {
           requiredField: 'Vui lòng điền trường {{field}}.',

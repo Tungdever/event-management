@@ -160,11 +160,10 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
     e.preventDefault();
 
     if (code.length !== 6) {
-
       Swal.fire({
-        Icon: 'warning',
-        Title: t('signUp.verificationStep.successTitle'),
-        Text: t('signUp.verificationStep.invalidCodeWarning'),
+        icon: 'warning',
+        title: t('signUp.verificationStep.warningTitle'),
+        text: t('signUp.verificationStep.invalidCodeWarning'),
       });
       return;
     }
@@ -173,9 +172,9 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
       onNext();
     } else {
       Swal.fire({
-        Icon: 'error',
-        Title: t('signUp.verificationStep.errorTitle'),
-        Text: t('signUp.verificationStep.invalidCodeError'),
+        icon: 'error',
+        title: t('signUp.verificationStep.errorTitle'),
+        text: t('signUp.verificationStep.invalidCodeError'),
       });
     }
   };
@@ -480,7 +479,7 @@ const EventSignUp = () => {
             }
           })()}
         </div>
-        <Footer />
+
       </>
     );
   };

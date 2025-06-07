@@ -117,18 +117,14 @@ const CategoriesGrid = ({ categories }) => {
                 )}
               </div>
               <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base text-center">
-                {getCategoryLabel(category.label)} {/* Use helper to get label */}
+                {getCategoryLabel(category.label)}
               </p>
             </div>
-            <p className="mt-1 text-xs text-center text-gray-600 sm:mt-2 group-hover:text-blue-600 sm:text-sm lg:text-base">
-              {category.label}
-            </p>
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  </div>
-);
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
 };
 
 const SliderEvent = () => {

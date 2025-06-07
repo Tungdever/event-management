@@ -24,7 +24,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
 
   const conceptItems = [
     { name: "User", icon: "fas fa-user", component: "User", hasDropdown: true },
-    { name: "Role", icon: "fas fa-box", component: "Role", hasDropdown: true },
+
     { name: "Event types", icon: "fas fa-box", component: "Types", hasDropdown: true },
   ];
 

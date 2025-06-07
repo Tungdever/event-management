@@ -51,27 +51,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
     }
   };
 
-  // Cập nhật role
-  const updateRole = async (roleData) => {
-    try {
-      setError(null);
-      const response = await fetch('http://localhost:8080/api/roles/update', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(roleData),
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update role');
-      }
-      await fetchRoles();
-    } catch (err) {
-      throw err;
-    }
-  };
+  
 
   // Xóa role
   const deleteRole = async (roleName) => {
@@ -159,74 +139,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
     });
   };
 
-  const showEditRolePopup = (role) => {
-    MySwal.fire({
-      title: 'Edit Role',
-      html: (
-        <div>
-          <label className="block text-gray-600 text-xs mb-1">Role Name</label>
-          <input
-            id="roleName"
-            type="text"
-            defaultValue={role.name}
-            className="w-full p-2 bg-gray-100 border border-gray-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Enter role name"
-          />
-          <label className="block text-gray-600 text-xs mt-4 mb-1">Permissions</label>
-          <div className="max-h-40 overflow-y-auto border border-gray-200 rounded-md p-2">
-            {permissions.map((perm) => (
-              <div key={perm.name} className="flex items-center mb-2">
-                <input
-                  type="checkbox"
-                  defaultChecked={role.permissions.some((p) => p.name === perm.name)}
-                  onChange={(e) => {
-                    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-                    const permissions = Array.from(checkboxes)
-                      .filter((cb) => cb.checked)
-                      .map((cb) => cb.value);
-                    document.getElementById('permissions').value = JSON.stringify(permissions);
-                  }}
-                  value={perm.name}
-                  className="mr-2"
-                />
-                <span className="text-sm">{perm.name}</span>
-              </div>
-            ))}
-            <input type="hidden" id="permissions" />
-          </div>
-        </div>
-      ),
-      showCancelButton: true,
-      confirmButtonText: 'Submit',
-      cancelButtonText: 'Cancel',
-      showLoaderOnConfirm: true,
-      preConfirm: async () => {
-        const name = document.getElementById('roleName').value;
-        const permissions = JSON.parse(document.getElementById('permissions').value || '[]');
-        if (!name.trim()) {
-          MySwal.showValidationMessage('Role name is required');
-          return false;
-        }
-        setIsSubmitting(true);
-        try {
-          await updateRole({
-            roleID: role.roleID,
-            name,
-            permissions: permissions.map((name) => ({
-              name,
-              description: permissions.find((p) => p.name === name)?.description || '',
-            })),
-          });
-          return true;
-        } catch (err) {
-          MySwal.showValidationMessage(err.message);
-          return false;
-        } finally {
-          setIsSubmitting(false);
-        }
-      },
-    });
-  };
+ 
 
   const showDeleteRolePopup = (roleName) => {
     MySwal.fire({
@@ -329,13 +242,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="font-semibold text-sm text-gray-800">{role.name.replace('ROLE_', '')}</h2>
               <div className="flex gap-2">
-                <button
-                  onClick={() => showEditRolePopup(role)}
-                  className="text-xs bg-yellow-500 text-white rounded-full px-3 py-1 hover:bg-yellow-600 disabled:bg-yellow-400"
-                  disabled={isSubmitting}
-                >
-                  Remove role
-                </button>
+                
                 <button
                   onClick={() => showDeleteRolePopup(role.name)}
                   className="text-xs bg-red-600 text-white rounded-full px-3 py-1 hover:bg-red-700 disabled:bg-red-400"
@@ -343,35 +250,10 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
                 >
                   Delete
                 </button>
-                <button
-                  onClick={() => showAssignPermissionsPopup(role.roleID)}
-                  className="text-xs bg-blue-600 text-white rounded-full px-3 py-1 hover:bg-blue-700 disabled:bg-blue-400"
-                  disabled={isSubmitting}
-                >
-                  Assign Permissions
-                </button>
+
               </div>
             </div>
-            {role.permissions.length > 0 ? (
-              <table className="w-full text-left text-xs text-gray-700 border-separate border-spacing-y-2">
-                <thead>
-                  <tr className="text-gray-500 font-semibold select-none">
-                    <th className="pl-4 py-2">Permission Name</th>
-                    <th className="py-2">Description</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {role.permissions.map((permission) => (
-                    <tr key={permission.name} className="bg-[#f9fafb] rounded-lg">
-                      <td className="pl-4 py-3">{permission.name}</td>
-                      <td className="py-3">{permission.description}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-gray-500 text-sm">No permissions assigned to this role.</p>
-            )}
+            
           </div>
         ))
       ) : (

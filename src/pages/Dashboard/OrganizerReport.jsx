@@ -1,12 +1,12 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement } from 'chart.js';
 
 // Register Chart.js components
-ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement);
 
 const OrganizerDashboard = () => {
   const { t, i18n } = useTranslation();
@@ -20,6 +20,7 @@ const OrganizerDashboard = () => {
   const eventsPerPage = 4;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const chartRef = useRef(null); // Reference to store Chart.js instance
 
   // Generate list of years
   const currentYear = new Date().getFullYear();
@@ -87,6 +88,14 @@ const OrganizerDashboard = () => {
       return;
     }
     fetchDashboardData(selectedYear);
+
+    // Cleanup chart on component unmount
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.destroy();
+        chartRef.current = null;
+      }
+    };
   }, [navigate, token, selectedYear]);
 
   const handleYearChange = (e) => {
@@ -150,7 +159,7 @@ const OrganizerDashboard = () => {
   const stats = [
     { title: t('organizerDashboard.totalEvents'), value: data.totalEvents, icon: 'fas fa-calendar-check', color: '#a5d8ff' },
     { title: t('organizerDashboard.ticketsSold'), value: data.totalTicketsSold, icon: 'fas fa-ticket-alt', color: '#d8b4fe' },
-    { title: t('organizerDashboard.totalRevenue'), value: `${data.totalRevenue} ${t('currency.vnd')}`, icon: 'fas fa-dollar-sign', color: '#fed7aa' },
+    { title: t('organizerDashboard.totalRevenue'), value: `${data.totalRevenue?.toLocaleString() ?? 0} ${t('currency.vnd')}`, icon: 'fas fa-dollar-sign', color: '#fed7aa' },
     { title: t('organizerDashboard.sponsors'), value: data.totalSponsors, icon: 'fas fa-handshake', color: '#a7f3d0' },
   ];
 
@@ -210,6 +219,7 @@ const OrganizerDashboard = () => {
             </h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <Line
+                ref={chartRef}
                 data={revenueOverTimeData}
                 options={{
                   responsive: true,
@@ -332,7 +342,7 @@ const OrganizerDashboard = () => {
                 </div>
                 <div className="w-1/6 text-gray-600">{event.eventLocation.venueName}</div>
                 <div className="w-1/6 text-gray-600">{event.sold}</div>
-                <div className="w-1/6 text-gray-600">{event.eventRevenue} {t('currency.vnd')}</div>
+                <div className="w-1/6 text-gray-600">{event.eventRevenue?.toLocaleString() ?? 0} {t('currency.vnd')}</div>
                 <div className="w-1/6 text-gray-600">{getCategoryLabel(event.eventStatus, 'eventStatus')}</div>
               </div>
             ))

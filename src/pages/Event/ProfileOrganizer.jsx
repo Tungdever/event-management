@@ -424,7 +424,7 @@ const ProfileOrganizer = () => {
           </div>
         )}
       </div>
-      <Footer />
+
     </>
   );
 };
