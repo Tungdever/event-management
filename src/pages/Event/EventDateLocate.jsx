@@ -241,7 +241,7 @@ const token = localStorage.getItem("token");
               <i className="mr-2 text-sm text-gray-500 fas fa-map-marker-alt sm:text-base"></i>
               <p className="font-semibold">Venue</p>
             </button>
-            {/* <button
+            <button
               className={`flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${
                 eventLocation.locationType === "online"
                   ? "border-blue-500 bg-blue-100"
@@ -251,7 +251,7 @@ const token = localStorage.getItem("token");
             >
               <i className="mr-2 text-sm text-blue-500 fas fa-video sm:text-base"></i>
               <p className="font-semibold">Online Event</p>
-            </button> */}
+            </button>
           </div>
           {/* {eventLocation.locationType === "online" && (
             <div className="mb-4">
