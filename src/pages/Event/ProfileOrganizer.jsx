@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { useAuth } from "../Auth/AuthProvider";
 import DOMPurify from "dompurify";
 import Footer from "../../components/Footer";
+
 const ProfileOrganizer = () => {
   const { t } = useTranslation();
   const { organizerName } = useParams();
@@ -27,14 +28,14 @@ const ProfileOrganizer = () => {
   const eventsPerPage = 4;
 
   useEffect(() => {
-    fetch(`http://localhost:8080/api/events/search/organizer-infor/${encodeURIComponent(organizerName)}`)
-      .then((response) => {
+    const fetchOrganizerData = async () => {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`http://localhost:8080/api/events/search/organizer-infor/${encodeURIComponent(organizerName)}`);
         if (!response.ok) {
           throw new Error(t('profileOrganizer.loadingError'));
         }
-        return response.json();
-      })
-      .then((data) => {
+        const data = await response.json();
         setOrganizerData(data);
         const upcoming = data.events.filter((event) => event.eventStatus === 'public').length;
         const past = data.events.filter((event) => event.eventStatus === 'Complete').length;
@@ -45,16 +46,18 @@ const ProfileOrganizer = () => {
         );
         setAllEvents(filteredEvents);
         setDisplayedEvents(filteredEvents.slice(0, eventsPerPage));
-        fetchFollowerCount(data.organizer.organizerId);
-        if (user) {
-          checkFollowingStatus(user.userId, data.organizer.organizerId);
+        await fetchFollowerCount(data.organizer.organizerId);
+        if (user && data.organizer) {
+          await checkFollowingStatus(user.userId, data.organizer.organizerId);
         }
-        setIsLoading(false);
-      })
-      .catch((err) => {
+      } catch (err) {
         setError(err.message || t('profileOrganizer.loadingError'));
+      } finally {
         setIsLoading(false);
-      });
+      }
+    };
+
+    fetchOrganizerData();
   }, [organizerName, user, t]);
 
   const fetchFollowerCount = async (organizerId) => {
@@ -72,8 +75,9 @@ const ProfileOrganizer = () => {
   };
 
   const checkFollowingStatus = async (userId, organizerId) => {
+    if (!user || !token) return;
     try {
-      const response = await axios.get(`http://localhost:8080/api/follow/following/${user.email}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/list-org/${user.email}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -87,7 +91,10 @@ const ProfileOrganizer = () => {
   };
 
   const handleFollowToggle = async () => {
+    if (!user || !organizerData?.organizer) return;
     try {
+      setIsFollowing((prev) => !prev); // Update state immediately for better UX
+      setFollowerCount((prev) => (isFollowing ? prev - 1 : prev + 1)); // Optimistic update
       if (isFollowing) {
         await axios.delete(`http://localhost:8080/api/follow/${user.userId}/unfollow/${organizerData.organizer.organizerId}`, {
           headers: {
@@ -95,8 +102,6 @@ const ProfileOrganizer = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setIsFollowing(false);
-        setFollowerCount((prev) => prev - 1);
       } else {
         await axios.post(`http://localhost:8080/api/follow/${user.userId}/follow/${organizerData.organizer.organizerId}`, {}, {
           headers: {
@@ -104,11 +109,11 @@ const ProfileOrganizer = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setIsFollowing(true);
-        setFollowerCount((prev) => prev + 1);
       }
     } catch (err) {
       console.error("Error toggling follow:", err);
+      setIsFollowing((prev) => !prev); // Revert state on error
+      setFollowerCount((prev) => (isFollowing ? prev + 1 : prev - 1)); // Revert count
       setError(t('profileOrganizer.followError'));
     }
   };
@@ -143,7 +148,6 @@ const ProfileOrganizer = () => {
     if (displayedEvents.length >= allEvents.length) return;
 
     setIsLoading(true);
-
     setTimeout(() => {
       const startIndex = page * eventsPerPage;
       const endIndex = startIndex + eventsPerPage;
@@ -240,10 +244,12 @@ const ProfileOrganizer = () => {
                 {user && (
                   <button
                     onClick={handleFollowToggle}
-                    className={`px-4 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-0.5 text-sm ${isFollowing
+                    className={`px-4 py-2 rounded-lg shadow-md transition-all duration-300 transform hover:-translate-y-0.5 text-sm ${
+                      isFollowing
                         ? 'bg-gray-400 text-white hover:bg-gray-500'
                         : 'bg-purple-600 text-white hover:bg-purple-700'
-                      }`}
+                    }`}
+                    disabled={!organizerData?.organizer}
                   >
                     {isFollowing ? t('profileOrganizer.unfollow') : t('profileOrganizer.follow')}
                   </button>
@@ -307,10 +313,11 @@ const ProfileOrganizer = () => {
             {['public', 'Complete'].map((tab) => (
               <button
                 key={tab}
-                className={`${activeTab === tab
+                className={`${
+                  activeTab === tab
                     ? 'border-b-2 border-purple-600 text-purple-600'
                     : 'text-gray-500 hover:text-gray-700'
-                  } py-2 px-4 font-medium text-sm transition-colors`}
+                } py-2 px-4 font-medium text-sm transition-colors`}
                 onClick={() => setActiveTab(tab)}
                 aria-selected={activeTab === tab}
               >
@@ -424,7 +431,6 @@ const ProfileOrganizer = () => {
           </div>
         )}
       </div>
-
     </>
   );
 };
