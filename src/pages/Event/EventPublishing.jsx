@@ -226,35 +226,33 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
     return "https://mybic.vn/uploads/news/default/no-image.png";
   };
 const handleSaveDraft = async () => {
-    setLoading(true);
-    try {
-      setEvent((prev) => ({ ...prev, eventStatus: "Draft" }));
-      await onPublish();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: `Lỗi khi lưu bản nháp: ${error.message}`,
-      });
-    } finally {
-      setLoading(false);
-    }
+   setLoading(true);
+  try {
+    await onPublish("Draft");
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: `Lỗi khi lưu bản nháp: ${error.message}`,
+    });
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handlePublishEvent = async () => {
     setLoading(true);
-    try {
-      setEvent((prev) => ({ ...prev, eventStatus: "public" }));
-      await onPublish();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: `Lỗi khi xuất bản sự kiện: ${error.message}`,
-      });
-    } finally {
-      setLoading(false);
-    }
+  try {
+    await onPublish("public"); 
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: `Lỗi khi xuất bản sự kiện: ${error.message}`,
+    });
+  } finally {
+    setLoading(false);
+  }
   };
   return loading ? (
     <Loader />
