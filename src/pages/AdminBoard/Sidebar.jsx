@@ -77,7 +77,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
             </li>
           ))}
         </ul>
-        <p className="uppercase font-semibold text-xs mt-8 mb-3 select-none">CONCEPTS</p>
+        <p className="uppercase font-semibold text-xs mt-8 mb-3 select-none">MANAGEMENT</p>
         <ul className="space-y-3">
           {conceptItems.map((item) => (
             <li key={item.name}>

@@ -281,7 +281,7 @@ const handlePublish = async (eventStatus = "Draft") => {
     Swal.fire({
       icon: 'success',
       title: 'Thành công',
-      text: `Sự kiện đã được ${eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công! ID: ${eventId}`,
+      text: `Sự kiện đã được ${eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công!`,
     });
     setTimeout(() => navigate('/'), 300);
   } catch (error) {

@@ -1476,15 +1476,7 @@ const resources = {
           next: "Tiếp"
         }
       },
-      adminSidebar: {
-        brandName: "Quản lý sự kiện",
-        dashboardSection: "Bảng Điều Khiển",
-        dashboardItem: "Bảng Điều Khiển",
-        managementSection: "Quản lý",
-        userItem: "Người Dùng",
-        roleItem: "Vai Trò",
-        eventTypesItem: "Loại Sự Kiện"
-      },
+      
       signUp: {
         title: "Tạo Tài Khoản",
         fullNameLabel: "Họ và Tên",
@@ -2486,11 +2478,11 @@ const resources = {
         }
       },
       segmentEvent: {
-        segments: 'Phân đoạn',
+        segments: 'Lịch biểu',
         addItinerary: 'Thêm lịch trình, thời gian biểu hoặc danh sách cho sự kiện của bạn. Bạn có thể bao gồm thời gian, mô tả về những gì sẽ diễn ra và ai sẽ chủ trì hoặc biểu diễn trong sự kiện.',
-        addNewSegment: '+ Thêm Phân đoạn Mới',
-        editSegment: 'Chỉnh sửa Phân đoạn',
-        addSegment: 'Thêm Phân đoạn Mới',
+        addNewSegment: '+ Thêm Lịch biểu Mới',
+        editSegment: 'Chỉnh sửa Lịch biểu',
+        addSegment: 'Thêm Lịch biểu Mới',
         title: 'Tiêu đề',
         titlePlaceholder: 'Nhập tiêu đề',
         startTime: 'Giờ Bắt đầu',
@@ -2505,16 +2497,16 @@ const resources = {
         speakerDescription: 'Mô tả Diễn giả',
         speakerDescriptionPlaceholder: 'Nhập mô tả diễn giả...',
         cancel: 'Hủy',
-        saveSegment: 'Lưu Phân đoạn',
+        saveSegment: 'Lưu Lịch biểu',
         saveChanges: 'Lưu Thay đổi',
         saving: 'Đang lưu...',
         speaker: 'Diễn giả:',
         requiredFieldsError: 'Vui lòng điền đầy đủ các trường bắt buộc (Tiêu đề, Giờ Bắt đầu, Giờ Kết thúc).',
         speakerFieldsError: 'Vui lòng điền Tên Diễn giả và Mô tả Diễn giả.',
-        timeOverlapError: 'Khoảng thời gian này trùng lặp với một phân đoạn khác.',
+        timeOverlapError: 'Khoảng thời gian này trùng lặp với một lịch biểu khác.',
         endTimeBeforeStartError: 'Giờ kết thúc phải sau giờ bắt đầu.',
-        startTimeBeforeEventStartError: 'Giờ bắt đầu phân đoạn không thể sớm hơn giờ bắt đầu sự kiện.',
-        endTimeAfterEventEndError: 'Giờ kết thúc phân đoạn không thể muộn hơn giờ kết thúc sự kiện.',
+        startTimeBeforeEventStartError: 'Giờ bắt đầu lịch biểu không thể sớm hơn giờ bắt đầu sự kiện.',
+        endTimeAfterEventEndError: 'Giờ kết thúc lịch biểu không thể muộn hơn giờ kết thúc sự kiện.',
         imageSizeError: {
           title: 'Cảnh báo',
           text: 'Kích thước hình ảnh vượt quá 10MB.',
@@ -2529,21 +2521,21 @@ const resources = {
         },
         deleteSegmentConfirm: {
           title: 'Bạn có chắc chắn?',
-          text: 'Bạn có muốn xóa phân đoạn "{{segmentTitle}}"?',
+          text: 'Bạn có muốn xóa lịch biểu "{{segmentTitle}}"?',
           confirmButton: 'Có, xóa nó!',
           cancelButton: 'Không, hủy',
         },
         deleteSegmentSuccess: {
           title: 'Thành công',
-          text: 'Xóa phân đoạn thành công',
+          text: 'Xóa lịch biểu thành công',
         },
         deleteSegmentError: {
           title: 'Cảnh báo',
-          text: 'Không thể xóa phân đoạn',
+          text: 'Không thể xóa lịch biểu',
         },
         deleteSegmentGeneralError: {
           title: 'Cảnh báo',
-          text: 'Đã xảy ra lỗi khi xóa phân đoạn',
+          text: 'Đã xảy ra lỗi khi xóa lịch biểu',
         },
       },
       overviewSection: {
