@@ -127,13 +127,13 @@ const NotificationList = () => {
     <>
       <div className="mx-auto max-w-3xl min-h-[800px] p-6 bg-white rounded-xl shadow-lg transition-all duration-300">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-semibold text-gray-900">
             {t('notifications.header')}
           </h1>
           <div className="flex items-center space-x-3">
             <button
-              className="text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="text-sm font-medium text-indigo-600 transition-colors duration-200 hover:text-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={() => readAllNoti(user?.userId)}
               disabled={!notifications.some((notif) => !notif.read)}
               aria-label={t('notifications.markAllAsRead')}
@@ -144,7 +144,7 @@ const NotificationList = () => {
         </div>
 
         {/* Tabs */}
-        <div className="flex space-x-2 mb-6 bg-gray-100 p-1 rounded-lg">
+        <div className="flex p-1 mb-6 space-x-2 bg-gray-100 rounded-lg">
           <button
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${activeTab === "all"
               ? "bg-indigo-600 text-white shadow-sm"
@@ -168,32 +168,32 @@ const NotificationList = () => {
         </div>
 
         {/* List notifications */}
-        <h2 className="text-sm font-semibold text-gray-500 mb-4">
+        <h2 className="mb-4 text-sm font-semibold text-gray-500">
           {t('notifications.previousSection')}
         </h2>
         <div className="space-y-3">
           {filteredNotifications.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">
+            <p className="py-8 text-center text-gray-500">
               {t('notifications.noNotifications')}
             </p>
           ) : (
             filteredNotifications.map((notif) => (
               <div
                 key={notif.id}
-                className="flex items-start space-x-4 p-4 rounded-lg bg-gray-50 hover:bg-indigo-50 transition-all duration-200 cursor-pointer shadow-sm"
+                className="flex items-start p-4 space-x-4 transition-all duration-200 rounded-lg shadow-sm cursor-pointer bg-gray-50 hover:bg-indigo-50"
               >
-                <Bell className="text-indigo-500 w-10 h-10 p-2 flex-shrink-0" />
+                <Bell className="flex-shrink-0 w-10 h-10 p-2 text-indigo-500" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-900 leading-relaxed">
+                  <p className="text-sm leading-relaxed text-gray-900">
                     <span className="font-semibold text-indigo-700">{translateTitle(notif.title)}</span>{" "}
                     {translateMessage(notif.message)}
                   </p>
-                  <p className="text-xs text-gray-400 mt-1">
+                  <p className="mt-1 text-xs text-gray-400">
                     {formatDateTime(notif.createdAt)}
                   </p>
                   {!notif.read && (
                     <button
-                      className="text-indigo-600 text-sm font-medium hover:text-indigo-800 mt-2 transition-colors duration-200"
+                      className="mt-2 text-sm font-medium text-indigo-600 transition-colors duration-200 hover:text-indigo-800"
                       onClick={() => readNoti(notif.id)}
                       aria-label={t('notifications.markAsRead')}
                     >
@@ -202,7 +202,7 @@ const NotificationList = () => {
                   )}
                 </div>
                 {!notif.read && (
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full mt-2"></div>
+                  <div className="w-2 h-2 mt-2 bg-indigo-500 rounded-full"></div>
                 )}
               </div>
             ))

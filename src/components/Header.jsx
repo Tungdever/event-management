@@ -247,10 +247,38 @@ const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const menuRef = useRef(null);
   const mobileMenuRef = useRef(null);
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    console.log("User:", user); // Debug user object
+    const fetchUnreadCount = async () => {
+      if (user && user.userId) {
+        try {
+          const response = await fetch(`http://localhost:8080/notify/unread-count/${user.userId}`, {
+            headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          });
+          if (!response.ok) {
+            throw new Error(`Failed to fetch unread count: ${response.status}`);
+          }
+          const count = await response.json();
+          console.log("Unread count:", count); // Debug count
+          setUnreadCount(count);
+        } catch (error) {
+          console.error("Error fetching unread notification count:", error.message);
+        }
+      }
+    };
+
+    fetchUnreadCount();
+  }, [user]);
 
   const handleCreateEventClick = () => {
     navigate("/createEvent");
@@ -310,7 +338,12 @@ const Header = () => {
       action: handleCreateEventClick,
     },
     { icon: "bi-heart", text: t('header.likes'), action: handleLike },
-    { icon: "bi bi-bell", text: t('header.noti'), action: handleNoti },
+    {
+      icon: "bi bi-bell",
+      text: t('header.noti'),
+      action: handleNoti,
+      badge: unreadCount > 0 ? unreadCount : null,
+    },
   ];
 
   const menuPopup = [
@@ -381,10 +414,17 @@ const Header = () => {
           {menuItems.map((item, index) => (
             <a
               key={index}
-              className="flex flex-col items-center text-gray-500 text-[11px] md:text-[12px] lg:text-[13px] font-medium px-2 md:px-3 lg:px-[20px] cursor-pointer hover:text-blue-500 transition duration-300"
+              className="flex flex-col items-center text-gray-500 text-[11px] md:text-[12px] lg:text-[13px] font-medium px-2 md:px-3 lg:px-[20px] cursor-pointer hover:text-blue-500 transition duration-300 relative"
               onClick={item.action}
             >
-              <i className={`${item.icon} text-sm md:text-base lg:text-lg`}></i>
+              <div className="relative">
+                <i className={`${item.icon} text-sm md:text-base lg:text-lg`}></i>
+                {item.badge && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
               {item.text}
             </a>
           ))}
@@ -441,14 +481,22 @@ const Header = () => {
             ref={mobileMenuRef}
           >
             {menuItems.map((item, index) => (
-              <a
-                key={index}
-                className="block px-4 py-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-100 sm:text-sm"
-                onClick={item.action}
-              >
-                {item.text}
-              </a>
-            ))}
+            <a
+              key={index}
+              className="flex flex-col items-center text-gray-500 text-[11px] md:text-[12px] lg:text-[13px] font-medium px-2 md:px-3 lg:px-[20px] cursor-pointer hover:text-blue-500 transition duration-300 relative"
+              onClick={item.action}
+            >
+              <div className="relative">
+                <i className={`${item.icon} text-sm md:text-base lg:text-lg`}></i>
+                {item.badge && (
+                  <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs rounded-full px-1.5 py-0.5">
+                    {item.badge}
+                  </span>
+                )}
+              </div>
+              {item.text}
+            </a>
+          ))}
             {user ? (
               filteredMenuPopup.map((item, index) => (
                 <a
