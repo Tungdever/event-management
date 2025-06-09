@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Loader from "../../components/Loading";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { useAuth } from "../Auth/AuthProvider";
 import axios from "axios";
 import Swal from "sweetalert2";
 
-const TagsInput = ({ tags, setTags, isReadOnly }) => { 
+const TagsInput = ({ tags, setTags, isReadOnly }) => {
+  const { t } = useTranslation();
+
   const removeTag = (tagToRemove) => {
-    if (isReadOnly) return; 
+    if (isReadOnly) return;
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
@@ -20,7 +23,7 @@ const TagsInput = ({ tags, setTags, isReadOnly }) => {
             className="flex items-center gap-1 px-2 py-1 bg-gray-200 rounded-full tag"
           >
             <span className="text-gray-600 text-[14px]">{tag}</span>
-            {!isReadOnly && ( 
+            {!isReadOnly && (
               <button
                 onClick={() => removeTag(tag)}
                 className="text-gray-500 hover:text-gray-900"
@@ -31,20 +34,20 @@ const TagsInput = ({ tags, setTags, isReadOnly }) => {
           </span>
         ))}
       </div>
-      {!isReadOnly && ( 
+      {!isReadOnly && (
         <div className="mt-3">
           <label htmlFor="eventTags" className="text-sm text-gray-600">
-            Add search keywords to your event
+            {t('eventPublishing.tagsLabel')}
           </label>
           <input
             id="eventTags"
             type="text"
             name="event.tags"
             className="w-full p-2 mt-1 border rounded-md"
-            placeholder="Type and press Enter"
+            placeholder={t('eventPublishing.tagsPlaceholder')}
             disabled={isReadOnly}
             onKeyDown={(e) => {
-              if (isReadOnly) return; 
+              if (isReadOnly) return;
               if (e.key === "Enter" && e.target.value) {
                 setTags([...tags, e.target.value]);
                 e.target.value = "";
@@ -53,12 +56,16 @@ const TagsInput = ({ tags, setTags, isReadOnly }) => {
           />
         </div>
       )}
-      <div className="mt-2 text-sm text-gray-500">{tags.length}/10 tags</div>
+      <div className="mt-2 text-sm text-gray-500">
+        {t('eventPublishing.tagsCount', { count: tags.length })}
+      </div>
     </div>
   );
 };
 
 const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, isReadOnly }) => {
+  const { t } = useTranslation();
+
   const handleChange = (event) => {
     if (isReadOnly) return;
     setValidityDays(event.target.value);
@@ -66,14 +73,13 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
 
   return (
     <div className="relative w-full max-w-4xl mt-8 mb-4">
-      <h1 className="mb-6 text-2xl font-bold">Publish settings</h1>
+      <h1 className="mb-6 text-2xl font-bold">{t('eventPublishing.publishSettings')}</h1>
       <div className="flex flex-col mb-10 md:flex-row">
         <div className="flex-1">
           <div>
-            <h2 className="mb-2 text-lg font-semibold">Set your refund policy</h2>
+            <h2 className="mb-2 text-lg font-semibold">{t('eventPublishing.refundPolicyTitle')}</h2>
             <p className="text-gray-500 text-[13px] mb-2">
-              After your event is published, you can only update your policy to
-              make it more flexible for your attendees.
+              {t('eventPublishing.refundPolicyHelp')}
             </p>
             <div className="mb-4">
               <label className="flex items-center">
@@ -81,11 +87,11 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
                   type="radio"
                   name="refund_option"
                   checked={refunds === "yes"}
-                  onChange={() => !isReadOnly && setRefunds("yes")} 
+                  onChange={() => !isReadOnly && setRefunds("yes")}
                   disabled={isReadOnly}
                   className="w-4 h-4 mr-2 border-2 border-orange-500 accent-red-500"
                 />
-                <span className="text-base">Allow refunds</span>
+                <span className="text-base">{t('eventPublishing.allowRefunds')}</span>
               </label>
             </div>
             <div>
@@ -94,11 +100,11 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
                   type="radio"
                   name="refund_option"
                   checked={refunds === "no"}
-                  onChange={() => !isReadOnly && setRefunds("no")} 
+                  onChange={() => !isReadOnly && setRefunds("no")}
                   disabled={isReadOnly}
                   className="w-4 h-4 mr-2 border-2 border-orange-500 accent-red-500"
                 />
-                <span className="text-base">Don't allow refunds</span>
+                <span className="text-base">{t('eventPublishing.dontAllowRefunds')}</span>
               </label>
             </div>
             {refunds === "yes" && (
@@ -108,7 +114,7 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
                     htmlFor="refundPolicyCutoffText"
                     className="text-gray-700 text-[11px] mt-3"
                   >
-                    Days before the event
+                    {t('eventPublishing.refundDaysLabel')}
                   </label>
                   <input
                     id="refundPolicyCutoffText"
@@ -123,8 +129,7 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
                   />
                 </div>
                 <p className="text-gray-700 text-[13px]">
-                  Set how many days (1 to 30) before the event that attendees can
-                  request refunds.
+                  {t('eventPublishing.refundDaysHelp')}
                 </p>
               </div>
             )}
@@ -137,13 +142,13 @@ const PublishSettings = ({ refunds, setRefunds, validityDays, setValidityDays, i
 };
 
 const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [eventTypes, setEventTypes] = useState([]);
   const { user } = useAuth();
   const token = localStorage.getItem("token");
   const [organizerName, setOrganizerName] = useState("");
 
-  // Fetch event types from API
   useEffect(() => {
     const fetchEventTypes = async () => {
       try {
@@ -154,12 +159,11 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
           },
         });
         const types = response.data;
-        console.log("Fetched event types:", types); // Ghi log để debug
         if (!types || types.length === 0) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Không có loại sự kiện nào được tải. Vui lòng kiểm tra API.",
+            title: t('eventPublishing.warningNoEventTypes.title'),
+            text: t('eventPublishing.warningNoEventTypes.text'),
           });
         }
         setEventTypes(types);
@@ -167,26 +171,23 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
         console.error("Error fetching event types:", err);
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: "Không thể tải danh sách loại sự kiện.",
+          title: t('eventPublishing.errorFetchEventTypes.title'),
+          text: t('eventPublishing.errorFetchEventTypes.text'),
         });
       }
     };
     fetchEventTypes();
-  }, [token]);
+  }, [token, t]);
 
-  // Kiểm tra đồng bộ eventType với eventTypes
   useEffect(() => {
     if (event.eventType && eventTypes.length > 0) {
       const selectedType = eventTypes.find((type) => String(type.id) === String(event.eventType));
       if (!selectedType) {
-        console.warn("Selected eventType not found in eventTypes:", event.eventType);
         setEvent((prev) => ({ ...prev, eventType: "" }));
       }
     }
   }, [eventTypes, event.eventType, setEvent]);
 
-  // Fetch organizer name
   useEffect(() => {
     const fetchUserData = async () => {
       try {
@@ -200,15 +201,14 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
         setOrganizerName(fetchedOrganizerName);
         setEvent((prev) => ({ ...prev, eventHost: fetchedOrganizerName }));
       } catch (err) {
-        console.error("Error fetching user data:", err);
+        console.error(t('eventPublishing.errorFetchUserData'), err);
         setOrganizerName("Unknown Organizer");
         setEvent((prev) => ({ ...prev, eventHost: "Unknown Organizer" }));
       }
     };
     fetchUserData();
-  }, [user.email, token, setEvent]);
+  }, [user.email, token, setEvent, t]);
 
-  // Simulate loading
   useEffect(() => {
     setTimeout(() => {
       setLoading(false);
@@ -226,51 +226,41 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
     return "https://mybic.vn/uploads/news/default/no-image.png";
   };
 const handleSaveDraft = async () => {
-    setLoading(true);
-    try {
-      setEvent((prev) => ({ ...prev, eventStatus: "Draft" }));
-      await onPublish();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: `Lỗi khi lưu bản nháp: ${error.message}`,
-      });
-    } finally {
-      setLoading(false);
-    }
+   setLoading(true);
+  try {
+    await onPublish("Draft");
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: `Lỗi khi lưu bản nháp: ${error.message}`,
+    });
+  } finally {
+    setLoading(false);
+  }
   };
 
   const handlePublishEvent = async () => {
     setLoading(true);
-    try {
-      setEvent((prev) => ({ ...prev, eventStatus: "public" }));
-      await onPublish();
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: `Lỗi khi xuất bản sự kiện: ${error.message}`,
-      });
-    } finally {
-      setLoading(false);
-    }
+  try {
+    await onPublish("public"); 
+  } catch (error) {
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: `Lỗi khi xuất bản sự kiện: ${error.message}`,
+    });
+  } finally {
+    setLoading(false);
+  }
   };
   return loading ? (
     <Loader />
   ) : (
     <div className="flex flex-col items-center justify-center min-h-screen p-2 bg-gray-50">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">
-        Your event is almost ready to publish
-      </h1>
-      <p className="mb-6 text-gray-600">
-        Review your settings and let everyone find your event.
-      </p>
-
+      <h1 className="mb-2 text-2xl font-bold text-gray-900">{t('eventPublishing.title')}</h1>
       {isReadOnly && (
-        <p className="mb-4 text-red-500">
-          Sự kiện đã hoàn tất, chỉ có thể xem, không thể chỉnh sửa.
-        </p>
+        <p className="mb-4 text-red-500">{t('eventPublishing.readOnlyMessage')}</p>
       )}
 
       <div className="flex flex-col gap-6 lg:flex-row">
@@ -294,39 +284,39 @@ const handleSaveDraft = async () => {
               )}
             </div>
             <h2 className="mb-2 text-xl font-semibold text-gray-900">
-              {event.eventName || "Untitled Event"}
+              {event.eventName || t('eventPublishing.noEventName')}
             </h2>
             <p className="font-semibold text-gray-600 text-[13px] mb-1">
               {event.eventLocation.date && event.eventLocation.startTime
-                ? `${new Date(
-                    event.eventLocation.date
-                  ).toLocaleDateString()} ${event.eventLocation.startTime} - ${
-                    event.eventLocation.endTime
-                  }`
-                : "Date and time not set"}
+                ? `${new Date(event.eventLocation.date).toLocaleDateString()} ${
+                    event.eventLocation.startTime
+                  } - ${event.eventLocation.endTime}`
+                : t('eventPublishing.noDateTime')}
             </p>
             <p className="text-gray-600 text-[13px] mb-1">
               {event.eventLocation.locationType === "online"
-                ? "Online Event"
+                ? t('eventPublishing.onlineEvent')
                 : `${event.eventLocation.venueName}, ${event.eventLocation.address}, ${event.eventLocation.city}`}
             </p>
             <div className="flex items-center justify-between mt-2 space-x-4 text-gray-600">
               <div className="space-x-4">
                 <span className="font-semibold text-[12px]">
                   <i className="mr-2 fa-solid fa-ticket"></i>
-                  {event.tickets[0]?.price ? `${event.tickets[0].price} VND` : "Free"}
+                  {event.tickets[0]?.price
+                    ? `${event.tickets[0].price} VND`
+                    : t('eventPublishing.ticketPriceFree')}
                 </span>
                 <span className="font-semibold text-[12px]">
                   <i className="mr-2 far fa-user"></i>
-                  {event.tickets[0]?.quantity || "N/A"}
+                  {event.tickets[0]?.quantity || t('eventPublishing.ticketQuantityNA')}
                 </span>
               </div>
             </div>
           </div>
           <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Organized by</h3>
+            <h3 className="mb-2 font-semibold text-gray-900">{t('eventPublishing.organizedBy')}</h3>
             <div className="w-full p-2 text-gray-700 border border-gray-300 rounded-lg bg-gray-50">
-              {organizerName || "Loading..."}
+              {organizerName || t('eventPublishing.organizerLoading')}
             </div>
           </div>
         </div>
@@ -334,25 +324,21 @@ const handleSaveDraft = async () => {
         <div className="flex-1 p-2 bg-gray-100 rounded-lg">
           <div className="mb-6">
             <h3 className="mb-2 font-semibold text-gray-900">
-              Event type and category
+              {t('eventPublishing.eventTypeAndCategory')}
             </h3>
-            <p className="mb-4 text-gray-600">
-              Your type and category help your event appear in more searches.
-            </p>
+            <p className="mb-4 text-gray-600">{t('eventPublishing.eventTypeHelp')}</p>
             {eventTypes.length === 0 ? (
-              <p className="text-red-500">
-                No event types available. Please try again later.
-              </p>
+              <p className="text-red-500">{t('eventPublishing.noEventTypes')}</p>
             ) : (
               <select
                 className="w-full p-2 mb-4 border border-gray-300 rounded-lg"
                 value={event.eventType || ""}
                 onChange={(e) =>
-                  !isReadOnly && setEvent((prev) => ({ ...prev, eventType: e.target.value })) // Kiểm tra isReadOnly
+                  !isReadOnly && setEvent((prev) => ({ ...prev, eventType: e.target.value }))
                 }
                 disabled={isReadOnly}
               >
-                <option value="">Select Type</option>
+                <option value="">{t('eventPublishing.selectEventType')}</option>
                 {eventTypes.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.typeName}
@@ -362,15 +348,12 @@ const handleSaveDraft = async () => {
             )}
           </div>
           <div>
-            <h3 className="mb-2 font-semibold text-gray-900">Tags</h3>
-            <p className="mb-4 text-gray-600">
-              Help people discover your event by adding tags related to your
-              event’s theme, topic, vibe, location, and more.
-            </p>
+            <h3 className="mb-2 font-semibold text-gray-900">{t('eventPublishing.tags')}</h3>
+            <p className="mb-4 text-gray-600">{t('eventPublishing.tagsHelp')}</p>
             <TagsInput
               tags={event.tags}
               setTags={(newTags) =>
-                !isReadOnly && setEvent((prev) => ({ ...prev, tags: newTags })) 
+                !isReadOnly && setEvent((prev) => ({ ...prev, tags: newTags }))
               }
               isReadOnly={isReadOnly}
             />
@@ -395,13 +378,13 @@ const handleSaveDraft = async () => {
               onClick={handleSaveDraft}
               className="px-4 py-2 text-white bg-gray-600 rounded-md"
             >
-              Save as Draft
+              {t('eventPublishing.draftButton')}
             </button>
             <button
               onClick={handlePublishEvent}
               className="px-4 py-2 text-white bg-orange-600 rounded-md"
             >
-              Publish now
+              {t('eventPublishing.publishButton')}
             </button>
           </>
         )}

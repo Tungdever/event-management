@@ -36,25 +36,7 @@ const RolePermissionPage = () => {
     <section className="p-6 space-y-6 overflow-y-auto">
       <h1 className="font-bold text-lg mb-4 select-none">Role & Permission Management</h1>
       {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-      <nav className="flex space-x-4 mb-6">
-        {['Roles', 'Permissions'].map((tab) => (
-          <span
-            key={tab}
-            className={`cursor-pointer pb-2 text-sm font-semibold ${
-              activeTab === tab
-                ? 'text-blue-600 border-b-2 border-blue-600'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-            onClick={() => setActiveTab(tab)}
-          >
-            {tab}
-          </span>
-        ))}
-      </nav>
-      {activeTab === 'Roles' && (
-        <RoleManagement token={token} permissions={permissions} fetchPermissions={fetchPermissions} />
-      )}
-      {activeTab === 'Permissions' && <PermissionManagement token={token} />}
+      <RoleManagement token={token} permissions={permissions} fetchPermissions={fetchPermissions} />
     </section>
   );
 };

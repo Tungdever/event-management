@@ -16,7 +16,6 @@ import ChatBox from "./pages/ChatBox/ChatBox";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Navbar from "./pages/Dashboard/Navbar";
 import Sidebar from "./pages/Dashboard/Sidebar";
-
 import LoginForm from "./pages/Auth/LogIn";
 import NotificationList from "./pages/Dashboard/Notification";
 import Checkout from "./pages/Checkout/checkout-page";
@@ -26,9 +25,8 @@ import Session from "./pages/Session/session";
 import AddTicket from "./pages/Ticket/AddTicket";
 import ForgotPassword from "./pages/Auth/ForgotPass";
 import CRUDEvent from "./pages/Event/CreateEventPage";
-import TicketList from "./pages/Ticket/MyTicket";
-import Refund from "./pages/Refund/refund";
-import RefundManagement from "./pages/Refund/refund_management";
+
+
 import ViewProfile from "./pages/Dashboard/ViewProfile";
 import Sidebar2 from "./pages/Dashboard/MainSidebar";
 import Header from "./components/Header";
@@ -38,7 +36,7 @@ import SearchByType from "./pages/Event/SearchPageByType";
 import { AuthProvider } from "./pages/Auth/AuthProvider";
 import DashboardPage from "./pages/AdminBoard/DashboardPage";
 import OrganizerDashboard from "./pages/Dashboard/OrganizerReport";
-import ReportPage from "./pages/AdminBoard/ReportPage";
+
 import UserPage from "./pages/AdminBoard/UserPage";
 import RolePermissionPage from "./pages/AdminBoard/RolePage";
 import SidebarAdminBoard from "./pages/AdminBoard/Sidebar";
@@ -56,7 +54,7 @@ import ProfileOrganizer from "./pages/Event/ProfileOrganizer";
 import PaymentResult from "./pages/Checkout/PaymentResult";
 import MyInvoice from "./pages/Booking/MyBooking";
 import ViewAllTickets from "./pages/Ticket/ViewAllTickets"
-import ReportOrder from "./pages/report/order";
+
 import ViewTicket from "./pages/Ticket/ViewTicket";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -83,7 +81,6 @@ const MainLayout = () => {
       "/",
       "/search",
       "/checkout",
-      "/myticket",
       "/refund",
       "/event-like",
       "/createEvent",
@@ -91,7 +88,7 @@ const MainLayout = () => {
       "/payment-result",
       "/myinvoices",
       "/view-all-tickets",
-      "/notification",
+      "/notifications",
     ].includes(location.pathname) ||
     location.pathname.startsWith("/event/") ||
     location.pathname.startsWith("/list-event-search-by") ||
@@ -104,7 +101,7 @@ const MainLayout = () => {
     "/dashboard/reports",
     "/chat",
     "/calendar",
-    "/notification",
+    "/notifications",
     "/view",
     "/role",
     "/assigned-events",
@@ -165,7 +162,7 @@ const MainLayout = () => {
                   path="/list-event-search-by/:categoryName"
                   element={<SearchByType />}
                 />
-                
+
                 <Route
                   path="/checkout"
                   element={
@@ -176,26 +173,7 @@ const MainLayout = () => {
                     </RoleBasedRouteGroup>
                   }
                 />
-                <Route
-                  path="/myticket"
-                  element={
-                    <RoleBasedRouteGroup
-                      allowedRoles={["ATTENDEE", "ORGANIZER"]}
-                    >
-                      <TicketList />
-                    </RoleBasedRouteGroup>
-                  }
-                />
-                <Route
-                  path="/refund"
-                  element={
-                    <RoleBasedRouteGroup
-                      allowedRoles={["ATTENDEE", "ORGANIZER"]}
-                    >
-                      <Refund />
-                    </RoleBasedRouteGroup>
-                  }
-                />
+               
                 <Route
                   path="/event-like"
                   element={
@@ -215,7 +193,7 @@ const MainLayout = () => {
                   }
                 />
                 <Route
-                  path="/notification"
+                  path="/notifications"
                   element={
                     <RoleBasedRouteGroup
                       allowedRoles={["ORGANIZER", "ATTENDEE"]}
@@ -288,8 +266,8 @@ const MainLayout = () => {
                 path="/dashboard"
                 element={
                   <RoleBasedRouteGroup allowedRoles={["ORGANIZER", "TICKET MANAGER",
-                      "EVENT ASSISTANT",
-                      "CHECK-IN STAFF",]}>
+                    "EVENT ASSISTANT",
+                    "CHECK-IN STAFF",]}>
                     <OrganizerLayout />
                   </RoleBasedRouteGroup>
                 }
@@ -380,7 +358,7 @@ const MainLayout = () => {
                       "TICKET MANAGER",
                       "EVENT ASSISTANT",
                       "CHECK-IN STAFF",
-                    "ATTENDEE"
+                      "ATTENDEE"
                     ]}
                   >
                     <ViewProfile />
@@ -413,7 +391,7 @@ const MainLayout = () => {
                     </RoleBasedRouteGroup>
                   }
                 />
-                <Route
+                {/* <Route
                   path="/dashboard/refund/:eventId"
                   element={
                     <RoleBasedRouteGroup
@@ -427,7 +405,7 @@ const MainLayout = () => {
                       <RefundManagement />
                     </RoleBasedRouteGroup>
                   }
-                />
+                /> */}
                 <Route
                   path="/dashboard/session/:eventId"
                   element={
@@ -560,14 +538,6 @@ const MainLayout = () => {
               element={
                 <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
                   <AdminLayout />
-                </RoleBasedRouteGroup>
-              }
-            />
-            <Route
-              path="/admin/report"
-              element={
-                <RoleBasedRouteGroup allowedRoles={["ADMIN"]}>
-                  <ReportPage />
                 </RoleBasedRouteGroup>
               }
             />

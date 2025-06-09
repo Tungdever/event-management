@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import ProgressBar from "./ProgressBar";
 import BackIcon from "./BackIcon";
+import { useTranslation } from "react-i18next";
 
 const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     fullName: '',
     email: email,
@@ -15,15 +17,15 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
 
   const validateForm = (data) => {
     const newErrors = {};
-    if (!data.fullName) newErrors.fullName = "Please enter full name";
-    else if (!/^[a-zA-Z\s]+$/.test(data.fullName)) newErrors.fullName = "Full name can only contain letters and spaces";
+    if (!data.fullName) newErrors.fullName = t('attendeeForm.errors.fullNameRequired');
+    else if (!/^[a-zA-Z\s]+$/.test(data.fullName)) newErrors.fullName = t('attendeeForm.errors.fullNameInvalid');
 
-    if (!data.password) newErrors.password = "Please enter password";
-    else if (data.password.length < 8) newErrors.password = "Password must be at least 8 characters long";
+    if (!data.password) newErrors.password = t('attendeeForm.errors.passwordRequired');
+    else if (data.password.length < 8) newErrors.password = t('attendeeForm.errors.passwordTooShort');
 
-    if (!data.gender) newErrors.gender = "Please select gender";
-    if (!data.birthday) newErrors.birthday = "Please enter birthday";
-    if (!data.address) newErrors.address = "Please enter address";
+    if (!data.gender) newErrors.gender = t('attendeeForm.errors.genderRequired');
+    if (!data.birthday) newErrors.birthday = t('attendeeForm.errors.birthdayRequired');
+    if (!data.address) newErrors.address = t('attendeeForm.errors.addressRequired');
 
     return newErrors;
   };
@@ -45,7 +47,6 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
       return;
     }
 
-    // Lưu dữ liệu vào userData và chuyển sang bước tiếp theo
     onComplete(formData);
   };
 
@@ -57,7 +58,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
           <div className="p-6 rounded-t">
             <h2 className="text-2xl font-bold flex items-center">
               <BackIcon onClick={onPrev} />
-              Attendee Information
+              {t('attendeeForm.title')}
             </h2>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -68,7 +69,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="email"
                   >
-                    Email
+                    {t('attendeeForm.labels.email')}
                   </label>
                   <input
                     type="email"
@@ -77,7 +78,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     disabled
                     className="appearance-none block w-full text-gray-700 border border-gray-400 rounded py-3 px-4"
                     id="email"
-                    aria-label="Email"
+                    aria-label={t('attendeeForm.labels.email')}
                   />
                 </div>
                 <div className="md:w-1/2 px-3 md:mb-0">
@@ -85,16 +86,16 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="role"
                   >
-                    Role
+                    {t('attendeeForm.labels.role')}
                   </label>
                   <input
                     type="text"
                     name="role"
-                    value="Attendee"
+                    value={t('attendeeForm.roleValue')}
                     disabled
                     className="appearance-none block w-full text-gray-700 border border-gray-400 rounded py-3 px-4 mb-3"
                     id="role"
-                    aria-label="Role"
+                    aria-label={t('attendeeForm.labels.role')}
                   />
                 </div>
               </div>
@@ -104,7 +105,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="full-name"
                   >
-                    Full Name
+                    {t('attendeeForm.labels.fullName')}
                   </label>
                   <input
                     type="text"
@@ -116,7 +117,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     }`}
                     id="full-name"
                     required
-                    aria-label="Full Name"
+                    aria-label={t('attendeeForm.labels.fullName')}
                   />
                   {errors.fullName && (
                     <p className="text-red-500 text-xs">{errors.fullName}</p>
@@ -127,7 +128,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="birthday"
                   >
-                    Birthday
+                    {t('attendeeForm.labels.birthday')}
                   </label>
                   <input
                     type="date"
@@ -139,7 +140,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     }`}
                     id="birthday"
                     required
-                    aria-label="Birthday"
+                    aria-label={t('attendeeForm.labels.birthday')}
                   />
                   {errors.birthday && (
                     <p className="text-red-500 text-xs">{errors.birthday}</p>
@@ -152,7 +153,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="password"
                   >
-                    Password
+                    {t('attendeeForm.labels.password')}
                   </label>
                   <input
                     type="password"
@@ -164,7 +165,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     }`}
                     id="password"
                     disabled
-                    aria-label="Password"
+                    aria-label={t('attendeeForm.labels.password')}
                   />
                   {errors.password && (
                     <p className="text-red-500 text-xs">{errors.password}</p>
@@ -175,7 +176,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="gender"
                   >
-                    Gender
+                    {t('attendeeForm.labels.gender')}
                   </label>
                   <select
                     name="gender"
@@ -186,12 +187,12 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     }`}
                     id="gender"
                     required
-                    aria-label="Gender"
+                    aria-label={t('attendeeForm.labels.gender')}
                   >
-                    <option value="">Select Gender</option>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                    <option value="other">Other</option>
+                    <option value="">{t('attendeeForm.genderOptions.select')}</option>
+                    <option value="male">{t('attendeeForm.genderOptions.male')}</option>
+                    <option value="female">{t('attendeeForm.genderOptions.female')}</option>
+                    <option value="other">{t('attendeeForm.genderOptions.other')}</option>
                   </select>
                   {errors.gender && (
                     <p className="text-red-500 text-xs">{errors.gender}</p>
@@ -204,20 +205,20 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
                     className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                     htmlFor="address"
                   >
-                    Address
+                    {t('attendeeForm.labels.address')}
                   </label>
                   <input
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    placeholder="Address"
+                    placeholder={t('attendeeForm.placeholders.address')}
                     className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 mb-3 ${
                       errors.address ? "border-red-500" : "border-gray-400"
                     }`}
                     id="address"
                     required
-                    aria-label="Address"
+                    aria-label={t('attendeeForm.labels.address')}
                   />
                   {errors.address && (
                     <p className="text-red-500 text-xs">{errors.address}</p>
@@ -229,7 +230,7 @@ const AttendeeForm = ({ email, userData, onComplete, onPrev }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200"
             >
-              Continue
+              {t('attendeeForm.buttons.continue')}
             </button>
           </form>
         </div>

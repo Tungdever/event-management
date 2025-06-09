@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import BackIcon from './BackIcon';
 import ProgressBar from './ProgressBar';
 import Loader from '../../../components/Loading';
 import Swal from 'sweetalert2';
+
 const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
+  const { t } = useTranslation(); // Hook to access translations
   const [preferredEventTypes, setPreferredEventTypes] = useState([]);
   const [preferredTags, setPreferredTags] = useState([]);
   const [tags, setTags] = useState([]);
@@ -77,7 +80,7 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
   const validatePreferences = () => {
     const newErrors = {};
     if (preferredEventTypes.length === 0 && preferredTags.length === 0) {
-      newErrors.preferences = 'Please select at least one event type or tag';
+      newErrors.preferences = t('preferenceStep.validationError');
     }
     return newErrors;
   };
@@ -115,34 +118,32 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
         throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
       }
 
-     
-      Swal.fire ({
+      Swal.fire({
         icon: 'success',
-        title: 'success',
-        text: 'Registration successful!',
+        title: t('organizerForm.success.successTitle'), // Reuse existing success title
+        text: t('organizerForm.success.success'), // Reuse existing success message
       });
       onComplete();
     } catch (error) {
-     
-      Swal.fire ({
+      Swal.fire({
         icon: 'error',
-        title: 'error',
-        text: 'Registration failed. Please try again.',
+        title: t('organizerForm.errors.errorTitle'), // Reuse existing error title
+        text: t('organizerForm.errors.registrationError'), // Reuse existing error message
       });
     }
   };
 
   return (
-    <div className="bg-[#fcbfb5] min-h-screen flex items-center justify-center p-6 ">
+    <div className="bg-[#fcbfb5] min-h-screen flex items-center justify-center p-6">
       <div className="max-w-7xl w-full flex flex-col md:flex-row gap-10 md:gap-20">
         <div className="bg-white rounded-lg p-10 max-w-3xl w-full md:w-[650px] flex flex-col gap-4">
           <ProgressBar currentStep={6} totalSteps={6} />
           <h1 className="text-[#1a1a2e] font-montserrat font-extrabold text-3xl leading-tight flex items-center">
             <BackIcon onClick={onPrev} />
-            Tell us what you love!
+            {t('preferenceStep.title')}
           </h1>
           <p className="text-[#1a1a2e] font-montserrat text-sm leading-relaxed max-w-xl">
-            Select the types of events and tags you're interested in, and we'll recommend the best experiences for you.
+            {t('preferenceStep.description')}
           </p>
 
           {/* Phần chọn Event Types */}
@@ -150,22 +151,22 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
             className="text-[#1a1a2e] font-montserrat font-semibold text-sm mt-6 block"
             htmlFor="event-types"
           >
-            What type of events do you enjoy?
-            <span className="text-red-600">*</span>
+            {t('preferenceStep.eventTypesLabel')}
+            <span className="text-red-600">{t('preferenceStep.requiredField')}</span>
           </label>
-          <div className="flex flex-wrap gap-4 max-w-xl mt-2 " id="event-types">
+          <div className="flex flex-wrap gap-4 max-w-xl mt-2" id="event-types">
             {eventTypes.map((type) => (
               <button
                 key={type}
                 type="button"
-                className={`font-montserrat rounded-full px-5 py-2 text-[11px] font-normal transition  ${
+                className={`font-montserrat rounded-full px-5 py-2 text-[11px] font-normal transition ${
                   preferredEventTypes.includes(type)
                     ? 'bg-[#d3d2df] text-[#1a1a2e] font-semibold'
                     : 'bg-[#e6e6f0] text-[#1a1a2e]'
                 }`}
                 onClick={() => handlePreferenceToggle('preferredEventTypes', type)}
               >
-                {type}
+                {t(`searchByType.eventTypes.${type.toLowerCase()}`, type)} {/* Fallback to English type if translation not found */}
               </button>
             ))}
           </div>
@@ -175,8 +176,8 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
             className="text-[#1a1a2e] font-montserrat font-semibold text-sm mt-6 block"
             htmlFor="tags"
           >
-            What tags interest you?
-            <span className="text-red-600">*</span>
+            {t('preferenceStep.tagsLabel')}
+            <span className="text-red-600">{t('preferenceStep.requiredField')}</span>
           </label>
           {loading ? (
             <div className="text-center p-4">
@@ -184,11 +185,11 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
             </div>
           ) : apiError ? (
             <p className="text-red-500 font-montserrat text-xs mt-2">
-              Error loading tags: {apiError}
+              {t('preferenceStep.errorLoadingTags', { message: apiError })}
             </p>
           ) : tags.length === 0 ? (
             <p className="text-gray-600 font-montserrat text-sm mt-2">
-              No tags available
+              {t('preferenceStep.noTagsAvailable')}
             </p>
           ) : (
             <div className="flex flex-wrap gap-4 max-w-xl mt-2" id="tags">
@@ -222,12 +223,12 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
             onClick={handleSubmit}
             className="w-full font-montserrat bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200 mt-6"
           >
-            Complete Registration
+            {t('preferenceStep.completeRegistration')}
           </button>
         </div>
         <div className="flex items-center justify-center">
           <img
-            alt="Illustration of people enjoying events"
+            alt={t('preferenceStep.imageAlt', { defaultValue: 'Illustration of people enjoying events' })}
             className="w-80 h-80 object-contain rounded-full"
             height="400"
             src="https://storage.googleapis.com/a1aa/image/c685a233-3388-4c87-bfdf-0d6600b86814.jpg"

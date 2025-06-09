@@ -24,7 +24,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
 
   const conceptItems = [
     { name: "User", icon: "fas fa-user", component: "User", hasDropdown: true },
-    { name: "Role", icon: "fas fa-box", component: "Role", hasDropdown: true },
+
     { name: "Event types", icon: "fas fa-box", component: "Types", hasDropdown: true },
   ];
 
@@ -77,7 +77,7 @@ const SidebarAdminBoard = ({ isSidebarOpen, toggleSidebar, setCurrentComponent }
             </li>
           ))}
         </ul>
-        <p className="uppercase font-semibold text-xs mt-8 mb-3 select-none">CONCEPTS</p>
+        <p className="uppercase font-semibold text-xs mt-8 mb-3 select-none">MANAGEMENT</p>
         <ul className="space-y-3">
           {conceptItems.map((item) => (
             <li key={item.name}>

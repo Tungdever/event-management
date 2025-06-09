@@ -30,9 +30,9 @@ export const api = {
     }
   },
 
-  resetPassword: async (token, email, newPassword) => {
+  resetPassword: async (token, newPassword) => {
     try {
-      const response = await axios.post(`${API_URL}/reset-password`, { token, email, newPassword });
+      const response = await axios.post(`${API_URL}/reset-password`, { token, newPassword });
       return response.data;
     } catch (error) {
       throw error.response?.data || { statusCode: 500, msg: 'Error', data: 'Server error' };

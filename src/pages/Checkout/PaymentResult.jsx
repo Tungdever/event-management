@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import Footer from "../../components/Footer";
 export default function PaymentResultPage() {
   const [data, setData] = useState(null);
   const linkEvent = localStorage.getItem('eventCheckout');

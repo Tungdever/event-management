@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import Sidebar from "./MainSidebar";
 import Navbar from "../Dashboard/Navbar";
 import Dashboard from "./Dashboard";
@@ -11,24 +12,38 @@ import OrganizerDashboard from "./OrganizerReport";
 import Loader from "../../components/Loading";
 
 const OrganizerLayout = () => {
+  const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentComponent, setCurrentComponent] = useState("Dashboard");
- const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
-useEffect(() => {
+
+  useEffect(() => {
     setTimeout(() => {
       setLoading(false);
     }, 100);
     window.scrollTo(0, 0);
   }, []);
+
+  const sidebarItems = [
+    { key: "Dashboard", label: t('sidebar.organizerDashboard') },
+    { key: "Events", label: t('sidebar.events') },
+    { key: "Calendar", label: t('sidebar.calendar') },
+    { key: "Chat", label: t('sidebar.chat') },
+    { key: "AssignRole", label: t('sidebar.assignRole') },
+    { key: "AssignedEvents", label: t('sidebar.assignedEvents') },
+    { key: "Profile", label: t('sidebar.profile') },
+  ];
+
   const renderComponent = () => {
     switch (currentComponent) {
       case "Dashboard":
         return <OrganizerDashboard />;
       case "Events":
-        return <Dashboard />; 
+        return <Dashboard />;
       case "Calendar":
         return <Calendar />;
       case "Chat":
@@ -43,15 +58,22 @@ useEffect(() => {
         return <Dashboard />;
     }
   };
-if (loading) {
-    return <div><Loader/></div>;
+
+  if (loading) {
+    return (
+      <div>
+        <Loader alt={t('sidebar.loadingAlt')} />
+      </div>
+    );
   }
+
   return (
     <div className="relative min-h-screen flex">
       <Sidebar
         isOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
         setCurrentComponent={setCurrentComponent}
+        sidebarItems={sidebarItems}
       />
       <div className="flex-1 flex flex-col lg:ml-64">
         <Navbar toggleSidebar={toggleSidebar} />

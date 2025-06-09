@@ -3,8 +3,11 @@ import axios from 'axios';
 import EmptyOrder from './empty-orders.jpg';
 import { toast } from 'react-toastify';
 import { FaTicketAlt, FaDownload, FaUndoAlt } from "react-icons/fa";
+import { useTranslation } from 'react-i18next';
+import Footer from "../../components/Footer";
 
 export default function MyInvoice() {
+  const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [openOrders, setOpenOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,6 +15,7 @@ export default function MyInvoice() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [toastMessage, setToastMessage] = useState(null);
   const [toastType, setToastType] = useState(null);
+
   const toggleOrder = (orderId) => {
     setOpenOrders((prev) =>
       prev.includes(orderId)
@@ -30,6 +34,7 @@ export default function MyInvoice() {
     const shortYear = year.slice(2);
     return `${hour}:${minute}:${second} ${day}/${month}/${shortYear}`;
   };
+
   useEffect(() => {
     if (toastMessage && toastType) {
       if (toastType === "info") {
@@ -38,16 +43,17 @@ export default function MyInvoice() {
       else if (toastType === "success") {
         toast.success(toastMessage);
       }
-       else if (toastType === "error") {
+      else if (toastType === "error") {
         toast.error(toastMessage);
       }
-       else if (toastType === "warn") {
+      else if (toastType === "warn") {
         toast.warn(toastMessage);
       }
-      setToastType(null)
+      setToastType(null);
       setToastMessage(null);
     }
   }, [toastMessage]);
+
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
@@ -60,12 +66,12 @@ export default function MyInvoice() {
           const decodedPayload = JSON.parse(atob(payload));
           userId = decodedPayload.userId;
         } catch (e) {
-          setError("Invalid token. Please log in again.");
+          setError(t('myBooking.errors.invalidToken'));
           setLoading(false);
           return;
         }
       } else {
-        setError("No token found. Please log in.");
+        setError(t('myBooking.errors.noToken'));
         setLoading(false);
         return;
       }
@@ -79,7 +85,7 @@ export default function MyInvoice() {
         console.log(response.data);
         setOrders(response.data);
       } catch (err) {
-        setError("Failed to fetch orders. Please try again later.");
+        setError(t('myBooking.errors.fetchOrdersFailed'));
         console.error(err);
       } finally {
         setLoading(false);
@@ -87,9 +93,7 @@ export default function MyInvoice() {
     };
 
     fetchOrders();
-  }, []);
-
-
+  }, [t]);
 
   const handleRefund = async (orderId) => {
     try {
@@ -110,7 +114,7 @@ export default function MyInvoice() {
           }
         });
         console.log(refundResponse.data);
-        setToastMessage("Refund successfully!");
+        setToastMessage(t('myBooking.success.refundSuccess'));
         setToastType("success");
         window.location.reload();
       } else {
@@ -118,7 +122,7 @@ export default function MyInvoice() {
         setToastType("warn");
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Refund fail!';
+      const errorMessage = error.response?.data?.message || t('myBooking.errors.refundFailed');
       setToastMessage(errorMessage);
       setToastType("error");
     }
@@ -141,14 +145,14 @@ export default function MyInvoice() {
       link.click();
       link.remove();
     } catch (err) {
-      setToastMessage("Download failed.");
+      setToastMessage(t('myBooking.errors.downloadFailed'));
       setToastType("error");
     }
   };
 
   const viewTicket = (orderId) => {
     window.location.href = `/view-tickets/${orderId}`;
-  }
+  };
 
   const statusColors = {
     SUCCESSFULLY: "text-green-600",
@@ -159,7 +163,7 @@ export default function MyInvoice() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <h1 className="text-4xl font-extrabold text-center mb-12 text-gray-900 tracking-tight">
-        Invoices
+        {t('myBooking.title')}
       </h1>
 
       {loading ? (
@@ -168,22 +172,21 @@ export default function MyInvoice() {
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center text-center">
-          <h2 className="text-2xl font-semibold text-red-600 mb-4">Error</h2>
+          <h2 className="text-2xl font-semibold text-red-600 mb-4">{t('myBooking.error')}</h2>
           <p className="text-gray-600 max-w-md">{error}</p>
         </div>
       ) : orders.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center">
           <img
             src={EmptyOrder}
-            alt="No Orders"
+            alt={t('myBooking.noInvoices')}
             className="w-64 h-64 mb-6 object-contain"
           />
           <h2 className="text-2xl font-semibold text-gray-700 mb-3">
-            You do not have any invoices.
+            {t('myBooking.noInvoices')}
           </h2>
           <p className="text-gray-500 max-w-md">
-            When you buy event tickets, the invoice will be displayed here. <br />
-            Continue to explore and experience!
+            {t('myBooking.noInvoicesDescription')}
           </p>
         </div>
       ) : (
@@ -201,13 +204,13 @@ export default function MyInvoice() {
                 >
                   <div>
                     <h2 className="text-xl font-semibold text-gray-800">
-                      Invoice ID: #{order.orderId}
+                      {t('myBooking.invoiceId')}{order.orderId}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      Transaction time: {convertTimestamp(order.transaction.transactionDate)}
+                      {t('myBooking.transactionTime')} {convertTimestamp(order.transaction.transactionDate)}
                     </p>
                     <p className="text-sm text-gray-500">
-                      Status:{" "}
+                      {t('myBooking.status')}{" "}
                       <span className={`font-medium ${statusColors[order.transaction.transactionStatus] || "text-gray-600"}`}>
                         {order.transaction.transactionStatus || "FAILED"}
                       </span>
@@ -215,10 +218,10 @@ export default function MyInvoice() {
                   </div>
                   <div className="text-right mt-4 sm:mt-0">
                     <p className="text-lg font-semibold text-blue-600">
-                      Total: {order.transaction.transactionAmount} Đ
+                      {t('myBooking.total')} {order.transaction.transactionAmount} {t('currency.vnd')}
                     </p>
                     <p className="text-sm text-blue-500 font-medium">
-                      {isOpen ? "Hide Details ▲" : "View Details ▼"}
+                      {isOpen ? t('myBooking.hideDetails') : t('myBooking.viewDetails')}
                     </p>
                   </div>
                 </div>
@@ -234,29 +237,27 @@ export default function MyInvoice() {
                   </div>
                   <div className="flex-1">
                     <h2 className="text-lg font-semibold text-gray-800 mb-2">
-                      Event: {order.event.eventName}
+                      {t('myBooking.event')} {order.event.eventName}
                     </h2>
                     <p className="text-sm text-gray-600 mb-1">
-                      Start: {new Date(order.event.eventStart).toLocaleString("vi-VN")}
+                      {t('myBooking.start')} {new Date(order.event.eventStart).toLocaleString("vi-VN")}
                     </p>
                     <p className="text-sm text-gray-600 mb-1">
-                      End: {new Date(order.event.eventEnd).toLocaleString("vi-VN")}
+                      {t('myBooking.end')} {new Date(order.event.eventEnd).toLocaleString("vi-VN")}
                     </p>
                     <p className="text-sm text-gray-600 mb-1">
-                      Host: {order.event.eventHost}
+                      {t('myBooking.host')} {order.event.eventHost}
                     </p>
                     <p className="text-sm text-gray-600">
-                      Location: {order.event.eventLocation
+                      {t('myBooking.location')} {order.event.eventLocation
                         ? `${order.event.eventLocation.venueName}, ${order.event.eventLocation.address}, ${order.event.eventLocation.city}`
-                        : "Not specified"}
+                        : t('eventDetailPage.noLocation')}
                     </p>
-
                   </div>
                 </div>
 
                 <div
-                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
-                    }`}
+                  className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}
                 >
                   <div className="space-y-4 mt-6">
                     {order.tickets.map((ticket, index) => (
@@ -268,17 +269,16 @@ export default function MyInvoice() {
                           <h3 className="text-lg font-semibold text-gray-800">
                             {ticket.ticketName}
                           </h3>
-
                         </div>
                         <div className="text-right mt-4 md:mt-0 w-full md:w-1/3">
                           <p className="text-sm text-gray-600">
-                            Price: ${ticket.price}
+                            {t('myBooking.price')} ${ticket.price}
                           </p>
                           <p className="text-sm text-gray-600">
-                            Quantity: {ticket.quantity}
+                            {t('myBooking.quantity')} {ticket.quantity}
                           </p>
                           <p className="text-base font-semibold text-gray-800 mt-1">
-                            Subtotal: ${ticket.price * ticket.quantity}
+                            {t('myBooking.subtotal')} ${ticket.price * ticket.quantity}
                           </p>
                         </div>
                       </div>
@@ -291,7 +291,7 @@ export default function MyInvoice() {
                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                   >
                     <FaTicketAlt />
-                    View Tickets
+                    {t('myBooking.viewTickets')}
                   </button>
 
                   <button
@@ -299,7 +299,7 @@ export default function MyInvoice() {
                     className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                   >
                     <FaDownload />
-                    Download Invoice
+                    {t('myBooking.downloadInvoice')}
                   </button>
 
                   {order.transaction.transactionStatus !== "REFUNDED" && order.transaction.paymentMethod !== "N/A" && (
@@ -308,12 +308,10 @@ export default function MyInvoice() {
                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"
                     >
                       <FaUndoAlt />
-                      Refund
+                      {t('myBooking.refund')}
                     </button>
                   )}
-
                 </div>
-
               </div>
             );
           })}
@@ -322,14 +320,14 @@ export default function MyInvoice() {
       {selectedOrderId && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-xl shadow-xl max-w-sm w-full">
-            <h2 className="text-xl font-bold mb-4">Confirm Refund</h2>
-            <p className="text-gray-700">Are you sure you want to refund this invoice?</p>
+            <h2 className="text-xl font-bold mb-4">{t('myBooking.confirmRefund')}</h2>
+            <p className="text-gray-700">{t('myBooking.refundPrompt')}</p>
             <div className="mt-6 flex justify-end gap-2">
               <button
                 onClick={() => setSelectedOrderId(null)}
                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
               >
-                Cancel
+                {t('myBooking.cancel')}
               </button>
               <button
                 onClick={() => {
@@ -338,13 +336,13 @@ export default function MyInvoice() {
                 }}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Confirm
+                {t('myBooking.confirm')}
               </button>
             </div>
           </div>
         </div>
       )}
-
+      <Footer />
     </div>
   );
 }

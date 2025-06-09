@@ -6,8 +6,11 @@ import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loading";
 import { useAuth } from "../Auth/AuthProvider";
 import Swal from 'sweetalert2';
+import { useTranslation } from "react-i18next";
+import Footer from "../../components/Footer";
 
 const CRUDEvent = () => {
+  const { t } = useTranslation();
   const [selectedStep, setSelectedStep] = useState("build");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -28,7 +31,7 @@ const CRUDEvent = () => {
       venueName: "",
       address: "",
       city: "",
-      meetingUrl: "", // Thêm trường meetingUrl
+      meetingUrl: "",
     },
     tags: [],
     eventVisibility: "public",
@@ -64,13 +67,13 @@ const CRUDEvent = () => {
           continue;
         } else if (typeof file === "string" && file.startsWith("blob:")) {
           const response = await fetch(file);
-          if (!response.ok) throw new Error(`Failed to fetch blob: ${file}`);
+          if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
         } else {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Loại file không hợp lệ, bỏ qua!",
+            title: t("createEventPage.errors.invalidFile"),
+            text: t("createEventPage.errors.invalidFile"),
           });
           continue;
         }
@@ -78,16 +81,16 @@ const CRUDEvent = () => {
         if (!blob.type.match(/image\/(jpeg|png)/)) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Chỉ hỗ trợ định dạng JPEG hoặc PNG.",
+            title: t("createEventPage.errors.invalidFileType"),
+            text: t("createEventPage.errors.invalidFileType"),
           });
           continue;
         }
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Dung lượng ảnh vượt quá 10MB.",
+            title: t("createEventPage.errors.fileSizeTooLarge"),
+            text: t("createEventPage.errors.fileSizeTooLarge"),
           });
           continue;
         }
@@ -102,17 +105,17 @@ const CRUDEvent = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Tải lên thất bại: ${errorText}`);
+          throw new Error(t("createEventPage.errors.uploadFailed", { message: errorText }));
         }
 
         const publicId = await response.text();
-        if (!publicId) throw new Error("Không nhận được public_id");
+        if (!publicId) throw new Error(t("createEventPage.errors.noPublicId"));
         uploadedIds.push(publicId);
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: `Lỗi khi tải file: ${error.message}`,
+          title: t("createEventPage.errors.uploadFailed", { message: "" }),
+          text: t("createEventPage.errors.uploadFailed", { message: error.message }),
         });
       }
     }
@@ -120,7 +123,7 @@ const CRUDEvent = () => {
     return uploadedIds.filter((id) => id !== null);
   };
 
-const handlePublish = async () => {
+const handlePublish = async (eventStatus = "Draft") => {
   setIsLoading(true);
   try {
     const existingImageIds = event.uploadedImages
@@ -166,7 +169,7 @@ const handlePublish = async () => {
       eventDesc: event.eventDesc || "",
       eventTypeId: event.eventType || "",
       eventHost: event.eventHost || "",
-      eventStatus: event.eventStatus || "Draft",
+      eventStatus: eventStatus, // Sử dụng eventStatus được truyền vào
       eventStart: event.eventLocation.date && event.eventLocation.startTime
         ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
         : "",
@@ -183,7 +186,7 @@ const handlePublish = async () => {
       },
       tags: event.tags?.join("|") || "",
       eventVisibility: event.eventVisibility || "public",
-      publishTime: event.eventStatus === "public" ? new Date().toISOString() : event.publishTime || null,
+      publishTime: eventStatus === "public" ? new Date().toISOString() : null,
       refunds: event.refunds || "no",
       validityDays: event.validityDays || 7,
       eventImages: uploadedImageIds,
@@ -262,6 +265,7 @@ const handlePublish = async () => {
 
     const updatedEvent = {
       ...event,
+      eventStatus: eventStatus, // Cập nhật state với eventStatus
       uploadedImages: uploadedImageIds,
       overviewContent: {
         ...event.overviewContent,
@@ -277,7 +281,7 @@ const handlePublish = async () => {
     Swal.fire({
       icon: 'success',
       title: 'Thành công',
-      text: `Sự kiện đã được ${event.eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công! ID: ${eventId}`,
+      text: `Sự kiện đã được ${eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công!`,
     });
     setTimeout(() => navigate('/'), 300);
   } catch (error) {
@@ -289,6 +293,7 @@ const handlePublish = async () => {
     setIsLoading(false);
   }
 };
+
   const handleTicketsUpdate = (updatedTickets) => {
     setEvent((prevEvent) => ({
       ...prevEvent,
@@ -311,12 +316,17 @@ const handlePublish = async () => {
       requiredFields.address = event.eventLocation.address;
       requiredFields.city = event.eventLocation.city;
     } else if (event.eventLocation.locationType === "online") {
-      requiredFields.meetingUrl = event.eventLocation.meetingUrl; // Yêu cầu meetingUrl cho online
+      requiredFields.meetingUrl = event.eventLocation.meetingUrl;
     }
 
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
-        return { isValid: false, message: `Vui lòng điền trường ${key}.` };
+        return {
+          isValid: false,
+          message: t("createEventPage.errors.requiredField", {
+            field: t(`createEventPage.fields.${key}`),
+          }),
+        };
       }
     }
 
@@ -328,7 +338,7 @@ const handlePublish = async () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
+        title: t("createEventPage.errors.processingError", { message: "" }),
         text: validation.message,
       });
       return;
@@ -345,7 +355,7 @@ const handlePublish = async () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: 'Lỗi',
+        title: t("createEventPage.errors.processingError", { message: "" }),
         text: validation.message,
       });
       return;
@@ -362,6 +372,7 @@ const handlePublish = async () => {
             setEvent={setEvent}
             onNext={handleNext}
             validateEventForm={validateEventForm}
+            t={t}
           />
         );
       case "tickets":
@@ -370,13 +381,18 @@ const handlePublish = async () => {
             ticketData={event.tickets}
             onTicketsUpdate={handleTicketsUpdate}
             eventId={1}
-            eventStart={event.eventLocation.date && event.eventLocation.startTime
-              ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
-              : ""}
-            eventEnd={event.eventLocation.date && event.eventLocation.endTime
-              ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
-              : ""}
+            eventStart={
+              event.eventLocation.date && event.eventLocation.startTime
+                ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
+                : ""
+            }
+            eventEnd={
+              event.eventLocation.date && event.eventLocation.endTime
+                ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
+                : ""
+            }
             onNext={() => setSelectedStep("publish")}
+            t={t}
           />
         );
       case "publish":
@@ -385,10 +401,18 @@ const handlePublish = async () => {
             event={event}
             setEvent={setEvent}
             onPublish={handlePublish}
+            t={t}
           />
         );
       default:
-        return <EventForm event={event} setEvent={setEvent} validateEventForm={validateEventForm} />;
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            validateEventForm={validateEventForm}
+            t={t}
+          />
+        );
     }
   };
 
@@ -401,14 +425,14 @@ const handlePublish = async () => {
           <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
             <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "The event has no title"}
+                {event.eventName || t("createEventPage.noTitle")}
               </h2>
               <div className="flex items-center mt-2 text-gray-500">
                 <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Not yet determined date and time"}
+                    : t("createEventPage.noDateTime")}
                 </span>
               </div>
               {event.eventLocation.locationType === "online" && event.eventLocation.meetingUrl && (
@@ -419,12 +443,12 @@ const handlePublish = async () => {
                     rel="noopener noreferrer"
                     className="text-blue-500 underline"
                   >
-                    Link phòng họp: {event.eventLocation.meetingUrl}
+                    {t("createEventPage.meetingLink", { link: event.eventLocation.meetingUrl })}
                   </a>
                 </div>
               )}
             </div>
-            <h3 className="mb-2 text-lg font-semibold">Các bước</h3>
+            <h3 className="mb-2 text-lg font-semibold">{t("createEventPage.stepsTitle")}</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -439,11 +463,7 @@ const handlePublish = async () => {
                     onChange={() => handleStepChange(step)}
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
-                  <span>
-                    {step === "build" && "Create event"}
-                    {step === "tickets" && "Add tickets"}
-                    {step === "publish" && "Publish"}
-                  </span>
+                  <span>{t(`createEventPage.steps.${step}`)}</span>
                 </label>
               ))}
             </div>

@@ -6,7 +6,9 @@ import { useAuth } from "../pages/Auth/AuthProvider";
 import FavoriteButton from "./FavoriteButton";
 import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
-const ListEventScroll = ({ apiUrl, title }) => {
+import { useTranslation } from "react-i18next"; // Import useTranslation
+
+const ListEventScroll = ({ apiUrl, title, t }) => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -23,10 +25,9 @@ const ListEventScroll = ({ apiUrl, title }) => {
         },
       });
       if (!response.ok) {
-        throw new Error(`Failed to fetch events from ${apiUrl}`);
+        throw new Error(t("recommendedEvents.error", { message: "Failed to fetch events" }));
       }
       const data = await response.json();
-      // API có thể trả về Set hoặc List, chuyển về mảng nếu cần
       setEvents(Array.isArray(data) ? data : [...data]);
     } catch (error) {
       setError(error.message);
@@ -37,13 +38,12 @@ const ListEventScroll = ({ apiUrl, title }) => {
   };
 
   useEffect(() => {
-    if(user){
-
+    if (user) {
       fetchEvents();
-    }else{
-      setLoading(false)
+    } else {
+      setLoading(false);
     }
-  }, [apiUrl]);
+  }, [apiUrl, t]); // Add t to dependencies
 
   const truncateText = (text, maxLength) => {
     if (!text || text.length <= maxLength) return text || "";
@@ -66,14 +66,14 @@ const ListEventScroll = ({ apiUrl, title }) => {
 
   const getLocation = (location) => {
     if (!location || (!location.venueName && !location.address && !location.city)) {
-      return "Online";
+      return t("eventListSearch.online"); // Translated "Online"
     }
     const parts = [
       location.venueName,
       location.address,
       location.city,
     ].filter((part) => part && part.trim() !== "");
-    return parts.length > 0 ? parts.join(", ") : "Online";
+    return parts.length > 0 ? parts.join(", ") : t("eventListSearch.online");
   };
 
   if (loading) {
@@ -87,16 +87,13 @@ const ListEventScroll = ({ apiUrl, title }) => {
   if (error) {
     return (
       <div className="text-center p-4 text-red-600 text-sm sm:text-base">
-        Error: {error}. Please try again later.
+        {t("recommendedEvents.error", { message: error })} {/* Translated error */}
       </div>
     );
   }
 
   if (!events || events.length === 0) {
-    return (
-    
-      <></>
-    );
+    return <></>;
   }
 
   return (
@@ -110,7 +107,7 @@ const ListEventScroll = ({ apiUrl, title }) => {
           onClick={() => navigate("/all-event")}
         >
           <p className="text-xs sm:text-sm lg:text-[15px] text-gray-600 hover:text-red-500">
-            View all events
+            {t("recommendedEvents.viewAllEvents")} {/* Translated "View all events" */}
           </p>
           <i className="fa-solid fa-circle-chevron-right text-xs sm:text-sm"></i>
         </div>
@@ -122,7 +119,6 @@ const ListEventScroll = ({ apiUrl, title }) => {
             onClick={() => handleEventClick(event.eventId)}
             className="flex-none w-64 sm:w-72 lg:max-w-[300px] min-h-[360px] sm:min-h-[380px] lg:min-h-[400px] bg-white border border-gray-200 rounded-lg shadow-md hover:shadow-lg hover:bg-gray-100 cursor-pointer transition-shadow"
           >
-            {/* Hình ảnh sự kiện */}
             <div className="w-full h-32 sm:h-36 lg:h-40 bg-gray-100 rounded-t-lg overflow-hidden">
               {event.eventImages && event.eventImages.length > 0 ? (
                 <div
@@ -134,23 +130,22 @@ const ListEventScroll = ({ apiUrl, title }) => {
               ) : (
                 <img
                   src="https://via.placeholder.com/300x150"
-                  alt="Default Event"
+                  alt={t("eventListSearch.noImages")} // Translated alt text
                   className="w-full h-full object-cover"
                 />
               )}
             </div>
 
-            {/* Thông tin sự kiện */}
             <div className="p-3 sm:p-4">
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 truncate">
-                {truncateText(event.eventName, 25) || "Unnamed Event"}
+                {truncateText(event.eventName, 25) || t("recommendedEvents.noDescription")} {/* Fallback */}
               </h3>
               <p
                 className="text-gray-600 text-xs sm:text-sm mt-1"
                 dangerouslySetInnerHTML={{
                   __html: event?.eventDesc
                     ? sanitizeAndTruncate(event.eventDesc, 30)
-                    : "No description available",
+                    : t("recommendedEvents.noDescription"), // Translated fallback
                 }}
               />
               <p className="text-gray-700 text-xs sm:text-sm mt-1 sm:mt-2">
@@ -178,8 +173,7 @@ const ListEventScroll = ({ apiUrl, title }) => {
                 {event?.viewCount ? `${event.viewCount}` : "0"}
               </p>
             </div>
-            
-            {/* Tags */}
+
             <div className="px-3 sm:px-4 pb-3 sm:pb-4 flex flex-wrap gap-1 sm:gap-2">
               {event.tags && typeof event.tags === "string" ? (
                 event.tags.split("|").map((tag, index) => (
@@ -192,7 +186,7 @@ const ListEventScroll = ({ apiUrl, title }) => {
                 ))
               ) : (
                 <span className="text-gray-600 text-[10px] sm:text-xs">
-                  No tags
+                  {t("recommendedEvents.noDescription")} {/* Fallback for no tags */}
                 </span>
               )}
             </div>
@@ -205,17 +199,19 @@ const ListEventScroll = ({ apiUrl, title }) => {
 
 const RecommendedEvents = () => {
   const { user } = useAuth();
-  const email = user?.email 
-
+  const email = user?.email;
+  const { t } = useTranslation();   
   return (
     <div className="w-full">
       <ListEventScroll
         apiUrl={`http://localhost:8080/api/events/recommended/${email}`}
-        title="You Might Like"
+        title={t('recommendedEvents.youMightLike')}
+        t = {t}
       />
       <ListEventScroll
         apiUrl={`http://localhost:8080/api/events/recommended/by-types/${email}`}
-        title="Some Popular Events"
+        title={t('recommendedEvents.somePopularEvents')}
+        t = {t}
       />
     </div>
   );

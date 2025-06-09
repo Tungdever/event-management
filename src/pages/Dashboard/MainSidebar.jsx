@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { FaChevronDown, FaTachometerAlt, FaCogs, FaCalendarAlt } from "react-icons/fa";
 import { MdChat } from "react-icons/md";
 import { useAuth } from "../Auth/AuthProvider";
@@ -7,38 +8,38 @@ import { CiMenuBurger } from "react-icons/ci";
 
 const defaultMenuItems = [
   {
-    title: "Dashboard",
+    title: "sidebar.dashboardMenu",
     icon: <FaTachometerAlt />,
     submenu: [
-      { title: "Overview", component: "Dashboard", roles: ["ORGANIZER"] },
-      { title: "Events", component: "Events", roles: ["ORGANIZER"] },
-      { title: "Calendar", component: "Calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
-      { title: "Chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER"] },
+      { title: "sidebar.overview", component: "Dashboard", roles: ["ORGANIZER"] },
+      { title: "sidebar.events", component: "Events", roles: ["ORGANIZER"] },
+      { title: "sidebar.calendar", component: "Calendar", icon: <FaCalendarAlt />, roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "sidebar.chat", component: "Chat", icon: <MdChat />, roles: ["ORGANIZER"] },
     ],
   },
   {
-    title: "Team && Roles",
+    title: "sidebar.teamAndRolesMenu",
     icon: <i className="fa-solid fa-chart-simple"></i>,
     submenu: [
-      { title: "Assign role", component: "AssignRole", roles: ["ORGANIZER"] },
-      { title: "Assigned Events", component: "AssignedEvents", roles: ["ORGANIZER", "EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
+      { title: "sidebar.assignRole", component: "AssignRole", roles: ["ORGANIZER"] },
+      { title: "sidebar.assignedEvents", component: "AssignedEvents", roles: ["EVENT ASSISTANT", "CHECK-IN STAFF", "TICKET MANAGER"] },
     ],
   },
   {
-    title: "Setting",
+    title: "sidebar.settingMenu",
     icon: <FaCogs />,
     submenu: [
-      { title: "Profile", component: "Profile" },
+      { title: "sidebar.profile", component: "Profile" },
     ],
   },
 ];
 
-const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent }) => {
+const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent, sidebarItems }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-  // Theo dõi kích thước màn hình để xác định giao diện mobile
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -47,10 +48,18 @@ const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Merge defaultMenuItems with sidebarItems from props
   const menuItems = defaultMenuItems
     .map(menu => ({
       ...menu,
-      submenu: menu.submenu?.filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role)))
+      title: t(menu.title),
+      submenu: menu.submenu?.map(sub => {
+        const sidebarItem = sidebarItems?.find(item => item.key === sub.component);
+        return {
+          ...sub,
+          title: sidebarItem ? sidebarItem.label : t(sub.title),
+        };
+      }).filter(sub => !sub.roles || sub.roles.some(role => user?.primaryRoles?.includes(role))),
     }))
     .filter(menu => !menu.submenu || menu.submenu.length > 0);
 
@@ -95,7 +104,7 @@ const Sidebar2 = ({ isOpen, toggleSidebar, setCurrentComponent }) => {
             className="text-xl sm:text-2xl lg:text-[24px] font-bold text-orange-500 hover:cursor-pointer truncate"
             onClick={isMobile ? handleHomepage : handleBackHome}
           >
-            Management Event
+            {t('sidebar.header')}
           </h1>
           {isMobile && (
             <button onClick={handleHomepage} className="text-orange-500 hover:text-orange-600">

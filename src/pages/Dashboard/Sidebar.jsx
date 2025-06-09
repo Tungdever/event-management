@@ -4,45 +4,40 @@ import { FaTachometerAlt, FaUsers, FaChartLine, FaTicketAlt, FaMicrophone } from
 import { RiTeamLine } from "react-icons/ri";
 import { MdEvent } from "react-icons/md";
 import { useAuth } from "../Auth/AuthProvider";
+import { useTranslation } from "react-i18next";
 
-const createMenuItems = (eventId) => [
-  
+const createMenuItems = (eventId, t) => [
   {
     path: `/dashboard/event/detail${eventId ? `/${eventId}` : ''}`,
-    displayName: "Events",
+    displayName: t('subSidebar.events'),
     icon: <MdEvent />,
-    roles: ["ORGANIZER", ]
-  },
-  {
-    path: `/dashboard/speaker${eventId ? `/${eventId}` : ''}`,
-    displayName: "Speakers",
-    icon: <FaUsers />,
-    roles: ["ORGANIZER", "EVENT ASSISTANT",]
+    roles: ["ORGANIZER"]
   },
   {
     path: `/dashboard/sponsor${eventId ? `/${eventId}` : ''}`,
-    displayName: "Sponsors",
+    displayName: t('subSidebar.sponsors'),
     icon: <FaUsers />,
-    roles: ["ORGANIZER", "EVENT ASSISTANT",]
+    roles: ["ORGANIZER", "EVENT ASSISTANT"]
   },
   {
     path: `/dashboard/ticket${eventId ? `/${eventId}` : ''}`,
-    displayName: "Tickets",
+    displayName: t('subSidebar.tickets'),
     icon: <FaTicketAlt />,
-    roles: ["ORGANIZER", "TICKET MANAGER","CHECK-IN STAFF"]
+    roles: ["ORGANIZER", "TICKET MANAGER", "CHECK-IN STAFF"]
   },
   {
     path: `/dashboard/my-team${eventId ? `/${eventId}` : ''}`,
-    displayName: "Teams",
+    displayName: t('subSidebar.teams'),
     icon: <RiTeamLine />,
     roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"]
   }
 ];
 
 const Sidebar = ({ id }) => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [eventId] = useState(id);
-  const menuItems = createMenuItems(eventId)
+  const menuItems = createMenuItems(eventId, t)
     .filter(menu => !menu.roles || menu.roles.some(role => user?.primaryRoles?.includes(role)));
   
   const navigate = useNavigate();
@@ -54,7 +49,9 @@ const Sidebar = ({ id }) => {
 
   return (
     <div className="w-64 h-screen bg-white text-black p-3 border border-r-1 fixed top-0 left-0 overflow-y-auto z-50">
-      <h1 className="text-xl sm:text-2xl lg:text-[24px] font-bold text-orange-500 mb-6 sm:mb-7 lg:mb-8 mt-2 hover:cursor-pointer truncate" onClick={handleHomepage}>Management Event</h1>
+      <h1 className="text-xl sm:text-2xl lg:text-[24px] font-bold text-orange-500 mb-6 sm:mb-7 lg:mb-8 mt-2 hover:cursor-pointer truncate" onClick={handleHomepage}>
+        {t('subSidebar.header')}
+      </h1>
       <ul>
         {menuItems.map((menu) => (
           <SidebarItem

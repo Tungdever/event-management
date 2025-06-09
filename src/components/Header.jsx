@@ -9,24 +9,80 @@ import Swal from "sweetalert2";
 import UpgradeOrganizerDialog from "./UpgradeOrganizerDialog";
 import { AiFillAlipayCircle } from "react-icons/ai";
 import { AiFillCodeSandboxCircle } from "react-icons/ai";
+import { useTranslation } from 'react-i18next';
 
 const LocationDropdown = ({ onLocationChange }) => {
+  const { t } = useTranslation();
   const [selected, setSelected] = useState("ho-chi-minh");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   const locations = [
-    { slug: "all-locations", name: "All-locations" },
-    { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
-    { slug: "ha-noi", name: "Hà Nội" },
-    { slug: "da-nang", name: "Đà Nẵng" },
-    { slug: "hai-phong", name: "Hải Phòng" },
-    { slug: "can-tho", name: "Cần Thơ" },
-    { slug: "nha-trang", name: "Nha Trang" },
-    { slug: "da-lat", name: "Đà Lạt" },
-    { slug: "binh-duong", name: "Bình Dương" },
-    { slug: "dong-nai", name: "Đồng Nai" },
-    { slug: "quang-ninh", name: "Quảng Ninh" },
+    { slug: "all-locations", name: t('header.allLocations') },
+    { slug: "ho-chi-minh", name: t('header.hoChiMinh') },
+    { slug: "ha-noi", name: t('header.haNoi') },
+    { slug: "da-nang", name: t('header.daNang') },
+    { slug: "hai-phong", name: t('header.haiPhong') },
+    { slug: "can-tho", name: t('header.canTho') },
+    { slug: "nha-trang", name: t('header.nhaTrang') },
+    { slug: "da-lat", name: t('header.daLat') },
+    { slug: "binh-duong", name: t('header.binhDuong') },
+    { slug: "dong-nai", name: t('header.dongNai') },
+    { slug: "quang-ninh", name: t('header.quangNinh') },
+    { slug: "an-giang", name: t('header.anGiang') },
+    { slug: "ba-ria-vung-tau", name: t('header.baRiaVungTau') },
+    { slug: "bac-giang", name: t('header.bacGiang') },
+    { slug: "bac-kan", name: t('header.bacKan') },
+    { slug: "bac-lieu", name: t('header.bacLieu') },
+    { slug: "bac-ninh", name: t('header.bacNinh') },
+    { slug: "ben-tre", name: t('header.benTre') },
+    { slug: "binh-dinh", name: t('header.binhDinh') },
+    { slug: "binh-phuoc", name: t('header.binhPhuoc') },
+    { slug: "binh-thuan", name: t('header.binhThuan') },
+    { slug: "ca-mau", name: t('header.caMau') },
+    { slug: "cao-bang", name: t('header.caoBang') },
+    { slug: "dak-lak", name: t('header.dakLak') },
+    { slug: "dak-nong", name: t('header.dakNong') },
+    { slug: "dien-bien", name: t('header.dienBien') },
+    { slug: "dong-thap", name: t('header.dongThap') },
+    { slug: "gia-lai", name: t('header.giaLai') },
+    { slug: "ha-giang", name: t('header.haGiang') },
+    { slug: "ha-nam", name: t('header.haNam') },
+    { slug: "ha-tinh", name: t('header.haTinh') },
+    { slug: "hai-duong", name: t('header.haiDuong') },
+    { slug: "hau-giang", name: t('header.hauGiang') },
+    { slug: "hoa-binh", name: t('header.hoaBinh') },
+    { slug: "hung-yen", name: t('header.hungYen') },
+    { slug: "khanh-hoa", name: t('header.khanhHoa') },
+    { slug: "kien-giang", name: t('header.kienGiang') },
+    { slug: "kon-tum", name: t('header.konTum') },
+    { slug: "lai-chau", name: t('header.laiChau') },
+    { slug: "lam-dong", name: t('header.lamDong') },
+    { slug: "lang-son", name: t('header.langSon') },
+    { slug: "lao-cai", name: t('header.laoCai') },
+    { slug: "long-an", name: t('header.longAn') },
+    { slug: "nam-dinh", name: t('header.namDinh') },
+    { slug: "nghe-an", name: t('header.ngheAn') },
+    { slug: "ninh-binh", name: t('header.ninhBinh') },
+    { slug: "ninh-thuan", name: t('header.ninhThuan') },
+    { slug: "phu-tho", name: t('header.phuTho') },
+    { slug: "phu-yen", name: t('header.phuYen') },
+    { slug: "quang-binh", name: t('header.quangBinh') },
+    { slug: "quang-nam", name: t('header.quangNam') },
+    { slug: "quang-ngai", name: t('header.quangNgai') },
+    { slug: "soc-trang", name: t('header.socTrang') },
+    { slug: "son-la", name: t('header.sonLa') },
+    { slug: "tay-ninh", name: t('header.tayNinh') },
+    { slug: "thai-binh", name: t('header.thaiBinh') },
+    { slug: "thai-nguyen", name: t('header.thaiNguyen') },
+    { slug: "thanh-hoa", name: t('header.thanhHoa') },
+    { slug: "thua-thien-hue", name: t('header.thuaThienHue') },
+    { slug: "tien-giang", name: t('header.tienGiang') },
+    { slug: "tra-vinh", name: t('header.traVinh') },
+    { slug: "tuyen-quang", name: t('header.tuyenQuang') },
+    { slug: "vinh-long", name: t('header.vinhLong') },
+    { slug: "vinh-phuc", name: t('header.vinhPhuc') },
+    { slug: "yen-bai", name: t('header.yenBai') },
   ];
 
   useEffect(() => {
@@ -50,22 +106,25 @@ const LocationDropdown = ({ onLocationChange }) => {
       className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[120px] lg:w-[200px]"
       ref={dropdownRef}
     >
-      <FaMapMarkerAlt className="text-gray-500 cursor-pointer text-sm sm:text-base md:text-sm lg:text-base" />
+      <FaMapMarkerAlt className="text-sm text-gray-500 cursor-pointer sm:text-base md:text-sm lg:text-base" />
       <div
-        className="relative ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-500 text-xs sm:text-sm md:text-xs lg:text-sm cursor-pointer flex items-center"
+        className="relative flex items-center ml-1 text-xs text-gray-500 cursor-pointer sm:ml-2 md:ml-1 lg:ml-2 sm:text-sm md:text-xs lg:text-sm"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <span className="px-2 sm:px-3 md:px-2 lg:px-3 py-1 sm:py-2 md:py-1 lg:py-2 truncate w-full">
+        <span className="w-full px-2 py-1 truncate sm:px-3 md:px-2 lg:px-3 sm:py-2 md:py-1 lg:py-2">
           {locations.find((loc) => loc.slug === selected)?.name || selected}
         </span>
-        <FaChevronDown className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 text-gray-400 text-xs sm:text-sm md:text-xs lg:text-sm" />
+        <FaChevronDown className="ml-1 text-xs text-gray-400 sm:ml-2 md:ml-1 lg:ml-2 sm:text-sm md:text-xs lg:text-sm" />
       </div>
       {isOpen && (
-        <div className="absolute top-full left-4 sm:left-6 md:left-6 lg:left-8 mt-2 w-36 sm:w-44 md:w-40 lg:w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200">
+        <div
+          className="absolute z-10 mt-2 bg-white border border-gray-200 rounded-md shadow-lg top-full left-4 sm:left-6 md:left-6 lg:left-8 w-36 sm:w-44 md:w-40 lg:w-48"
+          style={{ maxHeight: '200px', overflowY: 'auto' }}
+        >
           {locations.map((city) => (
             <div
               key={city.slug}
-              className="p-2 text-gray-700 text-xs sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200 cursor-pointer transition"
+              className="p-2 text-xs text-gray-700 transition cursor-pointer sm:text-sm md:text-xs lg:text-sm hover:bg-orange-200"
               onClick={() => handleSelectCity(city.slug)}
             >
               {city.name}
@@ -78,6 +137,7 @@ const LocationDropdown = ({ onLocationChange }) => {
 };
 
 const SearchBar = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh");
@@ -98,14 +158,11 @@ const SearchBar = () => {
   const handleSearch = async () => {
     try {
       const apiUrl = `http://localhost:8080/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
-
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.status}`);
       }
-
       const data = await response.json();
-
       if (data && Array.isArray(data)) {
         if (!searchHistory.includes(searchTerm)) {
           setSearchHistory((prev) => [searchTerm, ...prev.slice(0, 3)]);
@@ -117,16 +174,16 @@ const SearchBar = () => {
         console.error("No valid data received from API");
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: "Không tìm thấy sự kiện nào",
+          title: t('header.error'),
+          text: t('header.errorNoEvents'),
         });
       }
     } catch (error) {
       console.error("Error fetching events:", error.message);
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Failed to search events",
+        title: t('header.error'),
+        text: t('header.errorSearchFailed'),
       });
     }
   };
@@ -139,15 +196,15 @@ const SearchBar = () => {
 
   return (
     <div
-      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl  text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
+      className="relative flex items-center bg-white rounded-full border p-1 sm:p-2 md:p-1 lg:p-2 w-full max-w-xs sm:max-w-md md:max-w-[360px] lg:max-w-2xl text-xs sm:text-[13px] md:text-[12px] lg:text-[13px] h-8 sm:h-10 md:h-9 lg:h-[40px]"
       ref={searchRef}
     >
       <div className="flex items-center px-2 sm:px-3 md:px-3 lg:px-4 w-[180px] sm:w-[220px] md:w-[200px] lg:w-[260px]">
-        <i className="fas fa-search text-gray-500 text-sm sm:text-base md:text-sm lg:text-base"></i>
+        <i className="text-sm text-gray-500 fas fa-search sm:text-base md:text-sm lg:text-base"></i>
         <input
           type="text"
-          placeholder="Search events by name"
-          className="ml-1 sm:ml-2 md:ml-1 lg:ml-2 outline-none text-gray-500 w-full text-xs sm:text-sm md:text-xs lg:text-sm"
+          placeholder={t('header.searchPlaceholder')}
+          className="w-full ml-1 text-xs text-gray-500 outline-none sm:ml-2 md:ml-1 lg:ml-2 sm:text-sm md:text-xs lg:text-sm"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onFocus={() => setShowHistory(true)}
@@ -159,7 +216,7 @@ const SearchBar = () => {
           {searchHistory.map((item, index) => (
             <div
               key={index}
-              className="px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm md:text-xs lg:text-sm"
+              className="px-4 py-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-100 sm:text-sm md:text-xs lg:text-sm"
               onClick={() => {
                 setSearchTerm(item);
                 setShowHistory(false);
@@ -171,7 +228,7 @@ const SearchBar = () => {
           ))}
         </div>
       )}
-      <div className="border-l border-gray-300 h-4 sm:h-6 md:h-5 lg:h-6 mx-2 sm:mx-3 md:mx-3 lg:mx-4"></div>
+      <div className="h-4 mx-2 border-l border-gray-300 sm:h-6 md:h-5 lg:h-6 sm:mx-3 md:mx-3 lg:mx-4"></div>
       <div className="relative flex items-center px-2 sm:px-3 md:px-3 lg:px-4">
         <LocationDropdown onLocationChange={setSelectedLocation} />
       </div>
@@ -179,13 +236,14 @@ const SearchBar = () => {
         className="ml-auto bg-red-600 text-white rounded-full px-2 sm:px-2 md:px-1 lg:px-2 py-0.5 sm:py-1 md:py-0.5 lg:py-1 hover:bg-red-700"
         onClick={handleSearch}
       >
-        <i className="fas fa-search text-sm sm:text-base md:text-sm lg:text-base"></i>
+        <i className="text-sm fas fa-search sm:text-base md:text-sm lg:text-base"></i>
       </button>
     </div>
   );
 };
 
 const Header = () => {
+  const { t } = useTranslation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openUpgradeDialog, setOpenUpgradeDialog] = useState(false);
@@ -210,7 +268,7 @@ const Header = () => {
     navigate("/myinvoices");
     setIsMobileMenuOpen(false);
   };
-   const handleViewAllTickets = () => {
+  const handleViewAllTickets = () => {
     navigate("/view-all-tickets");
     setIsMobileMenuOpen(false);
   };
@@ -223,7 +281,7 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
   const handleNoti = () => {
-    navigate("/notification");
+    navigate("/notifications");
     setIsMobileMenuOpen(false);
   };
   const handleAdmin = () => {
@@ -234,19 +292,13 @@ const Header = () => {
     try {
       await api.logout();
       logout();
-
-      // Swal.fire({
-      //   icon: "success",
-      //   title: "Success",
-      //   text: "Logged out successfully",
-      // });
       navigate("/login");
       setIsMobileMenuOpen(false);
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Logout failed: " + (error.msg || "Server error"),
+        title: t('header.error'),
+        text: t('header.errorLogoutFailed', { message: error.message || 'Server error' }),
       });
     }
   };
@@ -254,35 +306,29 @@ const Header = () => {
   const menuItems = [
     {
       icon: "bi-calendar4-event",
-      text: "Create event",
+      text: t('header.createEvent'),
       action: handleCreateEventClick,
     },
-    { icon: "bi-heart", text: "Likes", action: handleLike },
-    { icon: "bi bi-bell", text: "Noti", action: handleNoti },
+    { icon: "bi-heart", text: t('header.likes'), action: handleLike },
+    { icon: "bi bi-bell", text: t('header.noti'), action: handleNoti },
   ];
 
   const menuPopup = [
     {
-      title: "Manage my events",
+      title: t('header.manageMyEvents'),
       action: handleDashboard,
-      roles: [
-        "ORGANIZER",
-        "TICKET MANAGER",
-        "EVENT ASSISTANT",
-        "CHECK-IN STAFF",
-      ],
+      roles: ["ORGANIZER", "TICKET MANAGER", "EVENT ASSISTANT", "CHECK-IN STAFF"],
     },
-    { title: "Invoices", action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
-    { title: "Your tickets", action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
-    { title: "Admin Dashboard", action: handleAdmin, roles: ["ADMIN"] },
-    { title: "Profile", action: handleViewProfile, roles: ["ATTENDEE"] },
+    { title: t('header.invoices'), action: handleMyInvoices, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: t('header.yourTickets'), action: handleViewAllTickets, roles: ["ORGANIZER", "ATTENDEE"] },
+    { title: t('header.adminDashboard'), action: handleAdmin, roles: ["ADMIN"] },
+    { title: t('header.profile'), action: handleViewProfile, roles: ["ATTENDEE"] },
     {
-      title: "Up to Organizer",
+      title: t('header.upToOrganizer'),
       action: () => setOpenUpgradeDialog(true),
       roles: ["ATTENDEE"],
     },
-    { title: "Log out", action: handleLogout },
-
+    { title: t('header.logout'), action: handleLogout },
   ];
 
   const filteredMenuPopup = menuPopup.filter(
@@ -308,27 +354,28 @@ const Header = () => {
   }, []);
 
   return (
-    <div className="bg-white shadow fixed top-0 left-0 w-full z-10">
-      <div className="w-full px-4 py-2 sm:py-3 md:py-3 lg:py-4 h-auto sm:h-auto md:h-14 lg:h-16 flex flex-col sm:flex-col md:flex-row justify-between items-center">
-        <div className="flex justify-between items-center w-full sm:w-full md:w-auto">
+    <div className="fixed top-0 left-0 z-10 w-full bg-white shadow">
+      <div className="flex flex-col items-center justify-between w-full h-auto px-4 py-2 sm:py-3 md:py-3 lg:py-4 sm:h-auto md:h-14 lg:h-16 sm:flex-col md:flex-row">
+        <div className="flex items-center justify-between w-full sm:w-full md:w-auto">
           <div
-            className="text-red-500 text-base sm:text-lg md:text-lg lg:text-2xl font-bold cursor-pointer hover:text-red-700 transition duration-300 font-josefin flex"
+            className="flex text-base font-bold text-red-500 transition duration-300 cursor-pointer sm:text-lg md:text-lg lg:text-2xl hover:text-red-700 font-josefin"
             onClick={handleHomepage}
           >
-            <AiFillCodeSandboxCircle  className="mx-2 text-[30px]"/> Event
+            <AiFillCodeSandboxCircle className="mx-2 text-[30px]" />
+            Event
           </div>
           <button
-            className="md:hidden text-gray-500"
+            className="text-gray-500 md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            <i className="fas fa-bars text-base sm:text-lg md:text-lg"></i>
+            <i className="text-base fas fa-bars sm:text-lg md:text-lg"></i>
           </button>
         </div>
-        <div className="w-full sm:w-full md:w-auto mt-2 sm:mt-2 md:mt-0">
+        <div className="w-full mt-2 sm:w-full md:w-auto sm:mt-2 md:mt-0">
           <SearchBar />
         </div>
         <div
-          className="hidden md:flex items-center gap-2 md:gap-3 lg:gap-6 mx-0 md:mx-4"
+          className="items-center hidden gap-2 mx-0 md:flex md:gap-3 lg:gap-6 md:mx-4"
           ref={menuRef}
         >
           {menuItems.map((item, index) => (
@@ -348,7 +395,7 @@ const Header = () => {
           >
             {user ? (
               <>
-                <i className="fa-solid fa-user text-sm md:text-base lg:text-lg"></i>
+                <i className="text-sm fa-solid fa-user md:text-base lg:text-lg"></i>
                 <p className="pl-1 md:pl-1 lg:pl-[6px] font-medium hidden lg:block">
                   {user.email}
                 </p>
@@ -361,7 +408,7 @@ const Header = () => {
                     {filteredMenuPopup.map((item, index) => (
                       <a
                         key={index}
-                        className="block px-4 py-3 text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-200 font-semibold text-sm"
+                        className="block px-4 py-3 text-sm font-semibold text-gray-700 transition duration-200 hover:bg-red-50 hover:text-red-600"
                         onClick={item.action}
                       >
                         {item.title}
@@ -374,15 +421,15 @@ const Header = () => {
               <>
                 <a
                   href="/login"
-                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
+                  className="text-gray-500 hover:text-blue-500 px-2 md:px-2px lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
                 >
-                  Login
+                  {t('header.login')}
                 </a>
                 <a
                   href="/signup"
                   className="text-gray-500 hover:text-blue-500 px-2 md:px-2 lg:px-2 text-[11px] md:text-[12px] lg:text-[13px]"
                 >
-                  Sign Up
+                  {t('header.signup')}
                 </a>
               </>
             )}
@@ -390,13 +437,13 @@ const Header = () => {
         </div>
         {isMobileMenuOpen && (
           <div
-            className="md:hidden w-full bg-white border-t mt-2 py-2"
+            className="w-full py-2 mt-2 bg-white border-t md:hidden"
             ref={mobileMenuRef}
           >
             {menuItems.map((item, index) => (
               <a
                 key={index}
-                className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm"
+                className="block px-4 py-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-100 sm:text-sm"
                 onClick={item.action}
               >
                 {item.text}
@@ -406,7 +453,7 @@ const Header = () => {
               filteredMenuPopup.map((item, index) => (
                 <a
                   key={index}
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 cursor-pointer text-xs sm:text-sm"
+                  className="block px-4 py-2 text-xs text-gray-700 cursor-pointer hover:bg-gray-100 sm:text-sm"
                   onClick={item.action}
                 >
                   {item.title}
@@ -416,15 +463,15 @@ const Header = () => {
               <>
                 <a
                   href="/login"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
+                  className="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 sm:text-sm"
                 >
-                  Login
+                  {t('header.login')}
                 </a>
                 <a
                   href="/signup"
-                  className="block px-4 py-2 text-gray-700 hover:bg-gray-100 text-xs sm:text-sm"
+                  className="block px-4 py-2 text-xs text-gray-700 hover:bg-gray-100 sm:text-sm"
                 >
-                  Sign Up
+                  {t('header.signup')}
                 </a>
               </>
             )}

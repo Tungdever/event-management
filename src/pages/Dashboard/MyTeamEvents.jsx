@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../Auth/AuthProvider";
 import { User, MessageCircle } from "lucide-react";
 import ChatBubble from "../ChatBox/ChatBubble";
 
 const MyTeamEvents = () => {
+  const { t } = useTranslation();
   const { eventId } = useParams();
   const { user } = useAuth();
   const [teamData, setTeamData] = useState(null);
@@ -25,12 +27,12 @@ const MyTeamEvents = () => {
         }
       );
       if (!response.ok) {
-        throw new Error("Không thể tải dữ liệu đội ngũ sự kiện");
+        throw new Error(t('myTeamEvents.error', { message: "Failed to load team data" }));
       }
       const result = await response.json();
       setTeamData(result);
     } catch (err) {
-      setError(err.message);
+      setError(t('myTeamEvents.error', { message: err.message }));
     } finally {
       setLoading(false);
     }
@@ -53,7 +55,10 @@ const MyTeamEvents = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500"></div>
+        <div
+          className="animate-spin rounded-full h-12 w-12 border-t-4 border-indigo-500"
+          aria-label={t('myTeamEvents.loadingAlt')}
+        ></div>
       </div>
     );
   }
@@ -62,7 +67,7 @@ const MyTeamEvents = () => {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <div className="bg-red-100 text-red-700 p-4 rounded-lg">
-          Lỗi: {error}
+          {error}
         </div>
       </div>
     );
@@ -72,7 +77,7 @@ const MyTeamEvents = () => {
     return (
       <div className="flex justify-center items-center min-h-screen bg-gray-50">
         <div className="bg-gray-100 text-gray-600 p-4 rounded-lg">
-          No member in team
+          {t('myTeamEvents.noMembers')}
         </div>
       </div>
     );
@@ -83,10 +88,10 @@ const MyTeamEvents = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
-          TEAM #{teamData.eventId}
+          {t('myTeamEvents.teamHeader', { eventId: teamData.eventId })}
         </h1>
         <p className="text-lg text-gray-600 mt-2 sm:mt-0">
-          total: <span className="font-semibold">{teamData.totalMembers}</span>
+          {t('myTeamEvents.totalMembers', { count: teamData.totalMembers })}
         </p>
       </div>
 
@@ -107,18 +112,22 @@ const MyTeamEvents = () => {
             </div>
             <div className="space-y-3">
               <div className="flex items-center">
-                <span className="text-gray-500 font-medium w-24">Email:</span>
+                <span className="text-gray-500 font-medium w-24">
+                  {t('myTeamEvents.emailLabel')}
+                </span>
                 <span className="text-gray-700">{member.email}</span>
               </div>
               <div className="flex items-start">
-                <span className="text-gray-500 font-medium w-24">Vai trò:</span>
+                <span className="text-gray-500 font-medium w-24">
+                  {t('myTeamEvents.rolesLabel')}
+                </span>
                 <div className="flex flex-wrap gap-2">
                   {member.rolesAssigned.map((role, idx) => (
                     <span
                       key={idx}
                       className="inline-block bg-indigo-100 text-indigo-800 text-xs font-semibold px-2.5 py-1 rounded-full"
                     >
-                      {role.replace("ROLE_", "")}
+                      {role.replace(t('myTeamEvents.rolePrefix'), "")}
                     </span>
                   ))}
                 </div>
@@ -128,7 +137,8 @@ const MyTeamEvents = () => {
               <button
                 onClick={() => handleChatClick(member)}
                 className="absolute top-4 right-4 p-2 bg-blue-100 rounded-full hover:bg-blue-200 transition-colors duration-200"
-                title="Chat với thành viên"
+                title={t('myTeamEvents.chatButtonTitle')}
+                aria-label={t('myTeamEvents.chatButtonTitle')}
               >
                 <MessageCircle className="w-5 h-5 text-blue-600" />
               </button>

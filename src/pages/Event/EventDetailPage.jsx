@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Carousel } from "react-responsive-carousel";
 import SliderSpeaker from "../../components/SilderSpeaker";
 import Footer from "../../components/Footer";
@@ -89,11 +90,11 @@ const useEventData = (eventId, userId) => {
 };
 
 // Timeline Component
-const Timeline = ({ segments }) => {
+const Timeline = ({ segments, t }) => {
   if (!segments?.length) {
     return (
       <div className="mx-4 my-4 text-sm text-gray-600 sm:my-6 sm:mx-8 lg:mx-16 sm:text-base">
-        
+
       </div>
     );
   }
@@ -101,8 +102,8 @@ const Timeline = ({ segments }) => {
   return (
     <div className="my-4 sm:my-6 mx-4 sm:mx-8 lg:mx-16 sm:ml-12 lg:ml-[100px]">
       <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-                Schedule
-              </h2>
+        {t("eventDetailPage.schedule")}
+      </h2>
       {segments.map((segment, index) => (
         <div
           key={segment.segmentId}
@@ -120,10 +121,10 @@ const Timeline = ({ segments }) => {
             {segment.speaker?.speakerDesc || ""}
           </p>
           <p className="mt-1 text-sm font-bold text-indigo-700 sm:text-base lg:text-lg">
-            "{segment.segmentTitle || "Không có tiêu đề"}"
+            "{segment.segmentTitle || t("eventDetailPage.noDescription")}"
           </p>
           <p className="text-gray-600 text-[11px] sm:text-sm lg:text-base">
-            "{segment.segmentDesc || "Không có mô tả"}"
+            "{segment.segmentDesc || t("eventDetailPage.noDescription")}"
           </p>
         </div>
       ))}
@@ -132,7 +133,7 @@ const Timeline = ({ segments }) => {
 };
 
 // OrganizedBy Component
-const OrganizedBy = ({ organizer, currentUser, hostId }) => {
+const OrganizedBy = ({ organizer, currentUser, hostId, t }) => {
   const navigate = useNavigate();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -154,7 +155,7 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
   return (
     <div className="max-w-3xl mt-10 mb-8 font-inter">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Organized by
+        {t("eventDetailPage.organizedBy")}
       </h2>
       <div className="relative p-6 bg-white border border-gray-200 sm:p-8 rounded-2xl">
         <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start">
@@ -163,7 +164,7 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
             <div className="relative flex items-center justify-center w-full h-full bg-white border-2 border-gray-100 rounded-full shadow-sm">
               <img
                 src={organizer?.organizerLogo || "https://i.pinimg.com/736x/40/dc/20/40dc204e1681aea04a030aaa6d1aac39.jpg"}
-                alt="Logo Tổ Chức"
+                alt={t("eventDetailPage.organizedBy")}
                 className="object-cover w-20 h-20 border-4 border-purple-100 rounded-full shadow-md"
               />
             </div>
@@ -176,14 +177,14 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
               {organizer?.organizerName || "N/A"}
             </h3>
             <p className="max-w-lg mx-auto text-sm italic leading-relaxed text-gray-700 sm:text-base font-inter sm:mx-0">
-              {organizer?.organizerDesc || "Không có mô tả"}
+              {organizer?.organizerDesc || t("eventDetailPage.noDescription")}
             </p>
           </div>
           {currentUser?.email !== organizer?.organizerEmail && (
             <button
               onClick={handleChatClick}
               className="absolute p-2 transition-colors duration-200 bg-blue-100 rounded-full top-4 right-4 hover:bg-blue-200"
-              title="Chat với nhà tổ chức"
+              title={t("eventDetailPage.organizedBy")} // Simplified title for chat button
             >
               <MessageCircle className="w-5 h-5 text-blue-600" />
             </button>
@@ -206,24 +207,28 @@ const OrganizedBy = ({ organizer, currentUser, hostId }) => {
 };
 
 // EventInfo Component
-const EventInfo = ({ eventData, organizerData, currentUser }) => (
+const EventInfo = ({ eventData, organizerData, currentUser, t }) => (
   <div className="flex-1">
     <div className="mb-2 text-sm text-gray-500 sm:text-base">
       {formatDateTime(eventData?.eventStart)}
     </div>
     <h1 className="mb-3 text-2xl font-bold text-blue-900 sm:text-3xl lg:text-5xl sm:mb-4">
-      {eventData?.eventName || "Sự kiện không tên"}
+      {eventData?.eventName || t("pageViewAll.unnamedEvent")}
     </h1>
     <div className="flex items-center mb-2 text-sm text-gray-700 sm:text-base">
       <i className="mr-4 fa-solid fa-eye"></i>
       <span className="text-[14px] font-bold">
-        {eventData?.viewCount ? `${eventData.viewCount} views` : "0 view"}
+        {eventData?.viewCount
+          ? eventData.viewCount === 1
+            ? t("eventDetailPage.oneView")
+            : t("eventDetailPage.views", { count: eventData.viewCount })
+          : t("eventDetailPage.noViews")}
       </span>
     </div>
-    <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} />
+    <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} t={t} />
     <div className="pt-6 mt-6 mb-6">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Date and time
+        {t("eventDetailPage.dateAndTime")}
       </h2>
       <div className="flex items-center text-sm text-gray-700 sm:text-base">
         <i className="mr-4 fa-regular fa-calendar-days"></i>
@@ -235,14 +240,14 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
     </div>
     <div className="mb-6">
       <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        Location
+        {t("eventDetailPage.location")}
       </h2>
       <div className="flex items-center text-sm text-gray-700 sm:text-base">
         <i className="mr-4 fa-solid fa-location-dot"></i>
         <span className="text-[14px] font-bold">
           {eventData?.eventLocation?.venueName
             ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
-            : "Không có địa điểm cụ thể"}
+            : t("eventDetailPage.noLocation")}
         </span>
       </div>
     </div>
@@ -250,21 +255,21 @@ const EventInfo = ({ eventData, organizerData, currentUser }) => (
 );
 
 // OverviewContent Component
-const OverviewContent = ({ eventData }) => (
+const OverviewContent = ({ eventData, t }) => (
   <div className="flex-1 mb-4 sm:mb-6">
     <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-      Descriptions
+      {t("eventDetailPage.descriptions")}
     </h2>
     <div
       className="mb-3 text-sm prose text-justify text-gray-700 sm:text-base sm:mb-4 max-w-none"
       dangerouslySetInnerHTML={{
         __html: eventData?.eventDesc
           ? DOMPurify.sanitize(eventData.eventDesc)
-          : "Không có mô tả",
+          : t("eventDetailPage.noDescription"),
       }}
     />
     <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-      Overview
+      {t("eventDetailPage.overview")}
     </h2>
     <div className="text-sm text-justify text-gray-700 sm:text-base">
       <p
@@ -272,7 +277,7 @@ const OverviewContent = ({ eventData }) => (
         dangerouslySetInnerHTML={{
           __html: eventData?.textContent
             ? DOMPurify.sanitize(eventData.textContent)
-            : "Không có mô tả",
+            : t("eventDetailPage.noDescription"),
         }}
       />
       {eventData?.mediaContent?.length > 0 ? (
@@ -280,7 +285,7 @@ const OverviewContent = ({ eventData }) => (
           <img
             key={index}
             src={mediaContent}
-            alt={`${eventData.eventName} media ${index + 1}`}
+            alt={`${eventData.eventName || t("pageViewAll.unnamedEvent")} media ${index + 1}`}
             className="object-cover w-full h-auto mb-3 rounded-lg sm:mb-4"
           />
         ))
@@ -292,9 +297,9 @@ const OverviewContent = ({ eventData }) => (
 );
 
 // TicketSelector Component
-const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, user }) => {
+const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, user, t }) => {
   const { eventId } = useParams();
-   const token = localStorage.getItem("token");
+  const token = localStorage.getItem("token");
   const checkTicketLimit = async (ticketId, ticketType, currentCount) => {
     if (!user?.email) {
       // Lưu eventId trước khi chuyển hướng
@@ -304,10 +309,10 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
         Swal.fire({
           icon: "warning",
           title: "    ",
-          text: " Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
-          confirmButtonText: "Đăng nhập",
+          text: t("eventDetailPage.loginPrompt"),
+          confirmButtonText: t("header.login"),
           showCancelButton: true,
-          cancelButtonText: "Hủy",
+          cancelButtonText: t("imageCropper.cancel"),
         }).then((result) => {
           if (result.isConfirmed) {
             window.location.href = "/login";
@@ -319,10 +324,10 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
         Swal.fire({
           icon: "warning",
           title: "   ",
-          text: " Vui lòng đăng nhập để kiểm tra chính xác số lượng vé có thể mua.",
-          confirmButtonText: "Đăng nhập",
+          text: t("eventDetailPage.loginPrompt"),
+          confirmButtonText: t("header.login"),
           showCancelButton: true,
-          cancelButtonText: "Hủy",
+          cancelButtonText: t("imageCropper.cancel"),
         }).then((result) => {
           if (result.isConfirmed) {
             window.location.href = "/login";
@@ -338,13 +343,13 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       const response = await fetch(
         `http://localhost:8080/api/ticket/${user.email}/check/${eventId}`,
         {
-           headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
-      if (!response.ok) throw new Error("Không thể kiểm tra giới hạn vé");
+      if (!response.ok) throw new Error(t("eventDetailPage.ticketLimitError"));
       const result = await response.json();
 
       if (result.statusCode !== 200) {
@@ -377,8 +382,8 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
     } catch (err) {
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: "Không thể kiểm tra giới hạn vé. Vui lòng thử lại sau.",
+        title: t("favoritesPage.error", { message: "" }),
+        text: t("eventDetailPage.ticketLimitError"),
       });
       return false;
     }
@@ -388,9 +393,9 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
     <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
       <div className="p-4 mb-4 border-2 border-red-400 rounded-lg">
         {!tickets ? (
-          <p className="text-sm text-gray-700 font-inter">Loading tickets...</p>
+          <p className="text-sm text-gray-700 font-inter">{t("eventDetailPage.loadingTickets")}</p>
         ) : tickets.length === 0 ? (
-          <p className="text-sm text-gray-700 font-inter">No tickets available</p>
+          <p className="text-sm text-gray-700 font-inter">{t("eventDetailPage.noTickets")}</p>
         ) : (
           <div className="space-y-4">
             {tickets.map((ticket) => (
@@ -407,7 +412,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
                       {ticket.price.toLocaleString()} VND
                       {ticket.ticketType === "Free" && (
                         <span className="ml-2 text-xs text-gray-500">
-                          (Max 1 ticket)
+                          {t("eventDetailPage.maxOneTicket")}
                         </span>
                       )}
                     </p>
@@ -460,7 +465,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
                   </div>
                 </div>
                 <div className="text-xs text-gray-600 font-inter">
-                  <p>Available: {ticket.quantity - ticket.sold}</p>
+                  <p>{t("eventDetailPage.available", { count: ticket.quantity - ticket.sold })}</p>
                 </div>
               </div>
             ))}
@@ -471,16 +476,16 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
         className="w-full py-3 text-base font-semibold text-white transition bg-red-500 rounded-lg shadow-md hover:bg-red-600 disabled:bg-gray-400 font-inter"
         onClick={onSelect}
         disabled={Object.keys(selectedTickets).length === 0}
-        aria-label="Chọn vé"
+        aria-label={t("eventDetailPage.selectTickets")}
       >
-        Select Tickets
+        {t("eventDetailPage.selectTickets")}
       </button>
     </div>
   );
 };
 
 // Sponsors Component
-const Sponsors = ({ sponsors }) => {
+const Sponsors = ({ sponsors, t }) => {
   if (!sponsors?.length) {
     return null;
   }
@@ -488,7 +493,7 @@ const Sponsors = ({ sponsors }) => {
   return (
     <div className="my-4 sm:my-6">
       <h2 className="mb-3 text-lg font-bold sm:text-xl lg:text-xl sm:mb-4">
-        Sponsors
+        {t("eventDetailPage.sponsors")}
       </h2>
       <div className="flex flex-wrap gap-4">
         {sponsors.map((sponsor) => (
@@ -510,6 +515,7 @@ const Sponsors = ({ sponsors }) => {
 
 // Main EventDetail Component
 const EventDetail = () => {
+  const { t } = useTranslation();
   const { eventId } = useParams();
   const [showPopup, setShowPopup] = useState(false);
   const [eventData, setEventData] = useState(null);
@@ -571,7 +577,7 @@ const EventDetail = () => {
   if (error) {
     return (
       <div className="p-4 text-sm text-center text-red-600 sm:p-8 sm:text-base">
-        Error: {error}. Please try again later.
+        {t("listEventScroll.error", { message: error })}
       </div>
     );
   }
@@ -604,7 +610,7 @@ const EventDetail = () => {
                 ></div>
                 <img
                   src={imageUrl}
-                  alt={`Hình ảnh sự kiện ${index + 1}`}
+                  alt={`${t("pageViewAll.unnamedEvent")} ${index + 1}`}
                   className="absolute inset-0 object-contain w-auto h-auto max-w-full max-h-full m-auto"
                 />
               </div>
@@ -619,7 +625,7 @@ const EventDetail = () => {
               ></div>
               <img
                 src="https://via.placeholder.com/1200x500"
-                alt="Hình ảnh sự kiện mặc định"
+                alt={t("pageViewAll.unnamedEvent")}
                 className="absolute inset-0 object-contain w-auto h-auto max-w-full max-h-full m-auto"
               />
             </div>
@@ -630,16 +636,16 @@ const EventDetail = () => {
         <div className="px-4 pt-4 leading-normal rounded-lg sm:px-6">
           <div className="flex flex-col items-start gap-4 lg:flex-row sm:gap-6 lg:gap-2">
             <div className="w-full ml-4 lg:flex-1 sm:ml-6 lg:ml-10">
-              <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} />
-              <OverviewContent eventData={eventData} />
-              
+              <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} t={t} />
+              <OverviewContent eventData={eventData} t={t} />
+
               <SliderSpeaker speakers={speakers} />
-              
-              <Timeline segments={segmentData} />
-              <Sponsors sponsors={sponsors} />
+
+              <Timeline segments={segmentData} t={t} />
+              <Sponsors sponsors={sponsors} t={t} />
               <div>
                 <h2 className="mt-3 mb-3 text-lg font-bold sm:text-xl lg:text-2xl sm:mb-4 sm:mt-4">
-                  Tags
+                  {t("eventDetailPage.tags")}
                 </h2>
                 <div className="flex flex-wrap gap-2 sm:gap-3">
                   {eventData?.tags?.split("|").map((tag, index) => (
@@ -650,10 +656,10 @@ const EventDetail = () => {
                       {tag.trim()}
                     </span>
                   )) || (
-                    <span className="text-xs text-gray-600 sm:text-sm">
-                      No tags available
-                    </span>
-                  )}
+                      <span className="text-xs text-gray-600 sm:text-sm">
+                        {t("eventDetailPage.noTags")}
+                      </span>
+                    )}
                 </div>
               </div>
             </div>
@@ -663,6 +669,7 @@ const EventDetail = () => {
               onQuantityChange={handleQuantityChange}
               onSelect={() => setShowPopup(true)}
               user={user}
+              t={t}
             />
           </div>
         </div>

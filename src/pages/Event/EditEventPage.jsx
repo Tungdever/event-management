@@ -5,14 +5,16 @@ import EventPublishing from "./EventPublishing";
 import { useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import Loader from "../../components/Loading";
-
-const EditEvent = () => {
-  const location = useLocation();
+import { useTranslation } from 'react-i18next';
+import Footer from "../../components/Footer";
+const EditEventPage = () => {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
+  const location = useLocation();
   const eventId = location.state?.eventId || undefined;
   const token = localStorage.getItem("token");
   const [selectedStep, setSelectedStep] = useState("build");
- 
+
   const [event, setEvent] = useState({
     eventName: "",
     eventDesc: "",
@@ -45,7 +47,7 @@ const EditEvent = () => {
     if (eventId) {
       fetchEventData(eventId);
     }
-  }, [eventId]);
+  }, [eventId, t]);
 
   const isReadOnly = event.eventStatus === "Complete";
 
@@ -60,12 +62,12 @@ const EditEvent = () => {
       });
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to fetch event data: ${response.status} - ${errorText}`);
+        throw new Error(t("editEventPage.errors.fetchFailed", { message: `${response.status} - ${errorText}` }));
       }
       const data = await response.json();
 
       if (!data || !data.event) {
-        throw new Error("Invalid event data received");
+        throw new Error(t("editEventPage.errors.invalidEventData"));
       }
 
       const transformedEvent = {
@@ -104,18 +106,18 @@ const EditEvent = () => {
           quantity: ticket.quantity || 0,
           startTime: ticket.startTime || "",
           endTime: ticket.endTime || "",
-          sold: ticket.sold || 0, // Thêm thuộc tính sold
+          sold: ticket.sold || 0,
         })) || [],
         segment: data.segment?.map((seg) => ({
           segmentId: seg.segmentId || null,
           segmentTitle: seg.segmentTitle || "",
           speaker: seg.speaker
             ? {
-                speakerId: seg.speaker.speakerId || null,
-                speakerImage: seg.speaker.speakerImage || "",
-                speakerName: seg.speaker.speakerName || "",
-                speakerDesc: seg.speaker.speakerDesc || "",
-              }
+              speakerId: seg.speaker.speakerId || null,
+              speakerImage: seg.speaker.speakerImage || "",
+              speakerName: seg.speaker.speakerName || "",
+              speakerDesc: seg.speaker.speakerDesc || "",
+            }
             : null,
           segmentDesc: seg.segmentDesc || "",
           startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
@@ -129,8 +131,8 @@ const EditEvent = () => {
       console.error("Error fetching event:", error);
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: `Không thể tải dữ liệu sự kiện: ${error.message}`,
+        title: t("editEventPage.errors.fetchFailed", { message: "" }),
+        text: t("editEventPage.errors.fetchFailed", { message: error.message }),
       });
     } finally {
       setIsLoading(false);
@@ -155,15 +157,15 @@ const EditEvent = () => {
         let blob;
         if (typeof file === "string" && file.startsWith("blob:")) {
           const response = await fetch(file);
-          if (!response.ok) throw new Error(`Failed to fetch blob: ${file}`);
+          if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
         } else if (file instanceof File || file instanceof Blob) {
           blob = file;
         } else {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Loại file không hợp lệ, bỏ qua!",
+            title: t("createEventPage.errors.invalidFile"),
+            text: t("createEventPage.errors.invalidFile"),
           });
           continue;
         }
@@ -171,8 +173,8 @@ const EditEvent = () => {
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: "Cảnh báo",
-            text: "Kích thước ảnh vượt quá 10MB, bỏ qua!",
+            title: t("createEventPage.errors.fileSizeTooLarge"),
+            text: t("createEventPage.errors.fileSizeTooLarge"),
           });
           continue;
         }
@@ -187,18 +189,18 @@ const EditEvent = () => {
 
         if (!response.ok) {
           const errorText = await response.text();
-          throw new Error(`Tải lên thất bại: ${errorText}`);
+          throw new Error(t("createEventPage.errors.uploadFailed", { message: errorText }));
         }
 
         const publicId = await response.text();
-        if (!publicId) throw new Error("Không nhận được public_id");
+        if (!publicId) throw new Error(t("createEventPage.errors.noPublicId"));
         uploadedIds.push(publicId);
       } catch (error) {
         console.error("Lỗi tải lên:", error);
         Swal.fire({
           icon: "error",
-          title: "Lỗi",
-          text: `Không thể tải lên file: ${error.message}`,
+          title: t("createEventPage.errors.uploadFailed", { message: "" }),
+          text: t("createEventPage.errors.uploadFailed", { message: error.message }),
         });
       }
     }
@@ -210,8 +212,8 @@ const EditEvent = () => {
     if (isReadOnly) {
       Swal.fire({
         icon: "info",
-        title: "Thông báo",
-        text: "Sự kiện đã hoàn tất và chỉ có thể xem, không thể chỉnh sửa.",
+        title: t('editEventPage.readOnlyMessage'),
+        text: t('editEventPage.readOnlyMessage'),
       });
       return;
     }
@@ -240,15 +242,15 @@ const EditEvent = () => {
 
       const ticketData = event.tickets?.length > 0
         ? event.tickets.map((ticket) => ({
-            ticketId: ticket.ticketId || null,
-            ticketName: ticket.ticketName || "",
-            ticketType: ticket.ticketType || "Paid",
-            price: ticket.price || 0,
-            quantity: ticket.quantity || 0,
-            startTime: ticket.startTime || "",
-            endTime: ticket.endTime || "",
-            sold: ticket.sold || 0, // Thêm sold vào payload
-          }))
+          ticketId: ticket.ticketId || null,
+          ticketName: ticket.ticketName || "",
+          ticketType: ticket.ticketType || "Paid",
+          price: ticket.price || 0,
+          quantity: ticket.quantity || 0,
+          startTime: ticket.startTime || "",
+          endTime: ticket.endTime || "",
+          sold: ticket.sold || 0,
+        }))
         : [];
 
       const segmentData = [];
@@ -263,15 +265,15 @@ const EditEvent = () => {
             segmentTitle: segment.segmentTitle || "",
             speaker: segment.speaker
               ? {
-                  speakerId: segment.speaker.speakerId || null,
-                  speakerImage: uploadedSpeakerImage || "",
-                  speakerName: segment.speaker.speakerName || "",
-                  speakerEmail: segment.speaker.speakerEmail || null,
-                  speakerTitle: segment.speaker.speakerTitle || null,
-                  speakerPhone: segment.speaker.speakerPhone || null,
-                  speakerAddress: segment.speaker.speakerAddress || null,
-                  speakerDesc: segment.speaker.speakerDesc || "",
-                }
+                speakerId: segment.speaker.speakerId || null,
+                speakerImage: uploadedSpeakerImage || "",
+                speakerName: segment.speaker.speakerName || "",
+                speakerEmail: segment.speaker.speakerEmail || null,
+                speakerTitle: segment.speaker.speakerTitle || null,
+                speakerPhone: segment.speaker.speakerPhone || null,
+                speakerAddress: segment.speaker.speakerAddress || null,
+                speakerDesc: segment.speaker.speakerDesc || "",
+              }
               : null,
             eventID: event.eventId || null,
             segmentDesc: segment.segmentDesc || "",
@@ -337,20 +339,20 @@ const EditEvent = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        throw new Error(`Failed to edit event: ${errorText}`);
+        throw new Error(t("editEventPage.errors.editFailed", { message: errorText }));
       }
 
       Swal.fire({
         icon: "success",
-        title: "Thành công",
-        text: "Sự kiện đã được chỉnh sửa thành công!",
+        title: t("editEventPage.successEdit.title"),
+        text: t("editEventPage.successEdit.text"),
       });
     } catch (error) {
       console.error("Edit error:", error);
       Swal.fire({
         icon: "error",
-        title: "Lỗi",
-        text: `Không thể chỉnh sửa sự kiện: ${error.message}`,
+        title: t("editEventPage.errors.editFailed", { message: "" }),
+        text: t("editEventPage.errors.editFailed", { message: error.message }),
       });
     } finally {
       setIsLoading(false);
@@ -374,6 +376,7 @@ const EditEvent = () => {
             setEvent={setEvent}
             onNext={() => setSelectedStep("tickets")}
             isReadOnly={isReadOnly}
+            t={t} // Pass t to EventForm
           />
         );
       case "tickets":
@@ -383,8 +386,9 @@ const EditEvent = () => {
             onTicketsUpdate={handleTicketsUpdate}
             onNext={() => setSelectedStep("publish")}
             isReadOnly={isReadOnly}
-            eventStart={event.eventStart} // Truyền eventStart
-            eventEnd={event.eventEnd}     // Truyền eventEnd
+            eventStart={event.eventStart}
+            eventEnd={event.eventEnd}
+            t={t} // Pass t to AddTicket
           />
         );
       case "publish":
@@ -394,10 +398,17 @@ const EditEvent = () => {
             setEvent={setEvent}
             onPublish={() => handleEdit(event)}
             isReadOnly={isReadOnly}
+            t={t} // Pass t to EventPublishing
           />
         );
       default:
-        return <EventForm event={event} setEvent={setEvent} />;
+        return (
+          <EventForm
+            event={event}
+            setEvent={setEvent}
+            t={t}
+          />
+        );
     }
   };
 
@@ -410,23 +421,23 @@ const EditEvent = () => {
           <aside className="w-full p-4 bg-white shadow-sm lg:w-1/4">
             <div className="p-4 mb-4 bg-white rounded-lg shadow-md">
               <h2 className="text-lg font-semibold">
-                {event.eventName || "Untitled Event"}
+                {event.eventName || t("editEventPage.noTitle")}
               </h2>
               <div className="flex items-center mt-2 text-gray-500">
                 <i className="mr-2 far fa-calendar-alt"></i>
                 <span>
                   {event.eventLocation.date && event.eventLocation.startTime
                     ? `${event.eventLocation.date}, ${event.eventLocation.startTime}`
-                    : "Date and time not set"}
+                    : t("editEventPage.noDateTime")}
                 </span>
               </div>
               {isReadOnly && (
                 <p className="mt-2 text-red-500">
-                  Sự kiện đã hoàn tất, chỉ có thể xem.
+                  {t("editEventPage.readOnlyMessage")}
                 </p>
               )}
             </div>
-            <h3 className="mb-2 text-lg font-semibold">Steps</h3>
+            <h3 className="mb-2 text-lg font-semibold">{t("editEventPage.stepsTitle")}</h3>
             <div className="space-y-2">
               {["build", "tickets", "publish"].map((step) => (
                 <label
@@ -441,11 +452,7 @@ const EditEvent = () => {
                     onChange={() => setSelectedStep(step)}
                     className="w-4 h-4 border-2 border-orange-500 accent-red-500"
                   />
-                  <span>
-                    {step === "build" && "Build event page"}
-                    {step === "tickets" && "Add tickets"}
-                    {step === "publish" && "Publish"}
-                  </span>
+                  <span>{t(`editEventPage.steps.${step}`)}</span>
                 </label>
               ))}
             </div>
@@ -457,4 +464,4 @@ const EditEvent = () => {
   );
 };
 
-export default EditEvent;
+export default EditEventPage;

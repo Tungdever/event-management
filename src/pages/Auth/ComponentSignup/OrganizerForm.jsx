@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import ProgressBar from "./ProgressBar";
-import Backicon from "./BackIcon";
+import BackIcon from "./BackIcon";
 import Swal from 'sweetalert2';
+import { useTranslation } from "react-i18next";
 
 const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     organizerName: '',
     organizerAddress: '',
@@ -21,21 +23,21 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
 
   const validateForm = (data) => {
     const newErrors = {};
-    if (!data.fullName) newErrors.fullName = "Please enter full name";
-    else if (!/^[a-zA-Z\s]+$/.test(data.fullName)) newErrors.fullName = "Full name can only contain letters and spaces";
+    if (!data.fullName) newErrors.fullName = t('organizerForm.errors.fullNameRequired');
+    else if (!/^[a-zA-Z\s]+$/.test(data.fullName)) newErrors.fullName = t('organizerForm.errors.fullNameInvalid');
 
-    if (!data.password) newErrors.password = "Please enter password";
-    else if (data.password.length < 8) newErrors.password = "Password must be at least 8 characters long";
+    if (!data.password) newErrors.password = t('organizerForm.errors.passwordRequired');
+    else if (data.password.length < 8) newErrors.password = t('organizerForm.errors.passwordTooShort');
 
-    if (!data.gender) newErrors.gender = "Please select gender";
-    if (!data.birthday) newErrors.birthday = "Please enter birthday";
-    if (!data.address) newErrors.address = "Please enter address";
+    if (!data.gender) newErrors.gender = t('organizerForm.errors.genderRequired');
+    if (!data.birthday) newErrors.birthday = t('organizerForm.errors.birthdayRequired');
+    if (!data.address) newErrors.address = t('organizerForm.errors.addressRequired');
 
-    if (!data.organizerName) newErrors.organizerName = "Please enter organizer name";
-    if (!data.organizerAddress) newErrors.organizerAddress = "Please enter organizer address";
-    if (!data.organizerWebsite) newErrors.organizerWebsite = "Please enter website";
-    if (!data.organizerPhone) newErrors.organizerPhone = "Please enter phone number";
-    else if (!/^\d{10}$/.test(data.organizerPhone)) newErrors.organizerPhone = "Phone number must be exactly 10 digits";
+    if (!data.organizerName) newErrors.organizerName = t('organizerForm.errors.organizerNameRequired');
+    if (!data.organizerAddress) newErrors.organizerAddress = t('organizerForm.errors.organizerAddressRequired');
+    if (!data.organizerWebsite) newErrors.organizerWebsite = t('organizerForm.errors.organizerWebsiteRequired');
+    if (!data.organizerPhone) newErrors.organizerPhone = t('organizerForm.errors.organizerPhoneRequired');
+    else if (!/^\d{10}$/.test(data.organizerPhone)) newErrors.organizerPhone = t('organizerForm.errors.organizerPhoneInvalid');
 
     return newErrors;
   };
@@ -65,7 +67,6 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         birthday: formData.birthday,
         gender: formData.gender,
         address: formData.address,
-       
         organizer: {
           organizerName: formData.organizerName,
           organizerAddress: formData.organizerAddress,
@@ -73,7 +74,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
           organizerPhone: formData.organizerPhone
         }
       };
-      console.log(payload)
+      console.log(payload);
       const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -84,19 +85,17 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      
-       Swal.fire ({
+      Swal.fire({
         icon: 'success',
-        title: 'ssuccess',
-        text: 'Registration successful!',
+        title: t('organizerForm.success.title'),
+        text: t('organizerForm.success.text'),
       });
       onComplete();
     } catch (error) {
-     
-      Swal.fire ({
+      Swal.fire({
         icon: 'error',
-        title: 'error',
-        text: 'Registration failed. Please try again.',
+        title: t('organizerForm.errors.title'),
+        text: t('organizerForm.errors.registrationFailed'),
       });
     }
   };
@@ -108,8 +107,8 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col w-[600px]">
           <div className="p-6 rounded-t">
             <h2 className="text-2xl font-bold flex items-center">
-              <Backicon onClick={onPrev} />
-              Organizer Information
+              <BackIcon onClick={onPrev} />
+              {t('organizerForm.title')}
             </h2>
           </div>
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -119,7 +118,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                 onClick={() => setOpenSection(openSection === 'personal' ? '' : 'personal')}
                 className="w-full text-left font-semibold text-gray-700 flex justify-between items-center hover:bg-gray-100 p-2 rounded transition-colors duration-200"
               >
-                Personal Information
+                {t('organizerForm.sections.personal')}
                 <svg
                   className={`w-5 h-5 transform ${openSection === 'personal' ? 'rotate-180' : ''} transition-transform duration-200`}
                   fill="none"
@@ -137,7 +136,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="email"
                       >
-                        Email
+                        {t('organizerForm.email')}
                       </label>
                       <input
                         type="email"
@@ -146,7 +145,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         disabled
                         className="appearance-none block w-full text-gray-700 border border-gray-400 rounded py-3 px-4"
                         id="email"
-                        aria-label="Email"
+                        aria-label={t('organizerForm.email')}
                       />
                     </div>
                     <div className="md:w-1/2 px-3 md:mb-0">
@@ -154,16 +153,16 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="role"
                       >
-                        Role
+                        {t('organizerForm.role')}
                       </label>
                       <input
                         type="text"
                         name="role"
-                        value="Organizer"
+                        value={t('organizerForm.roleValue')}
                         disabled
                         className="appearance-none block w-full text-gray-700 border border-gray-400 rounded py-3 px-4 mb-3"
-                        id="role"
-                        aria-label="Role"
+                        id="org-role"
+                        aria-label={t('organizerForm.role')}
                       />
                     </div>
                   </div>
@@ -173,7 +172,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="full-name"
                       >
-                        Full Name
+                        {t('organizerForm.fullName')}
                       </label>
                       <input
                         type="text"
@@ -185,7 +184,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         }`}
                         id="full-name"
                         required
-                        aria-label="Full Name"
+                        aria-label={t('organizerForm.fullName')}
                       />
                       {errors.fullName && (
                         <p className="text-red-500 text-xs">{errors.fullName}</p>
@@ -196,7 +195,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="birthday"
                       >
-                        Birthday
+                        {t('organizerForm.birthday')}
                       </label>
                       <input
                         type="date"
@@ -208,7 +207,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         }`}
                         id="birthday"
                         required
-                        aria-label="Birthday"
+                        aria-label={t('organizerForm.birthday')}
                       />
                       {errors.birthday && (
                         <p className="text-red-500 text-xs">{errors.birthday}</p>
@@ -221,7 +220,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="password"
                       >
-                        Password
+                        {t('organizerForm.password')}
                       </label>
                       <input
                         type="password"
@@ -233,7 +232,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         }`}
                         id="password"
                         disabled
-                        aria-label="Password"
+                        aria-label={t('organizerForm.password')}
                       />
                       {errors.password && (
                         <p className="text-red-500 text-xs">{errors.password}</p>
@@ -244,7 +243,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="gender"
                       >
-                        Gender
+                        {t('organizerForm.gender')}
                       </label>
                       <select
                         name="gender"
@@ -255,12 +254,12 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         }`}
                         id="gender"
                         required
-                        aria-label="Gender"
+                        aria-label={t('organizerForm.gender')}
                       >
-                        <option value="">Select Gender</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
-                        <option value="other">Other</option>
+                        <option value="">{t('organizerForm.genderOptions.select')}</option>
+                        <option value="male">{t('organizerForm.genderOptions.male')}</option>
+                        <option value="female">{t('organizerForm.genderOptions.female')}</option>
+                        <option value="other">{t('organizerForm.genderOptions.other')}</option>
                       </select>
                       {errors.gender && (
                         <p className="text-red-500 text-xs">{errors.gender}</p>
@@ -273,20 +272,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="address"
                       >
-                        Address
+                        {t('organizerForm.address')}
                       </label>
                       <input
                         type="text"
                         name="address"
                         value={formData.address}
                         onChange={handleChange}
-                        placeholder="Address"
+                        placeholder={t('organizerForm.placeholders.address')}
                         className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 mb-3 ${
                           errors.address ? "border-red-500" : "border-gray-400"
                         }`}
                         id="address"
                         required
-                        aria-label="Address"
+                        aria-label={t('organizerForm.address')}
                       />
                       {errors.address && (
                         <p className="text-red-500 text-xs">{errors.address}</p>
@@ -302,7 +301,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                 onClick={() => setOpenSection(openSection === 'organizer' ? '' : 'organizer')}
                 className="w-full text-left font-semibold text-gray-700 flex justify-between items-center hover:bg-gray-100 p-2 rounded transition-colors duration-200"
               >
-                Organizer Information
+                {t('organizerForm.sections.organizer')}
                 <svg
                   className={`w-5 h-5 transform ${openSection === 'organizer' ? 'rotate-180' : ''} transition-transform duration-200`}
                   fill="none"
@@ -320,20 +319,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="organizer-name"
                       >
-                        Organizer Name
+                        {t('organizerForm.organizerName')}
                       </label>
                       <input
                         type="text"
                         name="organizerName"
                         value={formData.organizerName}
                         onChange={handleChange}
-                        placeholder="Organizer Name"
+                        placeholder={t('organizerForm.placeholders.organizerName')}
                         className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 mb-3 ${
                           errors.organizerName ? "border-red-500" : "border-gray-400"
                         }`}
                         id="organizer-name"
                         required
-                        aria-label="Organizer Name"
+                        aria-label={t('organizerForm.organizerName')}
                       />
                       {errors.organizerName && (
                         <p className="text-red-500 text-xs">{errors.organizerName}</p>
@@ -344,20 +343,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="organizer-website"
                       >
-                        Website
+                        {t('organizerForm.organizerWebsite')}
                       </label>
                       <input
                         type="url"
                         name="organizerWebsite"
                         value={formData.organizerWebsite}
                         onChange={handleChange}
-                        placeholder="Website link"
+                        placeholder={t('organizerForm.placeholders.website')}
                         className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 mb-3 ${
                           errors.organizerWebsite ? "border-red-500" : "border-gray-400"
                         }`}
                         id="organizer-website"
                         required
-                        aria-label="Website link"
+                        aria-label={t('organizerForm.organizerWebsite')}
                       />
                       {errors.organizerWebsite && (
                         <p className="text-red-500 text-xs">{errors.organizerWebsite}</p>
@@ -370,20 +369,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="organizer-address"
                       >
-                        Organizer Address
+                        {t('organizerForm.addressLabel')}
                       </label>
                       <input
                         type="text"
                         name="organizerAddress"
                         value={formData.organizerAddress}
                         onChange={handleChange}
-                        placeholder="Address"
+                        placeholder={t('organizerForm.placeholders.organizerAddress')}
                         className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 mb-3 ${
                           errors.organizerAddress ? "border-red-500" : "border-gray-400"
                         }`}
                         id="organizer-address"
                         required
-                        aria-label="Organizer Address"
+                        aria-label={t('organizerForm.addressLabel')}
                       />
                       {errors.organizerAddress && (
                         <p className="text-red-500 text-xs">{errors.organizerAddress}</p>
@@ -394,20 +393,20 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
                         className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
                         htmlFor="organizer-phone"
                       >
-                        Phone
+                        {t('organizerForm.phone')}
                       </label>
                       <input
                         type="tel"
                         name="organizerPhone"
                         value={formData.organizerPhone}
                         onChange={handleChange}
-                        placeholder="Phone"
+                        placeholder={t('organizerForm.placeholders.phone')}
                         className={`appearance-none block w-full text-gray-700 border rounded py-3 px-4 ${
                           errors.organizerPhone ? "border-red-500" : "border-gray-400"
                         }`}
                         id="organizer-phone"
                         required
-                        aria-label="Phone"
+                        aria-label={t('organizerForm.organizerPhone')}
                       />
                       {errors.organizerPhone && (
                         <p className="text-red-500 text-xs">{errors.organizerPhone}</p>
@@ -421,7 +420,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200"
             >
-              Complete Registration
+              {t('organizerForm.buttons.complete')}
             </button>
           </form>
         </div>

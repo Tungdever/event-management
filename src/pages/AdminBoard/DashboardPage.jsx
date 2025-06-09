@@ -1,11 +1,9 @@
-
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 import { Line, Doughnut } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js';
 import SidebarAdminBoard from "./Sidebar";
-import Swal from 'sweetalert2';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title);
@@ -20,6 +18,7 @@ const DashboardPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [totalPages, setTotalPages] = useState(1);
   const [totalElements, setTotalElements] = useState(0);
+  // Thêm trạng thái cho sắp xếp
   const [sortConfig, setSortConfig] = useState({ key: 'eventName', direction: 'asc' });
   const eventsPerPage = 4;
   const navigate = useNavigate();
@@ -43,7 +42,7 @@ const DashboardPage = () => {
         const monthStr = transaction.transactionDate.substring(4, 6);
         const monthIndex = parseInt(monthStr, 10) - 1;
         if (monthIndex >= 0 && monthIndex < 12) {
-          revenueByMonth[monthIndex] += (transaction.transactionAmount * 0.05);
+          revenueByMonth[monthIndex] += (transaction.transactionAmount * 0.03);
         }
       });
       const revenueOverTime = { labels: months, data: revenueByMonth };
@@ -75,14 +74,8 @@ const DashboardPage = () => {
         },
         params: { search, page, size, sort },
       });
-      console.log('API Response:', response.data);
-      setEvents(prevEvents => {
-        const newEvents = response.data.data.content || [];
-        if (JSON.stringify(prevEvents) !== JSON.stringify(newEvents)) {
-          return newEvents;
-        }
-        return prevEvents;
-      });
+      //console.log('API Response:', response.data);
+      setEvents(response.data.data.content);
       setTotalPages(response.data.data.totalPages || 1);
       setTotalElements(response.data.data.totalElements || 0);
     } catch (err) {
@@ -94,76 +87,32 @@ const DashboardPage = () => {
     }
   };
 
-  const handleReportEvent = async (eventId, reason) => {
-    try {
-      const response = await axios.post(`http://localhost:8080/api/events/report/${eventId}`, { reason }, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Report response:', response.data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Event reported successfully',
-      });
-      const sortParam = sortConfig.key ? `${sortConfig.key},${sortConfig.direction}` : '';
-      getEvents(searchTerm, currentPage - 1, eventsPerPage, sortParam);
-    } catch (err) {
-      console.error('Error reporting event:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to report event: ' + (err.response?.data?.message || err.message),
-      });
-    }
-  };
-
-  const handleReopenEvent = async (eventId) => {
-    try {
-      const response = await axios.post(`http://localhost:8080/api/events/reopen/${eventId}`, {}, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      console.log('Reopen response:', response.data);
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: `Sự kiện đã được mở lại với trạng thái ${response.data.data.eventStatus}`,
-      });
-      const sortParam = sortConfig.key ? `${sortConfig.key},${sortConfig.direction}` : '';
-      getEvents(searchTerm, currentPage - 1, eventsPerPage, sortParam);
-    } catch (err) {
-      console.error('Error reopening event:', err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Failed to reopen event: ' + (err.response?.data?.message || err.message),
-      });
-    }
-  };
-
   useEffect(() => {
     if (!token) {
       navigate("/login");
       return;
     }
-    console.log("Fetching stats with year:", selectedYear);
-    getStats(selectedYear);
-  }, [selectedYear, token, navigate]);
-
-  useEffect(() => {
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    console.log("Fetching events with search:", searchTerm, "page:", currentPage, "sort:", sortConfig);
     const sortParam = sortConfig.key ? `${sortConfig.key},${sortConfig.direction}` : '';
     getEvents(searchTerm, currentPage - 1, eventsPerPage, sortParam);
-  }, [currentPage, searchTerm, sortConfig, token, navigate]);
+  }, [currentPage, searchTerm, sortConfig]);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    getStats(selectedYear);
+  }, [selectedYear]);
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    // Gửi tham số sort dưới dạng "key,direction"
+    const sortParam = sortConfig.key ? `${sortConfig.key},${sortConfig.direction}` : '';
+    getEvents(searchTerm, currentPage - 1, eventsPerPage, sortParam);
+  }, [currentPage, searchTerm, sortConfig]);
 
   const handleYearChange = (e) => {
     setSelectedYear(e.target.value);
@@ -181,20 +130,23 @@ const DashboardPage = () => {
     setCurrentPage(1);
   };
 
+  // Hàm xử lý khi nhấp vào tiêu đề cột để sắp xếp
   const handleSort = (key) => {
     setSortConfig((prevSortConfig) => {
       if (prevSortConfig.key === key) {
+        // Đảo chiều nếu cùng cột
         return {
           key,
           direction: prevSortConfig.direction === 'asc' ? 'desc' : 'asc',
         };
       }
+      // Mặc định sắp xếp tăng dần cho cột mới
       return { key, direction: 'asc' };
     });
-    setCurrentPage(1);
+    setCurrentPage(1); // Quay về trang đầu khi thay đổi sắp xếp
   };
 
-  const stats = useMemo(() => [
+  const stats = [
     { title: 'Total Events', value: data.totalEvents ?? 0, icon: 'fas fa-calendar-check', color: '#a5d8ff', change: data.eventChange },
     { title: `Revenue YTD ${selectedYear ? `(${selectedYear})` : ''}`, value: `${data.totalRevenueYTD?.toLocaleString() ?? 0} Đ`, icon: 'fas fa-dollar-sign', color: '#fed7aa', change: data.revenueChange },
     { title: 'Ticket sold', value: `${data.totalTicketsSold ?? 0}`, icon: 'fas fa-ticket-alt', color: '#d8b4fe', change: data.ticketChange },
@@ -202,68 +154,82 @@ const DashboardPage = () => {
     { title: 'New Organizers This Month', value: data.newOrganizersThisMonth ?? 0, icon: 'fas fa-user-plus', color: '#a7f3d0', change: data.organizerChange },
     { title: 'Booking Conversion Rate', value: `${data.bookingConversionRate ?? 0}%`, icon: 'fas fa-check-circle', color: '#22c55e', change: data.bookingChange },
     { title: 'Top Event Category', value: data.topEventCategory ?? 'N/A', icon: 'fas fa-chart-line', color: '#3b82f6', change: '' },
-    { title: 'User Engagement Score', value: data.userEngagementScore ?? 0, icon: 'fas fa-users', color: '#9ca3af', change: '' },
-  ], [data, selectedYear]);
-
-  const eventTypeCount = useMemo(() => data.events?.reduce((acc, event) => {
+    { title: 'Average Event Attendance Rate', value: `${data.averageAttendanceRate > 0 ? data.averageAttendanceRate?.toFixed(2) : 0}%`, icon: 'fas fa-users', color: '#9ca3af', change: '' },
+  ];
+ // console.log("Stats: ", stats);
+  const eventTypeCount = data.events?.reduce((acc, event) => {
     acc[event.eventType] = (acc[event.eventType] || 0) + 1;
     return acc;
-  }, {}) || {}, [data.events]);
+  }, {}) || {};
 
+  // Hàm chuyển đổi HSL sang Hex
   const hslToHex = (h, s, l) => {
     l /= 100;
     const a = (s * Math.min(l, 1 - l)) / 100;
     const f = (n) => {
       const k = (n + h / 30) % 12;
       const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-      return Math.round(255 * color).toString(16).padStart(2, "0");
+      return Math.round(255 * color)
+        .toString(16)
+        .padStart(2, "0");
     };
     return `#${f(0)}${f(8)}${f(4)}`;
   };
 
+  // Hàm tạo mảng màu phân biệt
   const generateDistinguishableColors = (count) => {
     const colors = [];
-    const saturation = 70;
-    const lightness = 60;
-    const hueStep = 360 / count;
+    const saturation = 70; // Độ bão hòa 70% để màu sắc rực rỡ nhưng không quá chói
+    const lightness = 60; // Độ sáng 60% để tránh màu quá tối hoặc quá nhạt
+
+    // Phân bổ đều hue trên vòng màu (0-360 độ)
+    const hueStep = 360 / count; // Khoảng cách hue giữa các màu
+
     for (let i = 0; i < count; i++) {
-      const hue = i * hueStep;
+      const hue = i * hueStep; // Hue được phân bổ đều
       colors.push(hslToHex(hue, saturation, lightness));
     }
+
     return colors;
   };
 
+  // Tạo mảng màu ngẫu nhiên phân biệt
   const labels = Object.keys(eventTypeCount);
   const randomBackgroundColors = generateDistinguishableColors(labels.length);
   const randomHoverColors = randomBackgroundColors.map((color) => {
+    // Tạo màu hover bằng cách làm sáng hơn (tăng lightness)
     const hue = parseInt(color.substr(1), 16) >> 16;
     const saturation = 70;
-    const lightness = 70;
+    const lightness = 70; // Tăng độ sáng cho hover
     return hslToHex(hue % 360, saturation, lightness);
   });
 
-  const eventTypeData = useMemo(() => ({
+  const eventTypeData = {
     labels: labels,
-    datasets: [{
-      data: Object.values(eventTypeCount),
-      backgroundColor: randomBackgroundColors,
-      hoverBackgroundColor: randomHoverColors,
-      hoverOffset: 4,
-      borderWidth: 1,
-      borderColor: '#ffffff',
-    }],
-  }), [labels, eventTypeCount, randomBackgroundColors, randomHoverColors]);
+    datasets: [
+      {
+        data: Object.values(eventTypeCount),
+        backgroundColor: randomBackgroundColors,
+        hoverBackgroundColor: randomHoverColors,
+        hoverOffset: 4,
+        borderWidth: 1,
+        borderColor: '#ffffff',
+      },
+    ],
+  };
 
-  const revenueOverTimeData = useMemo(() => ({
+  const revenueOverTimeData = {
     labels: data.revenueOverTime?.labels || [],
-    datasets: [{
-      label: 'Revenue',
-      data: data.revenueOverTime?.data || [],
-      fill: false,
-      borderColor: '#3b82f6',
-      tension: 0.1,
-    }],
-  }), [data.revenueOverTime]);
+    datasets: [
+      {
+        label: 'Revenue',
+        data: data.revenueOverTime?.data || [],
+        fill: false,
+        borderColor: '#3b82f6',
+        tension: 0.1,
+      },
+    ],
+  };
 
   const handlePageChange = (pageNumber) => {
     if (pageNumber >= 1 && pageNumber <= totalPages) {
@@ -275,33 +241,38 @@ const DashboardPage = () => {
     const maxButtons = 5;
     const buttons = [];
     const halfMax = Math.floor(maxButtons / 2);
+
     let startPage = Math.max(1, currentPage - halfMax);
     let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+
     if (endPage - startPage + 1 < maxButtons) {
       startPage = Math.max(1, endPage - maxButtons + 1);
     }
+
     if (startPage > 1) {
       buttons.push(1);
       if (startPage > 2) buttons.push('...');
     }
+
     for (let i = startPage; i <= endPage; i++) {
       buttons.push(i);
     }
+
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) buttons.push('...');
       buttons.push(totalPages);
     }
+
     return buttons;
   };
 
+  // Hàm để lấy biểu tượng sắp xếp
   const getSortIcon = (key) => {
     if (sortConfig.key === key) {
       return sortConfig.direction === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
     }
     return 'fas fa-sort';
   };
-
- // console.log("DashboardPage rendered, events:", events, "currentPage:", currentPage);
 
   return (
     <section className="space-y-6 overflow-y-auto">
@@ -372,14 +343,16 @@ const DashboardPage = () => {
                   data={eventTypeData}
                   options={{
                     responsive: true,
-                    maintainAspectRatio: false,
+                    maintainAspectRatio: false, // Allow custom height
                     plugins: {
                       legend: {
-                        position: 'bottom',
+                        position: 'bottom', // Move legend below the chart to save space
                         labels: {
-                          boxWidth: 10,
-                          padding: 5,
-                          font: { size: 12 },
+                          boxWidth: 10, // Reduce legend item box size
+                          padding: 5, // Reduce padding between legend items
+                          font: {
+                            size: 12, // Adjust font size for compactness
+                          },
                         },
                       },
                       title: {
@@ -389,7 +362,7 @@ const DashboardPage = () => {
                       tooltip: { enabled: true },
                     },
                     animation: { duration: 500, easing: 'easeOutQuart' },
-                    cutout: '60%',
+                    cutout: '60%', // Maintain doughnut shape
                   }}
                 />
               </div>
@@ -470,19 +443,15 @@ const DashboardPage = () => {
                     <img
                       src={event.eventImages[0]}
                       alt={event.eventName}
-                      className="object-cover w-16 h-16 rounded-lg shadow-sm sm:w-20"
-                      onError={(e) => {
-                        console.error(`Failed to load image for event ${event.eventName}: ${event.eventImages[0]}`);
-                        e.target.src = "https://via.placeholder.com/150";
-                      }}
+                      className="object-cover w-16 h-16 h-20 rounded-lg shadow-sm sm:w-20"
                     />
                   ) : (
-                    <div className="flex items-center justify-center w-16 h-16 bg-gray-100 rounded-lg shadow-sm sm:w-20">
+                    <div className="flex items-center justify-center w-16 h-16 h-20 bg-gray-100 rounded-lg shadow-sm sm:w-20">
                       <span className="text-xs text-gray-500 sm:text-sm">No image</span>
                     </div>
                   )}
                   <div>
-                    <a href={`/event/${event.eventId}`} className="text-[16px] font-semibold hover:underline">{event.eventName}</a>
+                    <a href = {`/event/${event.eventId}`} className="text-[16px] font-semibold hover:underline">{event.eventName}</a>
                     <p className="text-gray-600">
                       {event.eventLocation
                         ? `${event.eventLocation.venueName}${event.eventLocation.city ? `, ${event.eventLocation.city}` : ''}`
@@ -494,62 +463,7 @@ const DashboardPage = () => {
                 <div className="w-1/6 text-center text-gray-600">{event.eventHost}</div>
                 <div className="w-1/6 text-center text-gray-600">{event.sold}</div>
                 <div className="w-1/6 text-center text-gray-600">{event.eventRevenue.toLocaleString()} Đ</div>
-                <div className="flex items-center justify-center w-1/6 space-x-2 text-center text-gray-600">
-                  <span>{event.eventStatus}</span>
-                  {event.eventStatus !== "Report" && event.eventStatus !== "Complete" && (
-                    <button
-                      onClick={() => {
-                        Swal.fire({
-                          title: 'Report Event',
-                          input: 'textarea',
-                          inputLabel: 'Reason for reporting',
-                          inputPlaceholder: 'Enter the reason for reporting this event...',
-                          showCancelButton: true,
-                          confirmButtonText: 'Report',
-                          cancelButtonText: 'Cancel',
-                          preConfirm: (reason) => {
-                            if (!reason || reason.trim() === '') {
-                              Swal.showValidationMessage('Reason is required');
-                            }
-                            return reason;
-                          },
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            handleReportEvent(event.eventId, result.value);
-                          }
-                        });
-                      }}
-                      className="text-red-500 hover:text-red-700"
-                      title="Report event"
-                    >
-                      <i className="fas fa-flag"></i>
-                    </button>
-                  )}
-                  {event.eventStatus === "Report" && (
-                    <button
-                      onClick={() => {
-                        Swal.fire({
-                          title: 'Reopen Event',
-                          text: 'Are you sure you want to reopen this event? Its status will be updated based on its schedule.',
-                          icon: 'warning',
-                          showCancelButton: true,
-                          confirmButtonColor: '#3085d6',
-                          cancelButtonColor: '#d33',
-                          confirmButtonText: 'Yes, reopen it!',
-                          cancelButtonText: 'Cancel',
-                        }).then((result) => {
-                          if (result.isConfirmed) {
-                            handleReopenEvent(event.eventId);
-                          }
-                        });
-                      }}
-                      className="text-green-500 hover:text-green-700"
-                      title="Reopen event"
-                    >
-                      <i className="fas fa-undo"></i>
-                    </button>
-                  )}
-                </div>
+                <div className="w-1/6 text-center text-gray-600">{event.eventStatus}</div>
               </div>
             ))
           )}

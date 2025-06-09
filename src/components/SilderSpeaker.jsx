@@ -1,30 +1,27 @@
 import React from "react";
+import { useTranslation } from "react-i18next"; // Import useTranslation
 
 const SliderSpeaker = ({ speakers }) => {
+  const { t } = useTranslation(); // Initialize translation hook
+
   const getDefaultSpeakerImage = () => {
     const canvas = document.createElement("canvas");
     canvas.width = 200;
     canvas.height = 200;
     const ctx = canvas.getContext("2d");
 
-    // Nền gradient sáng (xanh lam)
     const gradient = ctx.createLinearGradient(0, 0, 200, 200);
-    gradient.addColorStop(0, "#60A5FA"); // Xanh lam nhạt
-    gradient.addColorStop(1, "#3B82F6"); // Xanh lam sáng
+    gradient.addColorStop(0, "#60A5FA");
+    gradient.addColorStop(1, "#3B82F6");
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 200, 200);
 
-    // Biểu tượng hình người
-    ctx.fillStyle = "#1E3A8A"; // Xanh đậm cho silhouette
-
-    // Đầu (hình tròn)
+    ctx.fillStyle = "#1E3A8A";
     ctx.beginPath();
-    ctx.arc(100, 60, 30, 0, Math.PI * 2); // Vẽ đầu tại (100, 60), bán kính 30
+    ctx.arc(100, 60, 30, 0, Math.PI * 2);
     ctx.fill();
-
-    // Vai và thân (hình chữ nhật bo góc)
     ctx.beginPath();
-    ctx.roundRect(70, 90, 60, 80, 10); // Vẽ thân từ (70, 90), rộng 60, cao 80, góc bo 10
+    ctx.roundRect(70, 90, 60, 80, 10);
     ctx.fill();
 
     return canvas.toDataURL("image/png");
@@ -34,14 +31,14 @@ const SliderSpeaker = ({ speakers }) => {
     <div className="w-full max-w-[540px] sm:max-w-[600px] lg:max-w-[780px] overflow-x-auto my-6 sm:my-8 lg:my-10 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
       <div className="flex gap-2 sm:gap-3 lg:gap-4 w-max">
         <h2 className="mb-2 text-lg font-bold text-gray-800 sm:text-xl lg:text-xl">
-                Speakers
-              </h2>
+          {t("sliderSpeaker.speakers")} {/* Translated "Speakers" */}
+        </h2>
         {speakers.map((speaker) => (
           <a
             key={speaker.speakerId}
             href="#"
             className="group relative block bg-black w-[140px] sm:w-[160px] lg:w-[180px] h-[200px] sm:h-[240px] lg:h-[260px] flex-shrink-0 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-            aria-label={`Xem chi tiết diễn giả ${speaker.speakerName}`}
+            aria-label={t("sliderSpeaker.speakers") + ` ${speaker.speakerName}`} // Translated aria-label
           >
             <img
               alt={speaker.speakerName}

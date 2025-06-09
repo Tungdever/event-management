@@ -1,5 +1,5 @@
-// EventForm.jsx
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import SectionEvent from "./SegmentEvent";
 import UploadContainer from "./UploadImg";
 import DatetimeLocation from "./EventDateLocate";
@@ -11,7 +11,8 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import DOMPurify from 'dompurify';
 
-const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
+const EventForm = ({ event, setEvent, onNext, isReadOnly }) => {
+  const { t } = useTranslation();
   const [showOverview, setShowOverview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [pasteError, setPasteError] = useState('');
@@ -43,7 +44,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
         const newHtml = `<p>${truncatedText}</p>`;
         editor.commands.setContent(newHtml);
         setEvent({ ...event, eventDesc: newHtml });
-        setPasteError('Content pasted exceeds 20000 characters and has been truncated.');
+        setPasteError(t('eventForm.pasteError'));
       }
     },
     editorProps: {
@@ -57,7 +58,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
             view.dispatch(
               view.state.tr.insertText(allowedText, view.state.selection.from)
             );
-            setPasteError('Content pasted exceeds 20000 characters and has been truncated.');
+            setPasteError(t('eventForm.pasteError'));
             return true;
           }
         }
@@ -127,7 +128,6 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
 
   // Xử lý khi nhấn Complete
   const handleComplete = () => {
-    // if (isReadOnly) return;
     if (isFormValid()) {
       setShowOverview(false);
     }
@@ -152,7 +152,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
     <div className="max-w-3xl p-4 mx-auto">
       {isReadOnly && (
         <p className="mb-4 text-red-500">
-          Sự kiện đã hoàn tất, chỉ có thể xem, không thể chỉnh sửa.
+          {t('eventForm.readOnlyMessage')}
         </p>
       )}
       {/* Image Upload Section */}
@@ -169,23 +169,25 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
           onClick={() => setShowOverview(true)}
         >
           <h2 className="mb-2 text-5xl font-semibold">
-            {event.eventName || "Untitled Event"}
+            {event.eventName || t('eventForm.noTitle')}
           </h2>
           <div
             className="prose text-gray-600 max-w-none"
             dangerouslySetInnerHTML={{
               __html: event.eventDesc
                 ? DOMPurify.sanitize(event.eventDesc)
-                : "No summary provided",
+                : t('eventForm.noSummary'),
             }}
           />
         </div>
       ) : (
         <div className="bg-white border border-blue-500 rounded-lg p-6 w-full max-w-[710px] mb-4">
-          <h1 className="mb-6 text-2xl font-bold">Event Overview</h1>
+          <h1 className="mb-6 text-2xl font-bold">{t('eventForm.eventOverview')}</h1>
 
           <div className="mb-6">
-            <h2 className="flex mb-2 text-lg font-semibold ">Event title <p className="ml-2 text-red-500">*</p></h2>
+            <h2 className="flex mb-2 text-lg font-semibold">
+              {t('eventForm.eventTitle')} <p className="ml-2 text-red-500">{t('eventForm.required')}</p>
+            </h2>
             <label className="block">
               <input
                 type="text"
@@ -196,13 +198,15 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                 disabled={isReadOnly}
               />
               {!event.eventName?.trim() && (
-                <p className="mt-1 text-sm text-red-500">Event title is required</p>
+                <p className="mt-1 text-sm text-red-500">{t('eventForm.eventTitleRequired')}</p>
               )}
             </label>
           </div>
 
           <div className="mb-6">
-            <h2 className="flex mb-2 text-lg font-semibold">Summary <p className="ml-2 text-red-500">*</p></h2>
+            <h2 className="flex mb-2 text-lg font-semibold">
+              {t('eventForm.summary')} <p className="ml-2 text-red-500">{t('eventForm.required')}</p>
+            </h2>
             <label className="block">
               <div className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm">
                 <div className="p-2 border-b border-gray-200 bg-gray-50 rounded-t-md">
@@ -212,9 +216,8 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                     disabled={isReadOnly}
                     className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bold') ? 'bg-blue-600 text-white' : 'bg-none'} 
                     ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
-        
                   >
-                    Bold
+                    {t('eventForm.bold')}
                   </button>
                   <button
                     type="button"
@@ -223,7 +226,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                     className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('italic') ? 'bg-blue-600 text-white' : 'bg-none'}
                     ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Italic
+                    {t('eventForm.italic')}
                   </button>
                   <button
                     type="button"
@@ -232,7 +235,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                     className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('underline') ? 'bg-blue-600 text-white' : 'bg-none'}
                     ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Underline
+                    {t('eventForm.underline')}
                   </button>
                   <button
                     type="button"
@@ -241,7 +244,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                     className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('bulletList') ? 'bg-blue-600 text-white' : 'bg-none'}
                     ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Bullet List
+                    {t('eventForm.bulletList')}
                   </button>
                   <button
                     type="button"
@@ -250,7 +253,7 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                     className={`px-2 py-1 mr-1 border border-gray-300 rounded cursor-pointer hover:bg-gray-100 ${editor?.isActive('link') ? 'bg-blue-600 text-white' : 'bg-none'}
                     ${isReadOnly ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
-                    Link
+                    {t('eventForm.link')}
                   </button>
                 </div>
                 <EditorContent
@@ -259,11 +262,11 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
                 />
               </div>
               {(!event.eventDesc || event.eventDesc.replace(/<[^>]+>/g, '').trim() === '') && (
-                <p className="mt-1 text-sm text-red-500">Summary is required</p>
+                <p className="mt-1 text-sm text-red-500">{t('eventForm.summaryRequired')}</p>
               )}
             </label>
             <div className="mt-1 text-right text-gray-600">
-              {getCharacterCount()} / 20000
+              {t('eventForm.characterCount', { count: getCharacterCount() })}
             </div>
             {pasteError && (
               <div className="mt-1 text-red-500">{pasteError}</div>
@@ -274,9 +277,9 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
             <button
               className={`mt-4 px-6 py-2 rounded-lg ${isFormValid() ? 'bg-blue-500 text-white' : 'bg-gray-300 text-gray-500 cursor-not-allowed'}`}
               onClick={handleComplete}
-              disabled={ !isFormValid()}
+              disabled={!isFormValid()}
             >
-              Complete
+              {t('eventForm.complete')}
             </button>
           </div>
         </div>
@@ -302,12 +305,12 @@ const EventForm = ({ event, setEvent, onNext,isReadOnly }) => {
 
       {/* Save Button */}
       <div className="text-right">
-      {!isReadOnly && (
+        {!isReadOnly && (
           <button
             className="px-6 py-2 text-white bg-orange-600 rounded-lg"
             onClick={onNext}
           >
-            Save and continue
+            {t('eventForm.saveAndContinue')}
           </button>
         )}
       </div>

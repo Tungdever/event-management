@@ -7,6 +7,8 @@ import FavoriteButton from "../../components/FavoriteButton";
 import DOMPurify from "dompurify";
 import { CiCalendarDate, CiTimer, CiLocationOn } from "react-icons/ci";
 import { FaEye } from "react-icons/fa6";
+import { useTranslation } from "react-i18next"; // Import useTranslation
+
 const popularCities = [
   {
     key: "ho-chi-minh",
@@ -95,9 +97,9 @@ const AllEvent = () => {
   const handleEventClick = (eventId) => {
     navigate(`/event/${eventId}`);
   };
-
+  const { t } = useTranslation();
   const fetchAllEvents = async () => {
-    
+
     try {
       setIsLoading(true);
       const response = await fetch("http://localhost:8080/api/events/all");
@@ -117,7 +119,7 @@ const AllEvent = () => {
 
   useEffect(() => {
     fetchAllEvents();
-  }, []);
+  }, [t]);
 
   const sanitizeAndTruncate = (html, maxLength) => {
     const sanitizedHtml = DOMPurify.sanitize(html || "");
@@ -128,7 +130,7 @@ const AllEvent = () => {
     const truncatedPlainText = truncateText(plainText, maxLength);
     return `<p>${truncatedPlainText}</p>`;
   };
-  
+
   const handleViewMore = () => {
     if (displayedEvents.length >= events.length) return;
 
@@ -165,7 +167,7 @@ const AllEvent = () => {
   if (error) {
     return (
       <div className="p-4 text-center text-red-600">
-        Lỗi: {error}. Vui lòng thử lại sau.
+        {t("pageViewAll.error", { message: error })}
       </div>
     );
   }
@@ -173,7 +175,7 @@ const AllEvent = () => {
   if (events.length === 0) {
     return (
       <div className="p-4 text-center text-gray-600">
-        Không có sự kiện nào để hiển thị.
+        {t("pageViewAll.noEvents")}
       </div>
     );
   }
@@ -193,10 +195,10 @@ const AllEvent = () => {
           {/* Nội dung */}
           <div className="relative flex flex-col items-start justify-center h-full px-4 text-center">
             <h1 className="font-mono text-4xl font-bold text-white md:text-5xl drop-shadow-lg">
-              Popular Events
+              {t("pageViewAll.popularEvents")} {/* Translated "Popular Events" */}
             </h1>
             <h2 className="mt-2 font-mono text-lg text-gray-200 md:text-xl drop-shadow-md">
-              Discover the most exciting experiences
+              {t("pageViewAll.discoverPrompt")} {/* Translated prompt */}
             </h2>
           </div>
         </div>
@@ -211,18 +213,18 @@ const AllEvent = () => {
               {/* Hình ảnh sự kiện */}
               <div className="w-full h-40 overflow-hidden bg-gray-100 rounded-t-lg">
                 {event.eventImages && event.eventImages.length > 0 ? (
-                 
+
                   // Trong một component khác, ví dụ SearchPage
-                <div
-                  className="relative w-full h-full bg-center bg-cover"
-                  style={{ backgroundImage: `url(${event.eventImages[0]})` }}
-                >
-                  <FavoriteButton eventId={event.eventId} />
-                </div>
+                  <div
+                    className="relative w-full h-full bg-center bg-cover"
+                    style={{ backgroundImage: `url(${event.eventImages[0]})` }}
+                  >
+                    <FavoriteButton eventId={event.eventId} />
+                  </div>
                 ) : (
                   <img
                     src="https://via.placeholder.com/300x150"
-                    alt="Default Event"
+                    alt={t("pageViewAll.unnamedEvent")}
                     className="object-cover w-full h-full"
                   />
                 )}
@@ -231,7 +233,7 @@ const AllEvent = () => {
               {/* Thông tin sự kiện */}
               <div className="p-4">
                 <h3 className="text-lg font-semibold text-gray-900 truncate">
-                  {truncateText(event.eventName, 25) || "Sự kiện không tên"}
+                  {truncateText(event.eventName, 25) || t("pageViewAll.unnamedEvent")} 
                 </h3>
                 <p className="mt-1 text-sm text-gray-600 truncate">
                   {event?.eventDesc ? (
@@ -244,30 +246,30 @@ const AllEvent = () => {
                     "No description available"
                   )}
                 </p>
-               <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
-                <CiCalendarDate className="inline-block mr-1" />{" "}
-                {new Date(event.eventStart).toLocaleDateString("vi-VN")}
-              </p>
-              <p className="text-xs text-gray-700 sm:text-sm">
-                <CiTimer className="inline-block mr-1" />{" "}
-                {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}{" "}
-                -{" "}
-                {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </p>
-              <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
-                <CiLocationOn className="inline-block mr-1" />{" "}
-                {getLocation(event.eventLocation)}
-              </p>
-              <p className="mt-1 text-xs text-gray-700 sm:text-sm">
-                <FaEye className="inline-block mr-1" />{" "}
-                {event?.viewCount ? `${event.viewCount}` : "0"}
-              </p>
+                <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
+                  <CiCalendarDate className="inline-block mr-1" />{" "}
+                  {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+                </p>
+                <p className="text-xs text-gray-700 sm:text-sm">
+                  <CiTimer className="inline-block mr-1" />{" "}
+                  {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}{" "}
+                  -{" "}
+                  {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
+                </p>
+                <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
+                  <CiLocationOn className="inline-block mr-1" />{" "}
+                  {getLocation(event.eventLocation)}
+                </p>
+                <p className="mt-1 text-xs text-gray-700 sm:text-sm">
+                  <FaEye className="inline-block mr-1" />{" "}
+                  {event?.viewCount ? `${event.viewCount}` : "0"}
+                </p>
 
 
               </div>
@@ -284,7 +286,7 @@ const AllEvent = () => {
                     </span>
                   ))
                 ) : (
-                  <span className="text-xs text-gray-600">Không có tag</span>
+                  <span className="text-xs text-gray-600">{t("pageViewAll.noTags")}</span> 
                 )}
               </div>
             </div>
@@ -301,27 +303,27 @@ const AllEvent = () => {
                 onClick={handleViewMore}
                 className="px-12 py-4  text-[#6F8579] rounded-[4px] hover:bg-gray-100 transition-colors border border-[#C2C4D0]"
               >
-                View More
+                {t("pageViewAll.viewMore")}
                 <i className="ml-2 fa-solid fa-circle-chevron-down"></i>
               </button>
             )}
           </div>
         )}
         <h2 className="mt-6 mb-3 text-base font-bold sm:text-lg lg:text-xl sm:mt-8 sm:mb-4">
-                Popular cities
-              </h2>
-              <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
-                {popularCities.map((city, index) => (
-                  <a
-                    key={index}
-                   
-                    className="flex items-center px-3 py-1 space-x-1 text-xs text-gray-900 bg-white rounded-full shadow-sm sm:px-4 sm:py-2 sm:space-x-2 sm:text-sm lg:text-base"
-                  >
-                    <span>Things to do in {city.name}</span>
-                   
-                  </a>
-                ))}
-              </div>
+          {t("pageViewAll.popularCities")}
+        </h2>
+        <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
+          {popularCities.map((city, index) => (
+            <a
+              key={index}
+
+              className="flex items-center px-3 py-1 space-x-1 text-xs text-gray-900 bg-white rounded-full shadow-sm sm:px-4 sm:py-2 sm:space-x-2 sm:text-sm lg:text-base"
+            >
+              <span>{t("pageViewAll.thingsToDoIn", { city: city.name })}</span>
+
+            </a>
+          ))}
+        </div>
         <Footer />
       </div>
     </>

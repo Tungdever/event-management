@@ -6,12 +6,14 @@ import { useNavigate } from 'react-router-dom';
 import BackIcon from "./ComponentSignup/BackIcon";
 import ProgressBar from "./ComponentSignup/ProgressBar";
 import Swal from 'sweetalert2';
+import Footer from "../../components/Footer";
+import { useTranslation } from 'react-i18next';
 const RoleStep = ({ onNext, onPrev, setRole }) => {
+  const { t } = useTranslation();
   const handleRoleSelect = (selectedRole) => {
     setRole(selectedRole);
     onNext();
   };
-
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-[800px] mx-auto p-6">
@@ -20,14 +22,14 @@ const RoleStep = ({ onNext, onPrev, setRole }) => {
           <div className="flex items-center justify-center px-6 py-8">
             <BackIcon onClick={onPrev} />
             <h1 className="text-4xl font-bold flex items-center justify-center mb-4">
-              Welcome to Management Event!
+              {t('signUp.roleStep.title')}
             </h1>
           </div>
           <div className="p-6 flex justify-center space-x-4">
             <section className="flex flex-col md:flex-row justify-center gap-8 max-w-5xl mx-auto">
               <article className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-center p-8 max-w-[320px] mx-auto">
                 <img
-                  alt="Illustration of a person with pink hair wearing a dark purple polka dot shirt holding a red ticket"
+                  alt={t('signUp.roleStep.attendeeImageAlt')}
                   className="w-40 h-40 rounded-full"
                   height="160"
                   loading="lazy"
@@ -35,19 +37,19 @@ const RoleStep = ({ onNext, onPrev, setRole }) => {
                   width="160"
                 />
                 <h2 className="mt-6 font-semibold text-xl text-[#1B0B3B]">
-                  Find an experience
+                  {t('signUp.roleStep.attendeeTitle')}
                 </h2>
                 <button
                   className="mt-6 px-6 py-2 border border-gray-400 rounded-md text-[#1B0B3B] text-sm font-normal hover:bg-gray-50 transition"
                   type="button"
                   onClick={() => handleRoleSelect("attendee")}
                 >
-                  Tell us what you love
+                  {t('signUp.roleStep.attendeeButton')}
                 </button>
               </article>
               <article className="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col items-center p-8 max-w-[320px] mx-auto">
                 <img
-                  alt="Illustration of a person with curly black hair wearing a gray polka dot jacket holding a calendar"
+                  alt={t('signUp.roleStep.organizerImageAlt')}
                   className="w-40 h-40 rounded-full"
                   height="160"
                   loading="lazy"
@@ -55,14 +57,14 @@ const RoleStep = ({ onNext, onPrev, setRole }) => {
                   width="160"
                 />
                 <h2 className="mt-6 font-semibold text-xl text-[#1B0B3B]">
-                  Organize an event
+                  {t('signUp.roleStep.organizerTitle')}
                 </h2>
                 <button
                   className="mt-6 px-6 py-2 border border-gray-400 rounded-md text-[#1B0B3B] text-sm font-normal hover:bg-gray-50 transition"
                   type="button"
                   onClick={() => handleRoleSelect("organizer")}
                 >
-                  Plan your best event ever
+                  {t('signUp.roleStep.organizerButton')}
                 </button>
               </article>
             </section>
@@ -74,12 +76,13 @@ const RoleStep = ({ onNext, onPrev, setRole }) => {
 };
 
 const NameStep = ({ onNext, onPrev, setUserData, email }) => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
 
   const validatePassword = (value) => {
-    if (!value) return "Please enter a password";
-    if (value.length < 8) return "Password must be at least 8 characters long";
+    if (!value) return t('signUp.nameStep.passwordRequiredError');
+    if (value.length < 8) return t('signUp.nameStep.passwordLengthError');
     return "";
   };
 
@@ -103,12 +106,12 @@ const NameStep = ({ onNext, onPrev, setUserData, email }) => {
         <ProgressBar currentStep={3} totalSteps={6} />
         <div className="bg-white rounded-[6px] shadow-2xl overflow-hidden w-[450px] h-[500px]">
           <h1 className="text-xl font-bold text-orange-500 mt-2 px-6 py-2 hover:cursor-pointer">
-            Management Event
+            {t('signUp.brandName')}
           </h1>
           <div className="px-6 pt-6 pb-8">
             <h2 className="text-3xl font-bold flex items-center">
               <BackIcon onClick={onPrev} />
-              Let's create your account
+              {t('signUp.nameStep.title')}
             </h2>
           </div>
           <form onSubmit={handleSubmit} className="px-10 py-6 space-y-6">
@@ -126,10 +129,9 @@ const NameStep = ({ onNext, onPrev, setUserData, email }) => {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password"
-                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ${
-                  errors.password ? "border-red-500" : ""
-                }`}
+                placeholder={t('signUp.nameStep.passwordPlaceholder')}
+                className={`w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 ${errors.password ? "border-red-500" : ""
+                  }`}
                 required
                 aria-label="Password"
               />
@@ -141,7 +143,7 @@ const NameStep = ({ onNext, onPrev, setUserData, email }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-red-500 to-red-500 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200"
             >
-              Continue
+             {t('signUp.nameStep.submitButton')}
             </button>
           </form>
         </div>
@@ -151,17 +153,17 @@ const NameStep = ({ onNext, onPrev, setUserData, email }) => {
 };
 
 const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (code.length !== 6) {
-     
-       Swal.fire ({
-        Icon: 'warning',
-        Title: 'warning:',
-        Text: 'Please enter a valid 6-digit code',
+      Swal.fire({
+        icon: 'warning',
+        title: t('signUp.verificationStep.warningTitle'),
+        text: t('signUp.verificationStep.invalidCodeWarning'),
       });
       return;
     }
@@ -169,11 +171,10 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
     if (code === verificationCode) {
       onNext();
     } else {
-     
-       Swal.fire ({
-        Icon: 'error',
-        Title: 'error',
-        Text: 'Invalid verification code',
+      Swal.fire({
+        icon: 'error',
+        title: t('signUp.verificationStep.errorTitle'),
+        text: t('signUp.verificationStep.invalidCodeError'),
       });
     }
   };
@@ -184,15 +185,15 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
         <ProgressBar currentStep={2} totalSteps={6} />
         <div className="bg-white rounded-[6px] shadow-2xl overflow-hidden w-[450px]">
           <h1 className="text-xl font-bold text-orange-500 mt-2 px-6 py-2 hover:cursor-pointer">
-            Management Event
+            {t('signUp.brandName')}
           </h1>
           <div className="px-6 pt-6 pb-4">
             <BackIcon onClick={onPrev} />
             <h2 className="text-3xl font-bold flex items-center mb-4">
-              Check your email for a code
+              {t('signUp.verificationStep.title')}
             </h2>
             <span className="text-[13px] text-gray-500">
-              Check your inbox and enter the code we have sent you
+              {t('signUp.verificationStep.description')}
             </span>
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-6">
@@ -207,7 +208,7 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
               type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="Enter code"
+              placeholder={t('signUp.verificationStep.codePlaceholder')}
               maxLength="6"
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               required
@@ -217,7 +218,7 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
               type="submit"
               className="w-full bg-gradient-to-r from-orange-400 to-orange-400 text-white p-3 rounded-lg hover:scale-105 transition-transform duration-200"
             >
-              Submit
+              {t('signUp.verificationStep.submitButton')}
             </button>
           </form>
         </div>
@@ -227,63 +228,64 @@ const VerificationStep = ({ email, verificationCode, onNext, onPrev }) => {
 };
 
 const EmailStep = ({ onNext, setEmail }) => {
+  const { t } = useTranslation();
   const [inputEmail, setInputEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  setIsLoading(true);
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
 
-  try {
-    const response = await fetch(`http://localhost:8080/api/auth/send-verification-code/${inputEmail}`, {
-      method: 'POST',
-    });
+    try {
+      const response = await fetch(`http://localhost:8080/api/auth/send-verification-code/${inputEmail}`, {
+        method: 'POST',
+      });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.code || 'Unable to send verification code');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.code || 'Unable to send verification code');
+      }
+
+      const data = await response.text();
+      setEmail(inputEmail);
+
+      Swal.fire({
+        icon: 'success',
+        title: t('signUp.verificationStep.successTitle'),
+        text: t('signUp.verificationStep.verificationSuccess', { email: inputEmail }),
+      });
+      onNext(data);
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: t('signUp.verificationStep.errorTitle'),
+        text: t('signUp.verificationStep.verificationError'),
+      });
+    } finally {
+      setIsLoading(false);
     }
-
-    const data = await response.text();
-    setEmail(inputEmail);
-
-    Swal.fire({
-      icon: 'success', 
-      title: 'success', 
-      text: `Verification code sent to ${inputEmail}`, 
-    });
-    onNext(data);
-  } catch (error) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.message, 
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+  };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md mx-auto p-6">
         <ProgressBar currentStep={1} totalSteps={6} />
         <div className="bg-white rounded-[6px] shadow-2xl overflow-hidden h-[400px] w-[450px]">
           <h1 className="text-xl font-bold text-orange-500 mt-2 px-6 py-2 hover:cursor-pointer">
-            Management Event
+            {t('signUp.brandName')}
           </h1>
           <div className="to-red-400 p-6 mb-4">
-            <h2 className="text-3xl font-bold">Welcome!</h2>
-            <h2 className="text-3xl font-bold">What's your email?</h2>
+            <h2 className="text-3xl font-bold">{t('signUp.emailStep.titleWelcome')}</h2>
+            <h2 className="text-3xl font-bold">{t('signUp.emailStep.titleEmail')}</h2>
           </div>
           <form onSubmit={handleSubmit} className="p-6 space-y-10">
             <input
               type="email"
               value={inputEmail}
               onChange={(e) => setInputEmail(e.target.value)}
-              placeholder="Email"
+              placeholder={t('signUp.emailPlaceholder')}
               className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
               required
-              aria-label="Email"
+              aria-label={t('signUp.emailStep.submittingButton')}
               disabled={isLoading}
             />
             <button
@@ -313,7 +315,7 @@ const handleSubmit = async (e) => {
                   ></path>
                 </svg>
               ) : (
-                "Continue"
+                t('signUp.emailStep.submitButton')
               )}
             </button>
           </form>
@@ -324,6 +326,7 @@ const handleSubmit = async (e) => {
 };
 
 const ErrorBoundary = ({ children }) => {
+  const { t } = useTranslation();
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
@@ -338,8 +341,8 @@ const ErrorBoundary = ({ children }) => {
   if (hasError) {
     return (
       <div className="text-center text-red-500 p-8">
-        <h2>An error occurred.</h2>
-        <p>Please refresh the page or try again later.</p>
+        <h2>{t('signUp.errorBoundary.title')}</h2>
+        <p>{t('signUp.errorBoundary.message')}</p>
       </div>
     );
   }
@@ -348,6 +351,7 @@ const ErrorBoundary = ({ children }) => {
 };
 
 const EventSignUp = () => {
+
   const [currentStep, setCurrentStep] = useState(1);
   const [nextStepToShow, setNextStepToShow] = useState(null);
   const [isExiting, setIsExiting] = useState(false);
@@ -397,86 +401,88 @@ const EventSignUp = () => {
   };
 
   const renderStep = () => {
+
     const animationClass = isExiting
       ? direction === "forward"
         ? "animate-slide-out-left"
         : "animate-slide-out-right"
       : direction === "forward"
-      ? "animate-slide-in-right"
-      : "animate-slide-in-left";
+        ? "animate-slide-in-right"
+        : "animate-slide-in-left";
     return (
-      <div
-        key={transitionKey}
-        className={`will-change-transform-opacity ${animationClass}`}
-        aria-live="polite"
-      >
-        {(() => {
-          const stepToRender = nextStepToShow || currentStep;
-          switch (stepToRender) {
-            case 1:
-              return <EmailStep onNext={nextStep} setEmail={setEmail} />;
-            case 2:
-              return (
-                <VerificationStep
-                  email={email}
-                  verificationCode={verificationCode}
-                  onNext={nextStep}
-                  onPrev={prevStep}
-                />
-              );
-            case 3:
-              return (
-                <NameStep
-                  onNext={nextStep}
-                  onPrev={prevStep}
-                  setUserData={setUserData}
-                  email={email}
-                />
-              );
-            case 4:
-              return (
-                <RoleStep
-                  onNext={nextStep}
-                  onPrev={prevStep}
-                  setRole={setRole}
-                />
-              );
-            case 5:
-              return role === "attendee" ? (
-                <AttendeeForm
-                  email={email}
-                  userData={userData}
-                  onComplete={nextStep}
-                  onPrev={prevStep}
-                />
-              ) : (
-                <OrganizerForm
-                  email={email}
-                  userData={userData}
-                  onComplete={nextStep}
-                  onPrev={prevStep}
-                />
-              );
-            case 6:
-              return role === "attendee" ? (
-                <PreferenceStep
-                  email={email}
-                  userData={userData}
-                  onComplete={nextStep}
-                  onPrev={prevStep}
-                />
-              ) : (
-                null // Organizer không cần bước này, chuyển thẳng đến đăng nhập
-              );
-            default:
-              return null;
-          }
-        })()}
-      </div>
+      <>
+        <div
+          key={transitionKey}
+          className={`will-change-transform-opacity ${animationClass}`}
+          aria-live="polite"
+        >
+          {(() => {
+            const stepToRender = nextStepToShow || currentStep;
+            switch (stepToRender) {
+              case 1:
+                return <EmailStep onNext={nextStep} setEmail={setEmail} />;
+              case 2:
+                return (
+                  <VerificationStep
+                    email={email}
+                    verificationCode={verificationCode}
+                    onNext={nextStep}
+                    onPrev={prevStep}
+                  />
+                );
+              case 3:
+                return (
+                  <NameStep
+                    onNext={nextStep}
+                    onPrev={prevStep}
+                    setUserData={setUserData}
+                    email={email}
+                  />
+                );
+              case 4:
+                return (
+                  <RoleStep
+                    onNext={nextStep}
+                    onPrev={prevStep}
+                    setRole={setRole}
+                  />
+                );
+              case 5:
+                return role === "attendee" ? (
+                  <AttendeeForm
+                    email={email}
+                    userData={userData}
+                    onComplete={nextStep}
+                    onPrev={prevStep}
+                  />
+                ) : (
+                  <OrganizerForm
+                    email={email}
+                    userData={userData}
+                    onComplete={nextStep}
+                    onPrev={prevStep}
+                  />
+                );
+              case 6:
+                return role === "attendee" ? (
+                  <PreferenceStep
+                    email={email}
+                    userData={userData}
+                    onComplete={nextStep}
+                    onPrev={prevStep}
+                  />
+                ) : (
+                  null // Organizer không cần bước này, chuyển thẳng đến đăng nhập
+                );
+              default:
+                return null;
+            }
+          })()}
+        </div>
+
+      </>
     );
   };
-
   return <ErrorBoundary>{renderStep()}</ErrorBoundary>;
 };
-
 export default EventSignUp;

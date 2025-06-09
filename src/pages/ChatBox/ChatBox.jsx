@@ -8,8 +8,10 @@ import { IoIosLink } from "react-icons/io";
 import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import Swal from "sweetalert2";
+import { useTranslation } from 'react-i18next';
 
 const ChatBox = () => {
+  const { t } = useTranslation();
   const { stompClient, isConnected } = useWebSocket();
   const [users, setUsers] = useState([]);
   const [searchedUsers, setSearchedUsers] = useState([]);
@@ -52,8 +54,8 @@ const ChatBox = () => {
         if (!payload.userId || !payload.sub) {
           Swal.fire({
             icon: "error",
-            title: "error",
-            text: "Invalid login session. Please login again.",
+            title: t('errors.generic'),
+            text: t('errors.invalidSession'),
           });
           return;
         }
@@ -65,15 +67,15 @@ const ChatBox = () => {
       } catch (e) {
         Swal.fire({
           icon: "error",
-          title: "error",
-          text: "Unable to authenticate user. Please log in again.",
+          title: t('errors.generic'),
+          text: t('errors.authFailed'),
         });
       }
     } else {
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Please login to use chat feature.",
+        title: t('errors.generic'),
+        text: t('errors.loginRequired'),
       });
     }
   }, [token]);
@@ -107,8 +109,8 @@ const ChatBox = () => {
       console.error("Error fetching user list:", error);
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Unable to load user list.",
+        title: t('errors.generic'),
+        text: t('errors.loadUserListFailed'),
       });
     }
   };
@@ -142,7 +144,6 @@ const ChatBox = () => {
       setSearchedUsers(formattedUsers);
     } catch (error) {
       console.error("Error searching users:", error);
-      // Do not show Swal for normal search failures
       setSearchedUsers([]);
     }
   };
@@ -169,7 +170,6 @@ const ChatBox = () => {
         )
         .then((response) => {
           setMessages(response.data);
-          // Clear unread count for the selected user
           setUsers((prev) =>
             prev.map((user) =>
               user.userId === selectedUser.userId
@@ -189,8 +189,8 @@ const ChatBox = () => {
           console.error("Error fetching chat history:", error);
           Swal.fire({
             icon: "error",
-            title: "error",
-            text: "Unable to load chat history. Please try again.",
+            title: t('errors.generic'),
+            text: t('errors.loadChatHistoryFailed'),
           });
         });
     }
@@ -224,7 +224,6 @@ const ChatBox = () => {
               return [...prevMessages, receivedMessage];
             });
           } else {
-            // Update unread count for the sender
             const senderEmail = receivedMessage.senderEmail;
             setUsers((prev) =>
               prev.map((user) =>
@@ -326,8 +325,8 @@ const ChatBox = () => {
       console.error("Error uploading file:", error);
       Swal.fire({
         icon: "error",
-        title: "error",
-        text: "Unable to upload file.",
+        title: t('errors.generic'),
+        text: t('errors.uploadFileFailed'),
       });
     }
   };
@@ -357,14 +356,14 @@ const ChatBox = () => {
       if (!isConnected) {
         Swal.fire({
           icon: "error",
-          title: "error",
-          text: "Unable to send message: WebSocket connection lost.",
+          title: t('errors.generic'),
+          text: t('errors.websocketLost'),
         });
       } else if (!selectedUser) {
         Swal.fire({
           icon: "error",
-          title: "error",
-          text: "Please select a user to chat with.",
+          title: t('errors.generic'),
+          text: t('errors.noUserSelected'),
         });
       }
     }
@@ -376,12 +375,12 @@ const ChatBox = () => {
 
   const renderMessageContent = (msg) => {
     if (!msg || !msg.contentType) {
-      return <p className="text-red-500">Tin nhắn không hợp lệ</p>;
+      return <p className="text-red-500">{t('messages.invalidMessage')}</p>;
     }
     try {
       if (msg.contentType === "IMAGE") {
         if (!msg.mediaUrl) {
-          return <p className="text-red-500">Không có URL hình ảnh</p>;
+          return <p className="text-red-500">{t('messages.noImageUrl')}</p>;
         }
         return (
           <img
@@ -391,7 +390,7 @@ const ChatBox = () => {
             onClick={() => openPreview(msg.mediaUrl, "IMAGE")}
             onError={(e) => {
               e.target.replaceWith(
-                <span className="text-red-500">Hình ảnh không tải được</span>
+                <span className="text-red-500">{t('messages.imageLoadFailed')}</span>
               );
             }}
           />
@@ -405,22 +404,22 @@ const ChatBox = () => {
             onClick={() => openPreview(msg.mediaUrl, "VIDEO")}
           >
             <source src={`${MEDIA_BASE_URL}${msg.mediaUrl}`} type="video/mp4" />
-            Trình duyệt của bạn không hỗ trợ video.
+            {t('messages.videoNotSupported')}
           </video>
         );
       }
       if (msg.contentType === "TEXT" || msg.contentType === "EMOJI") {
-        return <p>{msg.content || "(trống)"}</p>;
+        return <p>{msg.content || t('messages.emptyContent')}</p>;
       }
       return (
         <p>
           {typeof msg.content === "string"
             ? msg.content
-            : "(nội dung không xác định)"}
+            : t('messages.undefinedContent')}
         </p>
       );
     } catch (error) {
-      return <p className="text-red-500">Lỗi hiển thị tin nhắn</p>;
+      return <p className="text-red-500">{t('messages.displayError')}</p>;
     }
   };
 
@@ -438,14 +437,14 @@ const ChatBox = () => {
         } sm:translate-x-0`}
       >
         <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-800">Tin nhắn</h2>
+          <h2 className="text-xl font-bold text-gray-800">{t('chatBox.title')}</h2>
           <div className="mt-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg p-2 shadow-sm">
             <FaSearch className="text-gray-500 mr-2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Tìm kiếm người dùng..."
+              placeholder={t('chatBox.searchPlaceholder')}
               className="flex-1 bg-transparent outline-none text-sm focus:ring-0"
             />
           </div>
@@ -479,7 +478,7 @@ const ChatBox = () => {
               ))
             ) : (
               <p className="p-4 text-gray-500 text-sm">
-                Không tìm thấy người dùng
+                {t('chatBox.noUsersFound')}
               </p>
             )
           ) : users.length > 0 ? (
@@ -509,7 +508,7 @@ const ChatBox = () => {
             ))
           ) : (
             <p className="p-4 text-gray-500 text-sm">
-              Chưa có lịch sử trò chuyện
+              {t('chatBox.noChatHistory')}
             </p>
           )}
         </div>
@@ -555,7 +554,7 @@ const ChatBox = () => {
               ))}
               {typingStatus[selectedUser.email] && (
                 <div className="text-xs text-gray-500 animate-pulse">
-                  Đang nhập...
+                  {t('chatBox.typing')}
                 </div>
               )}
               <div ref={messagesEndRef} />
@@ -594,7 +593,7 @@ const ChatBox = () => {
                   value={inputMessage}
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Nhập tin nhắn..."
+                  placeholder={t('chatBox.messagePlaceholder')}
                   className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
                 <button
@@ -609,7 +608,7 @@ const ChatBox = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50">
             <p className="text-gray-500 text-base">
-              Chọn một người dùng để bắt đầu trò chuyện
+              {t('chatBox.selectUserPrompt')}
             </p>
           </div>
         )}

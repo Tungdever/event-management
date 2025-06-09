@@ -1,4 +1,20 @@
+import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react';
+
 const Footer = () => {
+  const { t, i18n } = useTranslation();
+  const [lang, setLang] = useState(i18n.language);
+
+  useEffect(() => {
+    console.log('Current language:', i18n.language);
+    console.log('Translated title:', t('footer.title'));
+    setLang(i18n.language);
+  }, [i18n.language, t]);
+
+  const handleLanguageChange = (event) => {
+    console.log('Language selected:', event.target.value);
+    i18n.changeLanguage(event.target.value);
+  };
 
   return (
     <footer className="bg-white">
@@ -6,17 +22,12 @@ const Footer = () => {
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
           <div>
             <div className="flex justify-center text-red-600 sm:justify-start text-red-400">
-              <h2 className="text-3xl font-semibold">Management event</h2>
-               
-             
+              <h2 className="text-3xl font-semibold">{t('footer.title')}</h2>
             </div>
-
             <p className="mt-6 max-w-md text-center leading-relaxed text-gray-500 sm:max-w-xs sm:text-left">
-              Plan, manage, and celebrate extraordinary events effortlessly, 
-              powered by a platform that brings your vision to life and unites people through shared experiences.
+              {t('footer.description')}
             </p>
-
-            <ul className="mt-8 flex justify-center gap-6 sm:justify-start md:gap-8 ">
+            <ul className="mt-8 flex justify-center gap-6 sm:justify-start md:gap-8">
               <li>
                 <a
                   href="#"
@@ -39,7 +50,6 @@ const Footer = () => {
                   </svg>
                 </a>
               </li>
-
               <li>
                 <a
                   href="#"
@@ -62,7 +72,6 @@ const Footer = () => {
                   </svg>
                 </a>
               </li>
-
               <li>
                 <a
                   href="#"
@@ -77,11 +86,12 @@ const Footer = () => {
                     viewBox="0 0 24 24"
                     aria-hidden="true"
                   >
-                    <path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84" />
+                    <path
+                      d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"
+                    />
                   </svg>
                 </a>
               </li>
-
               <li>
                 <a
                   href="#"
@@ -104,7 +114,6 @@ const Footer = () => {
                   </svg>
                 </a>
               </li>
-
               <li>
                 <a
                   href="#"
@@ -129,111 +138,64 @@ const Footer = () => {
               </li>
             </ul>
           </div>
-
           <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4 lg:col-span-2">
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-red-500">About Us</p>
-
+              <p className="text-lg font-medium text-red-500">{t('footer.aboutUs')}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    Company History
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.companyHistory')}
                   </a>
                 </li>
-
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    Meet the Team
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.meetTheTeam')}
                   </a>
                 </li>
-
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    Employee Handbook
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.employeeHandbook')}
                   </a>
                 </li>
-
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    Careers{" "}
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.careers')}
                   </a>
                 </li>
               </ul>
             </div>
-
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-red-500">Our Services</p>
-
+              <p className="text-lg font-medium text-red-500">{t('footer.ourServices')}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    Management Event
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.managementEvent')}
                   </a>
                 </li>
-
-               
-
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    Marketing{" "}
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.marketing')}
                   </a>
                 </li>
-
-                
               </ul>
             </div>
-
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-red-500">Helpful Links</p>
-
+              <p className="text-lg font-medium text-red-500">{t('footer.helpfulLinks')}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    FAQs{" "}
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.faqs')}
                   </a>
                 </li>
-
                 <li>
-                  <a
-                    className="text-gray-700 transition hover:text-gray-700/75"
-                    href="#"
-                  >
-                    {" "}
-                    Support{" "}
+                  <a className="text-gray-700 transition hover:text-gray-700/75" href="#">
+                    {t('footer.support')}
                   </a>
                 </li>
-
-               
               </ul>
             </div>
-
             <div className="text-center sm:text-left">
-              <p className="text-lg font-medium text-red-500">Contact Us</p>
-
+              <p className="text-lg font-medium text-red-500">{t('footer.contactUs')}</p>
               <ul className="mt-8 space-y-4 text-sm">
                 <li>
                   <a
@@ -254,11 +216,9 @@ const Footer = () => {
                         d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
                       />
                     </svg>
-
-                    <span className="flex-1 text-gray-700">trungho@gmail.com</span>
+                    <span className="flex-1 text-gray-700">{t('footer.email')}</span>
                   </a>
                 </li>
-
                 <li>
                   <a
                     className="flex items-center justify-center gap-1.5 ltr:sm:justify-start rtl:sm:justify-end"
@@ -278,11 +238,9 @@ const Footer = () => {
                         d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
                       />
                     </svg>
-
-                    <span className="flex-1 text-gray-700">0123456789</span>
+                    <span className="flex-1 text-gray-700">{t('footer.phone')}</span>
                   </a>
                 </li>
-
                 <li className="flex items-start justify-center gap-1.5 ltr:sm:justify-start rtl:sm:justify-end">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -303,41 +261,57 @@ const Footer = () => {
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                     />
                   </svg>
-
                   <address className="-mt-0.5 flex-1 not-italic text-gray-700">
-                    1 Vo Van Ngan, TP.Thu Duc
+                    {t('footer.address')}
                   </address>
                 </li>
               </ul>
             </div>
           </div>
         </div>
-
         <div className="mt-12 border-t border-gray-100 pt-6">
-          <div className="text-center sm:flex sm:justify-between sm:text-left">
-            <p className="text-sm text-gray-500">
-              <span className="block sm:inline">All rights reserved.</span>
-
-              <a
-                className="inline-block text-red-600 underline transition hover:text-red-600/75"
-                href="#"
-              >
-                Terms & Conditions
-              </a>
-
-              <span>&middot;</span>
-
-              <a
-                className="inline-block text-red-600 underline transition hover:text-red-600/75"
-                href="#"
-              >
-                Privacy Policy
-              </a>
-            </p>
-
+          <div className="text-center sm:flex sm:justify-between sm:text-left sm:items-center">
             <p className="mt-4 text-sm text-gray-500 sm:order-first sm:mt-0">
               &copy; 2022 Company Name
             </p>
+            <div className="text-sm text-gray-500 flex items-center gap-4">
+              <div>
+                <label htmlFor="language" className="sr-only">Language</label>
+                <div className="relative w-32">
+                  <select
+                    id="language"
+                    value={i18n.language}
+                    onChange={handleLanguageChange}
+                    className="block w-full appearance-none rounded-lg border border-gray-300 bg-white py-1 px-2 text-sm text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-400 transition duration-200 hover:bg-gray-50 hover:border-red-400 sm:text-sm"
+                  >
+                    <option value="en">English</option>
+                    <option value="vi">Tiếng Việt</option>
+                  </select>
+                  <svg
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-500"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <p>
+                <span className="block sm:inline">{t('footer.allRightsReserved')}</span>
+                <a className="inline-block text-red-600 underline transition hover:text-red-600/75" href="#">
+                  {t('footer.terms')}
+                </a>
+                <span>·</span>
+                <a className="inline-block text-red-600 underline transition hover:text-red-600/75" href="#">
+                  {t('footer.privacy')}
+                </a>
+              </p>
+            </div>
           </div>
         </div>
       </div>

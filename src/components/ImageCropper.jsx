@@ -2,10 +2,12 @@ import React, { useState, useEffect, useRef } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
 import Swal from "sweetalert2";
+import { useTranslation } from 'react-i18next';
 
 const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
+  const { t } = useTranslation();
   const [crop, setCrop] = useState({
-    unit: "px", // Sử dụng pixel thay vì phần trăm để tính toán chính xác hơn
+    unit: "px",
     x: 0,
     y: 0,
     width: 0,
@@ -18,13 +20,11 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
 
   useEffect(() => {
     const img = new Image();
-    img.crossOrigin = "anonymous"; // Hỗ trợ CORS cho ảnh từ Cloudinary
+    img.crossOrigin = "anonymous";
     img.src = imageSrc;
     img.onload = () => {
       setImage(img);
       setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
-
-      // Khởi tạo vùng cắt dựa trên kích thước ảnh
       const targetWidth = Math.min(img.naturalWidth, aspectRatio === 1 ? 300 : 940);
       const targetHeight = targetWidth / aspectRatio;
       setCrop({
@@ -35,32 +35,29 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         height: targetHeight,
         aspect: aspectRatio,
       });
-
-      
     };
     img.onerror = () => {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Failed to load image. Please try another image.",
+        title: t('imageCropper.error'),
+        text: t('imageCropper.errorLoadImage'),
       });
       onCancel();
     };
-  }, [imageSrc, aspectRatio, onCancel]);
+  }, [imageSrc, aspectRatio, onCancel, t]);
 
   const getCroppedImg = (imageSrc, crop, image) => {
     return new Promise((resolve) => {
       if (!image || !crop.width || !crop.height) {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Invalid crop parameters.",
+          title: t('imageCropper.error'),
+          text: t('imageCropper.errorInvalidCrop'),
         });
         resolve(null);
         return;
       }
 
-      // Tính toán vùng cắt với kiểm tra giới hạn
       const pixelCrop = {
         x: Math.max(0, Math.min(crop.x, image.naturalWidth)),
         y: Math.max(0, Math.min(crop.y, image.naturalHeight)),
@@ -68,8 +65,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         height: Math.min(crop.height, image.naturalHeight - crop.y),
       };
 
-      // Đặt kích thước đầu ra cố định
-      const targetWidth = aspectRatio === 1 ? 300 : 940; // 300x300 cho ảnh vuông, 940x530 cho ảnh chữ nhật
+      const targetWidth = aspectRatio === 1 ? 300 : 940;
       const targetHeight = targetWidth / aspectRatio;
 
       const canvas = document.createElement("canvas");
@@ -78,7 +74,6 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingQuality = "high";
 
-      // Kiểm tra vùng cắt hợp lệ
       if (
         pixelCrop.width <= 0 ||
         pixelCrop.height <= 0 ||
@@ -87,8 +82,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
       ) {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Invalid crop area. Please adjust the crop selection.",
+          title: t('imageCropper.error'),
+          text: t('imageCropper.errorInvalidCropArea'),
         });
         resolve(null);
         return;
@@ -111,8 +106,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
           if (!blob) {
             Swal.fire({
               icon: "error",
-              title: "Error",
-              text: "Failed to create cropped image.",
+              title: t('imageCropper.error'),
+              text: t('imageCropper.errorCreateCroppedImage'),
             });
             resolve(null);
             return;
@@ -142,8 +137,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
       if (!blob) {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Failed to retrieve original image.",
+          title: t('imageCropper.error'),
+          text: t('imageCropper.errorRetrieveOriginal'),
         });
         return;
       }
@@ -152,8 +147,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
     } catch (error) {
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Failed to process original image.",
+        title: t('imageCropper.error'),
+        text: t('imageCropper.errorRetrieveOriginal'),
       });
     }
   };
@@ -161,13 +156,13 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white p-6 rounded-lg w-full max-w-[1000px] max-h-[90vh] overflow-hidden flex flex-col">
-        <h2 className="text-xl font-semibold mb-4">Crop Image</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('imageCropper.cropImage')}</h2>
         {image ? (
           <div className="relative flex-1 overflow-auto">
             <div
               className="relative w-full"
               style={{
-                aspectRatio: aspectRatio, // Đảm bảo container có tỷ lệ đúng
+                aspectRatio: aspectRatio,
                 maxHeight: "70vh",
                 maxWidth: "100%",
               }}
@@ -190,26 +185,26 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
             </div>
           </div>
         ) : (
-          <p>Loading image...</p>
+          <p>{t('imageCropper.loadingImage')}</p>
         )}
         <div className="flex justify-end mt-4 space-x-2 sticky bottom-0 bg-white pt-2">
           <button
             onClick={onCancel}
             className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
           >
-            Cancel
+            {t('imageCropper.cancel')}
           </button>
           <button
             onClick={handleUseOriginal}
             className="px-4 py-2 bg-green-500 text-white rounded-md"
           >
-            Use Original
+            {t('imageCropper.useOriginal')}
           </button>
           <button
             onClick={handleCropComplete}
             className="px-4 py-2 bg-blue-500 text-white rounded-md"
           >
-            Crop
+            {t('imageCropper.crop')}
           </button>
         </div>
       </div>

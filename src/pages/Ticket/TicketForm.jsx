@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadOnly, eventStart, eventEnd }) => {
+  const { t } = useTranslation();
   const [errors, setErrors] = useState({
     ticketName: "",
     quantity: "",
@@ -9,38 +11,33 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
     endTime: "",
   });
 
-  // Validate ticket name (only letters, numbers, and spaces)
   const validateTicketName = (name) => {
-    if (!name) return "Ticket name is required";
+    if (!name) return t("ticketForm.errors.ticketNameRequired");
     const regex = /^[a-zA-Z0-9\s]+$/;
-    return regex.test(name) ? "" : "Ticket name cannot contain special characters";
+    return regex.test(name) ? "" : t("ticketForm.errors.ticketNameInvalid");
   };
 
-  // Validate quantity (positive integer)
   const validateQuantity = (quantity) => {
-    if (!quantity) return "Quantity is required";
+    if (!quantity) return t("ticketForm.errors.quantityRequired");
     const num = parseInt(quantity, 10);
-    return Number.isInteger(num) && num > 0 ? "" : "Quantity must be a positive integer";
+    return Number.isInteger(num) && num > 0 ? "" : t("ticketForm.errors.quantityInvalid");
   };
 
-  // Validate price (positive number for Paid tickets)
   const validatePrice = (price) => {
     if (typeTicket !== "Paid") return "";
-    if (!price) return "Price is required for paid tickets";
+    if (!price) return t("ticketForm.errors.priceRequired");
     const num = parseFloat(price);
-    return num > 0 ? "" : "Price must be a positive number";
+    return num > 0 ? "" : t("ticketForm.errors.priceInvalid");
   };
 
-  // Validate dates (startTime must be before endTime)
   const validateDates = (startTime, endTime) => {
-    if (!startTime) return { startTime: "Sales start date is required" };
-    if (!endTime) return { endTime: "Sales end date is required" };
+    if (!startTime) return { startTime: t("ticketForm.errors.startTimeRequired") };
+    if (!endTime) return { endTime: t("ticketForm.errors.endTimeRequired") };
     const start = new Date(startTime);
     const end = new Date(endTime);
-    return start < end ? {} : { endTime: "Sales end date must be after start date" };
+    return start < end ? {} : { endTime: t("ticketForm.errors.endTimeInvalid") };
   };
 
-  // Compute errors without setting state
   const computeErrors = () => {
     const nameError = validateTicketName(newTicket.ticketName);
     const quantityError = validateQuantity(newTicket.quantity);
@@ -56,19 +53,16 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
     };
   };
 
-  // Check if form is valid without setting state
   const isFormValid = () => {
     const { ticketName, quantity, price, startTime, endTime } = computeErrors();
     return !ticketName && !quantity && !price && !startTime && !endTime;
   };
 
-  // Handle input change and update errors
   const handleChange = (e) => {
     onChange(e);
     setErrors(computeErrors());
   };
 
-  // Handle save with validation
   const handleSave = () => {
     const newErrors = computeErrors();
     setErrors(newErrors);
@@ -77,12 +71,10 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
     }
   };
 
-  // Run initial validation without triggering re-renders
   useEffect(() => {
     setErrors(computeErrors());
   }, [newTicket, typeTicket]);
 
-  // Format ISO date for input type="date"
   const formatDateForInput = (isoDate) => {
     if (!isoDate) return "";
     return isoDate.split("T")[0];
@@ -94,7 +86,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
     >
       <div className="p-4 sm:p-5">
         <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl">
-          Create Tickets
+          {t("ticketForm.title")}
         </h2>
         <div className="flex mb-3 space-x-3">
           {["Paid", "Free"].map((type) => (
@@ -109,13 +101,13 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
                 onChange({ target: { name: "ticketType", value: type } })
               }
             >
-              {type}
+              {t(`ticketForm.${type.toLowerCase()}Ticket`)}
             </button>
           ))}
         </div>
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-700 sm:text-base">
-            Name *
+            {t("ticketForm.ticketNameLabel")} *
             <input
               type="text"
               className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
@@ -129,7 +121,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
             )}
           </label>
           <label className="block text-sm font-medium text-gray-700 sm:text-base">
-            Available Quantity *
+            {t("ticketForm.quantityLabel")} *
             <input
               type="number"
               className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
@@ -146,10 +138,10 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
           </label>
           {typeTicket === "Paid" && (
             <label className="block text-sm font-medium text-gray-700 sm:text-base">
-              Price *
+              {t("ticketForm.priceLabel")} *
               <div className="flex items-center">
                 <span className="bg-gray-100 px-3 py-2.5 rounded-l-lg border border-r-0 border-gray-200 text-gray-700 text-sm">
-                  $
+                  {t("currency.vnd")}
                 </span>
                 <input
                   type="number"
@@ -168,7 +160,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
           )}
           <div className="grid grid-cols-2 gap-3">
             <label className="block text-sm font-medium text-gray-700 sm:text-base">
-              Sales Start *
+              {t("ticketForm.startTimeLabel")} *
               <input
                 type="date"
                 className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
@@ -176,14 +168,14 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
                 value={newTicket.startTime}
                 disabled={isReadOnly}
                 onChange={handleChange}
-                max={formatDateForInput(eventStart)} // Ràng buộc với eventStart
+                max={formatDateForInput(eventStart)}
               />
               {errors.startTime && (
                 <p className="mt-1 text-xs text-red-400">{errors.startTime}</p>
               )}
             </label>
             <label className="block text-sm font-medium text-gray-700 sm:text-base">
-              Sales End *
+              {t("ticketForm.endTimeLabel")} *
               <input
                 type="date"
                 className="w-full border border-gray-200 rounded-lg p-2 sm:p-2.5 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition"
@@ -191,7 +183,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
                 value={newTicket.endTime}
                 disabled={isReadOnly}
                 onChange={handleChange}
-                max={formatDateForInput(eventEnd)} // Ràng buộc với eventEnd
+                max={formatDateForInput(eventEnd)}
               />
               {errors.endTime && (
                 <p className="mt-1 text-xs text-red-400">{errors.endTime}</p>
@@ -204,7 +196,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
             className="px-4 py-2 text-gray-700 transition bg-gray-100 rounded-lg hover:bg-gray-200"
             onClick={onCancel}
           >
-            Cancel
+            {t("ticketForm.cancel")}
           </button>
           <button
             className={`px-4 py-2 rounded-lg font-medium transition ${
@@ -215,7 +207,7 @@ const TicketForm = ({ newTicket, typeTicket, onChange, onSave, onCancel, isReadO
             onClick={handleSave}
             disabled={!isFormValid()}
           >
-            Save
+            {t("ticketForm.save")}
           </button>
         </div>
       </div>

@@ -11,6 +11,7 @@ import { GrWorkshop } from "react-icons/gr";
 import { FaGlassCheers } from "react-icons/fa";
 import { MdOutlineSchema } from "react-icons/md";
 import { BiSolidCategoryAlt } from "react-icons/bi";
+import { useTranslation } from "react-i18next";
 
 const images = [
   "https://cdn.evbstatic.com/s3-build/fe/build/images/08f04c907aeb48f79070fd4ca0a584f9-citybrowse_desktop.webp",
@@ -20,14 +21,14 @@ const images = [
 ];
 
 const defaultCategories = [
-  { icon: "fas fa-microphone-alt", label: "Conference" },
-  { icon: "fas fa-glass-martini-alt", label: "Nightlife" },
-  { icon: "fas fa-theater-masks", label: "Performing" },
-  { icon: "fas fa-sun", label: "Holidays" },
-  { icon: "fas fa-heart", label: "Dating" },
-  { icon: "fas fa-gamepad", label: "Hobbies" },
-  { icon: "fas fa-briefcase", label: "Business" },
-  { icon: "fas fa-utensils", label: "Food & Drink" },
+  { icon: "fas fa-microphone-alt", label: "conference" },
+  { icon: "fas fa-glass-martini-alt", label: "nightlife" },
+  { icon: "fas fa-theater-masks", label: "performing" },
+  { icon: "fas fa-sun", label: "holidays" },
+  { icon: "fas fa-heart", label: "dating" },
+  { icon: "fas fa-gamepad", label: "hobbies" },
+  { icon: "fas fa-briefcase", label: "business" },
+  { icon: "fas fa-utensils", label: "foodAndDrink" },
 ];
 
 const reactIconsMap = {
@@ -38,7 +39,14 @@ const reactIconsMap = {
   default: <BiSolidCategoryAlt className="text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]" />,
 };
 
+// Utility function to format label (e.g., capitalize first letter)
+const formatLabel = (label) => {
+  if (!label) return "Unknown";
+  return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+};
+
 const CategoriesGrid = ({ categories }) => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
 
   const handleSearchByCategory = async (categoryName) => {
@@ -48,7 +56,7 @@ const CategoriesGrid = ({ categories }) => {
         `http://localhost:8080/api/events/search/by-type/${categoryName}`
       );
       if (!response.ok) {
-        throw new Error("Failed to fetch event data");
+        throw new Error(t("sliderEvent.errorFetchEvents"));
       }
       const events = await response.json();
       navigate(`/list-event-search-by/${categoryName}`, {
@@ -58,56 +66,69 @@ const CategoriesGrid = ({ categories }) => {
       console.error('Error fetching event data:', error);
       Swal.fire({
         icon: 'error',
-        title: 'Error',
-        text: 'Failed to load event data',
+        title: t('sliderEvent.errorFetchEvents'),
+        text: t('sliderEvent.errorFetchEvents'),
       });
     }
   };
 
-return (
-  <div className="py-4 my-8 sm:my-10 lg:my-12">
-    <Swiper
-      modules={[Autoplay, Navigation]}
-      spaceBetween={16}
-      slidesPerView={2}
-      autoplay={{
-        delay: 3000,
-        disableOnInteraction: false,
-        pauseOnMouseEnter: true,
-      }}
-      navigation
-      loop={categories.length > 8}
-      breakpoints={{
-        640: { slidesPerView: 4, spaceBetween: 20 },
-        1024: { slidesPerView: 8, spaceBetween: 24 },
-      }}
-      className="w-full"
-    >
-      {categories.map((category, index) => (
-        <SwiperSlide key={index}>
-          <div
-            className="flex flex-col items-center cursor-pointer group"
-            onClick={() => handleSearchByCategory(category.label)}
-          >
-            <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-cyan-400 transition-all duration-300">
-              {category.iconType === 'font-awesome' ? (
-                <i className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-blue-600`}></i>
-              ) : (
-                category.icon
-              )}
+  // Helper function to get translated or fallback label
+  const getCategoryLabel = (label) => {
+    const translationKey = `sliderEvent.${label.toLowerCase()}`;
+    const translated = t(translationKey);
+    // If translation is the same as the key, it means the key is missing
+    if (translated === translationKey) {
+      console.warn(`Missing translation for: ${translationKey}`);
+      return formatLabel(label); // Fallback to formatted label
+    }
+    return translated;
+  };
+
+  return (
+    <div className="py-4 my-8 sm:my-10 lg:my-12">
+      <Swiper
+        modules={[Autoplay, Navigation]}
+        spaceBetween={16}
+        slidesPerView={2}
+        autoplay={{
+          delay: 3000,
+          disableOnInteraction: false,
+          pauseOnMouseEnter: true,
+        }}
+        navigation
+        loop={categories.length > 8}
+        breakpoints={{
+          640: { slidesPerView: 4, spaceBetween: 20 },
+          1024: { slidesPerView: 8, spaceBetween: 24 },
+        }}
+        className="w-full"
+      >
+        {categories.map((category, index) => (
+          <SwiperSlide key={index}>
+            <div
+              className="flex flex-col items-center cursor-pointer group"
+              onClick={() => handleSearchByCategory(category.label)}
+            >
+              <div className="w-20 sm:w-24 lg:w-[108px] h-20 sm:h-24 lg:h-[108px] rounded-full border-2 border-gray-100 flex items-center justify-center hover:border-[#74CEF7] transition-all duration-300">
+                {category.iconType === 'font-awesome' ? (
+                  <i className={`${category.icon} text-xl sm:text-2xl text-gray-600 group-hover:text-[#3d64ff]`}></i>
+                ) : (
+                  category.icon
+                )}
+              </div>
+              <p className="mt-1 sm:mt-2 text-gray-600 group-hover:text-[#3d64ff] text-xs sm:text-sm lg:text-base text-center">
+                {getCategoryLabel(category.label)}
+              </p>
             </div>
-            <p className="mt-1 text-xs text-center text-gray-600 sm:mt-2 group-hover:text-blue-600 sm:text-sm lg:text-base">
-              {category.label}
-            </p>
-          </div>
-        </SwiperSlide>
-      ))}
-    </Swiper>
-  </div>
-);
+          </SwiperSlide>
+        ))}
+      </Swiper>
+    </div>
+  );
 };
 
 const SliderEvent = () => {
+  const { t } = useTranslation();
   const [categories, setCategories] = useState(defaultCategories);
 
   useEffect(() => {
@@ -115,7 +136,7 @@ const SliderEvent = () => {
       try {
         const response = await fetch('http://localhost:8080/api/events-type/get-all-event-types');
         if (!response.ok) {
-          throw new Error('Failed to fetch event types');
+          throw new Error(t('sliderEvent.errorFetchTypes'));
         }
         const eventTypes = await response.json();
 
@@ -141,15 +162,15 @@ const SliderEvent = () => {
         console.error('Error fetching event types:', error);
         Swal.fire({
           icon: 'error',
-          title: 'Error',
-          text: 'Failed to load event types, using default categories',
+          title: t('sliderEvent.errorFetchTypes'),
+          text: t('sliderEvent.errorFetchTypes'),
         });
         setCategories(defaultCategories);
       }
     };
 
     fetchEventTypes();
-  }, []);
+  }, [t]);
 
   return (
     <div className="w-full max-w-[1300px] mx-auto my-4 sm:my-5 lg:my-[20px] font-roboto">

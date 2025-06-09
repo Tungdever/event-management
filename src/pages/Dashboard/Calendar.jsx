@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
+import { useTranslation } from "react-i18next";
 
 const Calendar = () => {
+  const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [daysInMonth, setDaysInMonth] = useState([]);
   const [notes, setNotes] = useState({});
@@ -15,7 +17,7 @@ const Calendar = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const {user} = useAuth()
+  const { user } = useAuth();
 
   const colorPalette = [
     "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEEAD", "#D4A5A5", "#9B59B6"
@@ -41,7 +43,7 @@ const Calendar = () => {
 
   const fetchAllEvents = async () => {
     if (!token) {
-      setError("No authentication token found");
+      setError(t('calendar.error', { message: "No authentication token found" }));
       setIsLoading(false);
       return;
     }
@@ -55,13 +57,13 @@ const Calendar = () => {
         },
       });
       if (!response.ok) {
-        throw new Error("Failed to fetch Heading to fetch events");
+        throw new Error(t('calendar.error', { message: "Failed to fetch events" }));
       }
       const data = await response.json();
       setEvents(data);
     } catch (error) {
-      setError(error.message);
-      console.error("Error fetching events:", error);
+      setError(t('calendar.error', { message: error.message }));
+      console.error(t('calendar.error', { message: error.message }));
     } finally {
       setIsLoading(false);
     }
@@ -151,18 +153,26 @@ const Calendar = () => {
     });
   };
 
+  // Map month number (0-11) to translation key
+  const monthKeys = [
+    'january', 'february', 'march', 'april', 'may', 'june',
+    'july', 'august', 'september', 'october', 'november', 'december'
+  ];
+  const currentMonthName = t(`calendar.months.${monthKeys[currentMonth.getMonth()]}`);
+  const currentYear = currentMonth.getFullYear();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-teal-50 to-gray-100 py-4 font-sans">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-[6px] shadow p-6 max-w-7xl mx-auto">
           {isLoading && (
             <div className="flex justify-center items-center h-64">
-              <div className="text-lg font-semibold text-teal-600 animate-pulse">Loading...</div>
+              <div className="text-lg font-semibold text-teal-600 animate-pulse">{t('calendar.loading')}</div>
             </div>
           )}
           {error && (
             <div className="text-center p-6 text-red-500 bg-red-50 rounded-lg">
-              Error: {error}. Please try again later.
+              {error}
             </div>
           )}
           {!isLoading && !error && (
@@ -172,20 +182,19 @@ const Calendar = () => {
                 <button
                   onClick={() => changeMonth(-1)}
                   className="p-2 text-teal-600 hover:bg-teal-100 rounded-full transition-colors duration-300"
+                  aria-label={t('calendar.previousMonth')}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
                 <span className="text-2xl font-bold text-gray-800">
-                  {currentMonth.toLocaleString("default", {
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {`${currentMonthName} ${currentYear}`}
                 </span>
                 <button
                   onClick={() => changeMonth(1)}
                   className="p-2 text-teal-600 hover:bg-teal-100 rounded-full transition-colors duration-300"
+                  aria-label={t('calendar.nextMonth')}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
@@ -195,12 +204,12 @@ const Calendar = () => {
 
               {/* Calendar */}
               <div className="grid grid-cols-7 gap-px bg-gray-200">
-                {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+                {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((day) => (
                   <div
                     key={day}
                     className="bg-gray-50 text-center py-3 text-sm font-semibold text-gray-700 uppercase tracking-wide"
                   >
-                    {day}
+                    {t(`calendar.weekdays.${day}`)}
                   </div>
                 ))}
                 {daysInMonth.map((day, index) => (
@@ -210,6 +219,7 @@ const Calendar = () => {
                     className={`relative bg-white p-3 min-h-[120px] flex flex-col justify-start text-center cursor-pointer transition-all duration-300 hover:bg-teal-50
                       ${day.isCurrentMonth ? "text-gray-800" : "text-gray-400"}
                       ${isToday(day) ? "border-2 border-teal-500 rounded-lg" : ""}`}
+                    aria-label={t('calendar.day', { day: day.day })}
                   >
                     <span className={`text-sm font-medium ${isToday(day) ? "text-teal-600" : ""}`}>
                       {day.day}
@@ -244,26 +254,29 @@ const Calendar = () => {
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
                   <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all duration-300 scale-100">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Note for day {selectedDay}
+                      {t('calendar.noteTitle', { day: selectedDay })}
                     </h3>
                     <textarea
                       value={noteText}
                       onChange={(e) => setNoteText(e.target.value)}
                       className="w-full p-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                       rows="4"
+                      aria-label={t('calendar.noteInput')}
                     />
                     <div className="flex justify-end gap-3 mt-4">
                       <button
                         onClick={() => setShowPopup(false)}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                        aria-label={t('calendar.cancel')}
                       >
-                        Cancel
+                        {t('calendar.cancel')}
                       </button>
                       <button
                         onClick={saveNote}
                         className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                        aria-label={t('calendar.save')}
                       >
-                        Save
+                        {t('calendar.save')}
                       </button>
                     </div>
                   </div>
@@ -275,24 +288,29 @@ const Calendar = () => {
                 <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 z-50 transition-opacity duration-300">
                   <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg transform transition-all duration-300 scale-100">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
-                      Create an event?
+                      {t('calendar.createEventTitle')}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Selected date: {selectedDay}/{currentMonth.getMonth() + 1}/
-                      {currentMonth.getFullYear()}
+                      {t('calendar.selectedDate', {
+                        day: selectedDay,
+                        month: currentMonth.getMonth() + 1,
+                        year: currentMonth.getFullYear()
+                      })}
                     </p>
                     <div className="flex justify-end gap-3">
                       <button
                         onClick={closeCreateEventDialog}
                         className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                        aria-label={t('calendar.no')}
                       >
-                        No
+                        {t('calendar.no')}
                       </button>
                       <button
                         onClick={handleCreateEvent}
                         className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors"
+                        aria-label={t('calendar.yes')}
                       >
-                        Yes
+                        {t('calendar.yes')}
                       </button>
                     </div>
                   </div>
