@@ -14,6 +14,60 @@ const vietnamCities = [
   { slug: "binh-duong", name: "Bình Dương" },
   { slug: "dong-nai", name: "Đồng Nai" },
   { slug: "quang-ninh", name: "Quảng Ninh" },
+  { slug: "an-giang", name: "An Giang" },
+  { slug: "ba-ria-vung-tau", name: "Bà Rịa - Vũng Tàu" },
+  { slug: "bac-giang", name: "Bắc Giang" },
+  { slug: "bac-kan", name: "Bắc Kạn" },
+  { slug: "bac-lieu", name: "Bạc Liêu" },
+  { slug: "bac-ninh", name: "Bắc Ninh" },
+  { slug: "ben-tre", name: "Bến Tre" },
+  { slug: "binh-dinh", name: "Bình Định" },
+  { slug: "binh-phuoc", name: "Bình Phước" },
+  { slug: "binh-thuan", name: "Bình Thuận" },
+  { slug: "ca-mau", name: "Cà Mau" },
+  { slug: "cao-bang", name: "Cao Bằng" },
+  { slug: "dak-lak", name: "Đắk Lắk" },
+  { slug: "dak-nong", name: "Đắk Nông" },
+  { slug: "dien-bien", name: "Điện Biên" },
+  { slug: "dong-thap", name: "Đồng Tháp" },
+  { slug: "gia-lai", name: "Gia Lai" },
+  { slug: "ha-giang", name: "Hà Giang" },
+  { slug: "ha-nam", name: "Hà Nam" },
+  { slug: "ha-tinh", name: "Hà Tĩnh" },
+  { slug: "hai-duong", name: "Hải Dương" },
+  { slug: "hau-giang", name: "Hậu Giang" },
+  { slug: "hoa-binh", name: "Hòa Bình" },
+  { slug: "hung-yen", name: "Hưng Yên" },
+  { slug: "khanh-hoa", name: "Khánh Hòa" },
+  { slug: "kien-giang", name: "Kiên Giang" },
+  { slug: "kon-tum", name: "Kon Tum" },
+  { slug: "lai-chau", name: "Lai Châu" },
+  { slug: "lam-dong", name: "Lâm Đồng" },
+  { slug: "lang-son", name: "Lạng Sơn" },
+  { slug: "lao-cai", name: "Lào Cai" },
+  { slug: "long-an", name: "Long An" },
+  { slug: "nam-dinh", name: "Nam Định" },
+  { slug: "nghe-an", name: "Nghệ An" },
+  { slug: "ninh-binh", name: "Ninh Bình" },
+  { slug: "ninh-thuan", name: "Ninh Thuận" },
+  { slug: "phu-tho", name: "Phú Thọ" },
+  { slug: "phu-yen", name: "Phú Yên" },
+  { slug: "quang-binh", name: "Quảng Bình" },
+  { slug: "quang-nam", name: "Quảng Nam" },
+  { slug: "quang-ngai", name: "Quảng Ngãi" },
+  { slug: "soc-trang", name: "Sóc Trăng" },
+  { slug: "son-la", name: "Sơn La" },
+  { slug: "tay-ninh", name: "Tây Ninh" },
+  { slug: "thai-binh", name: "Thái Bình" },
+  { slug: "thai-nguyen", name: "Thái Nguyên" },
+  { slug: "thanh-hoa", name: "Thanh Hóa" },
+  { slug: "thua-thien-hue", name: "Thừa Thiên Huế" },
+  { slug: "tien-giang", name: "Tiền Giang" },
+  { slug: "tra-vinh", name: "Trà Vinh" },
+  { slug: "tuyen-quang", name: "Tuyên Quang" },
+  { slug: "vinh-long", name: "Vĩnh Long" },
+  { slug: "vinh-phuc", name: "Vĩnh Phúc" },
+  { slug: "yen-bai", name: "Yên Bái" }
 ];
 
 const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
@@ -323,7 +377,8 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
                       value={eventLocation.city}
                       onChange={handleChange}
                       disabled={isReadOnly}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base appearance-none"
+                      style={{ maxHeight: '200px', overflowY: 'auto' }}
                     >
                       <option value="">{t('eventDateLocate.selectCity')}</option>
                       {vietnamCities.map((city) => (
