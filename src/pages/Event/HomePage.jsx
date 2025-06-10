@@ -282,7 +282,7 @@ const TopDestinations = () => {
     { slug: "thai-binh", name: "Thái Bình" },
     { slug: "thai-nguyen", name: "Thái Nguyên" },
     { slug: "thanh-hoa", name: "Thanh Hóa" },
-    { slug: "thua-thien-hue", name: "Thừa Thiên Huế" },
+    { slug: "hue", name: "Huế" },
     { slug: "tien-giang", name: "Tiền Giang" },
     { slug: "tra-vinh", name: "Trà Vinh" },
     { slug: "tuyen-quang", name: "Tuyên Quang" },

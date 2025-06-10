@@ -296,7 +296,7 @@ const handleSaveDraft = async () => {
             <p className="text-gray-600 text-[13px] mb-1">
               {event.eventLocation.locationType === "online"
                 ? t('eventPublishing.onlineEvent')
-                : `${event.eventLocation.venueName}, ${event.eventLocation.address}, ${event.eventLocation.city}`}
+                : `${event.eventLocation.venueName}, ${event.eventLocation.address}, ...`}
             </p>
             <div className="flex items-center justify-between mt-2 space-x-4 text-gray-600">
               <div className="space-x-4">

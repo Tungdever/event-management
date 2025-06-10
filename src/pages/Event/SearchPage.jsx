@@ -146,7 +146,7 @@ const FilterSidebar = ({
     "Thái Bình": "thai-binh",
     "Thái Nguyên": "thai-nguyen",
     "Thanh Hóa": "thanh-hoa",
-    "Thừa Thiên Huế": "thua-thien-hue",
+    "Huế": "hue",
     "Tiền Giang": "tien-giang",
     "Trà Vinh": "tra-vinh",
     "Tuyên Quang": "tuyen-quang",

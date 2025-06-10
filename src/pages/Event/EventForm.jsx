@@ -186,7 +186,7 @@ const EventForm = ({ event, setEvent, onNext, isReadOnly }) => {
 
           <div className="mb-6">
             <h2 className="flex mb-2 text-lg font-semibold">
-              {t('eventForm.eventTitle')} <p className="ml-2 text-red-500">{t('eventForm.required')}</p>
+              {t('eventForm.eventTitle')} <p className="ml-2 text-red-500"></p>
             </h2>
             <label className="block">
               <input
@@ -205,7 +205,7 @@ const EventForm = ({ event, setEvent, onNext, isReadOnly }) => {
 
           <div className="mb-6">
             <h2 className="flex mb-2 text-lg font-semibold">
-              {t('eventForm.summary')} <p className="ml-2 text-red-500">{t('eventForm.required')}</p>
+              {t('eventForm.summary')} <p className="ml-2 text-red-500"></p>
             </h2>
             <label className="block">
               <div className="block w-full mt-1 border border-gray-300 rounded-md shadow-sm">
