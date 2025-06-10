@@ -1213,6 +1213,7 @@ const resources = {
         available: 'Available: {{count}}',
         loginPrompt: 'Please log in to check the exact number of tickets you can purchase.',
         ticketLimitError: 'Cannot check ticket limit. Please try again later.',
+        soldOut:'Sold Out',
       },
       editEventPage: {
         title: 'Edit Event',
@@ -2844,6 +2845,7 @@ const resources = {
         available: 'Có sẵn: {{count}}',
         loginPrompt: 'Vui lòng đăng nhập để kiểm tra chính xác số lượng vé bạn có thể mua.',
         ticketLimitError: 'Không thể kiểm tra giới hạn vé. Vui lòng thử lại sau.',
+        soldOut:'Đã hết vé'
       },
       editEventPage: {
         title: 'Chỉnh sửa Sự kiện',

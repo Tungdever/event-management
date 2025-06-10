@@ -220,8 +220,10 @@ const TopDestinations = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
   const [topCities, setTopCities] = useState([]);
+  const [isHovering, setIsHovering] = useState(false);
+  const animationRef = useRef(null);
 
-  // Danh sách ánh xạ slug và tên thành phố
+  // Danh sách ánh xạ slug và tên thành phố (đầy đủ 63 tỉnh/thành phố)
   const locations = [
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
@@ -233,7 +235,60 @@ const TopDestinations = () => {
     { slug: "binh-duong", name: "Bình Dương" },
     { slug: "dong-nai", name: "Đồng Nai" },
     { slug: "quang-ninh", name: "Quảng Ninh" },
-    { slug: "bac-lieu", name: "Bạc Liêu" }
+    { slug: "bac-lieu", name: "Bạc Liêu" },
+    { slug: "an-giang", name: "An Giang" },
+    { slug: "ba-ria-vung-tau", name: "Bà Rịa - Vũng Tàu" },
+    { slug: "bac-giang", name: "Bắc Giang" },
+    { slug: "bac-kan", name: "Bắc Kạn" },
+    { slug: "bac-ninh", name: "Bắc Ninh" },
+    { slug: "ben-tre", name: "Bến Tre" },
+    { slug: "binh-dinh", name: "Bình Định" },
+    { slug: "binh-phuoc", name: "Bình Phước" },
+    { slug: "binh-thuan", name: "Bình Thuận" },
+    { slug: "ca-mau", name: "Cà Mau" },
+    { slug: "cao-bang", name: "Cao Bằng" },
+    { slug: "dak-lak", name: "Đắk Lắk" },
+    { slug: "dak-nong", name: "Đắk Nông" },
+    { slug: "dien-bien", name: "Điện Biên" },
+    { slug: "dong-thap", name: "Đồng Tháp" },
+    { slug: "gia-lai", name: "Gia Lai" },
+    { slug: "ha-giang", name: "Hà Giang" },
+    { slug: "ha-nam", name: "Hà Nam" },
+    { slug: "ha-tinh", name: "Hà Tĩnh" },
+    { slug: "hai-duong", name: "Hải Dương" },
+    { slug: "hau-giang", name: "Hậu Giang" },
+    { slug: "hoa-binh", name: "Hòa Bình" },
+    { slug: "hung-yen", name: "Hưng Yên" },
+    { slug: "khanh-hoa", name: "Khánh Hòa" },
+    { slug: "kien-giang", name: "Kiên Giang" },
+    { slug: "kon-tum", name: "Kon Tum" },
+    { slug: "lai-chau", name: "Lai Châu" },
+    { slug: "lam-dong", name: "Lâm Đồng" },
+    { slug: "lang-son", name: "Lạng Sơn" },
+    { slug: "lao-cai", name: "Lào Cai" },
+    { slug: "long-an", name: "Long An" },
+    { slug: "nam-dinh", name: "Nam Định" },
+    { slug: "nghe-an", name: "Nghệ An" },
+    { slug: "ninh-binh", name: "Ninh Bình" },
+    { slug: "ninh-thuan", name: "Ninh Thuận" },
+    { slug: "phu-tho", name: "Phú Thọ" },
+    { slug: "phu-yen", name: "Phú Yên" },
+    { slug: "quang-binh", name: "Quảng Bình" },
+    { slug: "quang-nam", name: "Quảng Nam" },
+    { slug: "quang-ngai", name: "Quảng Ngãi" },
+    { slug: "soc-trang", name: "Sóc Trăng" },
+    { slug: "son-la", name: "Sơn La" },
+    { slug: "tay-ninh", name: "Tây Ninh" },
+    { slug: "thai-binh", name: "Thái Bình" },
+    { slug: "thai-nguyen", name: "Thái Nguyên" },
+    { slug: "thanh-hoa", name: "Thanh Hóa" },
+    { slug: "thua-thien-hue", name: "Thừa Thiên Huế" },
+    { slug: "tien-giang", name: "Tiền Giang" },
+    { slug: "tra-vinh", name: "Trà Vinh" },
+    { slug: "tuyen-quang", name: "Tuyên Quang" },
+    { slug: "vinh-long", name: "Vĩnh Long" },
+    { slug: "vinh-phuc", name: "Vĩnh Phúc" },
+    { slug: "yen-bai", name: "Yên Bái" },
   ];
 
   // Fetch top cities từ API
@@ -247,7 +302,6 @@ const TopDestinations = () => {
         setTopCities(cities);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách thành phố:", error);
-
         setTopCities([
           "Đà Nẵng",
           "TP. Hồ Chí Minh",
@@ -263,20 +317,34 @@ const TopDestinations = () => {
     fetchTopCities();
   }, []);
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollAmount = direction === "left" ? -clientWidth : clientWidth;
-      scrollRef.current.scrollTo({
-        left: scrollLeft + scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  // Auto-scroll logic
+  useEffect(() => {
+    if (!scrollRef.current || isHovering) return;
+
+    const scrollContainer = scrollRef.current;
+    const scrollWidth = scrollContainer.scrollWidth;
+    const clientWidth = scrollContainer.clientWidth;
+
+    const scrollStep = () => {
+      if (scrollContainer.scrollLeft >= scrollWidth - clientWidth) {
+        scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        scrollContainer.scrollLeft += 1;
+      }
+      animationRef.current = requestAnimationFrame(scrollStep);
+    };
+
+    animationRef.current = requestAnimationFrame(scrollStep);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isHovering]);
 
   const handleSearchByCity = async (city) => {
     try {
-      // Tìm slug tương ứng với tên thành phố
       const cityObj = locations.find(
         (loc) => loc.name.toLowerCase() === city.trim().toLowerCase()
       );
@@ -299,14 +367,18 @@ const TopDestinations = () => {
   return (
     <div className="bg-gray-50 text-gray-900 w-full max-w-[1280px] mx-auto p-4 sm:p-6">
       <h1 className="mb-4 text-lg font-bold text-center sm:text-xl lg:text-2xl sm:mb-6">
-        {t('homePage.topDestinations')}
+        {t("homePage.topDestinations")}
       </h1>
-      <div className="relative">
+      <div
+        className="relative"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <div
           ref={scrollRef}
-          className="flex pb-4 space-x-3 overflow-x-auto sm:space-x-4 scroll-smooth scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+          className="flex pb-4 space-x-3 overflow-x-auto sm:space-x-4 scroll-smooth scrollbar-hidden"
         >
-          {popularCities.map((dest, index) => (
+          {popularCities.concat(popularCities).map((dest, index) => (
             <div key={index} className="flex-none w-48 sm:w-56 lg:w-64">
               <div className="relative">
                 <img
@@ -323,21 +395,9 @@ const TopDestinations = () => {
             </div>
           ))}
         </div>
-        <button
-          onClick={() => scroll("left")}
-          className="absolute left-0 p-1 -translate-y-1/2 bg-white rounded-full shadow-sm top-1/2 sm:p-2 lg:p-3 hover:bg-gray-100"
-        >
-          <FaChevronLeft className="text-xs sm:text-sm lg:text-base" />
-        </button>
-        <button
-          onClick={() => scroll("right")}
-          className="absolute right-0 p-1 -translate-y-1/2 bg-white rounded-full shadow-sm top-1/2 sm:p-2 lg:p-3 hover:bg-gray-100"
-        >
-          <FaChevronRight className="text-xs sm:text-sm lg:text-base" />
-        </button>
       </div>
       <h2 className="mt-6 mb-3 text-base font-bold sm:text-lg lg:text-xl sm:mt-8 sm:mb-4">
-        {t('homePage.popularCity')}
+        {t("homePage.popularCity")}
       </h2>
       <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
         {topCities.map((city, index) => (
@@ -346,7 +406,7 @@ const TopDestinations = () => {
             onClick={() => handleSearchByCity(city)}
             className="flex items-center px-3 py-1 space-x-1 text-xs text-gray-900 bg-white rounded-full shadow-sm sm:px-4 sm:py-2 sm:space-x-2 sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
           >
-            <span>{t('homePage.eventsAt', { city })}</span>
+            <span>{t("homePage.eventsAt", { city })}</span>
             <FaExternalLinkAlt className="text-xs sm:text-sm" />
           </a>
         ))}

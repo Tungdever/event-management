@@ -95,7 +95,7 @@ const CategoriesGrid = ({ categories }) => {
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
-        navigation
+        navigation={false}
         loop={categories.length > 8}
         breakpoints={{
           640: { slidesPerView: 4, spaceBetween: 20 },
@@ -178,7 +178,7 @@ const SliderEvent = () => {
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={10}
         slidesPerView={1}
-        navigation
+        navigation={false}
         pagination={{ clickable: true }}
         autoplay={{ delay: 3000 }}
         loop={true}
