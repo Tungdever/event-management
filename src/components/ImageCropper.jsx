@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import ReactCrop from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
@@ -16,17 +17,36 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
   });
   const [image, setImage] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const imageRef = useRef(null);
 
   useEffect(() => {
+    if (!imageSrc) {
+      setHasError(true);
+      setIsLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: t('imageCropper.error'),
+        text: t('imageCropper.errorInvalidSrc'),
+      });
+      onCancel();
+      return;
+    }
+
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = imageSrc;
     img.onload = () => {
       setImage(img);
       setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
-      const targetWidth = Math.min(img.naturalWidth, aspectRatio === 1 ? 300 : 940);
-      const targetHeight = targetWidth / aspectRatio;
+      
+      // Khởi tạo vùng cắt dựa trên kích thước gốc của ảnh
+      const maxWidth = Math.min(img.naturalWidth, aspectRatio === 1 ? 300 : 940);
+      const maxHeight = maxWidth / aspectRatio;
+      const targetWidth = Math.min(maxWidth, img.naturalWidth);
+      const targetHeight = Math.min(maxHeight, img.naturalHeight);
+      
       setCrop({
         unit: "px",
         x: (img.naturalWidth - targetWidth) / 2,
@@ -35,14 +55,31 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         height: targetHeight,
         aspect: aspectRatio,
       });
+      
+      setIsLoading(false);
+      console.log("Image loaded:", {
+        naturalWidth: img.naturalWidth,
+        naturalHeight: img.naturalHeight,
+        targetWidth,
+        targetHeight,
+        imageSrc,
+      });
     };
-    img.onerror = () => {
+    img.onerror = (error) => {
+      console.error("Failed to load image:", { imageSrc, error });
+      setHasError(true);
+      setIsLoading(false);
       Swal.fire({
         icon: "error",
         title: t('imageCropper.error'),
         text: t('imageCropper.errorLoadImage'),
       });
       onCancel();
+    };
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
     };
   }, [imageSrc, aspectRatio, onCancel, t]);
 
@@ -65,12 +102,9 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         height: Math.min(crop.height, image.naturalHeight - crop.y),
       };
 
-      const targetWidth = aspectRatio === 1 ? 300 : 940;
-      const targetHeight = targetWidth / aspectRatio;
-
       const canvas = document.createElement("canvas");
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
+      canvas.width = pixelCrop.width;
+      canvas.height = pixelCrop.height;
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingQuality = "high";
 
@@ -97,8 +131,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         pixelCrop.height,
         0,
         0,
-        targetWidth,
-        targetHeight
+        pixelCrop.width,
+        pixelCrop.height
       );
 
       canvas.toBlob(
@@ -113,6 +147,10 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
             return;
           }
           const url = URL.createObjectURL(blob);
+          console.log("Cropped image dimensions:", {
+            width: pixelCrop.width,
+            height: pixelCrop.height,
+          });
           resolve({ blob, url });
         },
         "image/jpeg",
@@ -145,6 +183,7 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
       const originalImage = { blob, url: imageSrc };
       onCropComplete(originalImage);
     } catch (error) {
+      console.error("Failed to retrieve original image:", error);
       Swal.fire({
         icon: "error",
         title: t('imageCropper.error'),
@@ -154,17 +193,26 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white p-6 rounded-lg w-full max-w-[1000px] max-h-[90vh] overflow-hidden flex flex-col">
-        <h2 className="text-xl font-semibold mb-4">{t('imageCropper.cropImage')}</h2>
-        {image ? (
-          <div className="relative flex-1 overflow-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="bg-white p-6 rounded-lg w-full max-w-[1000px] min-h-[400px] max-h-[90vh] overflow-hidden flex flex-col">
+        <h2 className="mb-4 text-xl font-semibold">{t('imageCropper.cropImage')}</h2>
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center min-h-[300px]">
+            <p>{t('imageCropper.loadingImage')}</p>
+          </div>
+        ) : hasError ? (
+          <div className="flex-1 flex items-center justify-center min-h-[300px]">
+            <p className="text-red-500">{t('imageCropper.errorLoadImage')}</p>
+          </div>
+        ) : image ? (
+          <div className="relative flex-1 overflow-auto flex items-center justify-center min-h-[300px]">
             <div
-              className="relative w-full"
+              className="relative border border-gray-300"
               style={{
-                aspectRatio: aspectRatio,
-                maxHeight: "70vh",
-                maxWidth: "100%",
+                maxWidth: `${Math.min(imageDimensions.width, 940)}px`,
+                maxHeight: `${Math.min(imageDimensions.height, 530)}px`,
+                width: `${imageDimensions.width}px`,
+                height: `${imageDimensions.height}px`,
               }}
             >
               <ReactCrop
@@ -177,32 +225,48 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
                   ref={imageRef}
                   src={imageSrc}
                   alt="Crop"
-                  className="w-full h-full object-contain"
-                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  className="object-none max-w-full max-h-full"
                   crossOrigin="anonymous"
+                  onLoad={(e) => {
+                    console.log("Cropper image dimensions:", {
+                      naturalWidth: e.target.naturalWidth,
+                      naturalHeight: e.target.naturalHeight,
+                      displayWidth: e.target.width,
+                      displayHeight: e.target.height,
+                    });
+                  }}
+                  onError={(e) => {
+                    console.error("Image failed to render in cropper:", e);
+                    setHasError(true);
+                  }}
                 />
               </ReactCrop>
             </div>
+            
           </div>
         ) : (
-          <p>{t('imageCropper.loadingImage')}</p>
+          <div className="flex-1 flex items-center justify-center min-h-[300px]">
+            <p className="text-red-500">{t('imageCropper.errorLoadImage')}</p>
+          </div>
         )}
-        <div className="flex justify-end mt-4 space-x-2 sticky bottom-0 bg-white pt-2">
+        <div className="sticky bottom-0 flex justify-end pt-2 mt-4 space-x-2 bg-white">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+            className="px-4 py-2 text-gray-700 bg-gray-300 rounded-md"
           >
             {t('imageCropper.cancel')}
           </button>
           <button
             onClick={handleUseOriginal}
-            className="px-4 py-2 bg-green-500 text-white rounded-md"
+            className="px-4 py-2 text-white bg-green-500 rounded-md"
+            disabled={isLoading || hasError}
           >
             {t('imageCropper.useOriginal')}
           </button>
           <button
             onClick={handleCropComplete}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            className="px-4 py-2 text-white bg-blue-500 rounded-md"
+            disabled={isLoading || hasError || !crop.width || !crop.height}
           >
             {t('imageCropper.crop')}
           </button>
