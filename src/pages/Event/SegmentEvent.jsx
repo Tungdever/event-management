@@ -253,7 +253,7 @@ const SegmentFormPopup = ({
                           className="w-[50px] h-[50px] rounded-full object-cover"
                         />
                         <button
-                          className="absolute top-0 right-0 flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full"
+                          className="absolute top-0 flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -right-4"
                           onClick={() => handleImageUpload(null)}
                         >
                           ×

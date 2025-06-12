@@ -1,10 +1,11 @@
+
 import { useState } from "react";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import Swal from "sweetalert2";
 import ImageCropper from "../../components/ImageCropper";
 
-const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOnly }) => {
+const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages, isReadOnly }) => {
   const getCloudinaryUrl = (publicId) =>
     publicId ? `https://res.cloudinary.com/dho1vjupv/image/upload/${publicId}` : "";
 
@@ -35,6 +36,14 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOn
     }
 
     const file = files[0];
+    if (!file.type.startsWith('image/')) {
+      Swal.fire({
+        icon: "warning",
+        title: "Warning",
+        text: "Please upload a valid image file (e.g., JPEG, PNG, GIF, WebP, etc.).",
+      });
+      return;
+    }
     if (file.size > 10 * 1024 * 1024) {
       Swal.fire({
         icon: "warning",
@@ -146,7 +155,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOn
             </label>
           </div>
           <p className="text-sm text-gray-600">
-            • Proposed size: 940 x 530px • Maximum capacity: 10MB • Support format: Any image
+            • Proposed size: 940 x 530px • Maximum capacity: 10MB • Support format: JPEG, PNG, GIF, WebP, etc.
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
             {images.map((img, index) => (
@@ -156,7 +165,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOn
                   alt="Uploaded"
                   className="object-contain w-24 h-24 rounded-md"
                 />
-                {!isReadOnly && ( 
+                {!isReadOnly && (
                   <button
                     onClick={() => handleDeleteImage(index)}
                     className="absolute top-0 right-0 flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full"
@@ -170,7 +179,7 @@ const UploadMedia = ({ setShowUpload, uploadedImages, setUploadedImages,isReadOn
         </div>
       )}
 
-     {!isReadOnly && ( 
+      {!isReadOnly && (
         <button
           onClick={handleComplete}
           className="px-6 py-2 mt-4 text-white bg-blue-500 rounded-md"
@@ -200,7 +209,7 @@ const UploadedImagesSlider = ({ images, onEdit }) => {
   );
 };
 
-const UploadContainer = ({ uploadedImages, setUploadedImages ,isReadOnly}) => {
+const UploadContainer = ({ uploadedImages, setUploadedImages, isReadOnly }) => {
   const [showUpload, setShowUpload] = useState(false);
 
   const getCloudinaryUrl = (publicId) =>

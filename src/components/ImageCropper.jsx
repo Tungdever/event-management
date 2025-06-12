@@ -16,33 +16,87 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
   });
   const [image, setImage] = useState(null);
   const [imageDimensions, setImageDimensions] = useState({ width: 0, height: 0 });
+  const [isLargeImage, setIsLargeImage] = useState(false);
+  const [isRatioClose, setIsRatioClose] = useState(false);
   const imageRef = useRef(null);
 
+  const TARGET_WIDTH = aspectRatio === 1 ? 300 : 940;
+  const TARGET_HEIGHT = TARGET_WIDTH / aspectRatio;
+  const EXPECTED_RATIO = 940 / 530; // ~1.7736
+  const RATIO_TOLERANCE = 0.1; // ±10%
+
   useEffect(() => {
+    if (!imageSrc) {
+      Swal.fire({
+        icon: "error",
+        title: t('imageCropper.error'),
+        text: t('imageCropper.errorInvalidSrc'),
+      });
+      onCancel();
+      return;
+    }
+
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = imageSrc;
     img.onload = () => {
+      const width = img.naturalWidth;
+      const height = img.naturalHeight;
       setImage(img);
-      setImageDimensions({ width: img.naturalWidth, height: img.naturalHeight });
-      const targetWidth = Math.min(img.naturalWidth, aspectRatio === 1 ? 300 : 940);
-      const targetHeight = targetWidth / aspectRatio;
-      setCrop({
-        unit: "px",
-        x: (img.naturalWidth - targetWidth) / 2,
-        y: (img.naturalHeight - targetHeight) / 2,
-        width: targetWidth,
-        height: targetHeight,
-        aspect: aspectRatio,
+      setImageDimensions({ width, height });
+
+      // Kiểm tra ảnh lớn và tỷ lệ
+      const isLarge = width >= TARGET_WIDTH && height >= TARGET_HEIGHT;
+      const imageRatio = width / height;
+      const isClose = Math.abs(imageRatio - EXPECTED_RATIO) / EXPECTED_RATIO <= RATIO_TOLERANCE;
+      setIsLargeImage(isLarge);
+      setIsRatioClose(isClose);
+
+      if (isLarge && isClose && aspectRatio !== 1) {
+        // Ảnh lớn, tỷ lệ gần: Không cần khung cắt, scale toàn ảnh
+        setCrop({
+          unit: "px",
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
+          aspect: aspectRatio,
+        });
+      } else {
+        // Ảnh nhỏ hoặc tỷ lệ khác: Khung cắt kéo thả
+        const cropWidth = Math.min(width, TARGET_WIDTH * 0.5); // Mặc định 50% hoặc nhỏ hơn
+        const cropHeight = cropWidth / aspectRatio;
+        setCrop({
+          unit: "px",
+          x: (width - cropWidth) / 2,
+          y: (height - cropHeight) / 2,
+          width: cropWidth,
+          height: cropHeight,
+          aspect: aspectRatio,
+        });
+      }
+
+      console.log("Image loaded:", {
+        naturalWidth: width,
+        naturalHeight: height,
+        isLarge,
+        isRatioClose,
+        imageRatio,
       });
     };
     img.onerror = () => {
+      console.error("Failed to load image:", { imageSrc });
       Swal.fire({
         icon: "error",
         title: t('imageCropper.error'),
         text: t('imageCropper.errorLoadImage'),
       });
       onCancel();
+    };
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
     };
   }, [imageSrc, aspectRatio, onCancel, t]);
 
@@ -65,12 +119,9 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         height: Math.min(crop.height, image.naturalHeight - crop.y),
       };
 
-      const targetWidth = aspectRatio === 1 ? 300 : 940;
-      const targetHeight = targetWidth / aspectRatio;
-
       const canvas = document.createElement("canvas");
-      canvas.width = targetWidth;
-      canvas.height = targetHeight;
+      canvas.width = TARGET_WIDTH;
+      canvas.height = TARGET_HEIGHT;
       const ctx = canvas.getContext("2d");
       ctx.imageSmoothingQuality = "high";
 
@@ -97,8 +148,8 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         pixelCrop.height,
         0,
         0,
-        targetWidth,
-        targetHeight
+        TARGET_WIDTH,
+        TARGET_HEIGHT
       );
 
       canvas.toBlob(
@@ -107,16 +158,21 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
             Swal.fire({
               icon: "error",
               title: t('imageCropper.error'),
-              text: t('imageCropper.errorCreateCroppedImage'),
+              text: t('imageCropper.errorImage'),
             });
             resolve(null);
             return;
           }
           const url = URL.createObjectURL(blob);
+          console.log("Image cropped:", {
+            width: TARGET_WIDTH,
+            height: TARGET_HEIGHT,
+            pixelCrop,
+          });
           resolve({ blob, url });
         },
         "image/jpeg",
-        0.95
+        0.8
       );
     });
   };
@@ -127,6 +183,12 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
       if (croppedImage) {
         onCropComplete(croppedImage);
       }
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: t('imageCropper.error'),
+        text: t('imageCropper.errorInvalidCrop'),
+      });
     }
   };
 
@@ -138,71 +200,121 @@ const ImageCropper = ({ imageSrc, onCropComplete, onCancel, aspectRatio }) => {
         Swal.fire({
           icon: "error",
           title: t('imageCropper.error'),
-          text: t('imageCropper.errorRetrieveOriginal'),
+          text: t('imageCropper.errorRetrieveOriginalImage'),
         });
         return;
       }
-      const originalImage = { blob, url: imageSrc };
+      const originalImage = { blob, url: URL.createObjectURL(blob) };
+      console.log("Original image:", {
+        width: imageDimensions.width,
+        height: imageDimensions.height,
+      });
       onCropComplete(originalImage);
     } catch (error) {
+      console.error("Failed to retrieve original image:", error);
       Swal.fire({
         icon: "error",
         title: t('imageCropper.error'),
-        text: t('imageCropper.errorRetrieveOriginal'),
+        text: t('imageCropper.errorRetrieveOriginalImage'),
       });
     }
   };
 
+  // Tính kích thước hiển thị
+  let displayWidth, displayHeight;
+  if (isLargeImage && isRatioClose && aspectRatio !== 1) {
+    displayWidth = TARGET_WIDTH;
+    displayHeight = TARGET_HEIGHT;
+  } else {
+    displayWidth = imageDimensions.width;
+    displayHeight = imageDimensions.height;
+  }
+
+  // Tính kích thước popup
+  const popupWidth = Math.min(displayWidth + 48, window.innerWidth - 32); // Padding 24px
+  const popupHeight = Math.min(displayHeight + 148, window.innerHeight - 32); // Header 48px, footer 48px, padding 52px
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white p-6 rounded-lg w-full max-w-[1000px] max-h-[90vh] overflow-hidden flex flex-col">
-        <h2 className="text-xl font-semibold mb-4">{t('imageCropper.cropImage')}</h2>
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-4 overflow-auto bg-black bg-opacity-50">
+      <div
+        className="flex flex-col w-full p-6 bg-white rounded-lg"
+        style={{
+          minWidth: '400px',
+          maxWidth: `${popupWidth}px`,
+          minHeight: '400px',
+          maxHeight: `${popupHeight}px`,
+        }}
+      >
+        <h2 className="mb-4 text-xl font-semibold">{t('imageCropper.cropImage')}</h2>
         {image ? (
           <div className="relative flex-1 overflow-auto">
             <div
-              className="relative w-full"
+              className="relative"
               style={{
-                aspectRatio: aspectRatio,
-                maxHeight: "70vh",
-                maxWidth: "100%",
+                width: `${displayWidth}px`,
+                height: `${displayHeight}px`,
               }}
             >
               <ReactCrop
                 crop={crop}
                 onChange={(newCrop) => setCrop(newCrop)}
                 aspect={aspectRatio}
-                className="absolute inset-0"
+                disabled={isLargeImage && isRatioClose && aspectRatio !== 1} // Vô hiệu hóa khung cắt
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                }}
               >
                 <img
                   ref={imageRef}
                   src={imageSrc}
                   alt="Crop"
-                  className="w-full h-full object-contain"
-                  style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  style={{
+                    width: `${displayWidth}px`,
+                    height: `${displayHeight}px`,
+                    display: 'block',
+                    objectFit: 'none',
+                  }}
                   crossOrigin="anonymous"
                 />
               </ReactCrop>
             </div>
+            <p className="mt-2 text-sm text-gray-500">
+              {t('imageCropper.imageSize')}: {imageDimensions.width}x{imageDimensions.height}px
+              {crop.width && crop.height ? (
+                <span>
+                  {" | "} {t('imageCropper.cropSize')}: {Math.round(crop.width)}x{Math.round(crop.height)}px
+                </span>
+              ) : null}
+            </p>
           </div>
         ) : (
-          <p>{t('imageCropper.loadingImage')}</p>
+          <div className="flex-1 flex items-center justify-center min-h-[300px]">
+            <div className="w-8 h-8 border-t-2 border-blue-500 rounded-full animate-spin"></div>
+            <p className="ml-2">{t('imageCropper.loadingImage')}</p>
+          </div>
         )}
-        <div className="flex justify-end mt-4 space-x-2 sticky bottom-0 bg-white pt-2">
+        <div className="sticky bottom-0 flex justify-end pt-2 mt-4 space-x-2 bg-white">
           <button
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md"
+            className="px-4 py-2 text-gray-700 bg-gray-300 rounded-md hover:bg-gray-400"
           >
             {t('imageCropper.cancel')}
           </button>
           <button
             onClick={handleUseOriginal}
-            className="px-4 py-2 bg-green-500 text-white rounded-md"
+            className="px-4 py-2 text-white bg-green-500 rounded-md hover:bg-green-600"
+            disabled={!image}
           >
             {t('imageCropper.useOriginal')}
           </button>
           <button
             onClick={handleCropComplete}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md"
+            className="px-4 py-2 text-white bg-blue-500 rounded-md hover:bg-blue-600"
+            disabled={!image || !crop.width || !crop.height}
           >
             {t('imageCropper.crop')}
           </button>
