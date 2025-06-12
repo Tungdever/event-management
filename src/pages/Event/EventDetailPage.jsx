@@ -300,11 +300,10 @@ const OverviewContent = ({ eventData, t }) => (
 const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, user, t }) => {
   const { eventId } = useParams();
   const token = localStorage.getItem("token");
+
   const checkTicketLimit = async (ticketId, ticketType, currentCount) => {
     if (!user?.email) {
-      // Lưu eventId trước khi chuyển hướng
       localStorage.setItem("redirectEventId", eventId);
-      // User chưa đăng nhập, áp dụng giới hạn mặc định
       if (ticketType === "Free" && currentCount > 1) {
         Swal.fire({
           icon: "warning",
@@ -338,7 +337,6 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       return true;
     }
 
-    // User đã đăng nhập, gọi API để kiểm tra
     try {
       const response = await fetch(
         `http://localhost:8080/api/ticket/${user.email}/check/${eventId}`,
@@ -389,16 +387,19 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
     }
   };
 
+  // Lọc các vé còn lại
+  const availableTickets = tickets ? tickets.filter(ticket => ticket.quantity - ticket.sold > 0) : [];
+
   return (
     <div className="w-full sm:w-[400px] lg:w-[450px] bg-white border border-gray-200 rounded-xl p-6 shadow-lg mt-6 sm:mr-10 top-6">
       <div className="p-4 mb-4 border-2 border-red-400 rounded-lg">
         {!tickets ? (
           <p className="text-sm text-gray-700 font-inter">{t("eventDetailPage.loadingTickets")}</p>
-        ) : tickets.length === 0 ? (
-          <p className="text-sm text-gray-700 font-inter">{t("eventDetailPage.noTickets")}</p>
+        ) : tickets.length === 0 || availableTickets.length === 0 ? (
+          <p className="text-sm font-semibold text-red-600 font-inter">{t("eventDetailPage.soldOut")}</p>
         ) : (
           <div className="space-y-4">
-            {tickets.map((ticket) => (
+            {availableTickets.map((ticket) => (
               <div
                 key={ticket.ticketId}
                 className="p-4 transition-all duration-300 bg-gray-100 border border-gray-400 rounded-lg hover:shadow-md"
@@ -475,7 +476,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
       <button
         className="w-full py-3 text-base font-semibold text-white transition bg-red-500 rounded-lg shadow-md hover:bg-red-600 disabled:bg-gray-400 font-inter"
         onClick={onSelect}
-        disabled={Object.keys(selectedTickets).length === 0}
+        disabled={Object.keys(selectedTickets).length === 0 || availableTickets.length === 0}
         aria-label={t("eventDetailPage.selectTickets")}
       >
         {t("eventDetailPage.selectTickets")}
@@ -483,6 +484,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
     </div>
   );
 };
+
 
 // Sponsors Component
 const Sponsors = ({ sponsors, t }) => {

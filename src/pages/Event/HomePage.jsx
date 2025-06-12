@@ -94,6 +94,63 @@ const Navbar = ({ setCityEvents }) => {
     { slug: "dong-nai" },
     { slug: "quang-ninh" },
     { slug: "bac-lieu" },
+    { slug: "hoi-an" },
+    { slug: "hue" },
+    { slug: "phu-quoc" },
+    { slug: "sa-pa" },
+    { slug: "an-giang" },
+    { slug: "ba-ria-vung-tau" },
+    { slug: "bac-giang" },
+    { slug: "bac-kan" },
+    { slug: "bac-ninh" },
+    { slug: "ben-tre" },
+    { slug: "binh-dinh" },
+    { slug: "binh-phuoc" },
+    { slug: "binh-thuan" },
+    { slug: "ca-mau" },
+    { slug: "cao-bang" },
+    { slug: "dak-lak" },
+    { slug: "dak-nong" },
+    { slug: "dien-bien" },
+    { slug: "dong-thap" },
+    { slug: "gia-lai" },
+    { slug: "ha-giang" },
+    { slug: "ha-nam" },
+    { slug: "ha-tinh" },
+    { slug: "hai-duong" },
+    { slug: "hau-giang" },
+    { slug: "hoa-binh" },
+    { slug: "hung-yen" },
+    { slug: "khanh-hoa" },
+    { slug: "kien-giang" },
+    { slug: "kon-tum" },
+    { slug: "lai-chau" },
+    { slug: "lam-dong" },
+    { slug: "lang-son" },
+    { slug: "lao-cai" },
+    { slug: "long-an" },
+    { slug: "nam-dinh" },
+    { slug: "nghe-an" },
+    { slug: "ninh-binh" },
+    { slug: "ninh-thuan" },
+    { slug: "phu-tho" },
+    { slug: "phu-yen" },
+    { slug: "quang-binh" },
+    { slug: "quang-nam" },
+    { slug: "quang-ngai" },
+    { slug: "soc-trang" },
+    { slug: "son-la" },
+    { slug: "tay-ninh" },
+    { slug: "thai-binh" },
+    { slug: "thai-nguyen" },
+    { slug: "thanh-hoa" },
+    { slug: "thua-thien-hue" },
+    { slug: "tien-giang" },
+    { slug: "tra-vinh" },
+    { slug: "tuyen-quang" },
+    { slug: "vinh-long" },
+    { slug: "vinh-phuc" },
+    { slug: "yen-bai" }
   ];
 
   const fetchEventsByCity = async (citySlug) => {
@@ -114,8 +171,8 @@ const Navbar = ({ setCityEvents }) => {
   return (
     <div className="bg-white w-full max-w-[1280px] mx-auto px-4 sm:px-6 py-2">
       {/* Location Section */}
-      <div className="flex items-center space-x-2 relative">
-        <span className="text-xs sm:text-sm lg:text-lg font-semibold">
+      <div className="relative flex items-center space-x-2">
+        <span className="text-xs font-semibold sm:text-sm lg:text-lg">
           {t('homePage.browsingEvents')}
         </span>
         <div className="relative inline-block">
@@ -124,10 +181,13 @@ const Navbar = ({ setCityEvents }) => {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           >
             {selectedLocation}
-            <i className="bi bi-chevron-down ml-1 sm:ml-2 text-blue-800 text-xs sm:text-sm"></i>
+            <i className="ml-1 text-xs text-blue-800 bi bi-chevron-down sm:ml-2 sm:text-sm"></i>
           </button>
           {isDropdownOpen && (
-            <div className="absolute left-0 mt-1 w-[120px] sm:w-[150px] lg:w-[180px] bg-white shadow-lg border rounded-lg py-1 sm:py-2 z-10">
+            <div
+              className="absolute left-0 mt-1 w-[120px] sm:w-[150px] lg:w-[180px] bg-white shadow-lg border rounded-lg py-1 sm:py-2 z-10"
+              style={{ maxHeight: '200px', overflowY: 'auto' }}
+            >
               {locations.map((location) => (
                 <div
                   key={location.slug}
@@ -143,7 +203,7 @@ const Navbar = ({ setCityEvents }) => {
                 >
                   {t("homePage.locations." +`${location.slug}`)}
                   {selectedLocation === t("homePage.locations." + `${location.slug}`) && (
-                    <i className="bi bi-check text-blue-800"></i>
+                    <i className="text-blue-800 bi bi-check"></i>
                   )}
                 </div>
               ))}
@@ -160,8 +220,10 @@ const TopDestinations = () => {
   const scrollRef = useRef(null);
   const navigate = useNavigate();
   const [topCities, setTopCities] = useState([]);
+  const [isHovering, setIsHovering] = useState(false);
+  const animationRef = useRef(null);
 
-  // Danh sách ánh xạ slug và tên thành phố
+  // Danh sách ánh xạ slug và tên thành phố (đầy đủ 63 tỉnh/thành phố)
   const locations = [
     { slug: "ho-chi-minh", name: "TP. Hồ Chí Minh" },
     { slug: "ha-noi", name: "Hà Nội" },
@@ -173,7 +235,60 @@ const TopDestinations = () => {
     { slug: "binh-duong", name: "Bình Dương" },
     { slug: "dong-nai", name: "Đồng Nai" },
     { slug: "quang-ninh", name: "Quảng Ninh" },
-    { slug: "bac-lieu", name: "Bạc Liêu" }
+    { slug: "bac-lieu", name: "Bạc Liêu" },
+    { slug: "an-giang", name: "An Giang" },
+    { slug: "ba-ria-vung-tau", name: "Bà Rịa - Vũng Tàu" },
+    { slug: "bac-giang", name: "Bắc Giang" },
+    { slug: "bac-kan", name: "Bắc Kạn" },
+    { slug: "bac-ninh", name: "Bắc Ninh" },
+    { slug: "ben-tre", name: "Bến Tre" },
+    { slug: "binh-dinh", name: "Bình Định" },
+    { slug: "binh-phuoc", name: "Bình Phước" },
+    { slug: "binh-thuan", name: "Bình Thuận" },
+    { slug: "ca-mau", name: "Cà Mau" },
+    { slug: "cao-bang", name: "Cao Bằng" },
+    { slug: "dak-lak", name: "Đắk Lắk" },
+    { slug: "dak-nong", name: "Đắk Nông" },
+    { slug: "dien-bien", name: "Điện Biên" },
+    { slug: "dong-thap", name: "Đồng Tháp" },
+    { slug: "gia-lai", name: "Gia Lai" },
+    { slug: "ha-giang", name: "Hà Giang" },
+    { slug: "ha-nam", name: "Hà Nam" },
+    { slug: "ha-tinh", name: "Hà Tĩnh" },
+    { slug: "hai-duong", name: "Hải Dương" },
+    { slug: "hau-giang", name: "Hậu Giang" },
+    { slug: "hoa-binh", name: "Hòa Bình" },
+    { slug: "hung-yen", name: "Hưng Yên" },
+    { slug: "khanh-hoa", name: "Khánh Hòa" },
+    { slug: "kien-giang", name: "Kiên Giang" },
+    { slug: "kon-tum", name: "Kon Tum" },
+    { slug: "lai-chau", name: "Lai Châu" },
+    { slug: "lam-dong", name: "Lâm Đồng" },
+    { slug: "lang-son", name: "Lạng Sơn" },
+    { slug: "lao-cai", name: "Lào Cai" },
+    { slug: "long-an", name: "Long An" },
+    { slug: "nam-dinh", name: "Nam Định" },
+    { slug: "nghe-an", name: "Nghệ An" },
+    { slug: "ninh-binh", name: "Ninh Bình" },
+    { slug: "ninh-thuan", name: "Ninh Thuận" },
+    { slug: "phu-tho", name: "Phú Thọ" },
+    { slug: "phu-yen", name: "Phú Yên" },
+    { slug: "quang-binh", name: "Quảng Bình" },
+    { slug: "quang-nam", name: "Quảng Nam" },
+    { slug: "quang-ngai", name: "Quảng Ngãi" },
+    { slug: "soc-trang", name: "Sóc Trăng" },
+    { slug: "son-la", name: "Sơn La" },
+    { slug: "tay-ninh", name: "Tây Ninh" },
+    { slug: "thai-binh", name: "Thái Bình" },
+    { slug: "thai-nguyen", name: "Thái Nguyên" },
+    { slug: "thanh-hoa", name: "Thanh Hóa" },
+    { slug: "hue", name: "Huế" },
+    { slug: "tien-giang", name: "Tiền Giang" },
+    { slug: "tra-vinh", name: "Trà Vinh" },
+    { slug: "tuyen-quang", name: "Tuyên Quang" },
+    { slug: "vinh-long", name: "Vĩnh Long" },
+    { slug: "vinh-phuc", name: "Vĩnh Phúc" },
+    { slug: "yen-bai", name: "Yên Bái" },
   ];
 
   // Fetch top cities từ API
@@ -187,7 +302,6 @@ const TopDestinations = () => {
         setTopCities(cities);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách thành phố:", error);
-
         setTopCities([
           "Đà Nẵng",
           "TP. Hồ Chí Minh",
@@ -203,20 +317,34 @@ const TopDestinations = () => {
     fetchTopCities();
   }, []);
 
-  const scroll = (direction) => {
-    if (scrollRef.current) {
-      const { scrollLeft, clientWidth } = scrollRef.current;
-      const scrollAmount = direction === "left" ? -clientWidth : clientWidth;
-      scrollRef.current.scrollTo({
-        left: scrollLeft + scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  // Auto-scroll logic
+  useEffect(() => {
+    if (!scrollRef.current || isHovering) return;
+
+    const scrollContainer = scrollRef.current;
+    const scrollWidth = scrollContainer.scrollWidth;
+    const clientWidth = scrollContainer.clientWidth;
+
+    const scrollStep = () => {
+      if (scrollContainer.scrollLeft >= scrollWidth - clientWidth) {
+        scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        scrollContainer.scrollLeft += 1;
+      }
+      animationRef.current = requestAnimationFrame(scrollStep);
+    };
+
+    animationRef.current = requestAnimationFrame(scrollStep);
+
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [isHovering]);
 
   const handleSearchByCity = async (city) => {
     try {
-      // Tìm slug tương ứng với tên thành phố
       const cityObj = locations.find(
         (loc) => loc.name.toLowerCase() === city.trim().toLowerCase()
       );
@@ -238,24 +366,28 @@ const TopDestinations = () => {
 
   return (
     <div className="bg-gray-50 text-gray-900 w-full max-w-[1280px] mx-auto p-4 sm:p-6">
-      <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-center mb-4 sm:mb-6">
-        {t('homePage.topDestinations')}
+      <h1 className="mb-4 text-lg font-bold text-center sm:text-xl lg:text-2xl sm:mb-6">
+        {t("homePage.topDestinations")}
       </h1>
-      <div className="relative">
+      <div
+        className="relative"
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
+      >
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto space-x-3 sm:space-x-4 pb-4 scroll-smooth scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200"
+          className="flex pb-4 space-x-3 overflow-x-auto sm:space-x-4 scroll-smooth scrollbar-hidden"
         >
-          {popularCities.map((dest, index) => (
+          {popularCities.concat(popularCities).map((dest, index) => (
             <div key={index} className="flex-none w-48 sm:w-56 lg:w-64">
               <div className="relative">
                 <img
                   src={dest.image}
                   alt={dest.name}
-                  className="rounded-lg w-full h-36 sm:h-40 lg:h-48 object-cover"
+                  className="object-cover w-full rounded-lg h-36 sm:h-40 lg:h-48"
                 />
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-red-600 to-transparent p-2 sm:p-3 lg:p-4 rounded-b-lg">
-                  <span className="text-white text-base sm:text-lg lg:text-xl font-bold">
+                <div className="absolute bottom-0 left-0 right-0 p-2 rounded-b-lg bg-gradient-to-t from-red-600 to-transparent sm:p-3 lg:p-4">
+                  <span className="text-base font-bold text-white sm:text-lg lg:text-xl">
                     {dest.name}
                   </span>
                 </div>
@@ -263,30 +395,18 @@ const TopDestinations = () => {
             </div>
           ))}
         </div>
-        <button
-          onClick={() => scroll("left")}
-          className="absolute top-1/2 -translate-y-1/2 left-0 bg-white rounded-full p-1 sm:p-2 lg:p-3 shadow-sm hover:bg-gray-100"
-        >
-          <FaChevronLeft className="text-xs sm:text-sm lg:text-base" />
-        </button>
-        <button
-          onClick={() => scroll("right")}
-          className="absolute top-1/2 -translate-y-1/2 right-0 bg-white rounded-full p-1 sm:p-2 lg:p-3 shadow-sm hover:bg-gray-100"
-        >
-          <FaChevronRight className="text-xs sm:text-sm lg:text-base" />
-        </button>
       </div>
-      <h2 className="text-base sm:text-lg lg:text-xl font-bold mt-6 sm:mt-8 mb-3 sm:mb-4">
-        {t('homePage.popularCity')}
+      <h2 className="mt-6 mb-3 text-base font-bold sm:text-lg lg:text-xl sm:mt-8 sm:mb-4">
+        {t("homePage.popularCity")}
       </h2>
       <div className="flex flex-wrap gap-2 sm:gap-3 lg:gap-4">
         {topCities.map((city, index) => (
           <a
             key={index}
             onClick={() => handleSearchByCity(city)}
-            className="bg-white rounded-full px-3 sm:px-4 py-1 sm:py-2 shadow-sm text-gray-900 flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
+            className="flex items-center px-3 py-1 space-x-1 text-xs text-gray-900 bg-white rounded-full shadow-sm sm:px-4 sm:py-2 sm:space-x-2 sm:text-sm lg:text-base hover:cursor-pointer hover:bg-gray-100"
           >
-            <span>{t('homePage.eventsAt', { city })}</span>
+            <span>{t("homePage.eventsAt", { city })}</span>
             <FaExternalLinkAlt className="text-xs sm:text-sm" />
           </a>
         ))}
@@ -306,7 +426,7 @@ const HomePage = () => {
   }, []);
 
   return loading ? (
-    <div className="flex justify-center items-center h-screen">
+    <div className="flex items-center justify-center h-screen">
       <Loader />
     </div>
   ) : (

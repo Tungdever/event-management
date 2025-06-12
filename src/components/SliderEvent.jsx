@@ -91,17 +91,23 @@ const CategoriesGrid = ({ categories }) => {
         spaceBetween={16}
         slidesPerView={2}
         autoplay={{
-          delay: 3000,
+          delay: 2000,
           disableOnInteraction: false,
           pauseOnMouseEnter: true,
         }}
-        navigation
+        speed={600} 
+        cssMode={false}
+        easing="ease-out"
+        navigation={false}
         loop={categories.length > 8}
         breakpoints={{
           640: { slidesPerView: 4, spaceBetween: 20 },
           1024: { slidesPerView: 8, spaceBetween: 24 },
         }}
         className="w-full"
+        style={{
+          '--swiper-transition-timing-function': 'ease-out',
+        }}
       >
         {categories.map((category, index) => (
           <SwiperSlide key={index}>
@@ -178,7 +184,7 @@ const SliderEvent = () => {
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={10}
         slidesPerView={1}
-        navigation
+        navigation={false}
         pagination={{ clickable: true }}
         autoplay={{ delay: 3000 }}
         loop={true}

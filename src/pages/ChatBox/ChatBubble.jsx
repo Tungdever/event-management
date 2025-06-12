@@ -322,7 +322,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   };
 
   const renderMessageContent = (msg) => {
-    console.log("Rendering message:", msg);
+    //console.log("Rendering message:", msg);
     if (!msg || !msg.contentType) {
       console.error("Invalid message:", msg);
       return <p className="text-red-500">{t('messages.invalidMessage')}</p>;
@@ -377,17 +377,17 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         </p>
       );
     } catch (error) {
-      console.error("Error rendering message:", error, msg);
+      //console.error("Error rendering message:", error, msg);
       return <p className="text-red-500">{t('messages.displayError')}</p>;
     }
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="fixed z-50 bottom-5 right-5">
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg hover:bg-blue-600 transition-colors duration-200"
+          className="flex items-center justify-center w-16 h-16 text-white transition-colors duration-200 bg-blue-500 rounded-full shadow-lg hover:bg-blue-600"
         >
           <svg
             className="w-8 h-8"
@@ -403,15 +403,15 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
             />
           </svg>
           {Object.values(unreadCounts).reduce((a, b) => a + b, 0) > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            <span className="absolute flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full -top-2 -right-2">
               {Object.values(unreadCounts).reduce((a, b) => a + b, 0)}
             </span>
           )}
         </button>
       )}
       {isOpen && (
-        <div className="w-80 h-96 bg-white rounded-lg shadow-xl flex flex-col">
-          <div className="p-4 bg-blue-500 text-white rounded-t-lg flex justify-between items-center">
+        <div className="flex flex-col bg-white rounded-lg shadow-xl w-80 h-96">
+          <div className="flex items-center justify-between p-4 text-white bg-blue-500 rounded-t-lg">
             <h3 className="font-semibold">{t('chatBubble.title')}</h3>
             <button
               onClick={() => {
@@ -441,35 +441,35 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                 users.map((user) => (
                   <div
                     key={user.userId}
-                    className="p-3 flex items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200"
+                    className="flex items-center p-3 transition-colors duration-200 cursor-pointer hover:bg-gray-100"
                     onClick={() => setSelectedUser(user)}
                   >
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                    <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
                       {user.name[0]}
                     </div>
-                    <div className="ml-2 flex-1">
+                    <div className="flex-1 ml-2">
                       <p className="font-medium">{user.name}</p>
                       <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                     {unreadCounts[user.email] > 0 && (
-                      <span className="bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="flex items-center justify-center w-5 h-5 text-xs text-white bg-red-500 rounded-full">
                         {unreadCounts[user.email]}
                       </span>
                     )}
                   </div>
                 ))
               ) : (
-                <p className="p-3 text-gray-500 text-sm">
+                <p className="p-3 text-sm text-gray-500">
                   {t('chatBubble.noChatHistory')}
                 </p>
               )}
             </div>
           ) : (
             <>
-              <div className="p-3 bg-gray-100 flex items-center">
+              <div className="flex items-center p-3 bg-gray-100">
                 <button
                   onClick={() => setSelectedUser(null)}
-                  className="text-blue-500 mr-2"
+                  className="mr-2 text-blue-500"
                 >
                   <svg
                     className="w-5 h-5"
@@ -485,7 +485,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                     />
                   </svg>
                 </button>
-                <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white">
+                <div className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 rounded-full">
                   {selectedUser.name[0]}
                 </div>
                 <p className="ml-2 font-medium">{selectedUser.name}</p>
@@ -513,7 +513,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                       }`}
                     >
                       {renderMessageContent(msg)}
-                      <p className="text-xs mt-1 opacity-70">
+                      <p className="mt-1 text-xs opacity-70">
                         {new Date(msg.timestamp).toLocaleTimeString("vi-VN", {
                           timeZone: "Asia/Ho_Chi_Minh",
                         })}
@@ -526,7 +526,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                 )}
                 <div ref={messagesEndRef} style={{ height: "1px" }} />
               </div>
-              <div className="p-3 bg-white border-t border-gray-200 relative">
+              <div className="relative p-3 bg-white border-t border-gray-200">
                 <div className="flex items-center space-x-2">
                   <button
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
@@ -557,7 +557,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
                   />
                   <button
                     onClick={sendMessage}
-                    className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                    className="px-3 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600"
                   >
                     <IoSend />
                   </button>
