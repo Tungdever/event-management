@@ -636,7 +636,8 @@ const resources = {
         dec: "Dec"
       },
       currency: {
-        vnd: "VND"
+        vnd: "VND",
+        usd: "$"
       },
       notifications: {
         header: "Notifications",
@@ -2106,7 +2107,8 @@ const resources = {
         dec: "Thg 12"
       },
       currency: {
-        vnd: "₫"
+        vnd: "₫",
+        usd: "$"
       },
       notifications: {
         header: "Thông Báo",

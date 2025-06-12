@@ -18,20 +18,22 @@ const EventTypeManagement = () => {
     const fetchEventTypes = async () => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8080/api/events-type/get-all-event-types",{
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+            const response = await axios.get("http://localhost:8080/api/events-type/get-all-event-types", {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            //console.log("Fetch event types response:", response.data);
             setAllEventTypes(response.data);
             setEventTypes(response.data);
-            setCurrentPage(1); // Reset to first page on new fetch
+            setCurrentPage(1);
         } catch (error) {
+           // console.error("Fetch event types error:", error);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Failed to load event types: " + (error.response?.data?.message || error.message),
+                text: `Failed to load event types: ${error.response?.data?.msg || error.message}`,
             });
         } finally {
             setLoading(false);
@@ -55,7 +57,7 @@ const EventTypeManagement = () => {
     useEffect(() => {
         const filtered = searchEventTypes(allEventTypes, searchTerm);
         setEventTypes(filtered);
-        setCurrentPage(1); // Reset to first page on search
+        setCurrentPage(1);
     }, [searchTerm, allEventTypes]);
 
     // Handle add event type
@@ -65,13 +67,23 @@ const EventTypeManagement = () => {
             Swal.fire({
                 icon: "warning",
                 title: "Warning",
-                text: "Type name cannot be empty",
+                text: "Type name cannot be empty or contain only spaces",
+            });
+            return;
+        }
+        if (!token) {
+            Swal.fire({
+                icon: "error",
+                title: "Error",
+                text: "Authentication token is missing. Please log in.",
             });
             return;
         }
 
         setLoading(true);
         try {
+            //console.log("Add event type - Token:", token);
+            //console.log("Add event type - Request body:", { typeName: newTypeName });
             const response = await axios.post(
                 "http://localhost:8080/api/events-type/create-types",
                 { typeName: newTypeName },
@@ -82,24 +94,26 @@ const EventTypeManagement = () => {
                     },
                 }
             );
-            if (response.data.status !== 200) {
-                throw new Error(response.data.message);
+            //console.log("Add event type - Response:", response.data);
+            if (response.data.statusCode !== 200) {
+                throw new Error(response.data.msg || "Unknown error");
             }
             const newEventType = response.data.data;
             setAllEventTypes([...allEventTypes, newEventType]);
             setEventTypes([...eventTypes, newEventType]);
             setNewTypeName("");
-            setSearchTerm(""); // Clear search to show all
+            setSearchTerm("");
             Swal.fire({
                 icon: "success",
                 title: "Success",
                 text: "Event type added successfully!",
             });
         } catch (error) {
+           // console.error("Add event type - Error:", error);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Failed to add event type: " + (error.response?.data?.message || error.message),
+                text: `Failed to add event type: ${error.response?.data?.msg || error.message}`,
             });
         } finally {
             setLoading(false);
@@ -113,13 +127,14 @@ const EventTypeManagement = () => {
             Swal.fire({
                 icon: "warning",
                 title: "Warning",
-                text: "Type name cannot be empty",
+                text: "Type name cannot be empty or contain only spaces",
             });
             return;
         }
 
         setLoading(true);
         try {
+           // console.log("Edit event type - Request body:", { typeName: editEventType.typeName });
             const response = await axios.put(
                 `http://localhost:8080/api/events-type/${editEventType.id}`,
                 { typeName: editEventType.typeName },
@@ -130,8 +145,9 @@ const EventTypeManagement = () => {
                     },
                 }
             );
-            if (response.data.status !== 200) {
-                throw new Error(response.data.message);
+            //console.log("Edit event type - Response:", response.data);
+            if (response.data.statusCode !== 200) {
+                throw new Error(response.data.msg || "Unknown error");
             }
             const updatedEventType = response.data.data;
             setAllEventTypes(
@@ -152,10 +168,11 @@ const EventTypeManagement = () => {
                 text: "Event type updated successfully!",
             });
         } catch (error) {
+           // console.error("Edit event type - Error:", error);
             Swal.fire({
                 icon: "error",
                 title: "Error",
-                text: "Failed to update event type: " + (error.response?.data?.message || error.message),
+                text: `Failed to update event type: ${error.response?.data?.msg || error.message}`,
             });
         } finally {
             setLoading(false);
@@ -178,6 +195,7 @@ const EventTypeManagement = () => {
         if (result.isConfirmed) {
             setLoading(true);
             try {
+               // console.log("Delete event type - ID:", id);
                 await axios.delete(`http://localhost:8080/api/events-type/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -185,17 +203,18 @@ const EventTypeManagement = () => {
                 });
                 setAllEventTypes(allEventTypes.filter((type) => type.id !== id));
                 setEventTypes(eventTypes.filter((type) => type.id !== id));
-                setCurrentPage(1); // Reset to first page
+                setCurrentPage(1);
                 Swal.fire({
                     icon: "success",
                     title: "Deleted!",
                     text: "Event type deleted successfully.",
                 });
             } catch (error) {
+                //console.error("Delete event type - Error:", error);
                 Swal.fire({
                     icon: "error",
                     title: "Error",
-                    text: "Failed to delete event type: " + (error.response?.data?.message || error.message),
+                    text: `Failed to delete event type: ${error.response?.data?.msg || error.message}`,
                 });
             } finally {
                 setLoading(false);
@@ -228,29 +247,32 @@ const EventTypeManagement = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white p-6">
-            <h1 className="text-4xl font-extrabold text-gray-800 mb-8 text-center">
+        <div className="min-h-screen p-6 bg-gradient-to-b from-blue-50 to-white">
+            <h1 className="mb-8 text-4xl font-extrabold text-center text-gray-800">
                 Event Type Management
             </h1>
 
             {/* Search and Add Event Type Form */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg mb-8 max-w-3xl mx-auto transition-all duration-300">
-                <h2 className="text-2xl font-semibold text-gray-700 mb-6">Add New Event Type</h2>
+            <div className="max-w-3xl p-8 mx-auto mb-8 transition-all duration-300 bg-white shadow-lg rounded-2xl">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-700">Add New Event Type</h2>
                 <form onSubmit={handleAddEventType} className="flex gap-4 mb-6">
                     <input
                         type="text"
                         value={newTypeName}
-                        onChange={(e) => setNewTypeName(e.target.value)}
+                        onChange={(e) => {
+                            //console.log("Input value:", e.target.value);
+                            setNewTypeName(e.target.value);
+                        }}
                         placeholder="Enter type name"
-                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                        className="flex-1 p-3 transition-all duration-200 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         type="submit"
                         disabled={loading}
-                        className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all duration-200"
+                        className="px-6 py-3 text-white transition-all duration-200 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50"
                     >
                         {loading ? (
-                            <svg className="animate-spin h-5 w-5 text-white inline" viewBox="0 0 24 24">
+                            <svg className="inline w-5 h-5 text-white animate-spin" viewBox="0 0 24 24">
                                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z" />
                             </svg>
@@ -265,11 +287,11 @@ const EventTypeManagement = () => {
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search by type name"
-                        className="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                        className="flex-1 p-3 transition-all duration-200 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <button
                         onClick={() => setSearchTerm("")}
-                        className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all duration-200"
+                        className="px-6 py-3 text-gray-700 transition-all duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
                     >
                         Clear
                     </button>
@@ -277,11 +299,11 @@ const EventTypeManagement = () => {
             </div>
 
             {/* Event Types Table */}
-            <div className="bg-white p-8 rounded-2xl shadow-lg max-w-5xl mx-auto">
-                <h2 className="text-2xl font-semibold text-gray-700 mb-6">Event Types List</h2>
+            <div className="max-w-5xl p-8 mx-auto bg-white shadow-lg rounded-2xl">
+                <h2 className="mb-6 text-2xl font-semibold text-gray-700">Event Types List</h2>
                 {loading ? (
                     <div className="text-center">
-                        <svg className="animate-spin h-8 w-8 text-blue-600 mx-auto" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 mx-auto text-blue-600 animate-spin" viewBox="0 0 24 24">
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z" />
                         </svg>
@@ -294,27 +316,27 @@ const EventTypeManagement = () => {
                             <table className="w-full border-collapse">
                                 <thead>
                                     <tr className="bg-blue-100">
-                                        <th className="p-4 text-left text-gray-700 font-semibold">ID</th>
-                                        <th className="p-4 text-left text-gray-700 font-semibold">Type Name</th>
-                                        <th className="p-4 text-center text-gray-700 font-semibold">Actions</th>
+                                        <th className="p-4 font-semibold text-left text-gray-700">ID</th>
+                                        <th className="p-4 font-semibold text-left text-gray-700">Type Name</th>
+                                        <th className="p-4 font-semibold text-center text-gray-700">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {currentItems.map((type) => (
-                                        <tr key={type.id} className="border-b hover:bg-gray-50 transition-all duration-200">
+                                        <tr key={type.id} className="transition-all duration-200 border-b hover:bg-gray-50">
                                             <td className="p-4">{type.id}</td>
                                             <td className="p-4">{type.typeName}</td>
                                             <td className="p-4 text-center">
                                                 <button
                                                     onClick={() => openEditModal(type)}
-                                                    className="text-blue-600 hover:text-blue-800 mr-4 transition-colors duration-200"
+                                                    className="mr-4 text-blue-600 transition-colors duration-200 hover:text-blue-800"
                                                     title="Edit"
                                                 >
                                                     <i className="fas fa-edit"></i>
                                                 </button>
                                                 <button
                                                     onClick={() => handleDeleteEventType(type.id)}
-                                                    className="text-red-600 hover:text-red-800 transition-colors duration-200"
+                                                    className="text-red-600 transition-colors duration-200 hover:text-red-800"
                                                     title="Delete"
                                                 >
                                                     <i className="fas fa-trash"></i>
@@ -327,7 +349,7 @@ const EventTypeManagement = () => {
                         </div>
 
                         {/* Pagination */}
-                        <div className="flex justify-between items-center mt-6">
+                        <div className="flex items-center justify-between mt-6">
                             <div className="text-gray-600">
                                 Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, eventTypes.length)} of {eventTypes.length} entries
                             </div>
@@ -335,7 +357,7 @@ const EventTypeManagement = () => {
                                 <button
                                     onClick={() => paginate(currentPage - 1)}
                                     disabled={currentPage === 1}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-all duration-200"
+                                    className="px-4 py-2 text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
                                 >
                                     Previous
                                 </button>
@@ -355,7 +377,7 @@ const EventTypeManagement = () => {
                                 <button
                                     onClick={() => paginate(currentPage + 1)}
                                     disabled={currentPage === totalPages}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 transition-all duration-200"
+                                    className="px-4 py-2 text-white transition-all duration-200 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:bg-gray-300"
                                 >
                                     Next
                                 </button>
@@ -367,12 +389,12 @@ const EventTypeManagement = () => {
 
             {/* Edit Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full transform transition-all duration-300 scale-95 animate-modal-open">
-                        <h2 className="text-2xl font-semibold text-gray-700 mb-6">Edit Event Type</h2>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                    <div className="w-full max-w-md p-8 transition-all duration-300 transform scale-95 bg-white shadow-xl rounded-2xl animate-modal-open">
+                        <h2 className="mb-6 text-2xl font-semibold text-gray-700">Edit Event Type</h2>
                         <form onSubmit={handleEditEventType}>
                             <div className="mb-6">
-                                <label className="block text-gray-700 mb-2 font-medium">Type Name</label>
+                                <label className="block mb-2 font-medium text-gray-700">Type Name</label>
                                 <input
                                     type="text"
                                     value={editEventType?.typeName || ""}
@@ -382,24 +404,24 @@ const EventTypeManagement = () => {
                                             typeName: e.target.value,
                                         })
                                     }
-                                    className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                                    className="w-full p-3 transition-all duration-200 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                             <div className="flex justify-end gap-4">
                                 <button
                                     type="button"
                                     onClick={closeEditModal}
-                                    className="bg-gray-200 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-300 transition-all duration-200"
+                                    className="px-6 py-3 text-gray-700 transition-all duration-200 bg-gray-200 rounded-lg hover:bg-gray-300"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 transition-all duration-200"
+                                    className="px-6 py-3 text-white transition-all duration-200 rounded-lg bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50"
                                 >
                                     {loading ? (
-                                        <svg className="animate-spin h-5 w-5 text-white inline" viewBox="0 0 24 24">
+                                        <svg className="inline w-5 h-5 text-white animate-spin" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8h8a8 8 0 01-8 8 8 8 0 01-8-8z" />
                                         </svg>

@@ -25,13 +25,14 @@ export default function MyInvoice() {
   };
 
   const convertTimestamp = (timestamp) => {
-    const year = timestamp.slice(0, 4);
-    const month = timestamp.slice(4, 6);
-    const day = timestamp.slice(6, 8);
-    const hour = timestamp.slice(8, 10);
-    const minute = timestamp.slice(10, 12);
-    const second = timestamp.slice(12, 14);
-    const shortYear = year.slice(2);
+    console.log("Time: ", timestamp);
+    const year = timestamp?.slice(0, 4);
+    const month = timestamp?.slice(4, 6);
+    const day = timestamp?.slice(6, 8);
+    const hour = timestamp?.slice(8, 10);
+    const minute = timestamp?.slice(10, 12);
+    const second = timestamp?.slice(12, 14);
+    const shortYear = year?.slice(2);
     return `${hour}:${minute}:${second} ${day}/${month}/${shortYear}`;
   };
 
@@ -207,18 +208,18 @@ export default function MyInvoice() {
                       {t('myBooking.invoiceId')}{order.orderId}
                     </h2>
                     <p className="text-sm text-gray-500">
-                      {t('myBooking.transactionTime')} {convertTimestamp(order.transaction.transactionDate)}
+                      {t('myBooking.transactionTime')} {convertTimestamp(order.transaction?.transactionDate)}
                     </p>
                     <p className="text-sm text-gray-500">
                       {t('myBooking.status')}{" "}
-                      <span className={`font-medium ${statusColors[order.transaction.transactionStatus] || "text-gray-600"}`}>
-                        {order.transaction.transactionStatus || "FAILED"}
+                      <span className={`font-medium ${statusColors[order.transaction?.transactionStatus] || "text-gray-600"}`}>
+                        {order.transaction?.transactionStatus || "FAILED"}
                       </span>
                     </p>
                   </div>
                   <div className="text-right mt-4 sm:mt-0">
                     <p className="text-lg font-semibold text-blue-600">
-                      {t('myBooking.total')} {order.transaction.transactionAmount} {t('currency.vnd')}
+                      {t('myBooking.total')} {order.transaction?.paymentMethod !== "PayPal" ? order.transaction?.transactionAmount: order.transaction?.transactionAmountUSD} {order.transaction?.paymentMethod !== "PayPal" ? t('currency.vnd'): t('currency.usd')}
                     </p>
                     <p className="text-sm text-blue-500 font-medium">
                       {isOpen ? t('myBooking.hideDetails') : t('myBooking.viewDetails')}
@@ -302,7 +303,7 @@ export default function MyInvoice() {
                     {t('myBooking.downloadInvoice')}
                   </button>
 
-                  {order.transaction.transactionStatus !== "REFUNDED" && order.transaction.paymentMethod !== "N/A" && (
+                  {order.transaction?.transactionStatus !== "REFUNDED" && order.transaction?.paymentMethod !== "N/A" && (
                     <button
                       onClick={() => setSelectedOrderId(order.orderId)}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-700 transition duration-200"

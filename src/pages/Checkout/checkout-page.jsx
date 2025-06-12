@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useLocation, useNavigate } from "react-router-dom";
 import VNPAY from "../../assets/VNPAY.jpeg";
 import momo from "../../assets/MoMo.png";
+import PayPal from "../../assets/PayPal.png";
 import { toast } from 'react-toastify';
 
 const CheckoutPage = (props) => {
@@ -83,9 +84,24 @@ const CheckoutPage = (props) => {
 
         console.error(error);
       }
-    } else {
+    } else if (method === "VNPAY"){
       try {
         const response = await axios.post('http://localhost:8080/api/v1/payment/create-vnpay', data, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+        window.location.href = response.data.paymentUrl;
+      } catch (error) {
+
+        setToastMessage("Payment via VNPay failed. Please try again.");
+        setToastType("error");
+        console.error(error);
+      }
+    } else {
+      try {
+        const response = await axios.post('http://localhost:8080/api/v1/payment/paypal/pay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
@@ -127,7 +143,16 @@ const CheckoutPage = (props) => {
               <span>VNPAY</span>
             </div>
           </div>
-
+<div
+            className={`flex items-center justify-between p-[15px] rounded-[8px] border cursor-pointer mb-[15px] ${method === "PayPal" ? "border-2 border-blue-600 shadow-md bg-blue-50" : "border-[#e8e9eb]"
+              }`}
+            onClick={() => handleClick("PayPal")}
+          >
+            <div className="flex">
+              <img className="mr-1" src={PayPal} alt="PayPal" width="80px" />
+              <span>PayPal</span>
+            </div>
+          </div>
 
         </div>
         <div className="flex-1 bg-[#f5f8ff] rounded-[12px] p-5">

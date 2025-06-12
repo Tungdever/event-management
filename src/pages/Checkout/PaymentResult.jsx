@@ -49,13 +49,6 @@ export default function PaymentResultPage() {
           <span className="text-gray-900">{data?.transactionInfo}</span>
         </div>
 
-        {data?.message && (
-          <div className="flex justify-between">
-            <span className="text-gray-600 font-medium">Payment Error:</span>
-            <span className="text-red-600">{data?.message}</span>
-          </div>
-        )}
-
         <div className="flex justify-between">
           <span className="text-gray-600 font-medium">Status:</span>
           <span
