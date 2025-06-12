@@ -18,7 +18,7 @@ const EventTypeManagement = () => {
     const fetchEventTypes = async () => {
         setLoading(true);
         try {
-            const response = await axios.get("http://localhost:8080/api/events-type/get-all-event-types", {
+            const response = await axios.get("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/get-all-event-types", {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,
@@ -85,7 +85,7 @@ const EventTypeManagement = () => {
             //console.log("Add event type - Token:", token);
             //console.log("Add event type - Request body:", { typeName: newTypeName });
             const response = await axios.post(
-                "http://localhost:8080/api/events-type/create-types",
+                "https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/create-types",
                 { typeName: newTypeName },
                 {
                     headers: {
@@ -136,7 +136,7 @@ const EventTypeManagement = () => {
         try {
            // console.log("Edit event type - Request body:", { typeName: editEventType.typeName });
             const response = await axios.put(
-                `http://localhost:8080/api/events-type/${editEventType.id}`,
+                `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/${editEventType.id}`,
                 { typeName: editEventType.typeName },
                 {
                     headers: {
@@ -196,7 +196,7 @@ const EventTypeManagement = () => {
             setLoading(true);
             try {
                // console.log("Delete event type - ID:", id);
-                await axios.delete(`http://localhost:8080/api/events-type/${id}`, {
+                await axios.delete(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/${id}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

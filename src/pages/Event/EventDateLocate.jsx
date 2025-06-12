@@ -121,7 +121,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     setIsCreatingMeeting(true);
     try {
       const response = await axios.post(
-        "http://localhost:8080/api/zoom/create-meeting",
+        "https://utevent-3e31c1e0e5ff.herokuapp.com/api/zoom/create-meeting",
         {
           topic: t('eventDateLocate.zoomSuccess.topic', { defaultValue: 'Online Event' }),
           date: eventLocation.date,

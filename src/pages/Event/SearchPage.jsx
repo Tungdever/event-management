@@ -333,7 +333,7 @@ const SearchPage = () => {
     const fetchEventTypes = async () => {
       setLoadingCategories(true);
       try {
-        const response = await fetch("http://localhost:8080/api/events-type/get-all-event-types", {
+        const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/get-all-event-types", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -359,7 +359,7 @@ const SearchPage = () => {
 
     const fetchTopCities = async () => {
       try {
-        const response = await fetch("http://localhost:8080/api/events/search/top-cities-popular");
+        const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/top-cities-popular");
         if (!response.ok) throw new Error("Failed to fetch top cities");
         const cities = await response.json();
         console.log("Fetched topCities:", cities);
@@ -401,7 +401,7 @@ const SearchPage = () => {
       setLoading(true);
       try {
         const response = await fetch(
-          `http://localhost:8080/api/events/search/multiple-filters?eventCategory=${selectedCategories}&eventLocation=${selectedEventLocation}&eventStart=${selectedEventStart}&ticketType=${selectedTicketType}`,
+          `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/multiple-filters?eventCategory=${selectedCategories}&eventLocation=${selectedEventLocation}&eventStart=${selectedEventStart}&ticketType=${selectedTicketType}`,
           {
             headers: {
               "Content-Type": "application/json",

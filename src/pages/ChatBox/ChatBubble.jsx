@@ -27,7 +27,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const emojiPickerRef = useRef(null);
   const token = localStorage.getItem("token");
 
-  const MEDIA_BASE_URL = "http://localhost:8080/uploads/";
+  const MEDIA_BASE_URL = "https://utevent-3e31c1e0e5ff.herokuapp.com/uploads/";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,7 +57,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(
-        `http://localhost:8080/chat/${currentUser.userId}/list-chat`,
+        `https://utevent-3e31c1e0e5ff.herokuapp.com/chat/${currentUser.userId}/list-chat`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     if (selectedUser && currentUser.userId) {
       axios
         .get(
-          `http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`,
+          `https://utevent-3e31c1e0e5ff.herokuapp.com/chat/history/${currentUser.userId}/${selectedUser.userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -232,7 +232,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/chat/upload",
+        "https://utevent-3e31c1e0e5ff.herokuapp.com/chat/upload",
         formData,
         {
           headers: {

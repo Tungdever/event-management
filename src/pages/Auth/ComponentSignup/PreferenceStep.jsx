@@ -32,7 +32,7 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
     try {
       setLoading(true);
       setApiError(null);
-      const response = await fetch('http://localhost:8080/api/events/search/all-tags', {
+      const response = await fetch('https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/all-tags', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ const PreferenceStep = ({ email, userData, onComplete, onPrev }) => {
         preferredTags,
       };
 
-      const response = await fetch('http://localhost:8080/api/auth/register', {
+      const response = await fetch('https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

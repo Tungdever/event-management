@@ -71,7 +71,7 @@ const CheckoutPage = (props) => {
     }
     if (method === "MoMo") {
       try {
-        const response = await axios.post('http://localhost:8080/api/v1/payment/create-momo', data, {
+        const response = await axios.post('https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/payment/create-momo', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
@@ -86,7 +86,7 @@ const CheckoutPage = (props) => {
       }
     } else if (method === "VNPAY"){
       try {
-        const response = await axios.post('http://localhost:8080/api/v1/payment/create-vnpay', data, {
+        const response = await axios.post('https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/payment/create-vnpay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
@@ -101,7 +101,7 @@ const CheckoutPage = (props) => {
       }
     } else {
       try {
-        const response = await axios.post('http://localhost:8080/api/v1/payment/paypal/pay', data, {
+        const response = await axios.post('https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/payment/paypal/pay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`

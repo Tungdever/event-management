@@ -12,7 +12,7 @@ const NotificationList = () => {
 
   const fetchHistory = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:8080/notify/${userId}`, {
+      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/notify/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const NotificationList = () => {
 
   const readNoti = async (notiId) => {
     try {
-      const response = await fetch(`http://localhost:8080/notify/${notiId}/read`, {
+      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/notify/${notiId}/read`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const NotificationList = () => {
 
   const readAllNoti = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:8080/notify/readAll/${userId}`, {
+      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/notify/readAll/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

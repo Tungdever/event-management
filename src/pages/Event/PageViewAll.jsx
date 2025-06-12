@@ -102,7 +102,7 @@ const AllEvent = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch("http://localhost:8080/api/events/all");
+      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/all");
       if (!response.ok) {
         throw new Error("Không thể tải danh sách sự kiện");
       }

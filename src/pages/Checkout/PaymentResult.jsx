@@ -11,7 +11,7 @@ export default function PaymentResultPage() {
       const token = localStorage.getItem('token');
 
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/payment/status/${orderCode}`, {
+        const response = await axios.get(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/payment/status/${orderCode}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`

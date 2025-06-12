@@ -25,7 +25,7 @@ const uploadFilesToCloudinary = async (files, t) => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:8080/api/storage/upload", {
+      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/storage/upload", {
         method: "POST",
         body: formData,
       });
@@ -147,7 +147,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
       };
 
       const response = await axios.put(
-        "http://localhost:8080/api/auth/save-change",
+        "https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth/save-change",
         updatedData,
         {
           headers: {

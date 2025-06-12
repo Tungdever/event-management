@@ -27,7 +27,7 @@ export const WebSocketProvider = ({ children }) => {
             clientRef.current = null;
         }
 
-        const socket = new SockJS("http://localhost:8080/ws");
+        const socket = new SockJS("https://utevent-3e31c1e0e5ff.herokuapp.com/ws");
         const client = Stomp.over(socket);
         clientRef.current = client; // Lưu client mới
         const token = localStorage.getItem("token");

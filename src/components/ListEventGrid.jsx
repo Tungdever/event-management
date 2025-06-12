@@ -19,7 +19,7 @@ const ListEventGrid = ({ events: propEvents }) => {
 
   const fetchAllEvent = async () => {
     try {
-      const response = await fetch("http://localhost:8080/api/events/search/upcoming");
+      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/upcoming");
       if (!response.ok) {
         throw new Error(t("listEventGrid.error", { message: "Failed to fetch events" })); // Translated error
       }

@@ -62,7 +62,7 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
         tickets: tickets,
       };
 
-      const response = await axios.post('http://localhost:8080/api/v1/payment/free-ticket', data, {
+      const response = await axios.post('https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/payment/free-ticket', data, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

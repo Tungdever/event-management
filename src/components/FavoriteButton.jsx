@@ -12,7 +12,7 @@ const FavoriteButton = ({ eventId }) => {
   // Fetch favorite events
   const getFavorites = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
+      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/favorites/${user.userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ const FavoriteButton = ({ eventId }) => {
   const addFavorite = async () => {
     try {
       const favoriteEvent = { userId: user.userId, eventId };
-      const response = await fetch("http://localhost:8080/api/favorites", {
+      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/favorites", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -64,7 +64,7 @@ const FavoriteButton = ({ eventId }) => {
   const removeFavorite = async () => {
     try {
       const favoriteEvent = { userId: user.userId, eventId };
-      const response = await fetch("http://localhost:8080/api/favorites", {
+      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/favorites", {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

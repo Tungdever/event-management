@@ -50,7 +50,7 @@ const Calendar = () => {
 
     try {
       setIsLoading(true);
-      const response = await fetch(`http://localhost:8080/api/role-assignment/${user.userId}/get-events`, {
+      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/role-assignment/${user.userId}/get-events`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

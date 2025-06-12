@@ -604,7 +604,7 @@ const SectionEvent = ({
       } else if (segmentToDelete.segmentId) {
         try {
           const response = await fetch(
-            `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
+            `https://utevent-3e31c1e0e5ff.herokuapp.com/api/segment/delete/${segmentToDelete.segmentId}`,
             {
               headers: {
                 "Content-Type": "application/json",
