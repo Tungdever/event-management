@@ -224,7 +224,7 @@ const RecommendedEvents = () => {
   return (
     <div className="w-full">
       <ListEventScroll
-        apiUrl={`https://event-recommendation-512c4c8777df.herokuapp.com//api/events/recommended/${userId}`}
+        apiUrl={`https://event-recommendation-512c4c8777df.herokuapp.com/api/events/recommended/${userId}`}
         title={t("recommendedEvents.youMightLike")}
         method="POST" // Chỉ định phương thức POST
         t={t}
