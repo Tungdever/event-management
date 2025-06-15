@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Rnd } from "react-rnd";
 import { PiArmchairLight } from "react-icons/pi";
 import Swal from "sweetalert2";
+import * as htmlToImage from "html-to-image";
 
 const SeatingLayoutEditor = ({
   isOpen,
@@ -66,81 +68,149 @@ const SeatingLayoutEditor = ({
   }, [existingLayout, existingAreas]);
 
   const addSeatingArea = () => {
-    const newAreaId = `area-${Date.now()}`;
-    const newArea = {
-      id: newAreaId,
-      type: "seating",
-      x: 50,
-      y: 150,
-      width: 200,
-      height: 200,
-      name: "",
-      capacity: 0,
-      price: 0,
-      ticketId: null,
-    };
-    setLayout([...layout, newArea]);
-    setAreas([
-      ...areas,
-      {
+    try {
+      const newAreaId = `area-${Date.now()}`;
+      const newArea = {
         id: newAreaId,
-        name: newArea.name,
-        capacity: newArea.capacity,
-        price: newArea.price,
-        type: newArea.type,
+        type: "seating",
+        x: 50,
+        y: 150,
+        width: 200,
+        height: 200,
+        name: "",
+        capacity: 0,
+        price: 0,
         ticketId: null,
-        areaId: newAreaId,
-      },
-    ]);
+      };
+      setLayout([...layout, newArea]);
+      setAreas([
+        ...areas,
+        {
+          id: newAreaId,
+          name: newArea.name,
+          capacity: newArea.capacity,
+          price: newArea.price,
+          type: newArea.type,
+          ticketId: null,
+          areaId: newAreaId,
+        },
+      ]);
+    } catch (error) {
+      console.error("Lỗi khi thêm khu vực ghế:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể thêm khu vực ghế. Vui lòng thử lại.",
+      });
+    }
   };
 
   const updateAreaDetails = (id, ticketId) => {
-    const ticket = availableTickets.find((t) => t.ticketId === ticketId);
-    const updatedDetails = ticket
-      ? {
-          ticketId,
-          name: ticket.ticketName,
-          capacity: parseInt(ticket.quantity) || 0,
-          price: ticket.ticketType === "Paid" ? parseFloat(ticket.price) || 0 : 0,
-        }
-      : { ticketId: null, name: "", capacity: 0, price: 0 };
+    try {
+      const ticket = availableTickets.find((t) => t.ticketId === ticketId);
+      const updatedDetails = ticket
+        ? {
+            ticketId,
+            name: ticket.ticketName,
+            capacity: parseInt(ticket.quantity) || 0,
+            price: ticket.ticketType === "Paid" ? parseFloat(ticket.price) || 0 : 0,
+          }
+        : { ticketId: null, name: "", capacity: 0, price: 0 };
 
-    setAreas(
-      areas.map((area) =>
-        area.id === id ? { ...area, ...updatedDetails, areaId: area.areaId || id } : area
-      )
-    );
-    setLayout(
-      layout.map((item) =>
-        item.id === id ? { ...item, ...updatedDetails } : item
-      )
-    );
+      setAreas(
+        areas.map((area) =>
+          area.id === id ? { ...area, ...updatedDetails, areaId: area.areaId || id } : area
+        )
+      );
+      setLayout(
+        layout.map((item) =>
+          item.id === id ? { ...item, ...updatedDetails } : item
+        )
+      );
+    } catch (error) {
+      console.error("Lỗi khi cập nhật chi tiết khu vực:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể cập nhật khu vực. Vui lòng thử lại.",
+      });
+    }
   };
 
   const deleteArea = (id) => {
-    if (id === "stage") {
+    try {
+      if (id === "stage") {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể xóa sân khấu.",
+        });
+        return;
+      }
+      setLayout(layout.filter((item) => item.id !== id));
+      setAreas(areas.filter((area) => area.id !== id));
+    } catch (error) {
+      console.error("Lỗi khi xóa khu vực:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Cannot delete the stage.",
+        title: "Lỗi",
+        text: "Không thể xóa khu vực. Vui lòng thử lại.",
       });
-      return;
     }
-    setLayout(layout.filter((item) => item.id !== id));
-    setAreas(areas.filter((area) => area.id !== id));
   };
 
-  const handleSave = () => {
-    if (!hasValidSeating) {
+  const generateSeatingMapImage = async () => {
+    if (containerRef.current) {
+      try {
+        const dataUrl = await htmlToImage.toPng(containerRef.current, {
+          quality: 1,
+          pixelRatio: 2,
+          backgroundColor: "#f9fafb", // gray-50
+          cacheBust: true,
+        });
+        return dataUrl;
+      } catch (error) {
+        console.error("Lỗi khi tạo ảnh sơ đồ ghế:", error);
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể tạo ảnh sơ đồ ghế. Vui lòng kiểm tra console.",
+        });
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!hasValidSeating) {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Vui lòng gán ít nhất một vé cho khu vực ghế.",
+        });
+        return;
+      }
+      const image = await generateSeatingMapImage();
+      if (image) {
+        onSave(layout, areas, image);
+        onClose();
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Lỗi",
+          text: "Không thể tạo ảnh sơ đồ ghế. Vui lòng thử lại.",
+        });
+      }
+    } catch (error) {
+      console.error("Lỗi khi lưu sơ đồ ghế:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "At least one seating area with a selected ticket is required.",
+        title: "Lỗi",
+        text: "Không thể lưu sơ đồ ghế. Vui lòng thử lại.",
       });
-      return;
     }
-    onSave(layout, areas);
-    onClose();
   };
 
   const renderChairs = (area) => {
@@ -149,7 +219,7 @@ const SeatingLayoutEditor = ({
     const capacity = areaDetails.capacity;
     const iconSize = 24;
     const padding = 4;
-    const maxIcons = 10; // Giới hạn tối đa 10 icon
+    const maxIcons = 10;
     const displayCount = Math.min(capacity, maxIcons);
 
     const icons = [];
@@ -191,10 +261,10 @@ const SeatingLayoutEditor = ({
       }`}
     >
       <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 className="mb-4 text-2xl font-bold">Create Seating Layout</h2>
+        <h2 className="mb-4 text-2xl font-bold">Tạo sơ đồ chỗ ngồi</h2>
         {!hasValidSeating && (
           <p className="mb-4 text-red-500">
-            Please assign a ticket to at least one seating area.
+            Vui lòng gán vé cho ít nhất một khu vực ghế.
           </p>
         )}
         <div
@@ -239,7 +309,7 @@ const SeatingLayoutEditor = ({
             >
               <div className="relative flex flex-col items-center justify-center w-full h-full p-2">
                 <span className="text-sm font-semibold">
-                  {item.type === "stage" ? "Stage" : item.name || "Unassigned"}
+                  {item.type === "stage" ? "Sân khấu" : item.name || "Chưa gán"}
                 </span>
                 {item.type === "seating" && renderChairs(item)}
                 {item.type === "seating" && (
@@ -259,29 +329,32 @@ const SeatingLayoutEditor = ({
                   </button>
                 )}
               </div>
-            </Rnd
-            >
+            </Rnd>
           ))}
         </div>
 
         {selectedArea && (
           <div className="p-4 mt-4 border rounded-lg bg-gray-50">
-            <h3 className="mb-2 text-lg font-semibold">Assign Ticket to Area</h3>
+            <h3 className="mb-2 text-lg font-semibold">Gán vé cho khu vực</h3>
             {areas
               .filter((area) => area.id === selectedArea)
               .map((area) => (
                 <div key={area.id} className="space-y-2">
                   <div>
-                    <label className="block text-sm font-medium">Select Ticket</label>
+                    <label className="block text-sm font-medium">Chọn vé</label>
                     <select
                       value={area.ticketId || ""}
                       onChange={(e) => updateAreaDetails(area.id, e.target.value)}
                       className="w-full p-2 border rounded-md"
                     >
-                      <option value="">Select a ticket</option>
+                      <option value="">Chọn một vé</option>
                       {availableTickets.map((ticket) => (
                         <option key={ticket.ticketId} value={ticket.ticketId}>
-                          {ticket.ticketName} ({ticket.ticketType === "Paid" ? `${ticket.price} VND` : "Free"})
+                          {ticket.ticketName} (
+                          {ticket.ticketType === "Paid"
+                            ? `${ticket.price} VND`
+                            : "Miễn phí"}
+                          )
                         </option>
                       ))}
                     </select>
@@ -292,7 +365,7 @@ const SeatingLayoutEditor = ({
               className="px-4 py-2 mt-2 text-white bg-blue-500 rounded-lg"
               onClick={() => setSelectedArea(null)}
             >
-              Close
+              Đóng
             </button>
           </div>
         )}
@@ -302,14 +375,14 @@ const SeatingLayoutEditor = ({
             className="px-4 py-2 text-white bg-blue-500 rounded-lg"
             onClick={addSeatingArea}
           >
-            Add Seating Area
+            Thêm khu vực ghế
           </button>
           <div>
             <button
               className="px-4 py-2 mr-2 text-gray-700 bg-gray-300 rounded-lg"
               onClick={onClose}
             >
-              Cancel
+              Hủy
             </button>
             <button
               className={`px-4 py-2 rounded-lg ${
@@ -320,7 +393,7 @@ const SeatingLayoutEditor = ({
               onClick={handleSave}
               disabled={!hasValidSeating}
             >
-              Save
+              Lưu
             </button>
           </div>
         </div>

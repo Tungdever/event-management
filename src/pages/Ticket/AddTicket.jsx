@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
 import SeatingLayoutEditor from "../Event/SeatingLayoutEditor";
 
-const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket, onOpenSeatingEditor }) => {
+const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, seatingLayout, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket, onOpenSeatingEditor }) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -28,106 +28,102 @@ const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, onAddTicket, o
   ];
 
   return (
-    <div className="flex p-4 mx-auto max-w-7xl">
-      <div className="w-2/3 pr-4">
-       
-        {seatingMapImage && (
-          <div className="mt-4">
-            <h3 className="text-lg font-semibold">{t("addTickets.seatingMap")}</h3>
-            <img
-              src={seatingMapImage}
-              alt="Seating Map"
-              className="h-auto max-w-full rounded-lg shadow-md"
-            />
-          </div>
-        )}
-        <h3 className="mt-6 text-lg font-semibold">{t("addTickets.tickets")}</h3>
-        {tickets.map((ticket, index) => (
-          <div
-            key={ticket.ticketId || index}
-            className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
-          >
-            <div className="mb-4">
-              <div className="flex items-center justify-between">
-                <h2 className="pb-2 text-lg font-semibold text-gray-900">
-                  {ticket.ticketName}
-                </h2>
-                <div className="flex items-center pb-2 space-x-4">
-                  <span className="text-gray-500">
-                    {t("addTickets.sold", { sold: ticket.sold || 0, quantity: ticket.quantity })}
-                  </span>
-                  <span className="text-gray-500">
-                    {ticket.ticketType === "Paid"
-                      ? t("addTickets.ticketPrice", { price: ticket.price })
-                      : t("addTickets.freeTicket")}
-                  </span>
+    <div className="flex flex-col p-4 mx-auto max-w-7xl min-h-[calc(100vh-4rem)]">
+      <div className="flex flex-1">
+        <div className="w-2/3 pr-4">
+          <h3 className="mt-6 text-lg font-semibold">Add tickets</h3>
+          {tickets.map((ticket, index) => (
+            <div
+              key={ticket.ticketId || index}
+              className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
+            >
+              <div className="mb-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="pb-2 text-lg font-semibold text-gray-900">
+                    {ticket.ticketName}
+                  </h2>
+                  <div className="flex items-center pb-2 space-x-4">
+                    <span className="text-gray-500">
+                      {t("addTickets.sold", { sold: ticket.sold || 0, quantity: ticket.quantity })}
+                    </span>
+                    <span className="text-gray-500">
+                      {ticket.ticketType === "Paid"
+                        ? t("addTickets.ticketPrice", { price: ticket.price })
+                        : t("addTickets.freeTicket")}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
-                <div className="flex items-center">
-                  <span className="mr-2 text-green-500">•</span>
-                  <span>{t("addTickets.onSale")}</span>
-                  <span className="mx-2">•</span>
-                  <span>{t("addTickets.endsAt", { endTime: ticket.endTime })}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <i
-                    className="text-base cursor-pointer fa-solid fa-pen-to-square hover:text-blue-600"
-                    onClick={() => onEditTicket(ticket)}
-                  ></i>
-                  <CiTrash
-                    className="text-xl text-gray-500 cursor-pointer hover:text-red-600"
-                    onClick={() => onDeleteTicket(index, ticket)}
-                  />
+                <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
+                  <div className="flex items-center">
+                    <span className="mr-2 text-green-500">•</span>
+                    <span>{t("addTickets.onSale")}</span>
+                    <span className="mx-2">•</span>
+                    <span>{t("addTickets.endsAt", { endTime: ticket.endTime })}</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <i
+                      className="text-base cursor-pointer fa-solid fa-pen-to-square hover:text-blue-600"
+                      onClick={() => onEditTicket(ticket)}
+                    ></i>
+                    <CiTrash
+                      className="text-xl text-gray-500 cursor-pointer hover:text-red-600"
+                      onClick={() => onDeleteTicket(index, ticket)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-        {tickets.length > 0 && (
-          <button
-            onClick={onOpenSeatingEditor}
-            className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg"
-          >
-            Create Seating Map 
-          </button>
-        )}
-      </div>
-      <div className="flex flex-col items-end w-1/3">
-        <div className="relative top-4 right-4">
-          <button
-            onClick={toggleDropdown}
-            className="flex items-center justify-between w-full px-4 py-2 text-white bg-orange-600 rounded-lg"
-          >
-            {t("addTickets.addTicketButton")} <i className="ml-2 fas fa-caret-down"></i>
-          </button>
-          {isDropdownOpen && (
-            <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
-              <button
-                onClick={() => setDropdownOpen(false)}
-                className="absolute text-sm text-gray-500 right-2 top-2"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-              <div className="space-y-4">
-                {ticketOptions.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center p-2 space-x-2 rounded cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSelectType(item.label)}
-                  >
-                    <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
-                      <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
-                    </div>
-                    <span>{item.label === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</span>
-                  </div>
-                ))}
-              </div>
+          ))}
+          {seatingMapImage && (
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Seating Map</h3>
+              <img
+                src={seatingMapImage}
+                alt="Seating Map"
+                className="h-auto max-w-full rounded-lg shadow-md"
+              />
             </div>
           )}
+          {tickets.length > 0 && (
+            <button
+              onClick={onOpenSeatingEditor}
+              className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg"
+            >
+              Create Seating Map
+            </button>
+          )}
+        </div>
+        <div className="w-1/3">
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="flex items-center justify-between px-4 py-2 text-white bg-orange-600 rounded-lg"
+            >
+              {t("addTickets.addTicketButton")} <i className="ml-2 fas fa-caret-down"></i>
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
+               
+                <div className="space-y-4">
+                  {ticketOptions.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center p-2 space-x-2 rounded cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSelectType(item.label)}
+                    >
+                      <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
+                        <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
+                      </div>
+                      <span>{item.label === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-end w-2/4 p-4 rounded-lg cursor-pointer bottom-20 right-4">
+      <div className="flex justify-end mt-4">
         <button
           className="px-6 py-2 text-white bg-orange-600 rounded-lg"
           onClick={onSaveAll}
@@ -226,6 +222,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
   const [tickets, setTickets] = useState(ticketData || []);
   const [seatingAreas, setSeatingAreas] = useState([]);
   const [seatingMapImage, setSeatingMapImage] = useState(null);
+  const [seatingLayout, setSeatingLayout] = useState([]);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
     ticketId: `ticket-${Date.now()}`,
@@ -361,7 +358,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     });
     setShowForm(false);
     setShowOverview(true);
-    setIsSeatingEditorOpen(true); // Mở SeatingLayoutEditor sau khi thêm vé
+    setIsSeatingEditorOpen(true);
   };
 
   const handleEditTicket = (ticket) => {
@@ -432,7 +429,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     onTicketsUpdate(updatedTickets);
     setEditingTicket(null);
     setShowForm(false);
-    setIsSeatingEditorOpen(true); // Mở SeatingLayoutEditor sau khi cập nhật vé
+    setIsSeatingEditorOpen(true);
   };
 
   const handleDeleteTicket = (index, ticket) => {
@@ -450,6 +447,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       const updatedSeatingAreas = seatingAreas.filter((area) => area.ticketId !== ticket.ticketId);
       setTickets(updatedTickets);
       setSeatingAreas(updatedSeatingAreas);
+      setSeatingLayout(seatingLayout.filter((item) => !updatedSeatingAreas.some((area) => area.id === item.id)));
       onTicketsUpdate(updatedTickets);
       Swal.fire({
         icon: "success",
@@ -468,23 +466,31 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
-    // Lưu thêm seatingAreas và seatingMapImage vào onTicketsUpdate
-    onTicketsUpdate(tickets, seatingAreas, seatingMapImage);
+    if (!seatingAreas.some((area) => area.type === "seating" && area.ticketId)) {
+      Swal.fire({
+        icon: "warning",
+        title: t("addTickets.errors.title"),
+        text: t("addTickets.errors.noSeatingAreasAssigned"),
+      });
+      return;
+    }
+    onTicketsUpdate(tickets, seatingAreas, seatingMapImage, seatingLayout);
     if (onNext) onNext();
   };
 
-  const handleSeatingLayoutSave = (layout, areas) => {
+  const handleSeatingLayoutSave = (layout, areas, image) => {
     const updatedAreas = areas.map((area) => ({
       ...area,
       areaId: area.areaId || `area-${Date.now()}`,
     }));
     setSeatingAreas(updatedAreas);
-    setSeatingMapImage(layout.image || null); // Lưu hình ảnh sơ đồ ghế
+    setSeatingLayout(layout);
+    setSeatingMapImage(image);
     setIsSeatingEditorOpen(false);
     Swal.fire({
       icon: "success",
-      title: "successfully",
-      text: "Settings have been successfully saved",
+      title: "Success",
+      text: "Seating saved",
     });
   };
 
@@ -506,6 +512,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
             tickets={tickets}
             seatingAreas={seatingAreas}
             seatingMapImage={seatingMapImage}
+            seatingLayout={seatingLayout}
             onAddTicket={handleTicketClick}
             onSaveAll={saveTicketsToDatabase}
             onEditTicket={handleEditTicket}
@@ -540,7 +547,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
         onClose={() => setIsSeatingEditorOpen(false)}
         venueType={venueType || "indoor"}
         onSave={handleSeatingLayoutSave}
-        existingLayout={[]}
+        existingLayout={seatingLayout}
         existingAreas={seatingAreas}
         availableTickets={tickets}
       />
