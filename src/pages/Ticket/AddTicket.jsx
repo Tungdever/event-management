@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -8,7 +7,7 @@ import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
 import SeatingLayoutEditor from "../Event/SeatingLayoutEditor";
 
-const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, seatingLayout, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket, onOpenSeatingEditor }) => {
+const TicketOverview = ({ tickets, seatingMapImage, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket, onOpenSeatingEditor }) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -220,9 +219,7 @@ const formatDateForInput = (isoDate) => {
 const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext, isReadOnly, venueType }) => {
   const { t } = useTranslation();
   const [tickets, setTickets] = useState(ticketData || []);
-  const [seatingAreas, setSeatingAreas] = useState([]);
   const [seatingMapImage, setSeatingMapImage] = useState(null);
-  const [seatingLayout, setSeatingLayout] = useState([]);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
     ticketId: `ticket-${Date.now()}`,
@@ -344,7 +341,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
     const updatedTickets = [...tickets, { ...newTicket, isLocal: true }];
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets, seatingAreas, seatingMapImage, seatingLayout);
+    onTicketsUpdate(updatedTickets, seatingMapImage);
     setNewTicket({
       eventId: eventId || "",
       ticketId: `ticket-${Date.now()}`,
@@ -426,7 +423,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       ticket.ticketId === editingTicket.ticketId ? editingTicket : ticket
     );
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets, seatingAreas, seatingMapImage, seatingLayout);
+    onTicketsUpdate(updatedTickets, seatingMapImage);
     setEditingTicket(null);
     setShowForm(false);
     setIsSeatingEditorOpen(true);
@@ -444,15 +441,12 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     }).then((result) => {
       if (!result.isConfirmed) return;
       const updatedTickets = tickets.filter((_, i) => i !== index);
-      const updatedSeatingAreas = seatingAreas.filter((area) => area.ticketId !== ticket.ticketId);
       setTickets(updatedTickets);
-      setSeatingAreas(updatedSeatingAreas);
-      setSeatingLayout(seatingLayout.filter((item) => !updatedSeatingAreas.some((area) => area.id === item.id)));
-      onTicketsUpdate(updatedTickets, updatedSeatingAreas, seatingMapImage, seatingLayout);
+      onTicketsUpdate(updatedTickets, seatingMapImage);
       Swal.fire({
         icon: "success",
-        title: t("addTickets.success.title"),
-        text: t("addTickets.success.deleteSuccess"),
+        title:"success",
+        text:"Delete success",
       });
     });
   };
@@ -466,32 +460,18 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
-    if (!seatingAreas.some((area) => area.type === "seating" && area.ticketId)) {
-      Swal.fire({
-        icon: "warning",
-        title: t("addTickets.errors.title"),
-        text: t("addTickets.errors.noSeatingAreasAssigned"),
-      });
-      return;
-    }
-    onTicketsUpdate(tickets, seatingAreas, seatingMapImage, seatingLayout);
+    onTicketsUpdate(tickets, seatingMapImage);
     if (onNext) onNext();
   };
 
-  const handleSeatingLayoutSave = (layout, areas, image) => {
-    const updatedAreas = areas.map((area) => ({
-      ...area,
-      areaId: area.areaId || `area-${Date.now()}`,
-    }));
-    setSeatingAreas(updatedAreas);
-    setSeatingLayout(layout);
+  const handleSeatingLayoutSave = (image) => {
     setSeatingMapImage(image);
-    onTicketsUpdate(tickets, updatedAreas, image, layout);
+    onTicketsUpdate(tickets, image);
     setIsSeatingEditorOpen(false);
     Swal.fire({
       icon: "success",
-      title: "Success",
-      text: "Seating saved",
+      title: "success",
+      text: "Seating map saved",
     });
   };
 
@@ -511,9 +491,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
         ) : (
           <TicketOverview
             tickets={tickets}
-            seatingAreas={seatingAreas}
             seatingMapImage={seatingMapImage}
-            seatingLayout={seatingLayout}
             onAddTicket={handleTicketClick}
             onSaveAll={saveTicketsToDatabase}
             onEditTicket={handleEditTicket}
@@ -548,8 +526,6 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
         onClose={() => setIsSeatingEditorOpen(false)}
         venueType={venueType || "indoor"}
         onSave={handleSeatingLayoutSave}
-        existingLayout={seatingLayout}
-        existingAreas={seatingAreas}
         availableTickets={tickets}
       />
     </div>

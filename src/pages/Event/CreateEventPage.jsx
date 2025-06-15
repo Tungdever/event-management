@@ -42,9 +42,7 @@ const CRUDEvent = () => {
     overviewContent: { text: "", media: [] },
     tickets: [],
     segment: [],
-    seatingAreas: [],
     seatingMapImage: null,
-    seatingLayout: [],
   });
   const token = localStorage.getItem("token");
 
@@ -129,10 +127,6 @@ const CRUDEvent = () => {
   const handlePublish = async (eventStatus = "Draft") => {
     setIsLoading(true);
     try {
-      if (eventStatus === "public" && event.tickets.length > 0 && event.seatingAreas.length === 0) {
-        throw new Error(t("createEventPage.errors.noSeatingAreasAssigned"));
-      }
-
       const existingImageIds = event.uploadedImages
         .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages
@@ -151,6 +145,9 @@ const CRUDEvent = () => {
 
       let seatingMapImageId = null;
       if (eventStatus === "public" && event.seatingMapImage) {
+        if (!event.seatingMapImage.startsWith("data:image/")) {
+          throw new Error("Invalid seating map image format. Expected base64 string.");
+        }
         const base64Data = event.seatingMapImage.replace(/^data:image\/[a-z]+;base64,/, "");
         const binary = atob(base64Data);
         const array = new Uint8Array(binary.length);
@@ -214,8 +211,6 @@ const CRUDEvent = () => {
         mediaContent: uploadedMediaIds,
         userId: user.userId,
         seatingMapImage: seatingMapImageId,
-        seatingAreas: event.seatingAreas,
-        seatingLayout: event.seatingLayout,
       };
 
       console.log("Data sent to API:", dataEvent);
@@ -318,13 +313,11 @@ const CRUDEvent = () => {
     }
   };
 
-  const handleTicketsUpdate = (updatedTickets, seatingAreas, seatingMapImage, seatingLayout) => {
+  const handleTicketsUpdate = (updatedTickets, seatingMapImage) => {
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets || [],
-      seatingAreas: seatingAreas || [],
       seatingMapImage: seatingMapImage || null,
-      seatingLayout: seatingLayout || [],
     }));
   };
 

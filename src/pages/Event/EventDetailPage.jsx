@@ -292,6 +292,18 @@ const OverviewContent = ({ eventData, t }) => (
       ) : (
         <></>
       )}
+      {eventData?.seatingMapImage?.length > 0 ? (
+        
+          <img
+           
+            src={eventData?.seatingMapImage}
+            alt={`${eventData.eventName || t("pageViewAll.unnamedEvent")}`}
+            className="object-cover w-full h-auto mb-3 rounded-lg sm:mb-4"
+          />
+        
+      ) : (
+        <></>
+      )}
     </div>
   </div>
 );
