@@ -42,6 +42,9 @@ const CRUDEvent = () => {
     overviewContent: { text: "", media: [] },
     tickets: [],
     segment: [],
+    seatingAreas: [],
+    seatingMapImage: null,
+    seatingLayout: [],
   });
   const token = localStorage.getItem("token");
 
@@ -78,7 +81,6 @@ const CRUDEvent = () => {
           continue;
         }
 
-        // Kiểm tra xem file có phải là hình ảnh không
         if (!blob.type.startsWith('image/')) {
           Swal.fire({
             icon: "warning",
@@ -127,6 +129,10 @@ const CRUDEvent = () => {
   const handlePublish = async (eventStatus = "Draft") => {
     setIsLoading(true);
     try {
+      if (eventStatus === "public" && event.tickets.length > 0 && event.seatingAreas.length === 0) {
+        throw new Error(t("createEventPage.errors.noSeatingAreasAssigned"));
+      }
+
       const existingImageIds = event.uploadedImages
         .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages
@@ -142,6 +148,19 @@ const CRUDEvent = () => {
         .map((item) => item.file) || [];
       const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
       const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
+
+      let seatingMapImageId = null;
+      if (eventStatus === "public" && event.seatingMapImage) {
+        const base64Data = event.seatingMapImage.replace(/^data:image\/[a-z]+;base64,/, "");
+        const binary = atob(base64Data);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) {
+          array[i] = binary.charCodeAt(i);
+        }
+        const blob = new Blob([array], { type: "image/png" });
+        const seatingMapImageIds = await uploadFilesToCloudinary([blob]);
+        seatingMapImageId = seatingMapImageIds[0] || null;
+      }
 
       const segmentData = [];
       if (event.segment?.length > 0) {
@@ -194,6 +213,9 @@ const CRUDEvent = () => {
         textContent: event.overviewContent?.text || "",
         mediaContent: uploadedMediaIds,
         userId: user.userId,
+        seatingMapImage: seatingMapImageId,
+        seatingAreas: event.seatingAreas,
+        seatingLayout: event.seatingLayout,
       };
 
       console.log("Data sent to API:", dataEvent);
@@ -216,7 +238,7 @@ const CRUDEvent = () => {
 
       if (segmentData.length > 0) {
         for (const segment of segmentData) {
-          const segmentapi = {
+          const segmentApi = {
             ...segment,
             eventID: eventId,
           };
@@ -227,7 +249,7 @@ const CRUDEvent = () => {
               Authorization: `Bearer ${token}`,
             },
             method: "POST",
-            body: JSON.stringify(segmentapi),
+            body: JSON.stringify(segmentApi),
           });
 
           if (!segmentResponse.ok) {
@@ -239,7 +261,7 @@ const CRUDEvent = () => {
 
       if (event.tickets?.length > 0) {
         for (const ticketData of event.tickets) {
-          const ticketapi = {
+          const ticketApi = {
             ticketName: ticketData.ticketName || "",
             ticketType: ticketData.ticketType || "",
             price: ticketData.price || 0,
@@ -254,7 +276,7 @@ const CRUDEvent = () => {
               Authorization: `Bearer ${token}`,
             },
             method: "POST",
-            body: JSON.stringify(ticketapi),
+            body: JSON.stringify(ticketApi),
           });
 
           if (!ticketResponse.ok) {
@@ -275,6 +297,7 @@ const CRUDEvent = () => {
             url: id,
           })),
         },
+        seatingMapImage: seatingMapImageId,
       };
 
       setEvent(updatedEvent);
@@ -295,10 +318,13 @@ const CRUDEvent = () => {
     }
   };
 
-  const handleTicketsUpdate = (updatedTickets) => {
+  const handleTicketsUpdate = (updatedTickets, seatingAreas, seatingMapImage, seatingLayout) => {
     setEvent((prevEvent) => ({
       ...prevEvent,
-      tickets: updatedTickets,
+      tickets: updatedTickets || [],
+      seatingAreas: seatingAreas || [],
+      seatingMapImage: seatingMapImage || null,
+      seatingLayout: seatingLayout || [],
     }));
   };
 
@@ -339,7 +365,7 @@ const CRUDEvent = () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: t("createEventPage.errors.processingError", { message: "" }),
+        title: t("createEventPage.errors.title"),
         text: validation.message,
       });
       return;
@@ -356,7 +382,7 @@ const CRUDEvent = () => {
     if (!validation.isValid) {
       Swal.fire({
         icon: 'error',
-        title: t("createEventPage.errors.processingError", { message: "" }),
+        title: t("createEventPage.errors.title"),
         text: validation.message,
       });
       return;

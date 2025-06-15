@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -103,7 +104,6 @@ const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, seatingLayout,
             </button>
             {isDropdownOpen && (
               <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
-               
                 <div className="space-y-4">
                   {ticketOptions.map((item) => (
                     <div
@@ -344,7 +344,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
     const updatedTickets = [...tickets, { ...newTicket, isLocal: true }];
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets);
+    onTicketsUpdate(updatedTickets, seatingAreas, seatingMapImage, seatingLayout);
     setNewTicket({
       eventId: eventId || "",
       ticketId: `ticket-${Date.now()}`,
@@ -426,7 +426,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       ticket.ticketId === editingTicket.ticketId ? editingTicket : ticket
     );
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets);
+    onTicketsUpdate(updatedTickets, seatingAreas, seatingMapImage, seatingLayout);
     setEditingTicket(null);
     setShowForm(false);
     setIsSeatingEditorOpen(true);
@@ -448,7 +448,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       setTickets(updatedTickets);
       setSeatingAreas(updatedSeatingAreas);
       setSeatingLayout(seatingLayout.filter((item) => !updatedSeatingAreas.some((area) => area.id === item.id)));
-      onTicketsUpdate(updatedTickets);
+      onTicketsUpdate(updatedTickets, updatedSeatingAreas, seatingMapImage, seatingLayout);
       Swal.fire({
         icon: "success",
         title: t("addTickets.success.title"),
@@ -486,6 +486,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     setSeatingAreas(updatedAreas);
     setSeatingLayout(layout);
     setSeatingMapImage(image);
+    onTicketsUpdate(tickets, updatedAreas, image, layout);
     setIsSeatingEditorOpen(false);
     Swal.fire({
       icon: "success",
