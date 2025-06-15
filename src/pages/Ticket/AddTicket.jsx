@@ -5,8 +5,9 @@ import Loader from "../../components/Loading";
 import TicketForm from "./TicketForm";
 import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
+import SeatingLayoutEditor from "../Event/SeatingLayoutEditor";
 
-const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket }) => {
+const TicketOverview = ({ tickets, seatingAreas, seatingMapImage, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket, onOpenSeatingEditor }) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -19,10 +20,8 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
     setDropdownOpen(false);
   };
 
-  // Check if there is a "Free" ticket in the tickets list
   const hasFreeTicket = tickets.some((ticket) => ticket.ticketType === "Free");
 
-  // Filter the options list, hide "Free" if a Free ticket already exists
   const ticketOptions = [
     { icon: "ticket-alt", color: "blue", label: "Paid" },
     ...(hasFreeTicket ? [] : [{ icon: "scissors", color: "purple", label: "Free" }]),
@@ -31,9 +30,21 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
   return (
     <div className="flex p-4 mx-auto max-w-7xl">
       <div className="w-2/3 pr-4">
+       
+        {seatingMapImage && (
+          <div className="mt-4">
+            <h3 className="text-lg font-semibold">{t("addTickets.seatingMap")}</h3>
+            <img
+              src={seatingMapImage}
+              alt="Seating Map"
+              className="h-auto max-w-full rounded-lg shadow-md"
+            />
+          </div>
+        )}
+        <h3 className="mt-6 text-lg font-semibold">{t("addTickets.tickets")}</h3>
         {tickets.map((ticket, index) => (
           <div
-            key={index}
+            key={ticket.ticketId || index}
             className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
           >
             <div className="mb-4">
@@ -43,7 +54,7 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
                 </h2>
                 <div className="flex items-center pb-2 space-x-4">
                   <span className="text-gray-500">
-                    {t("addTickets.sold", { sold: ticket.sold, quantity: ticket.quantity })}
+                    {t("addTickets.sold", { sold: ticket.sold || 0, quantity: ticket.quantity })}
                   </span>
                   <span className="text-gray-500">
                     {ticket.ticketType === "Paid"
@@ -73,6 +84,14 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
             </div>
           </div>
         ))}
+        {tickets.length > 0 && (
+          <button
+            onClick={onOpenSeatingEditor}
+            className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg"
+          >
+            Create Seating Map 
+          </button>
+        )}
       </div>
       <div className="flex flex-col items-end w-1/3">
         <div className="relative top-4 right-4">
@@ -197,42 +216,44 @@ const TicketTypeSelector = ({ onSelectType }) => {
   );
 };
 
-// Function to convert ISO format to yyyy-MM-dd
 const formatDateForInput = (isoDate) => {
   if (!isoDate) return "";
   return isoDate.split("T")[0];
 };
 
-const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext, isReadOnly }) => {
+const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext, isReadOnly, venueType }) => {
   const { t } = useTranslation();
   const [tickets, setTickets] = useState(ticketData || []);
+  const [seatingAreas, setSeatingAreas] = useState([]);
+  const [seatingMapImage, setSeatingMapImage] = useState(null);
   const [newTicket, setNewTicket] = useState({
     eventId: eventId || "",
-    ticketId: "",
+    ticketId: `ticket-${Date.now()}`,
     ticketName: "",
     ticketType: "Paid",
     price: "",
     quantity: "",
     startTime: "",
     endTime: "",
-    isLocal: true, // Mark new tickets as local
+    isLocal: true,
   });
   const [typeTicket, setTypeTicket] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
   const [showOverview, setShowOverview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingTicket, setEditingTicket] = useState(null);
+  const [isSeatingEditorOpen, setIsSeatingEditorOpen] = useState(false);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const formattedTickets = (ticketData || []).map((ticket) => ({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
       endTime: formatDateForInput(ticket.endTime),
-      isLocal: ticket.isLocal || false, // Ensure existing tickets have isLocal flag
+      isLocal: ticket.isLocal || false,
     }));
     setTickets(formattedTickets);
+    setShowOverview(formattedTickets.length > 0);
   }, [ticketData]);
 
   useEffect(() => {
@@ -256,7 +277,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
   const handleTicketClick = (type) => {
     setTypeTicket(type);
-    setNewTicket((prev) => ({ ...prev, ticketType: type, isLocal: true }));
+    setNewTicket((prev) => ({ ...prev, ticketType: type, ticketId: `ticket-${Date.now()}`, isLocal: true }));
     setShowForm(true);
     setEditingTicket(null);
   };
@@ -327,10 +348,9 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     const updatedTickets = [...tickets, { ...newTicket, isLocal: true }];
     setTickets(updatedTickets);
     onTicketsUpdate(updatedTickets);
-
     setNewTicket({
       eventId: eventId || "",
-      ticketId: "",
+      ticketId: `ticket-${Date.now()}`,
       ticketName: "",
       ticketType: "Paid",
       price: "",
@@ -341,6 +361,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     });
     setShowForm(false);
     setShowOverview(true);
+    setIsSeatingEditorOpen(true); // Mở SeatingLayoutEditor sau khi thêm vé
   };
 
   const handleEditTicket = (ticket) => {
@@ -376,8 +397,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
-    // Check if the ticket has been sold
-    if (editingTicket.sold > 0 && editingTicket.price !== tickets.find(t => t.ticketId === editingTicket.ticketId).price) {
+    if (editingTicket.sold > 0 && editingTicket.price !== tickets.find(t => t.ticketId === editingTicket.ticketId)?.price) {
       Swal.fire({
         icon: "warning",
         title: t("addTickets.errors.ticketSoldWarningTitle"),
@@ -406,80 +426,37 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     }
 
     const updatedTickets = tickets.map((ticket) =>
-      ticket.ticketId === editingTicket.ticketId && !ticket.isLocal
-        ? editingTicket
-        : ticket.ticketId === editingTicket.ticketId
-        ? editingTicket
-        : ticket
+      ticket.ticketId === editingTicket.ticketId ? editingTicket : ticket
     );
     setTickets(updatedTickets);
     onTicketsUpdate(updatedTickets);
     setEditingTicket(null);
     setShowForm(false);
+    setIsSeatingEditorOpen(true); // Mở SeatingLayoutEditor sau khi cập nhật vé
   };
 
-  const handleDeleteTicket = async (index, ticket) => {
+  const handleDeleteTicket = (index, ticket) => {
     if (isReadOnly) return;
-    const confirm = await Swal.fire({
+    Swal.fire({
       icon: "warning",
       title: t("addTickets.errors.confirmDeletion"),
       text: t("addTickets.errors.deleteConfirmation"),
       showCancelButton: true,
       confirmButtonText: t("addTickets.delete"),
       cancelButtonText: t("addTickets.cancel"),
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    if (ticket.isLocal || !ticket.ticketId) {
-      // Local ticket: remove from state
+    }).then((result) => {
+      if (!result.isConfirmed) return;
       const updatedTickets = tickets.filter((_, i) => i !== index);
+      const updatedSeatingAreas = seatingAreas.filter((area) => area.ticketId !== ticket.ticketId);
       setTickets(updatedTickets);
+      setSeatingAreas(updatedSeatingAreas);
       onTicketsUpdate(updatedTickets);
       Swal.fire({
         icon: "success",
         title: t("addTickets.success.title"),
         text: t("addTickets.success.deleteSuccess"),
       });
-    } else {
-      // Database ticket: call API
-      try {
-        const response = await fetch(
-          `http://localhost:8080/api/ticket/delete/${ticket.ticketId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        if (data.data === true) {
-          const updatedTickets = tickets.filter((_, i) => i !== index);
-          setTickets(updatedTickets);
-          onTicketsUpdate(updatedTickets);
-          Swal.fire({
-            icon: "success",
-            title: t("addTickets.success.title"),
-            text: t("addTickets.success.deleteSuccess"),
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: t("addTickets.errors.title"),
-            text: data.msg || t("addTickets.errors.deleteError"),
-          });
-        }
-      } catch (error) {
-        console.error("Error deleting ticket:", error);
-        Swal.fire({
-          icon: "error",
-          title: t("addTickets.errors.title"),
-          text: t("addTickets.errors.deleteError"),
-        });
-      }
-    }
+    });
   };
 
   const saveTicketsToDatabase = () => {
@@ -491,7 +468,24 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
+    // Lưu thêm seatingAreas và seatingMapImage vào onTicketsUpdate
+    onTicketsUpdate(tickets, seatingAreas, seatingMapImage);
     if (onNext) onNext();
+  };
+
+  const handleSeatingLayoutSave = (layout, areas) => {
+    const updatedAreas = areas.map((area) => ({
+      ...area,
+      areaId: area.areaId || `area-${Date.now()}`,
+    }));
+    setSeatingAreas(updatedAreas);
+    setSeatingMapImage(layout.image || null); // Lưu hình ảnh sơ đồ ghế
+    setIsSeatingEditorOpen(false);
+    Swal.fire({
+      icon: "success",
+      title: "successfully",
+      text: "Settings have been successfully saved",
+    });
   };
 
   return loading ? (
@@ -510,10 +504,13 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
         ) : (
           <TicketOverview
             tickets={tickets}
+            seatingAreas={seatingAreas}
+            seatingMapImage={seatingMapImage}
             onAddTicket={handleTicketClick}
             onSaveAll={saveTicketsToDatabase}
             onEditTicket={handleEditTicket}
             onDeleteTicket={handleDeleteTicket}
+            onOpenSeatingEditor={() => setIsSeatingEditorOpen(true)}
           />
         )}
       </main>
@@ -538,6 +535,15 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
           isReadOnly={isReadOnly}
         />
       )}
+      <SeatingLayoutEditor
+        isOpen={isSeatingEditorOpen}
+        onClose={() => setIsSeatingEditorOpen(false)}
+        venueType={venueType || "indoor"}
+        onSave={handleSeatingLayoutSave}
+        existingLayout={[]}
+        existingAreas={seatingAreas}
+        availableTickets={tickets}
+      />
     </div>
   );
 };

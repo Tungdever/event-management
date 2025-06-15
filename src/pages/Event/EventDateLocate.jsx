@@ -85,7 +85,6 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     meetingUrl: "",
     ...locationData,
   });
-  const [isCreatingMeeting, setIsCreatingMeeting] = useState(false);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -103,61 +102,9 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     }
   }, []);
 
-  // Tính duration (phút) từ startTime và endTime
-  const calculateDuration = () => {
-    if (!eventLocation.startTime || !eventLocation.endTime) return 60; // Mặc định 60 phút
-    const start = new Date(`1970-01-01T${eventLocation.startTime}:00`);
-    const end = new Date(`1970-01-01T${eventLocation.endTime}:00`);
-    const diffMs = end - start;
-    return Math.round(diffMs / 60000); // Chuyển đổi sang phút
-  };
 
-  // Gọi Zoom API để tạo phòng họp
-  const createZoomMeeting = async () => {
-    if (isReadOnly || eventLocation.locationType !== "online" || !eventLocation.date || !eventLocation.startTime) {
-      return;
-    }
 
-    setIsCreatingMeeting(true);
-    try {
-      const response = await axios.post(
-        "http://localhost:8080/api/zoom/create-meeting",
-        {
-          topic: t('eventDateLocate.zoomSuccess.topic', { defaultValue: 'Online Event' }),
-          date: eventLocation.date,
-          startTime: eventLocation.startTime,
-          duration: calculateDuration(),
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      const meetingUrl = response.data;
 
-      setEventLocation((prevData) => {
-        const updatedData = { ...prevData, meetingUrl };
-        onLocationUpdate(updatedData);
-        return updatedData;
-      });
-
-      Swal.fire({
-        icon: "success",
-        title: t('eventDateLocate.zoomSuccess.title'),
-        text: t('eventDateLocate.zoomSuccess.text', { meetingUrl }),
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: t('eventDateLocate.zoomError.title'),
-        text: t('eventDateLocate.zoomError.text', { message: error.message }),
-      });
-    } finally {
-      setIsCreatingMeeting(false);
-    }
-  };
 
   const normalizeVenueName = (name) => {
     return name
@@ -174,15 +121,14 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     const hasDate = eventLocation.date && eventLocation.date.trim() !== "";
     const hasStartTime = eventLocation.startTime && eventLocation.startTime.trim() !== "";
     const hasEndTime = eventLocation.endTime && eventLocation.endTime.trim() !== "";
-
+    const isTimeValid = hasStartTime && hasEndTime && eventLocation.startTime < eventLocation.endTime;
     if (eventLocation.locationType === "venue") {
       const hasVenueName = eventLocation.venueName && eventLocation.venueName.trim() !== "";
       const hasAddress = eventLocation.address && eventLocation.address.trim() !== "";
       const hasCity = eventLocation.city && eventLocation.city.trim() !== "";
-      return hasDate && hasStartTime && hasEndTime && hasVenueName && hasAddress && hasCity;
+      return hasDate && isTimeValid && hasVenueName && hasAddress && hasCity;
     }
-
-    return hasDate && hasStartTime && hasEndTime;
+    return hasDate && isTimeValid;
   };
 
   const handleChange = (e) => {
@@ -212,8 +158,13 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
   const handleComplete = () => {
     if (isReadOnly) return;
     if (isFormValid()) {
-     
       setShowDetail(false);
+    } else {
+      Swal.fire({
+        icon: "warning",
+        title: "Error",
+        text: "Please fill in all required fields",
+      });
     }
   };
 
@@ -305,28 +256,12 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
               <p className="font-semibold">Online Event</p>
             </button>
           </div>
-          {/* {eventLocation.locationType === "online" && (
+          {eventLocation.locationType === "online" && (
             <div className="mb-4">
-              <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
-                {t('eventDateLocate.meetingUrl')}
-              </label>
-              {eventLocation.meetingUrl ? (
-                <a
-                  href={eventLocation.meetingUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 underline"
-                >
-                  {eventLocation.meetingUrl}
-                </a>
-              ) : (
-                <p className="text-gray-500">
-                  {isCreatingMeeting ? t('eventDateLocate.creatingMeeting') : t('eventDateLocate.completeToCreateMeeting')}
-                </p>
-              )}
+
             </div>
-          )} */}
-          {eventLocation.locationType !== "online" && (
+          )}
+          {eventLocation.locationType === "venue" && (
             <div className="w-full max-w-full rounded-lg">
               <form>
                 <div className="mb-4">
@@ -401,7 +336,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
             <button
               className={`mt-4 px-4 sm:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg text-sm sm:text-base ${isFormValid() ? "bg-blue-500 text-white" : "bg-gray-300 text-gray-500 cursor-not-allowed"}`}
               onClick={handleComplete}
-              disabled={!isFormValid() || isCreatingMeeting}
+              disabled={!isFormValid()}
             >
               {t('eventDateLocate.complete')}
             </button>
@@ -454,11 +389,13 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
                     )}
                   </>
                 ) : (
-                  <p className="text-xs font-medium text-gray-800 sm:text-sm lg:text-base">
-                    {eventLocation.venueName
-                      ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(eventLocation.city)}`
-                      : t('eventDateLocate.locationNotSet')}
-                  </p>
+                  <>
+                    <p className="text-xs font-medium text-gray-800 sm:text-sm lg:text-base">
+                      {eventLocation.venueName
+                        ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(eventLocation.city)}`
+                        : t('eventDateLocate.locationNotSet')}
+                    </p>
+                  </>
                 )}
               </div>
             </div>

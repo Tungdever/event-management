@@ -200,16 +200,7 @@ const Overview = ({ setShowOverview, content, setContent, isReadOnly }) => {
             onChange={(e) => handleMediaUpload(e, "image")}
           />
         </label>
-        <label className="flex items-center px-4 py-2 border rounded cursor-pointer">
-          <FaVideo className="mr-2" /> {t('overviewSection.addVideo')}
-          <input
-            type="file"
-            accept="video/*"
-            className="hidden"
-            disabled={isReadOnly}
-            onChange={(e) => handleMediaUpload(e, "video")}
-          />
-        </label>
+        
       </div>
       <div className="mb-4">
         {media.map((item, index) => (
