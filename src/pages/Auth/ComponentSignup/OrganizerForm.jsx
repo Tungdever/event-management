@@ -75,7 +75,7 @@ const OrganizerForm = ({ email, userData, onComplete, onPrev }) => {
         }
       };
       console.log(payload);
-      const response = await fetch('https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth/register', {
+      const response = await fetch('https://event-management-server-asi9.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

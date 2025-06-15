@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth';
+const API_URL = 'https://event-management-server-asi9.onrender.com/api/auth';
 
 export const api = {
   login: async (email, password) => {

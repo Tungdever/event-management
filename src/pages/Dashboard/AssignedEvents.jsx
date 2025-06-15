@@ -20,7 +20,7 @@ const AssignedEvents = () => {
   const fetchAssignedEvents = async (userId) => {
     try {
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/role-assignment/${userId}/my-assigned-events`,
+        `https://event-management-server-asi9.onrender.com/api/role-assignment/${userId}/my-assigned-events`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -41,7 +41,7 @@ const AssignedEvents = () => {
   const deleteEvent = async (eventId) => {
     try {
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/${eventId}`,
+        `https://event-management-server-asi9.onrender.com/api/events/${eventId}`,
         {
           method: "DELETE",
           headers: {

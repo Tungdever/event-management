@@ -44,7 +44,7 @@ const OrganizerDashboard = () => {
 
   const fetchDashboardData = async (year = "") => {
     try {
-      const response = await axios.get("https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/organizer/dashboard", {
+      const response = await axios.get("https://event-management-server-asi9.onrender.com/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

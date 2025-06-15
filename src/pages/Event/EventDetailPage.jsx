@@ -69,7 +69,7 @@ const useEventData = (eventId, userId) => {
       try {
         const query = userId ? `?userId=${userId}` : '';
         const response = await fetch(
-          `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/detail/${eventId}${query}`,
+          `https://event-management-server-asi9.onrender.com/api/events/detail/${eventId}${query}`,
           {
             headers: { "Content-Type": "application/json" },
           }
@@ -339,7 +339,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
 
     try {
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/ticket/${user.email}/check/${eventId}`,
+        `https://event-management-server-asi9.onrender.com/api/ticket/${user.email}/check/${eventId}`,
         {
           headers: {
             "Content-Type": "application/json",

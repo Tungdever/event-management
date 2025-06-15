@@ -152,7 +152,7 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
   useEffect(() => {
     const fetchEventTypes = async () => {
       try {
-        const response = await axios.get("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/get-all-event-types", {
+        const response = await axios.get("https://event-management-server-asi9.onrender.com/api/events-type/get-all-event-types", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -191,7 +191,7 @@ const EventPublishing = ({ event, setEvent, onPublish, isReadOnly }) => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await axios.get(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth/user/${user.email}`, {
+        const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/auth/user/${user.email}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
