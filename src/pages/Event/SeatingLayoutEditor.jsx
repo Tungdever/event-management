@@ -10,6 +10,7 @@ const SeatingLayoutEditor = ({
   venueType,
   onSave,
   availableTickets = [],
+  seatingLayout,
 }) => {
   const [layout, setLayout] = useState([
     {
@@ -19,7 +20,7 @@ const SeatingLayoutEditor = ({
       y: 20,
       width: 300,
       height: 100,
-      color: "#f87171", // Default color for stage (red-400)
+      color: "#f87171",
     },
   ]);
   const [areas, setAreas] = useState([]);
@@ -28,7 +29,47 @@ const SeatingLayoutEditor = ({
   const hasValidSeating = areas.some((area) => area.type === "seating" && area.ticketId);
 
   useEffect(() => {
-    if (!areas.some((area) => area.type === "seating")) {
+    if (seatingLayout) {
+      // Tải lại bố cục từ seatingLayout
+      const { stage, seatingAreas } = seatingLayout;
+      const updatedSeatingAreas = seatingAreas.map((area, index) => ({
+        id: area.id || `area-${Date.now() + index}`,
+        type: area.type || "seating",
+        x: area.x || 50 + index * 10, // Thêm mới: Đảm bảo tọa độ x
+        y: area.y || 150 + index * 10, // Thêm mới: Đảm bảo tọa độ y
+        width: area.width || 200, // Thêm mới: Đảm bảo kích thước
+        height: area.height || 200, // Thêm mới: Đảm bảo kích thước
+        name: area.name || "",
+        capacity: area.capacity || 0,
+        price: area.price || 0,
+        ticketId: area.ticketId || null,
+        color: area.color || "#3b82f6",
+      }));
+
+      setLayout([
+        {
+          ...stage,
+          x: stage.x || 50,
+          y: stage.y || 20,
+          width: stage.width || 300,
+          height: stage.height || 100,
+          color: stage.color || "#f87171",
+        },
+        ...updatedSeatingAreas,
+      ]);
+      setAreas(
+        updatedSeatingAreas.map((area) => ({
+          id: area.id,
+          name: area.name,
+          capacity: area.capacity,
+          price: area.price,
+          type: area.type,
+          ticketId: area.ticketId,
+          areaId: area.id,
+          color: area.color,
+        }))
+      );
+    } else if (!areas.some((area) => area.type === "seating")) {
       const defaultArea = {
         id: `area-${Date.now()}`,
         type: "seating",
@@ -40,7 +81,7 @@ const SeatingLayoutEditor = ({
         capacity: 0,
         price: 0,
         ticketId: null,
-        color: "#3b82f6", // Default color for seating area (blue-500)
+        color: "#3b82f6",
       };
       setLayout([...layout, defaultArea]);
       setAreas([
@@ -56,7 +97,7 @@ const SeatingLayoutEditor = ({
         },
       ]);
     }
-  }, []);
+  }, [seatingLayout]);
 
   const addSeatingArea = () => {
     try {
@@ -72,7 +113,7 @@ const SeatingLayoutEditor = ({
         capacity: 0,
         price: 0,
         ticketId: null,
-        color: "#3b82f6", // Default blue-500
+        color: "#3b82f6",
       };
       setLayout([...layout, newArea]);
       setAreas([
@@ -89,11 +130,11 @@ const SeatingLayoutEditor = ({
         },
       ]);
     } catch (error) {
-      console.error("Error adding seating area:", error);
+      console.error("Lỗi khi thêm khu vực chỗ ngồi:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Cannot add seating area. Please try again.",
+        title: "Lỗi",
+        text: "Không thể thêm khu vực chỗ ngồi. Vui lòng thử lại.",
       });
     }
   };
@@ -106,7 +147,7 @@ const SeatingLayoutEditor = ({
       const updatedDetails = ticket
         ? {
             ticketId: updates.ticketId,
-            name: ticket.ticketName,
+            name: ticket.ticketName || "",
             capacity: parseInt(ticket.quantity) || 0,
             price: ticket.ticketType === "Paid" ? parseFloat(ticket.price) || 0 : 0,
             color: updates.color || areas.find((a) => a.id === id)?.color || "#3b82f6",
@@ -130,11 +171,11 @@ const SeatingLayoutEditor = ({
         )
       );
     } catch (error) {
-      console.error("Error updating area details:", error);
+      console.error("Lỗi khi cập nhật chi tiết khu vực:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Cannot update area details. Please try again.",
+        title: "Lỗi",
+        text: "Không thể cập nhật chi tiết khu vực. Vui lòng thử lại.",
       });
     }
   };
@@ -144,19 +185,19 @@ const SeatingLayoutEditor = ({
       if (id === "stage") {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Cannot delete stage.",
+          title: "Lỗi",
+          text: "Không thể xóa sân khấu.",
         });
         return;
       }
       setLayout(layout.filter((item) => item.id !== id));
       setAreas(areas.filter((area) => area.id !== id));
     } catch (error) {
-      console.error("Error deleting area:", error);
+      console.error("Lỗi khi xóa khu vực:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Cannot delete area. Please try again.",
+        title: "Lỗi",
+        text: "Không thể xóa khu vực. Vui lòng thử lại.",
       });
     }
   };
@@ -164,7 +205,6 @@ const SeatingLayoutEditor = ({
   const generateSeatingMapImage = async () => {
     if (containerRef.current) {
       try {
-        // Temporarily hide edit and delete icons
         const icons = containerRef.current.querySelectorAll(".area-icon");
         icons.forEach((icon) => (icon.style.display = "none"));
 
@@ -175,16 +215,14 @@ const SeatingLayoutEditor = ({
           cacheBust: true,
         });
 
-        // Restore icons
         icons.forEach((icon) => (icon.style.display = "block"));
-
         return dataUrl;
       } catch (error) {
-        console.error("Error generating seating map image:", error);
+        console.error("Lỗi khi tạo ảnh bố cục:", error);
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Cannot generate seating map image. Please try again.",
+          title: "Lỗi",
+          text: "Không thể tạo ảnh bố cục. Vui lòng thử lại.",
         });
         return null;
       }
@@ -197,28 +235,40 @@ const SeatingLayoutEditor = ({
       if (!hasValidSeating) {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Please assign at least one ticket to a seating area.",
+          title: "Lỗi",
+          text: "Vui lòng gán ít nhất một vé cho khu vực chỗ ngồi.",
         });
         return;
       }
       const image = await generateSeatingMapImage();
       if (image) {
-        onSave(image); // Only save image, as per AddTicket.jsx
+        onSave({
+          image,
+          layout: {
+            stage: layout.find((item) => item.type === "stage"),
+            seatingAreas: areas.map((area) => ({
+              ...area,
+              x: layout.find((item) => item.id === area.id)?.x || 50,
+              y: layout.find((item) => item.id === area.id)?.y || 150,
+              width: layout.find((item) => item.id === area.id)?.width || 200,
+              height: layout.find((item) => item.id === area.id)?.height || 200,
+            })),
+          },
+        });
         onClose();
       } else {
         Swal.fire({
           icon: "error",
-          title: "Error",
-          text: "Cannot generate seating map image. Please try again.",
+          title: "Lỗi",
+          text: "Không thể tạo ảnh bố cục. Vui lòng thử lại.",
         });
       }
     } catch (error) {
-      console.error("Error saving seating layout:", error);
+      console.error("Lỗi khi lưu bố cục:", error);
       Swal.fire({
         icon: "error",
-        title: "Error",
-        text: "Cannot save seating layout. Please try again.",
+        title: "Lỗi",
+        text: "Không thể lưu bố cục. Vui lòng thử lại.",
       });
     }
   };
@@ -271,10 +321,10 @@ const SeatingLayoutEditor = ({
       className="fixed inset-0 z-50 flex items-center justify-center transition-opacity duration-300 bg-black bg-opacity-50"
     >
       <div className="bg-white rounded-lg p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
-        <h2 className="mb-4 text-2xl font-bold">Create seating layout</h2>
+        <h2 className="mb-4 text-2xl font-bold">Tạo bố cục chỗ ngồi</h2>
         {!hasValidSeating && (
           <p className="mb-4 text-red-500">
-            Please assign at least one ticket to a seating area
+            Vui lòng gán ít nhất một vé cho khu vực chỗ ngồi
           </p>
         )}
         <div
@@ -312,15 +362,16 @@ const SeatingLayoutEditor = ({
               minWidth={50}
               minHeight={50}
               className={`border ${
-                item.type === "stage"
-                  ? "border-red-500"
-                  : "border-blue-500"
+                item.type === "stage" ? "border-red-500" : "border-blue-500"
               } rounded-lg flex items-center justify-center`}
-              style={{ backgroundColor: item.color || (item.type === "stage" ? "#f87171" : "#3b82f6") }}
+              style={{
+                backgroundColor:
+                  item.color || (item.type === "stage" ? "#f87171" : "#3b82f6"),
+              }}
             >
               <div className="relative flex flex-col items-center justify-center w-full h-full p-2">
                 <span className="text-sm font-semibold text-white">
-                  {item.type === "stage" ? "Stage" : item.name || "Unassigned"}
+                  {item.type === "stage" ? "Sân khấu" : item.name || "Chưa gán"}
                 </span>
                 {item.type === "seating" && renderChairs(item)}
                 {item.type === "seating" && (
@@ -346,36 +397,40 @@ const SeatingLayoutEditor = ({
 
         {selectedArea && (
           <div className="p-4 mt-4 border rounded-lg bg-gray-50">
-            <h3 className="mb-2 text-lg font-semibold">Assign ticket to area</h3>
+            <h3 className="mb-2 text-lg font-semibold">Gán vé cho khu vực</h3>
             {areas
               .filter((area) => area.id === selectedArea)
               .map((area) => (
                 <div key={area.id} className="space-y-2">
                   <div>
-                    <label className="block text-sm font-medium">Select ticket</label>
+                    <label className="block text-sm font-medium">Chọn vé</label>
                     <select
                       value={area.ticketId || ""}
-                      onChange={(e) => updateAreaDetails(area.id, { ticketId: e.target.value })}
+                      onChange={(e) =>
+                        updateAreaDetails(area.id, { ticketId: e.target.value })
+                      }
                       className="w-full p-2 border rounded-md"
                     >
-                      <option value="">Choose a ticket</option>
+                      <option value="">Chọn một vé</option>
                       {availableTickets.map((ticket) => (
                         <option key={ticket.ticketId} value={ticket.ticketId}>
                           {ticket.ticketName} (
                           {ticket.ticketType === "Paid"
                             ? `${ticket.price} VND`
-                            : "Free"}
+                            : "Miễn phí"}
                           )
                         </option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium">Select color</label>
+                    <label className="block text-sm font-medium">Chọn màu</label>
                     <input
                       type="color"
                       value={area.color || "#3b82f6"}
-                      onChange={(e) => updateAreaDetails(area.id, { color: e.target.value })}
+                      onChange={(e) =>
+                        updateAreaDetails(area.id, { color: e.target.value })
+                      }
                       className="w-full h-10 border rounded-md cursor-pointer"
                     />
                   </div>
@@ -385,7 +440,7 @@ const SeatingLayoutEditor = ({
               className="px-4 py-2 mt-2 text-white bg-blue-500 rounded-lg"
               onClick={() => setSelectedArea(null)}
             >
-              Close
+              Đóng
             </button>
           </div>
         )}
@@ -395,14 +450,14 @@ const SeatingLayoutEditor = ({
             className="px-4 py-2 text-white bg-blue-500 rounded-lg"
             onClick={addSeatingArea}
           >
-            Add seating area
+            Thêm khu vực chỗ ngồi
           </button>
           <div>
             <button
               className="px-4 py-2 mr-2 text-gray-700 bg-gray-300 rounded-lg"
               onClick={onClose}
             >
-              Cancel
+              Hủy
             </button>
             <button
               className={`px-4 py-2 rounded-lg ${
@@ -413,7 +468,7 @@ const SeatingLayoutEditor = ({
               onClick={handleSave}
               disabled={!hasValidSeating}
             >
-              Save
+              Lưu
             </button>
           </div>
         </div>

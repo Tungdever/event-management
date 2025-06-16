@@ -43,6 +43,8 @@ const CRUDEvent = () => {
     tickets: [],
     segment: [],
     seatingMapImage: null,
+    seatingLayout: null, // Thêm mới: Lưu dữ liệu JSON của bố cục
+    seatingMapImageVersions: [], // Thêm mới: Lưu danh sách phiên bản ảnh bố cục
   });
   const token = localStorage.getItem("token");
 
@@ -66,7 +68,7 @@ const CRUDEvent = () => {
         } else if (typeof file === "string" && file.startsWith("http")) {
           uploadedIds.push(file);
           continue;
-        } else if (typeof file === "string" && file.startsWith("blob:")) {
+        } else if (typeof file === "string" && file.startsWith("blob:") || file.startsWith("data:")) { // Cập nhật: Hỗ trợ base64
           const response = await fetch(file);
           if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
@@ -130,7 +132,7 @@ const CRUDEvent = () => {
       const existingImageIds = event.uploadedImages
         .filter((item) => typeof item === "string" && item.startsWith("http")) || [];
       const newImages = event.uploadedImages
-        .filter((item) => item instanceof File || item instanceof Blob) || [];
+        .filter((item) => item instanceof File || item instanceof Blob || (typeof item === "string" && item.startsWith("data:"))) || [];
       const newImageIds = await uploadFilesToCloudinary(newImages);
       const uploadedImageIds = [...existingImageIds, ...newImageIds];
 
@@ -138,12 +140,13 @@ const CRUDEvent = () => {
         .filter((item) => typeof item === "object" && item.url?.startsWith("http"))
         .map((item) => item.url) || [];
       const newMediaFiles = event.overviewContent.media
-        .filter((item) => item.file instanceof File || item.file instanceof Blob)
+        .filter((item) => item.file instanceof File || item.file instanceof Blob || (typeof item.file === "string" && item.file.startsWith("data:")))
         .map((item) => item.file) || [];
       const newMediaIds = await uploadFilesToCloudinary(newMediaFiles);
       const uploadedMediaIds = [...existingMediaIds, ...newMediaIds];
 
       let seatingMapImageId = null;
+      let seatingMapImageVersionIds = [];
       if (eventStatus === "public" && event.seatingMapImage) {
         if (!event.seatingMapImage.startsWith("data:image/")) {
           throw new Error("Invalid seating map image format. Expected base64 string.");
@@ -157,6 +160,29 @@ const CRUDEvent = () => {
         const blob = new Blob([array], { type: "image/png" });
         const seatingMapImageIds = await uploadFilesToCloudinary([blob]);
         seatingMapImageId = seatingMapImageIds[0] || null;
+      }
+
+      // Thêm mới: Xử lý seatingMapImageVersions
+      if (event.seatingMapImageVersions && event.seatingMapImageVersions.length > 0) {
+        seatingMapImageVersionIds = await Promise.all(
+          event.seatingMapImageVersions.map(async (version) => {
+            if (typeof version === "string" && version.startsWith("http")) {
+              return version.split("/").pop().split(".")[0];
+            } else if (typeof version === "string" && version.startsWith("data:")) {
+              const base64Data = version.replace(/^data:image\/[a-z]+;base64,/, "");
+              const binary = atob(base64Data);
+              const array = new Uint8Array(binary.length);
+              for (let i = 0; i < binary.length; i++) {
+                array[i] = binary.charCodeAt(i);
+              }
+              const blob = new Blob([array], { type: "image/png" });
+              const versionIds = await uploadFilesToCloudinary([blob]);
+              return versionIds[0] || null;
+            }
+            return null;
+          })
+        );
+        seatingMapImageVersionIds = seatingMapImageVersionIds.filter((id) => id !== null);
       }
 
       const segmentData = [];
@@ -211,6 +237,8 @@ const CRUDEvent = () => {
         mediaContent: uploadedMediaIds,
         userId: user.userId,
         seatingMapImage: seatingMapImageId,
+        seatingLayout: event.seatingLayout ? JSON.stringify(event.seatingLayout) : null, // Thêm mới: Lưu seatingLayout
+        seatingMapImageVersions: seatingMapImageVersionIds, // Thêm mới: Lưu phiên bản ảnh
       };
 
       console.log("Data sent to API:", dataEvent);
@@ -293,6 +321,7 @@ const CRUDEvent = () => {
           })),
         },
         seatingMapImage: seatingMapImageId,
+        seatingMapImageVersions: seatingMapImageVersionIds, // Thêm mới: Cập nhật phiên bản ảnh
       };
 
       setEvent(updatedEvent);
@@ -313,11 +342,13 @@ const CRUDEvent = () => {
     }
   };
 
-  const handleTicketsUpdate = (updatedTickets, seatingMapImage) => {
+  const handleTicketsUpdate = (updatedTickets, { image, versions, layout }) => { // Cập nhật: Nhận thêm versions và layout
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets || [],
-      seatingMapImage: seatingMapImage || null,
+      seatingMapImage: image || prevEvent.seatingMapImage,
+      seatingLayout: layout ? JSON.parse(layout) : prevEvent.seatingLayout, // Thêm mới: Cập nhật seatingLayout
+      seatingMapImageVersions: versions || prevEvent.seatingMapImageVersions, // Thêm mới: Cập nhật phiên bản ảnh
     }));
   };
 
@@ -413,6 +444,10 @@ const CRUDEvent = () => {
             }
             onNext={() => setSelectedStep("publish")}
             t={t}
+            venueType={event.eventLocation.locationType} // Thêm mới: Truyền venueType
+            seatingLayout={event.seatingLayout} // Thêm mới: Truyền seatingLayout
+            seatingMapImage={event.seatingMapImage} // Thêm mới: Truyền seatingMapImage
+            seatingMapImageVersions={event.seatingMapImageVersions} // Thêm mới: Truyền phiên bản ảnh
           />
         );
       case "publish":
@@ -491,6 +526,7 @@ const CRUDEvent = () => {
           <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
+     
     </>
   );
 };

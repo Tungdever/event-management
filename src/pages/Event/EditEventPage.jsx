@@ -42,7 +42,9 @@ const EditEventPage = () => {
     overviewContent: { text: "", media: [] },
     tickets: [],
     segment: [],
-    seatingMapImage: null, // Thêm trường seatingMapImage
+    seatingMapImage: null,
+    seatingLayout: null, // Thêm mới: Lưu dữ liệu JSON của bố cục
+    seatingMapImageVersions: [], // Thêm mới: Lưu danh sách phiên bản ảnh bố cục
   });
 
   useEffect(() => {
@@ -70,6 +72,18 @@ const EditEventPage = () => {
 
       if (!data || !data.event) {
         throw new Error(t("editEventPage.errors.invalidEventData"));
+      }
+
+      // Cập nhật: Đồng bộ ticketId giữa seatingAreas và tickets
+      const seatingLayout = data.event.seatingLayout ? JSON.parse(data.event.seatingLayout) : null;
+      if (seatingLayout && seatingLayout.seatingAreas && data.ticket) {
+        seatingLayout.seatingAreas = seatingLayout.seatingAreas.map((area) => {
+          const matchingTicket = data.ticket.find((ticket) => ticket.ticketId === parseInt(area.ticketId?.replace("ticket-", "")));
+          return {
+            ...area,
+            ticketId: matchingTicket ? `ticket-${matchingTicket.ticketId}` : area.ticketId,
+          };
+        });
       }
 
       const transformedEvent = {
@@ -125,7 +139,9 @@ const EditEventPage = () => {
           startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
           endTime: seg.endTime?.split("T")[1]?.slice(0, 5) || "",
         })) || [],
-        seatingMapImage: data.event.seatingMapImage || null, // Lấy seatingMapImage từ API
+        seatingMapImage: data.event.seatingMapImage || null,
+        seatingLayout, // Thêm mới: Lưu seatingLayout
+        seatingMapImageVersions: data.event.seatingMapImageVersions || [], // Thêm mới: Lưu phiên bản ảnh
       };
 
       console.log("Fetched event data:", transformedEvent);
@@ -153,12 +169,13 @@ const EditEventPage = () => {
     for (const file of fileList) {
       try {
         if (typeof file === "string" && file.startsWith("http")) {
-          uploadedIds.push(file);
+          const publicId = file.split("/").pop().split(".")[0];
+          uploadedIds.push(publicId);
           continue;
         }
 
         let blob;
-        if (typeof file === "string" && file.startsWith("blob:")) {
+        if (typeof file === "string" && (file.startsWith("blob:") || file.startsWith("data:"))) { // Cập nhật: Hỗ trợ base64
           const response = await fetch(file);
           if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
@@ -211,40 +228,43 @@ const EditEventPage = () => {
     return uploadedIds.filter((id) => id !== null);
   };
 
-  const handleEdit = async (event) => {
-    if (isReadOnly) {
-      Swal.fire({
-        icon: "info",
-        title: t('editEventPage.readOnlyMessage'),
-        text: t('editEventPage.readOnlyMessage'),
-      });
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const isFile = (item) =>
-        item instanceof File ||
-        item instanceof Blob ||
-        (typeof item === "string" && item.startsWith("blob:"));
+// Chỉ cập nhật phần thay đổi trong EditEventPage.jsx
+const handleEdit = async (updatedEvent) => {
+  if (isReadOnly) {
+    Swal.fire({
+      icon: "info",
+      title: t('editEventPage.readOnlyMessage'),
+      text: t('editEventPage.readOnlyMessage'),
+    });
+    return;
+  }
+  setIsLoading(true);
+  try {
+    const isFile = (item) =>
+      item instanceof File ||
+      item instanceof Blob ||
+      (typeof item === "string" && (item.startsWith("blob:") || item.startsWith("data:")));
 
-      const existingImageIds =
-        event.uploadedImages?.filter((item) => typeof item === "string" && item.startsWith("http")) || [];
-      const newImages = event.uploadedImages?.filter(isFile) || [];
-      const newImageIds = newImages.length > 0 ? await uploadFilesToCloudinary(newImages) : [];
-      const eventImages = [...existingImageIds, ...newImageIds];
+    const existingImageIds =
+      updatedEvent.uploadedImages?.filter((item) => typeof item === "string" && item.startsWith("http")) || [];
+    const newImages = updatedEvent.uploadedImages?.filter(isFile) || [];
+    const newImageIds = newImages.length > 0 ? await uploadFilesToCloudinary(newImages) : [];
+    const eventImages = [...existingImageIds, ...newImageIds];
 
-      const existingMediaIds =
-        event.overviewContent?.media
-          ?.filter((item) => typeof item === "object" && item.url && item.url.startsWith("http"))
-          .map((item) => item.url) || [];
-      const newMedia = event.overviewContent?.media?.filter((item) =>
-        isFile(item) || (typeof item === "object" && isFile(item.url))
-      ) || [];
-      const newMediaIds = newMedia.length > 0 ? await uploadFilesToCloudinary(newMedia) : [];
-      const mediaContent = [...existingMediaIds, ...newMediaIds];
+    const existingMediaIds =
+      updatedEvent.overviewContent?.media
+        ?.filter((item) => typeof item === "object" && item.url && item.url.startsWith("http"))
+        .map((item) => item.url) || [];
+    const newMedia = updatedEvent.overviewContent?.media?.filter((item) =>
+      isFile(item.url)
+    ) || [];
+    const newMediaIds = newMedia.length > 0
+      ? await uploadFilesToCloudinary(newMedia.map((item) => item.url))
+      : [];
+    const mediaContent = [...existingImageIds, ...newMediaIds];
 
-      const ticketData = event.tickets?.length > 0
-        ? event.tickets.map((ticket) => ({
+    const ticketData = updatedEvent.tickets?.length > 0
+      ? updatedEvent.tickets.map((ticket) => ({
           ticketId: ticket.ticketId || null,
           ticketName: ticket.ticketName || "",
           ticketType: ticket.ticketType || "Paid",
@@ -254,20 +274,20 @@ const EditEventPage = () => {
           endTime: ticket.endTime || "",
           sold: ticket.sold || 0,
         }))
-        : [];
+      : [];
 
-      const segmentData = [];
-      if (event.segment?.length > 0) {
-        for (const segment of event.segment) {
-          const uploadedSpeakerImage = segment?.speaker?.speakerImage
-            ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
-            : segment.speaker?.speakerImage || null;
+    const segmentData = [];
+    if (updatedEvent.segment?.length > 0) {
+      for (const segment of updatedEvent.segment) {
+        const uploadedSpeakerImage = segment?.speaker?.speakerImage
+          ? (await uploadFilesToCloudinary([segment.speaker.speakerImage]))[0]
+          : segment.speaker?.speakerImage || null;
 
-          segmentData.push({
-            segmentId: segment.segmentId || null,
-            segmentTitle: segment.segmentTitle || "",
-            speaker: segment.speaker
-              ? {
+        segmentData.push({
+          segmentId: segment.segmentId || null,
+          segmentTitle: segment.segmentTitle || "",
+          speaker: segment.speaker
+            ? {
                 speakerId: segment.speaker.speakerId || null,
                 speakerImage: uploadedSpeakerImage || "",
                 speakerName: segment.speaker.speakerName || "",
@@ -277,98 +297,147 @@ const EditEventPage = () => {
                 speakerAddress: segment.speaker.speakerAddress || null,
                 speakerDesc: segment.speaker.speakerDesc || "",
               }
-              : null,
-            eventID: event.eventId || null,
-            segmentDesc: segment.segmentDesc || "",
-            startTime: segment.startTime
-              ? `${event.eventLocation.date}T${segment.startTime}:00`
-              : "2025-04-05T12:10:00.000+00:00",
-            endTime: segment.endTime
-              ? `${event.eventLocation.date}T${segment.endTime}:00`
-              : "2025-04-05T17:06:00.000+00:00",
-          });
-        }
+            : null,
+          eventID: eventId || null,
+          segmentDesc: segment.segmentDesc || "",
+          startTime: segment.startTime
+            ? `${updatedEvent.eventLocation.date}T${segment.startTime}:00`
+            : "2025-04-05T12:10:00.000+00:00",
+          endTime: segment.endTime
+            ? `${updatedEvent.eventLocation.date}T${segment.endTime}:00`
+            : "2025-04-05T17:06:00.000+00:00",
+        });
       }
-
-      const payload = {
-        event: {
-          eventId: eventId || null,
-          eventName: event.eventName || "",
-          eventDesc: event.eventDesc || "",
-          eventTypeId: event.eventType || "",
-          eventHost: event.eventHost || "OFFICE",
-          eventStatus: event.eventStatus || "public",
-          eventStart:
-            event.eventLocation.date && event.eventLocation.startTime
-              ? `${event.eventLocation.date}T${event.eventLocation.startTime}:00`
-              : "2025-04-05T12:10:00",
-          eventEnd:
-            event.eventLocation.date && event.eventLocation.endTime
-              ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
-              : "2025-04-05T14:06:00",
-          eventLocation: {
-            date: event.eventStart.split("T")[0],
-            startTime: event.eventStart.split("T")[1]?.slice(0, 5),
-            endTime: event.eventEnd.split("T")[1]?.slice(0, 5),
-            locationType: event.eventLocation.locationType || "venue",
-            venueName: event.eventLocation.venueName || "",
-            venueSlug: event.eventLocation.venueSlug || "",
-            address: event.eventLocation.address || "",
-            city: event.eventLocation.city || "",
-          },
-          eventVisibility: event.eventVisibility || "public",
-          publishTime: event.publishTime || new Date().toISOString(),
-          refunds: event.refunds || "yes",
-          validityDays: event.validityDays || 7,
-          eventImages: eventImages,
-          textContent: event.overviewContent?.text || "",
-          mediaContent: mediaContent,
-          tags: event.tags?.join("|") || "",
-          seatingMapImage: event.seatingMapImage || null, 
-        },
-        ticket: ticketData,
-        segment: segmentData,
-      };
-
-      console.log("Submitting payload:", payload);
-
-      const response = await fetch("http://localhost:8080/api/events/edit", {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        method: "PUT",
-        body: JSON.stringify(payload),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(t("editEventPage.errors.editFailed", { message: errorText }));
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: t("editEventPage.successEdit.title"),
-        text: t("editEventPage.successEdit.text"),
-      });
-    } catch (error) {
-      console.error("Edit error:", error);
-      Swal.fire({
-        icon: "error",
-        title: t("editEventPage.errors.editFailed", { message: "" }),
-        text: t("editEventPage.errors.editFailed", { message: error.message }),
-      });
-    } finally {
-      setIsLoading(false);
     }
-  };
 
-  const handleTicketsUpdate = (updatedTickets, seatingMapImage) => {
+    // Thêm mới: Xử lý seatingMapImage
+    let seatingMapImageId = null;
+    if (updatedEvent.seatingMapImage) {
+      if (updatedEvent.seatingMapImage.startsWith("http")) {
+        seatingMapImageId = updatedEvent.seatingMapImage.split("/").pop().split(".")[0];
+      } else if (isFile(updatedEvent.seatingMapImage)) {
+        const imageIds = await uploadFilesToCloudinary([updatedEvent.seatingMapImage]);
+        seatingMapImageId = imageIds[0] || null;
+      }
+    }
+
+    // Thêm mới: Xử lý seatingMapImageVersions
+    const seatingMapImageVersionIds = updatedEvent.seatingMapImageVersions
+      ? await Promise.all(
+          updatedEvent.seatingMapImageVersions.map(async (version) => {
+            if (typeof version.image === "string" && version.image.startsWith("http")) {
+              return version.image.split("/").pop().split(".")[0];
+            } else if (isFile(version.image)) {
+              const versionIds = await uploadFilesToCloudinary([version.image]);
+              return versionIds[0] || null;
+            }
+            return null;
+          })
+        ).then((ids) => ids.filter((id) => id !== null))
+      : [];
+
+    // Cập nhật: Đồng bộ ticketId trong seatingLayout
+    let updatedSeatingLayout = updatedEvent.seatingLayout;
+    if (updatedSeatingLayout && updatedSeatingLayout.seatingAreas) {
+      updatedSeatingLayout.seatingAreas = updatedSeatingLayout.seatingAreas.map((area) => {
+        const matchingTicket = ticketData.find((ticket) => ticket.ticketId === parseInt(area.ticketId?.replace("ticket-", "")));
+        return {
+          ...area,
+          ticketId: matchingTicket ? `ticket-${matchingTicket.ticketId}` : area.ticketId,
+          x: area.x || 50,
+          y: area.y || 150,
+          width: area.width || 200,
+          height: area.height || 200,
+        };
+      });
+    }
+
+    const payload = {
+      event: {
+        eventId: eventId || null,
+        eventName: updatedEvent.eventName || "",
+        eventDesc: updatedEvent.eventDesc || "",
+        eventTypeId: updatedEvent.eventType || "",
+        eventHost: updatedEvent.eventHost || "OFFICE",
+        eventStatus: updatedEvent.eventStatus || "public",
+        eventStart:
+          updatedEvent.eventLocation.date && updatedEvent.eventLocation.startTime
+            ? `${updatedEvent.eventLocation.date}T${updatedEvent.eventLocation.startTime}:00`
+            : "2025-04-05T12:10:00",
+        eventEnd:
+          updatedEvent.eventLocation.date && updatedEvent.eventLocation.endTime
+            ? `${updatedEvent.eventLocation.date}T${updatedEvent.eventLocation.endTime}:00`
+            : "2025-04-05T14:06:00",
+        eventLocation: {
+          date: updatedEvent.eventStart.split("T")[0],
+          startTime: updatedEvent.eventStart.split("T")[1]?.slice(0, 5),
+          endTime: updatedEvent.eventEnd.split("T")[1]?.slice(0, 5),
+          locationType: updatedEvent.eventLocation.locationType || "venue",
+          venueName: updatedEvent.eventLocation.venueName || "",
+          venueSlug: updatedEvent.eventLocation.venueSlug || "",
+          address: updatedEvent.eventLocation.address || "",
+          city: updatedEvent.eventLocation.city || "",
+        },
+        eventVisibility: updatedEvent.eventVisibility || "public",
+        publishTime: updatedEvent.publishTime || new Date().toISOString(),
+        refunds: updatedEvent.refunds || "yes",
+        validityDays: updatedEvent.validityDays || 7,
+        eventImages: eventImages,
+        textContent: updatedEvent.overviewContent?.text || "",
+        mediaContent: mediaContent,
+        tags: updatedEvent.tags?.join("|") || "",
+        seatingMapImage: seatingMapImageId,
+        seatingLayout: updatedSeatingLayout ? JSON.stringify(updatedSeatingLayout) : null,
+        seatingMapImageVersions: seatingMapImageVersionIds,
+      },
+      ticket: ticketData,
+      segment: segmentData,
+    };
+
+    console.log("Submitting payload:", payload);
+
+    const response = await fetch(`http://localhost:8080/api/events/edit/${eventId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(t("editEventPage.errors.editFailed", { message: errorText }));
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: t("editEventPage.successEdit.title"),
+      text: t("editEventPage.successEdit.text"),
+    });
+    setEvent(updatedEvent);
+  } catch (error) {
+    console.error("Edit error:", error);
+    Swal.fire({
+      icon: "error",
+      title: t("editEventPage.errors.editFailed", { message: "" }),
+      text: t("editEventPage.errors.editFailed", { message: error.message }),
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
+
+
+
+  const handleTicketsUpdate = (updatedTickets, { image, versions, layout }) => { // Cập nhật: Nhận thêm versions và layout
     if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets,
-      seatingMapImage: seatingMapImage || prevEvent.seatingMapImage, // Cập nhật seatingMapImage
+      seatingMapImage: image || prevEvent.seatingMapImage,
+      seatingLayout: layout ? JSON.parse(layout) : prevEvent.seatingLayout, // Thêm mới: Cập nhật seatingLayout
+      seatingMapImageVersions: versions || prevEvent.seatingMapImageVersions, // Thêm mới: Cập nhật phiên bản ảnh
     }));
   };
 
@@ -393,7 +462,10 @@ const EditEventPage = () => {
             isReadOnly={isReadOnly}
             eventStart={event.eventStart}
             eventEnd={event.eventEnd}
-            seatingMapImage={event.seatingMapImage} // Truyền seatingMapImage
+            seatingMapImage={event.seatingMapImage}
+            seatingLayout={event.seatingLayout} // Thêm mới: Truyền seatingLayout
+            seatingMapImageVersions={event.seatingMapImageVersions} // Thêm mới: Truyền phiên bản ảnh
+            venueType={event.eventLocation.locationType} // Thêm mới: Truyền venueType
             t={t}
           />
         );
