@@ -7,6 +7,7 @@ import Swal from "sweetalert2";
 import Loader from "../../components/Loading";
 import { useTranslation } from 'react-i18next';
 import Footer from "../../components/Footer";
+
 const EditEventPage = () => {
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
@@ -41,6 +42,7 @@ const EditEventPage = () => {
     overviewContent: { text: "", media: [] },
     tickets: [],
     segment: [],
+    seatingMapImage: null, // Thêm trường seatingMapImage
   });
 
   useEffect(() => {
@@ -123,6 +125,7 @@ const EditEventPage = () => {
           startTime: seg.startTime?.split("T")[1]?.slice(0, 5) || "",
           endTime: seg.endTime?.split("T")[1]?.slice(0, 5) || "",
         })) || [],
+        seatingMapImage: data.event.seatingMapImage || null, // Lấy seatingMapImage từ API
       };
 
       console.log("Fetched event data:", transformedEvent);
@@ -321,6 +324,7 @@ const EditEventPage = () => {
           textContent: event.overviewContent?.text || "",
           mediaContent: mediaContent,
           tags: event.tags?.join("|") || "",
+          seatingMapImage: event.seatingMapImage || null, 
         },
         ticket: ticketData,
         segment: segmentData,
@@ -359,11 +363,12 @@ const EditEventPage = () => {
     }
   };
 
-  const handleTicketsUpdate = (updatedTickets) => {
+  const handleTicketsUpdate = (updatedTickets, seatingMapImage) => {
     if (isReadOnly) return;
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets,
+      seatingMapImage: seatingMapImage || prevEvent.seatingMapImage, // Cập nhật seatingMapImage
     }));
   };
 
@@ -376,7 +381,7 @@ const EditEventPage = () => {
             setEvent={setEvent}
             onNext={() => setSelectedStep("tickets")}
             isReadOnly={isReadOnly}
-            t={t} // Pass t to EventForm
+            t={t}
           />
         );
       case "tickets":
@@ -388,7 +393,8 @@ const EditEventPage = () => {
             isReadOnly={isReadOnly}
             eventStart={event.eventStart}
             eventEnd={event.eventEnd}
-            t={t} // Pass t to AddTicket
+            seatingMapImage={event.seatingMapImage} // Truyền seatingMapImage
+            t={t}
           />
         );
       case "publish":
@@ -398,7 +404,7 @@ const EditEventPage = () => {
             setEvent={setEvent}
             onPublish={() => handleEdit(event)}
             isReadOnly={isReadOnly}
-            t={t} // Pass t to EventPublishing
+            t={t}
           />
         );
       default:
