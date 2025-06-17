@@ -285,17 +285,17 @@ const AddTicket = ({
     (seatingMapImageVersions || []).map((v) => ({ image: v, layout: null }))
   );
   const [localSeatingLayout, setLocalSeatingLayout] = useState(seatingLayout);
-  const [newTicket, setNewTicket] = useState({
-    eventId: eventId || "",
-    ticketId: `ticket-${Date.now()}`,
-    ticketName: "",
-    ticketType: "Paid",
-    price: "",
-    quantity: "",
-    startTime: "",
-    endTime: "",
-    isLocal: true,
-  });
+const [newTicket, setNewTicket] = useState({
+  eventId: eventId || "",
+  ticketId: null, // Sử dụng null thay vì ticket-<timestamp>
+  ticketName: "",
+  ticketType: "Paid",
+  price: "",
+  quantity: "",
+  startTime: "",
+  endTime: "",
+  isLocal: true,
+});
   const [typeTicket, setTypeTicket] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
   const [showOverview, setShowOverview] = useState(false);
@@ -335,18 +335,18 @@ const AddTicket = ({
     }
   };
 
-  const handleTicketClick = (type) => {
-    if (isReadOnly) return;
-    setTypeTicket(type);
-    setNewTicket((prev) => ({
-      ...prev,
-      ticketType: type,
-      ticketId: `ticket-${Date.now()}`,
-      isLocal: true,
-    }));
-    setShowForm(true);
-    setEditingTicket(null);
-  };
+const handleTicketClick = (type) => {
+  if (isReadOnly) return;
+  setTypeTicket(type);
+  setNewTicket((prev) => ({
+    ...prev,
+    ticketType: type,
+    ticketId: null, // Sử dụng null
+    isLocal: true,
+  }));
+  setShowForm(true);
+  setEditingTicket(null);
+};
 
   useEffect(() => {
     setNewTicket((prev) => ({ ...prev, ticketType: typeTicket }));
@@ -658,7 +658,10 @@ const AddTicket = ({
         onClose={() => setIsSeatingEditorOpen(false)}
         venueType={venueType || "indoor"}
         onSave={handleSeatingLayoutSave}
-        availableTickets={tickets}
+        availableTickets={tickets.map((ticket) => ({
+          ...ticket,
+          ticketId: ticket.ticketId, // Đảm bảo ticketId được giữ nguyên
+        }))}
         seatingLayout={localSeatingLayout}
       />
     </div>

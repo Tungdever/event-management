@@ -263,18 +263,20 @@ const handleEdit = async (updatedEvent) => {
       : [];
     const mediaContent = [...existingImageIds, ...newMediaIds];
 
-    const ticketData = updatedEvent.tickets?.length > 0
-      ? updatedEvent.tickets.map((ticket) => ({
-          ticketId: ticket.ticketId || null,
-          ticketName: ticket.ticketName || "",
-          ticketType: ticket.ticketType || "Paid",
-          price: ticket.price || 0,
-          quantity: ticket.quantity || 0,
-          startTime: ticket.startTime || "",
-          endTime: ticket.endTime || "",
-          sold: ticket.sold || 0,
-        }))
-      : [];
+const ticketData = updatedEvent.tickets?.length > 0
+  ? updatedEvent.tickets.map((ticket) => ({
+      ticketId: ticket.ticketId && typeof ticket.ticketId === "string" && !ticket.ticketId.startsWith("ticket-")
+        ? parseInt(ticket.ticketId, 10) || null
+        : null, // Chuyển ticketId thành số nếu là chuỗi hợp lệ, nếu không thì null
+      ticketName: ticket.ticketName || "",
+      ticketType: ticket.ticketType || "Paid",
+      price: parseFloat(ticket.price) || 0,
+      quantity: parseInt(ticket.quantity, 10) || 0,
+      startTime: ticket.startTime || "",
+      endTime: ticket.endTime || "",
+      sold: parseInt(ticket.sold, 10) || 0,
+    }))
+  : [];
 
     const segmentData = [];
     if (updatedEvent.segment?.length > 0) {
@@ -337,20 +339,26 @@ const handleEdit = async (updatedEvent) => {
       : [];
 
     // Cập nhật: Đồng bộ ticketId trong seatingLayout
-    let updatedSeatingLayout = updatedEvent.seatingLayout;
-    if (updatedSeatingLayout && updatedSeatingLayout.seatingAreas) {
-      updatedSeatingLayout.seatingAreas = updatedSeatingLayout.seatingAreas.map((area) => {
-        const matchingTicket = ticketData.find((ticket) => ticket.ticketId === parseInt(area.ticketId?.replace("ticket-", "")));
-        return {
-          ...area,
-          ticketId: matchingTicket ? `ticket-${matchingTicket.ticketId}` : area.ticketId,
-          x: area.x || 50,
-          y: area.y || 150,
-          width: area.width || 200,
-          height: area.height || 200,
-        };
-      });
-    }
+let updatedSeatingLayout = updatedEvent.seatingLayout;
+if (updatedSeatingLayout && updatedSeatingLayout.seatingAreas) {
+  updatedSeatingLayout.seatingAreas = updatedSeatingLayout.seatingAreas.map((area) => {
+    const ticketIdStr = typeof area.ticketId === "string" ? area.ticketId.replace("ticket-", "") : null;
+    const ticketIdNum = ticketIdStr && !isNaN(parseInt(ticketIdStr, 10)) ? parseInt(ticketIdStr, 10) : null;
+    const matchingTicket = ticketData.find((ticket) =>
+      ticket.ticketName === area.name &&
+      ticket.price === area.price &&
+      ticket.quantity === area.capacity
+    );
+    return {
+      ...area,
+      ticketId: matchingTicket ? `ticket-${matchingTicket.ticketId || 'new-' + area.id}` : null,
+      x: area.x || 50,
+      y: area.y || 150,
+      width: area.width || 200,
+      height: area.height || 200,
+    };
+  });
+}
 
     const payload = {
       event: {
@@ -396,7 +404,7 @@ const handleEdit = async (updatedEvent) => {
 
     console.log("Submitting payload:", payload);
 
-    const response = await fetch(`http://localhost:8080/api/events/edit/${eventId}`, {
+    const response = await fetch(`http://localhost:8080/api/events/edit`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

@@ -139,46 +139,46 @@ const SeatingLayoutEditor = ({
     }
   };
 
-  const updateAreaDetails = (id, updates) => {
-    try {
-      const ticket = updates.ticketId
-        ? availableTickets.find((t) => t.ticketId === updates.ticketId)
-        : null;
-      const updatedDetails = ticket
-        ? {
-            ticketId: updates.ticketId,
-            name: ticket.ticketName || "",
-            capacity: parseInt(ticket.quantity) || 0,
-            price: ticket.ticketType === "Paid" ? parseFloat(ticket.price) || 0 : 0,
-            color: updates.color || areas.find((a) => a.id === id)?.color || "#3b82f6",
-          }
-        : {
-            ticketId: null,
-            name: "",
-            capacity: 0,
-            price: 0,
-            color: updates.color || areas.find((a) => a.id === id)?.color || "#3b82f6",
-          };
+const updateAreaDetails = (id, updates) => {
+  try {
+    const ticket = updates.ticketId
+      ? availableTickets.find((t) => t.ticketId === updates.ticketId)
+      : null;
+    const updatedDetails = ticket
+      ? {
+          ticketId: ticket.ticketId, // Giữ nguyên ticketId từ availableTickets
+          name: ticket.ticketName || "",
+          capacity: parseInt(ticket.quantity) || 0,
+          price: ticket.ticketType === "Paid" ? parseFloat(ticket.price) || 0 : 0,
+          color: updates.color || areas.find((a) => a.id === id)?.color || "#3b82f6",
+        }
+      : {
+          ticketId: null,
+          name: "",
+          capacity: 0,
+          price: 0,
+          color: updates.color || areas.find((a) => a.id === id)?.color || "#3b82f6",
+        };
 
-      setAreas(
-        areas.map((area) =>
-          area.id === id ? { ...area, ...updatedDetails, areaId: area.areaId || id } : area
-        )
-      );
-      setLayout(
-        layout.map((item) =>
-          item.id === id ? { ...item, ...updatedDetails } : item
-        )
-      );
-    } catch (error) {
-      console.error("Lỗi khi cập nhật chi tiết khu vực:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Lỗi",
-        text: "Không thể cập nhật chi tiết khu vực. Vui lòng thử lại.",
-      });
-    }
-  };
+    setAreas(
+      areas.map((area) =>
+        area.id === id ? { ...area, ...updatedDetails, areaId: area.areaId || id } : area
+      )
+    );
+    setLayout(
+      layout.map((item) =>
+        item.id === id ? { ...item, ...updatedDetails } : item
+      )
+    );
+  } catch (error) {
+    console.error("Lỗi khi cập nhật chi tiết khu vực:", error);
+    Swal.fire({
+      icon: "error",
+      title: "Lỗi",
+      text: "Không thể cập nhật chi tiết khu vực. Vui lòng thử lại.",
+    });
+  }
+};
 
   const deleteArea = (id) => {
     try {
