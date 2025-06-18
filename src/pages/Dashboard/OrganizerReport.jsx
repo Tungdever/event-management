@@ -44,7 +44,7 @@ const OrganizerDashboard = () => {
 
   const fetchDashboardData = async (year = "") => {
     try {
-      const response = await axios.get("https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/organizer/dashboard", {
+      const response = await axios.get("http://localhost:8080/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -177,9 +177,9 @@ const OrganizerDashboard = () => {
   };
 
   return (
-    <section className="space-y-6 overflow-y-auto p-6">
-      <div className="bg-white rounded-xl p-6">
-        <div className="flex justify-between items-center mb-6">
+    <section className="p-6 space-y-6 overflow-y-auto">
+      <div className="p-6 bg-white rounded-xl">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="font-bold text-lg text-[#1e1e2d] select-none">
             {t('organizerDashboard.header')} - {data.organizer}
           </h1>
@@ -205,16 +205,16 @@ const OrganizerDashboard = () => {
               <div className={`rounded-full p-2 mb-2`} style={{ backgroundColor: stat.color }}>
                 <i className={`${stat.icon} text-[#1e293d]`}></i>
               </div>
-              <p className="text-sm text-gray-600 mb-1 select-none">{stat.title}</p>
+              <p className="mb-1 text-sm text-gray-600 select-none">{stat.title}</p>
               <p className="font-bold text-lg text-[#1e1e2d]">{stat.value}</p>
             </div>
           ))}
         </div>
 
-        <h1 className="font-bold text-lg mb-4 select-none">{t('organizerDashboard.statistics')}</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
+        <h1 className="mb-4 text-lg font-bold select-none">{t('organizerDashboard.statistics')}</h1>
+        <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-1">
           <div className="bg-[#f9fafb] rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-4">
+            <h2 className="mb-4 text-sm font-semibold">
               {t('organizerDashboard.revenueOverTime')} {selectedYear ? `(${selectedYear})` : ''}
             </h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
@@ -240,7 +240,7 @@ const OrganizerDashboard = () => {
           </div>
         </div>
 
-        <h1 className="font-bold text-lg mb-4 select-none">{t('organizerDashboard.yourEvents')}</h1>
+        <h1 className="mb-4 text-lg font-bold select-none">{t('organizerDashboard.yourEvents')}</h1>
         <div className="mb-4">
           <input
             type="text"
@@ -254,7 +254,7 @@ const OrganizerDashboard = () => {
         <div className="mt-6 bg-white rounded-md shadow text-[14px]">
           <div className="flex items-center p-4 border-b border-gray-200">
             <div
-              className="w-1/2 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/2 text-gray-600 cursor-pointer"
               onClick={() => handleSort('event')}
               aria-label={t('organizerDashboard.event')}
             >
@@ -266,7 +266,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('location')}
               aria-label={t('organizerDashboard.location')}
             >
@@ -278,7 +278,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('sold')}
               aria-label={t('organizerDashboard.sold')}
             >
@@ -290,7 +290,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('gross')}
               aria-label={t('organizerDashboard.gross')}
             >
@@ -302,7 +302,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('status')}
               aria-label={t('organizerDashboard.status')}
             >
@@ -322,16 +322,16 @@ const OrganizerDashboard = () => {
             <div className="p-4 text-center text-gray-600">{t('organizerDashboard.noEvents')}</div>
           ) : (
             currentEvents.map((event) => (
-              <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
+              <div key={event.eventId} className="relative flex items-center p-4 hover:bg-gray-100">
                 <div className="w-1/2 flex items-center space-x-4 text-[13px]">
                   {event.eventImages[0] ? (
                     <img
                       src={event.eventImages[0]}
                       alt={event.eventName}
-                      className="w-16 h-16 object-cover rounded-md"
+                      className="object-cover w-16 h-16 rounded-md"
                     />
                   ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                    <div className="flex items-center justify-center w-16 h-16 bg-gray-200 rounded-md">
                       <span className="text-gray-500">{t('organizerDashboard.noImage')}</span>
                     </div>
                   )}
@@ -350,7 +350,7 @@ const OrganizerDashboard = () => {
         </div>
 
         {totalPages > 1 && (
-          <div className="mt-4 flex justify-end items-center space-x-2">
+          <div className="flex items-center justify-end mt-4 space-x-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
