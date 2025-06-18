@@ -11,7 +11,9 @@ module.exports = {
         josefin:[ 'Josefin Sans', 'sans-serif'],
         lato:['Lato','sans-serif']
       },
+     
     },
   },
   plugins: [],
+  
 }

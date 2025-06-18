@@ -242,24 +242,22 @@ const SearchByType = () => {
                         t('searchByType.noDescription')
                       )}
                     </p>
-                    <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
-                      <CiCalendarDate className="inline-block mr-1" />{" "}
-                      {new Date(event.eventStart).toLocaleDateString(
-                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US'
-                      )}
-                    </p>
-                    <p className="text-xs text-gray-700 sm:text-sm">
-                      <CiTimer className="inline-block mr-1" />{" "}
-                      {new Date(event.eventStart).toLocaleTimeString(
-                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
-                        { hour: "2-digit", minute: "2-digit" }
-                      )}{" "}
-                      -{" "}
-                      {new Date(event.eventEnd).toLocaleTimeString(
-                        t('i18nextLng') === 'vi' ? 'vi-VN' : 'en-US',
-                        { hour: "2-digit", minute: "2-digit" }
-                      )}
-                    </p>
+                     <p className="mt-1 text-xs text-gray-700 sm:text-sm sm:mt-2">
+                        <CiCalendarDate className="inline-block mr-1" />{" "}
+                        {new Date(event.eventStart).toLocaleDateString("vi-VN")}
+                      </p>
+                      <p className="text-xs text-gray-700 sm:text-sm">
+                        <CiTimer className="inline-block mr-1" />{" "}
+                        {new Date(event.eventStart).toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}{" "}
+                        -{" "}
+                        {new Date(event.eventEnd).toLocaleTimeString("vi-VN", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </p>
                     <p className="mt-1 text-xs text-gray-700 truncate sm:text-sm">
                       <CiLocationOn className="inline-block mr-1" />{" "}
                       {getLocation(event.eventLocation)}

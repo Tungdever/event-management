@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Carousel } from "react-responsive-carousel";
 import SliderSpeaker from "../../components/SilderSpeaker";
@@ -15,6 +15,9 @@ import { User, MessageCircle } from "lucide-react";
 import ChatBubble from "../ChatBox/ChatBubble";
 import { useAuth } from "../Auth/AuthProvider";
 import Swal from "sweetalert2";
+import goongjs from "@goongmaps/goong-js";
+import "@goongmaps/goong-js/dist/goong-js.css";
+import axios from "axios";
 
 // : Format date and time
 const formatDateTime = (isoString) => {
@@ -94,7 +97,6 @@ const Timeline = ({ segments, t }) => {
   if (!segments?.length) {
     return (
       <div className="mx-4 my-4 text-sm text-gray-600 sm:my-6 sm:mx-8 lg:mx-16 sm:text-base">
-
       </div>
     );
   }
@@ -184,7 +186,7 @@ const OrganizedBy = ({ organizer, currentUser, hostId, t }) => {
             <button
               onClick={handleChatClick}
               className="absolute p-2 transition-colors duration-200 bg-blue-100 rounded-full top-4 right-4 hover:bg-blue-200"
-              title={t("eventDetailPage.organizedBy")} // Simplified title for chat button
+              title={t("eventDetailPage.organizedBy")}
             >
               <MessageCircle className="w-5 h-5 text-blue-600" />
             </button>
@@ -207,52 +209,140 @@ const OrganizedBy = ({ organizer, currentUser, hostId, t }) => {
 };
 
 // EventInfo Component
-const EventInfo = ({ eventData, organizerData, currentUser, t }) => (
-  <div className="flex-1">
-    <div className="mb-2 text-sm text-gray-500 sm:text-base">
-      {formatDateTime(eventData?.eventStart)}
-    </div>
-    <h1 className="mb-3 text-2xl font-bold text-blue-900 sm:text-3xl lg:text-5xl sm:mb-4">
-      {eventData?.eventName || t("pageViewAll.unnamedEvent")}
-    </h1>
-    <div className="flex items-center mb-2 text-sm text-gray-700 sm:text-base">
-      <i className="mr-4 fa-solid fa-eye"></i>
-      <span className="text-[14px] font-bold">
-        {eventData?.viewCount
-          ? eventData.viewCount === 1
-            ? t("eventDetailPage.oneView")
-            : t("eventDetailPage.views", { count: eventData.viewCount })
-          : t("eventDetailPage.noViews")}
-      </span>
-    </div>
-    <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} t={t} />
-    <div className="pt-6 mt-6 mb-6">
-      <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        {t("eventDetailPage.dateAndTime")}
-      </h2>
-      <div className="flex items-center text-sm text-gray-700 sm:text-base">
-        <i className="mr-4 fa-regular fa-calendar-days"></i>
+const EventInfo = ({ eventData, organizerData, currentUser, t }) => {
+  const mapContainerRef = useRef(null);
+  const mapRef = useRef(null);
+  const markerRef = useRef(null);
+  const [coordinates, setCoordinates] = useState(null);
+  const [mapError, setMapError] = useState(null);
+  const GOONG_API_KEY = 'LCv2x0WklhLYAtlkZD2BafC5xgsvBLGfvOrH85KY';
+  const GOONG_MAPTILES_KEY = '86BxcY13sfsT38WWDKsjrCwD5vQG52emVDLddjmF';
+
+  // Fetch coordinates using Goong Geocoding API
+  useEffect(() => {
+    if (!eventData?.eventLocation?.address || !GOONG_API_KEY) {
+      //setMapError(t("eventDetailPage.mapErrorNoAddress"));
+      return;
+    }
+
+    const fetchCoordinates = async () => {
+      try {
+        const address = encodeURIComponent(eventData.eventLocation.address);
+        const response = await axios.get(
+          `https://rsapi.goong.io/geocode?api_key=${GOONG_API_KEY}&address=${address}`
+        );
+        console.log("Geocode response:", response.data);
+        const location = response.data.results?.[0]?.geometry?.location;
+        if (!location) {
+          throw new Error("No coordinates found");
+        }
+        setCoordinates({ lng: location.lng, lat: location.lat });
+      } catch (error) {
+        console.error("Error fetching coordinates:", error);
+        setMapError(t("eventDetailPage.mapErrorGeocode"));
+      }
+    };
+
+    fetchCoordinates();
+  }, [eventData?.eventLocation?.address, GOONG_API_KEY, t]);
+
+  // Initialize map
+  useEffect(() => {
+    if (!coordinates || !mapContainerRef.current || !GOONG_MAPTILES_KEY) {
+      if (!GOONG_MAPTILES_KEY) {
+        setMapError(t("eventDetailPage.mapErrorKeyMissing"));
+      }
+      return;
+    }
+
+    try {
+      goongjs.accessToken = GOONG_MAPTILES_KEY;
+      const map = new goongjs.Map({
+        container: mapContainerRef.current,
+        style: "https://tiles.goong.io/assets/goong_map_web.json",
+        center: [coordinates.lng, coordinates.lat],
+        zoom: 14,
+      });
+
+      const marker = new goongjs.Marker({ color: "#ff0000" })
+        .setLngLat([coordinates.lng, coordinates.lat])
+        .addTo(map);
+
+      mapRef.current = map;
+      markerRef.current = marker;
+
+      map.on("error", (e) => {
+        console.error("Map error:", e);
+        setMapError(t("eventDetailPage.mapErrorLoad"));
+      });
+
+      return () => {
+        if (markerRef.current) markerRef.current.remove();
+        if (mapRef.current) mapRef.current.remove();
+      };
+    } catch (error) {
+      console.error("Failed to initialize map:", error);
+      setMapError(t("eventDetailPage.mapErrorInit"));
+    }
+  }, [coordinates, GOONG_MAPTILES_KEY, t]);
+
+  return (
+    <div className="flex-1">
+      <div className="mb-2 text-sm text-gray-500 sm:text-base">
+        {formatDateTime(eventData?.eventStart)}
+      </div>
+      <h1 className="mb-3 text-2xl font-bold text-blue-900 sm:text-3xl lg:text-5xl sm:mb-4">
+        {eventData?.eventName || t("pageViewAll.unnamedEvent")}
+      </h1>
+      <div className="flex items-center mb-2 text-sm text-gray-700 sm:text-base">
+        <i className="mr-4 fa-solid fa-eye"></i>
         <span className="text-[14px] font-bold">
-          {formatDateTime(eventData?.eventStart)} -{" "}
-          {formatDateTime(eventData?.eventEnd)}
+          {eventData?.viewCount
+            ? eventData.viewCount === 1
+              ? t("eventDetailPage.oneView")
+              : t("eventDetailPage.views", { count: eventData.viewCount })
+            : t("eventDetailPage.noViews")}
         </span>
       </div>
-    </div>
-    <div className="mb-6">
-      <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
-        {t("eventDetailPage.location")}
-      </h2>
-      <div className="flex items-center text-sm text-gray-700 sm:text-base">
-        <i className="mr-4 fa-solid fa-location-dot"></i>
-        <span className="text-[14px] font-bold">
-          {eventData?.eventLocation?.venueName
-            ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
-            : t("eventDetailPage.noLocation")}
-        </span>
+      <OrganizedBy organizer={organizerData} currentUser={currentUser} hostId={eventData?.userId} t={t} />
+      <div className="pt-6 mt-6 mb-6">
+        <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
+          {t("eventDetailPage.dateAndTime")}
+        </h2>
+        <div className="flex items-center text-sm text-gray-700 sm:text-base">
+          <i className="mr-4 fa-regular fa-calendar-days"></i>
+          <span className="text-[14px] font-bold">
+            {formatDateTime(eventData?.eventStart)} -{" "}
+            {formatDateTime(eventData?.eventEnd)}
+          </span>
+        </div>
+      </div>
+      <div className="mb-6">
+        <h2 className="mb-3 text-lg font-semibold text-gray-800 sm:text-xl font-playfair">
+          {t("eventDetailPage.location")}
+        </h2>
+        <div className="flex items-center text-sm text-gray-700 sm:text-base">
+          <i className="mr-4 fa-solid fa-location-dot"></i>
+          <span className="text-[14px] font-bold">
+            {eventData?.eventLocation?.venueName
+              ? `${eventData.eventLocation.venueName}, ${eventData.eventLocation.address}, ${eventData.eventLocation.city}`
+              : t("eventDetailPage.noLocation")}
+          </span>
+        </div>
+        {eventData?.eventLocation?.locationType === "venue" && (
+          <div className="mt-4 h-[200px] sm:h-[300px] w-full relative">
+            <div ref={mapContainerRef} style={{ width: "100%", height: "100%", position: "relative" }} />
+            {mapError && (
+              <p className="mt-2 text-sm text-red-500">
+                {mapError}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // OverviewContent Component
 const OverviewContent = ({ eventData, t }) => (
@@ -280,6 +370,15 @@ const OverviewContent = ({ eventData, t }) => (
             : t("eventDetailPage.noDescription"),
         }}
       />
+      {eventData?.seatingMapImage?.length > 0 ? (
+        <img
+          src={`${eventData?.seatingMapImage}?w=300&h=200&q=80`}
+          alt={`${eventData.eventName || t("pageViewAll.unnamedEvent")}`}
+          className="object-contain w-full max-w-[450px] h-auto mb-3 rounded-lg sm:mb-4"
+        />
+      ) : (
+        <></>
+      )}
       {eventData?.mediaContent?.length > 0 ? (
         eventData.mediaContent.map((mediaContent, index) => (
           <img
@@ -485,7 +584,6 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
   );
 };
 
-
 // Sponsors Component
 const Sponsors = ({ sponsors, t }) => {
   if (!sponsors?.length) {
@@ -640,9 +738,7 @@ const EventDetail = () => {
             <div className="w-full ml-4 lg:flex-1 sm:ml-6 lg:ml-10">
               <EventInfo eventData={eventData} organizerData={organizer} currentUser={user} t={t} />
               <OverviewContent eventData={eventData} t={t} />
-
               <SliderSpeaker speakers={speakers} />
-
               <Timeline segments={segmentData} t={t} />
               <Sponsors sponsors={sponsors} t={t} />
               <div>
