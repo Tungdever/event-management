@@ -57,7 +57,7 @@ export default function ViewAllTickets() {
 
       try {
         const response = await axios.get(
-          `https://event-management-server-asi9.onrender.com/api/ticket/view-all-tickets/${userId}`,
+          `http://localhost:8080/api/ticket/view-all-tickets/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",

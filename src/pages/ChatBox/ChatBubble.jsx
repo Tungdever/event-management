@@ -27,7 +27,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const emojiPickerRef = useRef(null);
   const token = localStorage.getItem("token");
 
-  const MEDIA_BASE_URL = "https://event-management-server-asi9.onrender.com/uploads/";
+  const MEDIA_BASE_URL = "http://localhost:8080/uploads/";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,7 +57,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/chat/${currentUser.userId}/list-chat`,
+        `http://localhost:8080/chat/${currentUser.userId}/list-chat`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     if (selectedUser && currentUser.userId) {
       axios
         .get(
-          `https://event-management-server-asi9.onrender.com/chat/history/${currentUser.userId}/${selectedUser.userId}`,
+          `http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -232,7 +232,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
 
     try {
       const response = await axios.post(
-        "https://event-management-server-asi9.onrender.com/chat/upload",
+        "http://localhost:8080/chat/upload",
         formData,
         {
           headers: {

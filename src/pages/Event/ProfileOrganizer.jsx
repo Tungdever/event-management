@@ -31,7 +31,7 @@ const ProfileOrganizer = () => {
     const fetchOrganizerData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/search/organizer-infor/${encodeURIComponent(organizerName)}`);
+        const response = await fetch(`http://localhost:8080/api/events/search/organizer-infor/${encodeURIComponent(organizerName)}`);
         if (!response.ok) {
           throw new Error(t('profileOrganizer.loadingError'));
         }
@@ -62,7 +62,7 @@ const ProfileOrganizer = () => {
 
   const fetchFollowerCount = async (organizerId) => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/followers/count/${organizerId}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/followers/count/${organizerId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -77,7 +77,7 @@ const ProfileOrganizer = () => {
   const checkFollowingStatus = async (userId, organizerId) => {
     if (!user || !token) return;
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/list-org/${user.email}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/list-org/${user.email}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -96,14 +96,14 @@ const ProfileOrganizer = () => {
       setIsFollowing((prev) => !prev); // Update state immediately for better UX
       setFollowerCount((prev) => (isFollowing ? prev - 1 : prev + 1)); // Optimistic update
       if (isFollowing) {
-        await axios.delete(`https://event-management-server-asi9.onrender.com/api/follow/${user.userId}/unfollow/${organizerData.organizer.organizerId}`, {
+        await axios.delete(`http://localhost:8080/api/follow/${user.userId}/unfollow/${organizerData.organizer.organizerId}`, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
       } else {
-        await axios.post(`https://event-management-server-asi9.onrender.com/api/follow/${user.userId}/follow/${organizerData.organizer.organizerId}`, {}, {
+        await axios.post(`http://localhost:8080/api/follow/${user.userId}/follow/${organizerData.organizer.organizerId}`, {}, {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -120,7 +120,7 @@ const ProfileOrganizer = () => {
 
   const fetchFollowers = async () => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/followers/details/${organizerData.organizer.organizerId}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/followers/details/${organizerData.organizer.organizerId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

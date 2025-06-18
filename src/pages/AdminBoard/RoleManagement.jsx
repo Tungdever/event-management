@@ -14,7 +14,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/roles/ADMIN/created', {
+      const response = await fetch('http://localhost:8080/api/roles/ADMIN/created', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
   const createRole = async (roleData) => {
     try {
       setError(null);
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/roles', {
+      const response = await fetch('http://localhost:8080/api/roles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
   const deleteRole = async (roleName) => {
     try {
       setError(null);
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/roles/delete/${roleName}`, {
+      const response = await fetch(`http://localhost:8080/api/roles/delete/${roleName}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ const RoleManagement = ({ token, permissions, fetchPermissions }) => {
   const assignPermissionsToRole = async (roleId, permissionNames) => {
     try {
       setError(null);
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/roles/${roleId}/permissions`, {
+      const response = await fetch(`http://localhost:8080/api/roles/${roleId}/permissions`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

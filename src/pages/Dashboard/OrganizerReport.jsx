@@ -44,7 +44,7 @@ const OrganizerDashboard = () => {
 
   const fetchDashboardData = async (year = "") => {
     try {
-      const response = await axios.get("https://event-management-server-asi9.onrender.com/api/v1/organizer/dashboard", {
+      const response = await axios.get("http://localhost:8080/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

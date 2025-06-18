@@ -224,13 +224,13 @@ const RecommendedEvents = () => {
   return (
     <div className="w-full">
       <ListEventScroll
-        apiUrl={`https://event-management-server-asi9.onrender.com/api/events/recommended/${userId}`}
+        apiUrl={`http://localhost:8080/api/events/recommended/${userId}`}
         title={t("recommendedEvents.youMightLike")}
         method="POST" // Chỉ định phương thức POST
         t={t}
       />
       <ListEventScroll
-        apiUrl={`https://event-management-server-asi9.onrender.com/api/events/recommended/by-types/${email}`}
+        apiUrl={`http://localhost:8080/api/events/recommended/by-types/${email}`}
         title={t("recommendedEvents.somePopularEvents")}
         method="GET" // Chỉ định phương thức GET
         t={t}

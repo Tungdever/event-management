@@ -36,7 +36,7 @@ const EventsPage = () => {
       console.log("Fetching events for email:", user.email);
       console.log("Using token:", token);
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/api/events/get-all-event-by-org/${user.email}`,
+        `http://localhost:8080/api/events/get-all-event-by-org/${user.email}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -70,7 +70,7 @@ const EventsPage = () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/api/events/delete/${eventId}`,
+        `http://localhost:8080/api/events/delete/${eventId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -173,7 +173,7 @@ const EventsPage = () => {
   const publishEvent = async (eventId) => {
     setLoading(true);
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/publish/${eventId}`, {
+      const response = await fetch(`http://localhost:8080/api/events/publish/${eventId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

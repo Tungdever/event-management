@@ -12,7 +12,7 @@ const NotificationList = () => {
 
   const fetchHistory = async (userId) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/notify/${userId}`, {
+      const response = await fetch(`http://localhost:8080/notify/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -34,7 +34,7 @@ const NotificationList = () => {
 
   const readNoti = async (notiId) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/notify/${notiId}/read`, {
+      const response = await fetch(`http://localhost:8080/notify/${notiId}/read`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const NotificationList = () => {
 
   const readAllNoti = async (userId) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/notify/readAll/${userId}`, {
+      const response = await fetch(`http://localhost:8080/notify/readAll/${userId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

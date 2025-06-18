@@ -58,7 +58,7 @@ const EditEventPage = () => {
   const fetchEventData = async (id) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/edit/${id}`, {
+      const response = await fetch(`http://localhost:8080/api/events/edit/${id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -202,7 +202,7 @@ const EditEventPage = () => {
         const formData = new FormData();
         formData.append("file", blob, "cropped_image.jpg");
 
-        const response = await fetch("https://event-management-server-asi9.onrender.com/api/storage/upload", {
+        const response = await fetch("http://localhost:8080/api/storage/upload", {
           method: "POST",
           body: formData,
         });
@@ -404,7 +404,7 @@ if (updatedSeatingLayout && updatedSeatingLayout.seatingAreas) {
 
     console.log("Submitting payload:", payload);
 
-    const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/edit`, {
+    const response = await fetch(`http://localhost:8080/api/events/edit`, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,

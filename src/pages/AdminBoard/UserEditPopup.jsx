@@ -61,7 +61,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Create user
   const createUser = async (userData) => {
     try {
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/auth/register', {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(userData),
@@ -78,7 +78,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Update user
   const updateUser = async (userData) => {
     try {
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/auth/save-change', {
+      const response = await fetch('http://localhost:8080/api/auth/save-change', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(userData),
@@ -95,7 +95,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Delete user
   const deleteUser = async (email) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/users/${email}`, {
+      const response = await fetch(`http://localhost:8080/api/auth/users/${email}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
@@ -111,7 +111,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Add role to user
   const addRoleToUser = async (email, roleName) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/${email}/add-new-role/${roleName}`, {
+      const response = await fetch(`http://localhost:8080/api/auth/${email}/add-new-role/${roleName}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
@@ -127,7 +127,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Remove role from user
   const removeRoleFromUser = async (email, roleName) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/${email}/remove-role/${roleName}`, {
+      const response = await fetch(`http://localhost:8080/api/auth/${email}/remove-role/${roleName}`, {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
@@ -143,7 +143,7 @@ const UserEditPopup = ({ popupType, selectedUser, roles, token, onClose, onSubmi
   // Upgrade to organizer
   const upgradeToOrganizer = async (email, organizerData) => {
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/user/upgrade-organizer/${email}`, {
+      const response = await fetch(`http://localhost:8080/api/auth/user/upgrade-organizer/${email}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(organizerData),

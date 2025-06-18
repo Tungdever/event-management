@@ -19,7 +19,7 @@ const ListEventScroll = ({ events: propEvents }) => {
 
   const fetchTopEvent = async () => {
     try {
-      const response = await fetch("https://event-management-server-asi9.onrender.com/api/events/search/events-by-favorites");
+      const response = await fetch("http://localhost:8080/api/events/search/events-by-favorites");
       if (!response.ok) {
         throw new Error("Failed to fetch events");
       }

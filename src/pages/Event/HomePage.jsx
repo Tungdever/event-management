@@ -156,7 +156,7 @@ const Navbar = ({ setCityEvents }) => {
   const fetchEventsByCity = async (citySlug) => {
     try {
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/api/events/search/by-city/${citySlug}`);
+        `http://localhost:8080/api/events/search/by-city/${citySlug}`);
       if (!response.ok) {
         throw new Error("Failed to fetch events by city");
       }
@@ -296,7 +296,7 @@ const TopDestinations = () => {
     const fetchTopCities = async () => {
       try {
         const response = await fetch(
-          "https://event-management-server-asi9.onrender.com/api/events/search/top-cities-popular"
+          "http://localhost:8080/api/events/search/top-cities-popular"
         );
         const cities = await response.json();
         setTopCities(cities);
@@ -355,7 +355,7 @@ const TopDestinations = () => {
       const citySlug = cityObj.slug;
 
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/api/events/search/by-city/${citySlug}`
+        `http://localhost:8080/api/events/search/by-city/${citySlug}`
       );
       const listEvent = await response.json();
       navigate("/search", { state: { events: listEvent } });

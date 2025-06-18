@@ -28,7 +28,7 @@ const AdminRoleAssignment = () => {
       try {
         setError(null);
         if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
-        const response = await fetch('https://event-management-server-asi9.onrender.com/api/roles/roles-assign', {
+        const response = await fetch('http://localhost:8080/api/roles/roles-assign', {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -56,7 +56,7 @@ const AdminRoleAssignment = () => {
       try {
         setError(null);
         if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
-        const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/get-all-event-by-org/${user.email}`, {
+        const response = await fetch(`http://localhost:8080/api/events/get-all-event-by-org/${user.email}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -96,7 +96,7 @@ const AdminRoleAssignment = () => {
       if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
       if (!user.userId) throw new Error('Current user ID not found');
       const response = await fetch(
-        `https://event-management-server-asi9.onrender.com/chat/search?query=${encodeURIComponent(searchQuery)}&currentUserId=${user.userId}`,
+        `http://localhost:8080/chat/search?query=${encodeURIComponent(searchQuery)}&currentUserId=${user.userId}`,
         {
           headers: {
             'Content-Type': 'application/json',
@@ -178,7 +178,7 @@ const AdminRoleAssignment = () => {
         setError(null);
         if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
         const response = await fetch(
-          `https://event-management-server-asi9.onrender.com/api/role-assignment/delete?userId=${userId}&roleId=${roleId}&eventId=${eventId}`,
+          `http://localhost:8080/api/role-assignment/delete?userId=${userId}&roleId=${roleId}&eventId=${eventId}`,
           {
             method: 'DELETE',
             headers: {
@@ -226,7 +226,7 @@ const AdminRoleAssignment = () => {
     try {
       setError(null);
       if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/role-assignment/assign-role', {
+      const response = await fetch('http://localhost:8080/api/role-assignment/assign-role', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -270,7 +270,7 @@ const AdminRoleAssignment = () => {
       setIsLoading(true);
       setError(null);
       if (!token) throw new Error(t('adminRoleAssignment.errorNoToken'));
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/role-assignment/${eventId}/my-team-events`, {
+      const response = await fetch(`http://localhost:8080/api/role-assignment/${eventId}/my-team-events`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

@@ -23,7 +23,7 @@ const ViewProfile = () => {
 
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/auth/user/${user.email}`, {
+      const response = await axios.get(`http://localhost:8080/api/auth/user/${user.email}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -46,7 +46,7 @@ const ViewProfile = () => {
 
   const fetchFollowerCount = async (organizerId) => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/followers/count/${organizerId}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/followers/count/${organizerId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -61,7 +61,7 @@ const ViewProfile = () => {
 
   const fetchFollowingCount = async (email) => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/following/count/${email}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/following/count/${email}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -81,7 +81,7 @@ const ViewProfile = () => {
       return;
     }
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/followers/${organizerId}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/followers/${organizerId}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ const ViewProfile = () => {
 
   const fetchFollowingOrganizers = async (email) => {
     try {
-      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/follow/list-org/${email}`, {
+      const response = await axios.get(`http://localhost:8080/api/follow/list-org/${email}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,

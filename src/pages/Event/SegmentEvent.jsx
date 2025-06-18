@@ -604,7 +604,7 @@ const SectionEvent = ({
       } else if (segmentToDelete.segmentId) {
         try {
           const response = await fetch(
-            `https://event-management-server-asi9.onrender.com/api/segment/delete/${segmentToDelete.segmentId}`,
+            `http://localhost:8080/api/segment/delete/${segmentToDelete.segmentId}`,
             {
               headers: {
                 "Content-Type": "application/json",

@@ -29,7 +29,7 @@ const DashboardPage = () => {
 
   const getStats = async (year = "") => {
     try {
-      const response = await axios.get("https://event-management-server-asi9.onrender.com/api/v1/admin/dashboard/stats", {
+      const response = await axios.get("http://localhost:8080/api/v1/admin/dashboard/stats", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -67,7 +67,7 @@ const DashboardPage = () => {
 
   const getEvents = async (search = "", page = 0, size = eventsPerPage, sort = "") => {
     try {
-      const response = await axios.get("https://event-management-server-asi9.onrender.com/api/v1/admin/dashboard/events", {
+      const response = await axios.get("http://localhost:8080/api/v1/admin/dashboard/events", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
