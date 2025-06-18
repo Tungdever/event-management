@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Component } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import axios from 'axios';
@@ -8,8 +8,24 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement);
 
+// Error Boundary for Chart
+class ChartErrorBoundary extends Component {
+  state = { hasError: false };
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="text-center text-red-600">Lỗi khi hiển thị biểu đồ</div>;
+    }
+    return this.props.children;
+  }
+}
+
 const OrganizerDashboard = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +36,7 @@ const OrganizerDashboard = () => {
   const eventsPerPage = 4;
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const chartRef = useRef(null); // Reference to store Chart.js instance
+  const chartRef = useRef(null);
 
   // Generate list of years
   const currentYear = new Date().getFullYear();
@@ -44,6 +60,7 @@ const OrganizerDashboard = () => {
 
   const fetchDashboardData = async (year = "") => {
     try {
+      setLoading(true);
       const response = await axios.get("http://localhost:8080/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
@@ -51,6 +68,8 @@ const OrganizerDashboard = () => {
         },
         params: { year },
       });
+
+      console.log("API Response:", response.data); // Log để kiểm tra dữ liệu
 
       const months = [
         t('months.jan'), t('months.feb'), t('months.mar'), t('months.apr'),
@@ -62,7 +81,7 @@ const OrganizerDashboard = () => {
         ...response.data,
         revenueOverTime: {
           labels: months,
-          data: response.data.revenueByMonth,
+          data: response.data.revenueByMonth || Array(12).fill(0), // Đảm bảo mảng 12 số 0 nếu null
         },
       });
     } catch (error) {
@@ -73,7 +92,7 @@ const OrganizerDashboard = () => {
         totalTicketsSold: 0,
         totalRevenue: 0,
         totalSponsors: 0,
-        revenueByMonth: [],
+        revenueByMonth: Array(12).fill(0),
         ticketTypeCount: {},
         events: [],
       });
@@ -89,9 +108,8 @@ const OrganizerDashboard = () => {
     }
     fetchDashboardData(selectedYear);
 
-    // Cleanup chart on component unmount
     return () => {
-      if (chartRef.current) {
+      if (chartRef.current?.destroy) {
         chartRef.current.destroy();
         chartRef.current = null;
       }
@@ -168,7 +186,7 @@ const OrganizerDashboard = () => {
     datasets: [
       {
         label: t('organizerDashboard.revenueOverTime'),
-        data: data.revenueOverTime?.data || [],
+        data: (data.revenueOverTime?.data || []).map(value => value ?? 0), // Thay null/undefined bằng 0
         fill: false,
         borderColor: '#3b82f6',
         tension: 0.1,
@@ -181,7 +199,7 @@ const OrganizerDashboard = () => {
       <div className="bg-white rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
           <h1 className="font-bold text-lg text-[#1e1e2d] select-none">
-            {t('organizerDashboard.header')} - {data.organizer}
+            {t('organizerDashboard.header')} - {data.organizer || 'N/A'}
           </h1>
           <select
             value={selectedYear}
@@ -218,24 +236,34 @@ const OrganizerDashboard = () => {
               {t('organizerDashboard.revenueOverTime')} {selectedYear ? `(${selectedYear})` : ''}
             </h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
-              <Line
-                ref={chartRef}
-                data={revenueOverTimeData}
-                options={{
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  plugins: {
-                    legend: { position: 'top' },
-                    title: {
-                      display: true,
-                      text: `${t('organizerDashboard.revenueOverTime')} ${selectedYear ? `(${selectedYear})` : ''}`
-                    },
-                  },
-                  scales: {
-                    y: { beginAtZero: true },
-                  },
-                }}
-              />
+              <ChartErrorBoundary>
+                {loading ? (
+                  <div className="text-center text-gray-600">Đang tải...</div>
+                ) : data.revenueOverTime && data.revenueOverTime.data.length > 0 ? (
+                  <Line
+                    key={`chart-${selectedYear}`} // Thêm key để tái tạo canvas
+                    ref={chartRef}
+                    data={revenueOverTimeData}
+                    options={{
+                      responsive: true,
+                      maintainAspectRatio: false,
+                      plugins: {
+                        legend: { position: 'top' },
+                        title: {
+                          display: true,
+                          text: `${t('organizerDashboard.revenueOverTime')} ${selectedYear ? `(${selectedYear})` : ''}`
+                        },
+                      },
+                      scales: {
+                        y: { beginAtZero: true },
+                      },
+                    }}
+                  />) : (
+                  <div className="text-center text-gray-600">
+                    Không có dữ liệu doanh thu cho {selectedYear || 'tất cả các năm'}
+                  </div>
+                )}
+              </ChartErrorBoundary>
             </div>
           </div>
         </div>
@@ -247,7 +275,7 @@ const OrganizerDashboard = () => {
             placeholder={t('organizerDashboard.searchPlaceholder')}
             value={searchTerm}
             onChange={handleSearch}
-            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#3b82f6]"
+            className="w-full p-2 border border-gray-300 rounded-md focus:outline-none f ocus:ring-2 focus:ring-[#3b82f6]"
             aria-label={t('organizerDashboard.searchPlaceholder')}
           />
         </div>
