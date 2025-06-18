@@ -101,7 +101,7 @@ const CRUDEvent = () => {
         const formData = new FormData();
         formData.append("file", blob);
 
-        const response = await fetch("http://localhost:8080/api/storage/upload", {
+        const response = await fetch("https://event-management-server-asi9.onrender.com/api/storage/upload", {
           method: "POST",
           body: formData,
         });
@@ -242,7 +242,7 @@ const CRUDEvent = () => {
       };
 
       console.log("Data sent to API:", dataEvent);
-      const eventResponse = await fetch("http://localhost:8080/api/events/create", {
+      const eventResponse = await fetch("https://event-management-server-asi9.onrender.com/api/events/create", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -266,7 +266,7 @@ const CRUDEvent = () => {
             eventID: eventId,
           };
 
-          const segmentResponse = await fetch(`http://localhost:8080/api/segment/${eventId}`, {
+          const segmentResponse = await fetch(`https://event-management-server-asi9.onrender.com/api/segment/${eventId}`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,
@@ -293,7 +293,7 @@ const CRUDEvent = () => {
             endTime: ticketData.endTime || "",
           };
 
-          const ticketResponse = await fetch(`http://localhost:8080/api/ticket/${eventId}`, {
+          const ticketResponse = await fetch(`https://event-management-server-asi9.onrender.com/api/ticket/${eventId}`, {
             headers: {
               "Content-Type": "application/json",
               Authorization: `Bearer ${token}`,

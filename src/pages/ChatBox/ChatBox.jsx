@@ -29,7 +29,7 @@ const ChatBox = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewMedia, setPreviewMedia] = useState({ url: "", type: "" });
 
-  const MEDIA_BASE_URL = "http://localhost:8080/uploads/";
+  const MEDIA_BASE_URL = "https://event-management-server-asi9.onrender.com/uploads/";
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
@@ -83,7 +83,7 @@ const ChatBox = () => {
   const fetchUser = async (userId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/chat/${userId}/list-chat`,
+        `https://event-management-server-asi9.onrender.com/chat/${userId}/list-chat`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -128,7 +128,7 @@ const ChatBox = () => {
     }
     try {
       const response = await axios.get(
-        `http://localhost:8080/chat/search?query=${encodeURIComponent(
+        `https://event-management-server-asi9.onrender.com/chat/search?query=${encodeURIComponent(
           query
         )}&currentUserId=${currentUser.userId}`,
         {
@@ -163,7 +163,7 @@ const ChatBox = () => {
     if (selectedUser && currentUser.userId) {
       axios
         .get(
-          `http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`,
+          `https://event-management-server-asi9.onrender.com/chat/history/${currentUser.userId}/${selectedUser.userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -296,7 +296,7 @@ const ChatBox = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8080/chat/upload",
+        "https://event-management-server-asi9.onrender.com/chat/upload",
         formData,
         {
           headers: {

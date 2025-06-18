@@ -72,7 +72,7 @@ const useEventData = (eventId, userId) => {
       try {
         const query = userId ? `?userId=${userId}` : '';
         const response = await fetch(
-          `http://localhost:8080/api/events/detail/${eventId}${query}`,
+          `https://event-management-server-asi9.onrender.com/api/events/detail/${eventId}${query}`,
           {
             headers: { "Content-Type": "application/json" },
           }
@@ -438,7 +438,7 @@ const TicketSelector = ({ tickets, selectedTickets, onQuantityChange, onSelect, 
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/ticket/${user.email}/check/${eventId}`,
+        `https://event-management-server-asi9.onrender.com/api/ticket/${user.email}/check/${eventId}`,
         {
           headers: {
             "Content-Type": "application/json",

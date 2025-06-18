@@ -14,7 +14,7 @@ const PermissionManagement = ({ token }) => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('http://localhost:8080/api/permissions', {
+      const response = await fetch('https://event-management-server-asi9.onrender.com/api/permissions', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
@@ -33,7 +33,7 @@ const PermissionManagement = ({ token }) => {
   const createPermission = async (permissionData) => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:8080/api/permissions', {
+      const response = await fetch('https://event-management-server-asi9.onrender.com/api/permissions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -55,7 +55,7 @@ const PermissionManagement = ({ token }) => {
   const updatePermission = async (permissionData) => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:8080/api/permissions/update', {
+      const response = await fetch('https://event-management-server-asi9.onrender.com/api/permissions/update', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -77,7 +77,7 @@ const PermissionManagement = ({ token }) => {
   const deletePermission = async (permissionName) => {
     try {
       setError(null);
-      const response = await fetch(`http://localhost:8080/api/permissions/delete/${permissionName}`, {
+      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/permissions/delete/${permissionName}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

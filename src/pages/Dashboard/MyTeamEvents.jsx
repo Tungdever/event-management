@@ -18,7 +18,7 @@ const MyTeamEvents = () => {
   const fetchTeamEvents = async (eventId) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/api/role-assignment/${eventId}/my-team-events`,
+        `https://event-management-server-asi9.onrender.com/api/role-assignment/${eventId}/my-team-events`,
         {
           headers: {
             "Content-Type": "application/json",

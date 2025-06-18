@@ -25,7 +25,7 @@ const uploadFilesToCloudinary = async (files, t) => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("http://localhost:8080/api/storage/upload", {
+      const response = await fetch("https://event-management-server-asi9.onrender.com/api/storage/upload", {
         method: "POST",
         body: formData,
       });
@@ -149,7 +149,7 @@ const handleSubmit = async (e) => {
     };
 
     const response = await axios.put(
-      "http://localhost:8080/api/auth/save-change",
+      "https://event-management-server-asi9.onrender.com/api/auth/save-change",
       updatedData,
       {
         headers: {

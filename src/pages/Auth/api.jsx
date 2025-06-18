@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080/api/auth';
+const API_URL = 'https://event-management-server-asi9.onrender.com/api/auth';
 
 export const api = {
   login: async (email, password) => {

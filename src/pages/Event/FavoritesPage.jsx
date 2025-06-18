@@ -17,7 +17,7 @@ const EventPage = () => {
     const fetchFavoriteEvents = async () => {
 
         try {
-            const response = await fetch(`http://localhost:8080/api/favorites/${user.userId}`, {
+            const response = await fetch(`https://event-management-server-asi9.onrender.com/api/favorites/${user.userId}`, {
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`,

@@ -77,7 +77,7 @@ export default function MyInvoice() {
         return;
       }
       try {
-        const response = await axios.get(`http://localhost:8080/api/v1/booking/${userId}`, {
+        const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/booking/${userId}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
@@ -100,7 +100,7 @@ export default function MyInvoice() {
     try {
       const token = localStorage.getItem('token');
       console.log(token);
-      const response = await axios.get(`http://localhost:8080/api/v1/refund/valid/${orderId}`, {
+      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/refund/valid/${orderId}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`
@@ -108,7 +108,7 @@ export default function MyInvoice() {
       });
       console.log(response.data);
       if (response.data.statusCode === 1 || response.data.statusCode === "1") {
-        const refundResponse = await axios.post(`http://localhost:8080/api/v1/refund/${orderId}`, null, {
+        const refundResponse = await axios.post(`https://event-management-server-asi9.onrender.com/api/v1/refund/${orderId}`, null, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`
@@ -132,7 +132,7 @@ export default function MyInvoice() {
   const downloadInvoice = async (orderId) => {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:8080/api/v1/invoice/${orderId}`, {
+      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/invoice/${orderId}`, {
         responseType: 'blob',
         headers: {
           Authorization: `Bearer ${token}`
