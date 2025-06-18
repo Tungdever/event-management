@@ -64,7 +64,7 @@ export default function ViewTicket() {
         <h2 className="text-2xl font-bold mb-4">{t("viewTicket.title", { orderCode })}</h2>
         <div className="space-y-2">
           {data?.tickets?.map((ticket) => (
-            <TicketItem key={ticket.ticketId} ticket={ticket} event={data.event} />
+            <TicketItem key={ticket.ticketCode} ticket={ticket} event={data.event} />
           ))}
         </div>
       </div>
