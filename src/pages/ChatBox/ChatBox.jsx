@@ -9,6 +9,7 @@ import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import Swal from "sweetalert2";
 import { useTranslation } from 'react-i18next';
+import { getCloudinaryUrl } from "./cloudinary";
 
 const ChatBox = () => {
   const { t } = useTranslation();
@@ -29,15 +30,14 @@ const ChatBox = () => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewMedia, setPreviewMedia] = useState({ url: "", type: "" });
 
-  const MEDIA_BASE_URL = "https://event-management-server-asi9.onrender.com/uploads/";
-
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
 
   const openPreview = (mediaUrl, contentType) => {
     console.log("Opening preview:", { mediaUrl, contentType });
-    setPreviewMedia({ url: `${MEDIA_BASE_URL}${mediaUrl}`, type: contentType });
+    const url = getCloudinaryUrl(mediaUrl, contentType);
+    setPreviewMedia({ url, type: contentType });
     setIsPreviewOpen(true);
   };
 
@@ -382,9 +382,10 @@ const ChatBox = () => {
         if (!msg.mediaUrl) {
           return <p className="text-red-500">{t('messages.noImageUrl')}</p>;
         }
+        const imageUrl = getCloudinaryUrl(msg.mediaUrl, "IMAGE");
         return (
           <img
-            src={`${MEDIA_BASE_URL}${msg.mediaUrl}`}
+            src={imageUrl}
             alt="media"
             className="max-w-[300px] rounded"
             onClick={() => openPreview(msg.mediaUrl, "IMAGE")}
@@ -397,13 +398,14 @@ const ChatBox = () => {
         );
       }
       if (msg.contentType === "VIDEO") {
+        const videoUrl = getCloudinaryUrl(msg.mediaUrl, "VIDEO");
         return (
           <video
             controls
             className="max-w-[200px] rounded cursor-pointer"
             onClick={() => openPreview(msg.mediaUrl, "VIDEO")}
           >
-            <source src={`${MEDIA_BASE_URL}${msg.mediaUrl}`} type="video/mp4" />
+            <source src={videoUrl} type="video/mp4" />
             {t('messages.videoNotSupported')}
           </video>
         );
@@ -426,7 +428,7 @@ const ChatBox = () => {
   return (
     <div className="flex h-[calc(100vh-48px)] max-w-7xl mx-auto shadow-2xl rounded-2xl overflow-hidden">
       <button
-        className="sm:hidden p-3 text-gray-600 bg-white fixed top-4 left-4 z-50 rounded-full shadow-md hover:bg-gray-100"
+        className="fixed z-50 p-3 text-gray-600 bg-white rounded-full shadow-md sm:hidden top-4 left-4 hover:bg-gray-100"
         onClick={toggleSidebar}
       >
         <FaBars className="text-lg" />
@@ -438,14 +440,14 @@ const ChatBox = () => {
       >
         <div className="p-4 border-b border-gray-200">
           <h2 className="text-xl font-bold text-gray-800">{t('chatBox.title')}</h2>
-          <div className="mt-3 flex items-center bg-gray-50 border border-gray-200 rounded-lg p-2 shadow-sm">
-            <FaSearch className="text-gray-500 mr-2" />
+          <div className="flex items-center p-2 mt-3 border border-gray-200 rounded-lg shadow-sm bg-gray-50">
+            <FaSearch className="mr-2 text-gray-500" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('chatBox.searchPlaceholder')}
-              className="flex-1 bg-transparent outline-none text-sm focus:ring-0"
+              className="flex-1 text-sm bg-transparent outline-none focus:ring-0"
             />
           </div>
         </div>
@@ -463,13 +465,13 @@ const ChatBox = () => {
                     setIsSidebarOpen(false);
                   }}
                 >
-                  <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+                  <div className="flex items-center justify-center w-10 h-10 text-base text-white bg-teal-500 rounded-full shadow-sm">
                     {user.name[0]}
                   </div>
-                  <div className="ml-3 flex-1 flex items-center">
+                  <div className="flex items-center flex-1 ml-3">
                     <p className="text-sm truncate">{user.name}</p>
                     {user.unreadCount > 0 && (
-                      <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      <span className="flex items-center justify-center w-5 h-5 ml-2 text-xs text-white bg-red-500 rounded-full">
                         {user.unreadCount}
                       </span>
                     )}
@@ -477,7 +479,7 @@ const ChatBox = () => {
                 </div>
               ))
             ) : (
-              <p className="p-4 text-gray-500 text-sm">
+              <p className="p-4 text-sm text-gray-500">
                 {t('chatBox.noUsersFound')}
               </p>
             )
@@ -493,13 +495,13 @@ const ChatBox = () => {
                   setIsSidebarOpen(false);
                 }}
               >
-                <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+                <div className="flex items-center justify-center w-10 h-10 text-base text-white bg-teal-500 rounded-full shadow-sm">
                   {user.name[0]}
                 </div>
-                <div className="ml-3 flex-1 flex items-center">
+                <div className="flex items-center flex-1 ml-3">
                   <p className="text-sm truncate">{user.name}</p>
                   {user.unreadCount > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="flex items-center justify-center w-5 h-5 ml-2 text-xs text-white bg-red-500 rounded-full">
                       {user.unreadCount}
                     </span>
                   )}
@@ -507,24 +509,24 @@ const ChatBox = () => {
               </div>
             ))
           ) : (
-            <p className="p-4 text-gray-500 text-sm">
+            <p className="p-4 text-sm text-gray-500">
               {t('chatBox.noChatHistory')}
             </p>
           )}
         </div>
       </div>
-      <div className="flex-1 flex flex-col bg-white">
+      <div className="flex flex-col flex-1 bg-white">
         {selectedUser ? (
           <>
-            <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
-              <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+            <div className="flex items-center p-4 border-b border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-center w-10 h-10 text-base text-white bg-teal-500 rounded-full shadow-sm">
                 {selectedUser.name[0]}
               </div>
               <h2 className="ml-3 text-lg font-semibold text-gray-800 truncate">
                 {selectedUser.name}
               </h2>
             </div>
-            <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+            <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
               {messages.map((msg, index) => (
                 <div
                   key={`${msg.timestamp}_${msg.senderEmail}_${index}`}
@@ -544,7 +546,7 @@ const ChatBox = () => {
                     }`}
                   >
                     {renderMessageContent(msg)}
-                    <p className="text-xs mt-1 opacity-70">
+                    <p className="mt-1 text-xs opacity-70">
                       {new Date(msg.timestamp).toLocaleTimeString("vi-VN", {
                         timeZone: "Asia/Ho_Chi_Minh",
                       })}
@@ -594,11 +596,11 @@ const ChatBox = () => {
                   onChange={(e) => setInputMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder={t('chatBox.messagePlaceholder')}
-                  className="flex-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm shadow-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  className="flex-1 p-3 text-sm border border-gray-200 rounded-lg shadow-sm bg-gray-50 focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
                 <button
                   onClick={sendMessage}
-                  className="px-4 py-2 bg-teal-500 text-white rounded-lg shadow-md hover:bg-teal-600"
+                  className="px-4 py-2 text-white bg-teal-500 rounded-lg shadow-md hover:bg-teal-600"
                 >
                   <IoSend />
                 </button>
@@ -606,8 +608,8 @@ const ChatBox = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center bg-gray-50">
-            <p className="text-gray-500 text-base">
+          <div className="flex items-center justify-center flex-1 bg-gray-50">
+            <p className="text-base text-gray-500">
               {t('chatBox.selectUserPrompt')}
             </p>
           </div>

@@ -8,6 +8,7 @@ import MediaPreviewModal from "./MediaPreviewModal";
 import { MdInsertEmoticon } from "react-icons/md";
 import Swal from "sweetalert2";
 import { useTranslation } from 'react-i18next';
+import { getCloudinaryUrl } from "./cloudinary";
 
 const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const { t } = useTranslation();
@@ -26,8 +27,6 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const fileInputRef = useRef(null);
   const emojiPickerRef = useRef(null);
   const token = localStorage.getItem("token");
-
-  const MEDIA_BASE_URL = "https://event-management-server-asi9.onrender.com/uploads/";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -311,7 +310,8 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
 
   const openPreview = (mediaUrl, contentType) => {
     console.log("Opening preview:", { mediaUrl, contentType });
-    setPreviewMedia({ url: `${MEDIA_BASE_URL}${mediaUrl}`, type: contentType });
+    const url = getCloudinaryUrl(mediaUrl, contentType);
+    setPreviewMedia({ url, type: contentType });
     setIsPreviewOpen(true);
   };
 
@@ -322,7 +322,6 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   };
 
   const renderMessageContent = (msg) => {
-    //console.log("Rendering message:", msg);
     if (!msg || !msg.contentType) {
       console.error("Invalid message:", msg);
       return <p className="text-red-500">{t('messages.invalidMessage')}</p>;
@@ -333,34 +332,32 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
           console.error("Missing mediaUrl for IMAGE:", msg);
           return <p className="text-red-500">{t('messages.noImageUrl')}</p>;
         }
+        const imageUrl = getCloudinaryUrl(msg.mediaUrl, "IMAGE");
         return (
           <img
-            src={`${MEDIA_BASE_URL}${msg.mediaUrl}`}
+            src={imageUrl}
             alt="media"
             className="max-w-[150px] rounded cursor-pointer"
             onClick={() => openPreview(msg.mediaUrl, "IMAGE")}
             onError={(e) => {
-              console.error(
-                `Failed to load image: ${MEDIA_BASE_URL}${msg.mediaUrl}`
-              );
+              console.error(`Failed to load image: ${imageUrl}`);
               e.target.replaceWith(
                 <span className="text-red-500">{t('messages.imageLoadFailed')}</span>
               );
             }}
-            onLoad={() =>
-              console.log("Image loaded:", `${MEDIA_BASE_URL}${msg.mediaUrl}`)
-            }
+            onLoad={() => console.log("Image loaded:", imageUrl)}
           />
         );
       }
       if (msg.contentType === "VIDEO") {
+        const videoUrl = getCloudinaryUrl(msg.mediaUrl, "VIDEO");
         return (
           <video
             controls
             className="max-w-[150px] rounded cursor-pointer"
             onClick={() => openPreview(msg.mediaUrl, "VIDEO")}
           >
-            <source src={`${MEDIA_BASE_URL}${msg.mediaUrl}`} type="video/mp4" />
+            <source src={videoUrl} type="video/mp4" />
             {t('messages.videoNotSupported')}
           </video>
         );
@@ -377,7 +374,6 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
         </p>
       );
     } catch (error) {
-      //console.error("Error rendering message:", error, msg);
       return <p className="text-red-500">{t('messages.displayError')}</p>;
     }
   };
@@ -416,7 +412,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
             <button
               onClick={() => {
                 setIsOpen(false);
-                onClose?.();
+                 onClose?.();
               }}
               className="text-white"
             >
