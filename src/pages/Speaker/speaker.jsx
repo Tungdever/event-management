@@ -55,7 +55,7 @@ const Speaker = () => {
 
   const fetchSpeakers = async () => {
     try {
-      const response = await axios.get(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/speaker`, {
+      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/speaker`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setSpeakers(response.data.data || []);
@@ -118,7 +118,7 @@ const Speaker = () => {
     });
     try {
       const response = await axios.post(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/speaker`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/speaker`,
         formData,
         {
           headers: {
@@ -161,7 +161,7 @@ const Speaker = () => {
     });
     try {
       const response = await axios.put(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/speaker/${selectedSpeaker.speakerId}`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/speaker/${selectedSpeaker.speakerId}`,
         formData,
         {
           headers: {
@@ -187,7 +187,7 @@ const Speaker = () => {
   const handleDeleteSpeaker = async (selectedSpeaker) => {
     try {
       const response = await axios.delete(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/speaker/${selectedSpeaker.speakerId}`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/speaker/${selectedSpeaker.speakerId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }

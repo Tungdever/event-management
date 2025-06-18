@@ -77,7 +77,7 @@ const uploadFilesToCloudinary = async (files, t) => {
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/storage/upload", {
+      const response = await fetch("https://event-management-server-asi9.onrender.com/api/storage/upload", {
         method: "POST",
         body: formData,
       });
@@ -255,7 +255,7 @@ const UpgradeOrganizerDialog = ({ open, onClose }) => {
       };
 
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/auth/user/upgrade-organizer/${user.email}`,
+        `https://event-management-server-asi9.onrender.com/api/auth/user/upgrade-organizer/${user.email}`,
         {
           method: "POST",
           headers: {

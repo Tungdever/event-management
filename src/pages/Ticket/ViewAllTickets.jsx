@@ -57,7 +57,7 @@ export default function ViewAllTickets() {
 
       try {
         const response = await axios.get(
-          `https://utevent-3e31c1e0e5ff.herokuapp.com/api/ticket/view-all-tickets/${userId}`,
+          `https://event-management-server-asi9.onrender.com/api/ticket/view-all-tickets/${userId}`,
           {
             headers: {
               "Content-Type": "application/json",

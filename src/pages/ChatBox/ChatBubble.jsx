@@ -27,7 +27,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const emojiPickerRef = useRef(null);
   const token = localStorage.getItem("token");
 
-  const MEDIA_BASE_URL = "https://utevent-3e31c1e0e5ff.herokuapp.com/uploads/";
+  const MEDIA_BASE_URL = "https://event-management-server-asi9.onrender.com/uploads/";
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -57,7 +57,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
   const fetchUsers = async () => {
     try {
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/chat/${currentUser.userId}/list-chat`,
+        `https://event-management-server-asi9.onrender.com/chat/${currentUser.userId}/list-chat`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -162,7 +162,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
     if (selectedUser && currentUser.userId) {
       axios
         .get(
-          `https://utevent-3e31c1e0e5ff.herokuapp.com/chat/history/${currentUser.userId}/${selectedUser.userId}`,
+          `https://event-management-server-asi9.onrender.com/chat/history/${currentUser.userId}/${selectedUser.userId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -232,7 +232,7 @@ const ChatBubble = ({ currentUser, initialSelectedUser, onClose }) => {
 
     try {
       const response = await axios.post(
-        "https://utevent-3e31c1e0e5ff.herokuapp.com/chat/upload",
+        "https://event-management-server-asi9.onrender.com/chat/upload",
         formData,
         {
           headers: {

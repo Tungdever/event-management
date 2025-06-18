@@ -157,7 +157,7 @@ const SearchBar = () => {
 
   const handleSearch = async () => {
     try {
-      const apiUrl = `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
+      const apiUrl = `https://event-management-server-asi9.onrender.com/api/events/search/by-name-and-city?term=${searchTerm}&city=${selectedLocation}`;
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`Failed to fetch events: ${response.status}`);
@@ -259,7 +259,7 @@ const token = localStorage.getItem("token");
     const fetchUnreadCount = async () => {
       if (user && user.userId) {
         try {
-          const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/notify/unread-count/${user.userId}`, {
+          const response = await fetch(`https://event-management-server-asi9.onrender.com/notify/unread-count/${user.userId}`, {
             headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,

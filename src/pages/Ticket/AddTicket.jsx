@@ -445,7 +445,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       // Database ticket: call API
       try {
         const response = await fetch(
-          `https://utevent-3e31c1e0e5ff.herokuapp.com/api/ticket/delete/${ticket.ticketId}`,
+          `https://event-management-server-asi9.onrender.com/api/ticket/delete/${ticket.ticketId}`,
           {
             method: "DELETE",
             headers: {

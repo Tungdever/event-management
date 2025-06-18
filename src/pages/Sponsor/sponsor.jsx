@@ -78,7 +78,7 @@ const Sponsor = () => {
         ...(search && { search }), // Chỉ thêm search nếu có giá trị
         ...(level && { level })    // Chỉ thêm level nếu có giá trị
       });
-      const response = await axios.get(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/sponsor?${params.toString()}`, {
+      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/sponsor?${params.toString()}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -107,7 +107,7 @@ const Sponsor = () => {
       return;
     }
     try {
-      const response = await axios.get(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/${userId}/sponsor`, {
+      const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/${userId}/sponsor`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -209,7 +209,7 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.post(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/sponsor`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/sponsor`,
         formData,
         {
           headers: {
@@ -279,7 +279,7 @@ const Sponsor = () => {
     });
     try {
       const response = await axios.put(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/sponsor/${selectedSponsor.sponsorId}`,
         formData,
         {
           headers: {
@@ -319,7 +319,7 @@ const Sponsor = () => {
 
     try {
       const response = await axios.delete(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/sponsor/${sponsorToDelete.sponsorId}`,
+        `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/sponsor/${sponsorToDelete.sponsorId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -465,7 +465,7 @@ const Sponsor = () => {
           sponsorEndDate: item["End Date"],
         }));
         const response = await axios.post(
-          `https://utevent-3e31c1e0e5ff.herokuapp.com/api/v1/myevent/${eventId}/sponsors/import`,
+          `https://event-management-server-asi9.onrender.com/api/v1/myevent/${eventId}/sponsors/import`,
           sponsorsFile,
           {
             headers: {

@@ -53,7 +53,7 @@ const CategoriesGrid = ({ categories }) => {
     try {
       categoryName = categoryName.trim().toLowerCase();
       const response = await fetch(
-        `https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/search/by-type/${categoryName}`
+        `https://event-management-server-asi9.onrender.com/api/events/search/by-type/${categoryName}`
       );
       if (!response.ok) {
         throw new Error(t("sliderEvent.errorFetchEvents"));
@@ -140,7 +140,7 @@ const SliderEvent = () => {
   useEffect(() => {
     const fetchEventTypes = async () => {
       try {
-        const response = await fetch('https://utevent-3e31c1e0e5ff.herokuapp.com/api/events-type/get-all-event-types');
+        const response = await fetch('https://event-management-server-asi9.onrender.com/api/events-type/get-all-event-types');
         if (!response.ok) {
           throw new Error(t('sliderEvent.errorFetchTypes'));
         }

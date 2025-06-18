@@ -54,7 +54,7 @@ const EditEventPage = () => {
   const fetchEventData = async (id) => {
     try {
       setIsLoading(true);
-      const response = await fetch(`https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/edit/${id}`, {
+      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/events/edit/${id}`, {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -182,7 +182,7 @@ const EditEventPage = () => {
         const formData = new FormData();
         formData.append("file", blob, "cropped_image.jpg");
 
-        const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/storage/upload", {
+        const response = await fetch("https://event-management-server-asi9.onrender.com/api/storage/upload", {
           method: "POST",
           body: formData,
         });
@@ -328,7 +328,7 @@ const EditEventPage = () => {
 
       console.log("Submitting payload:", payload);
 
-      const response = await fetch("https://utevent-3e31c1e0e5ff.herokuapp.com/api/events/edit", {
+      const response = await fetch("https://event-management-server-asi9.onrender.com/api/events/edit", {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
