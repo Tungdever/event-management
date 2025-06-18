@@ -5,8 +5,19 @@ import Loader from "../../components/Loading";
 import TicketForm from "./TicketForm";
 import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
+import SeatingLayoutEditor from "../Event/SeatingLayoutEditor";
 
-const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDeleteTicket }) => {
+const TicketOverview = ({
+  tickets,
+  seatingMapImage,
+  seatingMapImageVersions,
+  onAddTicket,
+  onSaveAll,
+  onEditTicket,
+  onDeleteTicket,
+  onOpenSeatingEditor,
+  onSelectVersion,
+}) => {
   const { t } = useTranslation();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -19,96 +30,144 @@ const TicketOverview = ({ tickets, onAddTicket, onSaveAll, onEditTicket, onDelet
     setDropdownOpen(false);
   };
 
-  // Check if there is a "Free" ticket in the tickets list
   const hasFreeTicket = tickets.some((ticket) => ticket.ticketType === "Free");
 
-  // Filter the options list, hide "Free" if a Free ticket already exists
   const ticketOptions = [
     { icon: "ticket-alt", color: "blue", label: "Paid" },
-    ...(hasFreeTicket ? [] : [{ icon: "scissors", color: "purple", label: "Free" }]),
+    ...(hasFreeTicket
+      ? []
+      : [{ icon: "scissors", color: "purple", label: "Free" }]),
   ];
 
   return (
-    <div className="flex p-4 mx-auto max-w-7xl">
-      <div className="w-2/3 pr-4">
-        {tickets.map((ticket, index) => (
-          <div
-            key={index}
-            className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
-          >
-            <div className="mb-4">
-              <div className="flex items-center justify-between">
-                <h2 className="pb-2 text-lg font-semibold text-gray-900">
-                  {ticket.ticketName}
-                </h2>
-                <div className="flex items-center pb-2 space-x-4">
-                  <span className="text-gray-500">
-                    {t("addTickets.sold", { sold: ticket.sold, quantity: ticket.quantity })}
-                  </span>
-                  <span className="text-gray-500">
-                    {ticket.ticketType === "Paid"
-                      ? t("addTickets.ticketPrice", { price: ticket.price })
-                      : t("addTickets.freeTicket")}
-                  </span>
+    <div className="flex flex-col p-4 mx-auto max-w-7xl min-h-[calc(100vh-4rem)]">
+      <div className="flex flex-1">
+        <div className="w-2/3 pr-4">
+          <h3 className="mt-6 text-lg font-semibold">Thêm vé</h3>
+          {tickets.map((ticket, index) => (
+            <div
+              key={ticket.ticketId || index}
+              className="mt-2 bg-white rounded-[5px] p-4 border border-gray-400"
+            >
+              <div className="mb-4">
+                <div className="flex items-center justify-between">
+                  <h2 className="pb-2 text-lg font-semibold text-gray-900">
+                    {ticket.ticketName}
+                  </h2>
+                  <div className="flex items-center pb-2 space-x-4">
+                    <span className="text-gray-500">
+                      {t("addTickets.sold", {
+                        sold: ticket.sold || 0,
+                        quantity: ticket.quantity,
+                      })}
+                    </span>
+                    <span className="text-gray-500">
+                      {ticket.ticketType === "Paid"
+                        ? t("addTickets.ticketPrice", { price: ticket.price })
+                        : t("addTickets.freeTicket")}
+                    </span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
-                <div className="flex items-center">
-                  <span className="mr-2 text-green-500">•</span>
-                  <span>{t("addTickets.onSale")}</span>
-                  <span className="mx-2">•</span>
-                  <span>{t("addTickets.endsAt", { endTime: ticket.endTime })}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <i
-                    className="text-base cursor-pointer fa-solid fa-pen-to-square hover:text-blue-600"
-                    onClick={() => onEditTicket(ticket)}
-                  ></i>
-                  <CiTrash
-                    className="text-xl text-gray-500 cursor-pointer hover:text-red-600"
-                    onClick={() => onDeleteTicket(index, ticket)}
-                  />
+                <div className="flex items-center justify-between pt-4 text-sm text-gray-500 border-t border-t-gray-500">
+                  <div className="flex items-center">
+                    <span className="mr-2 text-green-500">•</span>
+                    <span>{t("addTickets.onSale")}</span>
+                    <span className="mx-2">•</span>
+                    <span>
+                      {t("addTickets.endsAt", { endTime: ticket.endTime })}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <i
+                      className="text-base cursor-pointer fa-solid fa-pen-to-square hover:text-blue-600"
+                      onClick={() => onEditTicket(ticket)}
+                    ></i>
+                    <CiTrash
+                      className="text-xl text-gray-500 cursor-pointer hover:text-red-600"
+                      onClick={() => onDeleteTicket(index, ticket)}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-col items-end w-1/3">
-        <div className="relative top-4 right-4">
-          <button
-            onClick={toggleDropdown}
-            className="flex items-center justify-between w-full px-4 py-2 text-white bg-orange-600 rounded-lg"
-          >
-            {t("addTickets.addTicketButton")} <i className="ml-2 fas fa-caret-down"></i>
-          </button>
-          {isDropdownOpen && (
-            <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
-              <button
-                onClick={() => setDropdownOpen(false)}
-                className="absolute text-sm text-gray-500 right-2 top-2"
-              >
-                <i className="fa-solid fa-xmark"></i>
-              </button>
-              <div className="space-y-4">
-                {ticketOptions.map((item) => (
-                  <div
-                    key={item.label}
-                    className="flex items-center p-2 space-x-2 rounded cursor-pointer hover:bg-gray-100"
-                    onClick={() => handleSelectType(item.label)}
-                  >
-                    <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
-                      <i className={`fas fa-${item.icon} text-${item.color}-600`}></i>
-                    </div>
-                    <span>{item.label === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</span>
-                  </div>
-                ))}
-              </div>
+          ))}
+          {seatingMapImage && (
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Bố cục chỗ ngồi</h3>
+              <img
+                src={seatingMapImage}
+                alt="Bố cục chỗ ngồi"
+                className="h-auto max-w-full rounded-lg shadow-md"
+              />
             </div>
           )}
+          {seatingMapImageVersions && seatingMapImageVersions.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-lg font-semibold">Phiên bản bố cục trước</h3>
+              <select
+                onChange={(e) => {
+                  const selected = seatingMapImageVersions.find(
+                    (v) => v.image === e.target.value
+                  );
+                  onSelectVersion(selected ? selected : { image: e.target.value });
+                }}
+                className="w-full p-2 border rounded-md"
+              >
+                <option value="">Chọn phiên bản</option>
+                {seatingMapImageVersions.map((version, index) => (
+                  <option key={index} value={version.image}>
+                    Phiên bản {index + 1}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+          {tickets.length > 0 && (
+            <button
+              onClick={onOpenSeatingEditor}
+              className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg"
+            >
+              Tạo bố cục chỗ ngồi
+            </button>
+          )}
+        </div>
+        <div className="w-1/3">
+          <div className="relative">
+            <button
+              onClick={toggleDropdown}
+              className="flex items-center justify-between px-4 py-2 text-white bg-orange-600 rounded-lg"
+            >
+              {t("addTickets.addTicketButton")}{" "}
+              <i className="ml-2 fas fa-caret-down"></i>
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 z-50 w-64 p-4 mt-2 bg-white rounded-lg shadow-lg top-full">
+                <div className="space-y-4">
+                  {ticketOptions.map((item) => (
+                    <div
+                      key={item.label}
+                      className="flex items-center p-2 space-x-2 rounded cursor-pointer hover:bg-gray-100"
+                      onClick={() => handleSelectType(item.label)}
+                    >
+                      <div className={`bg-${item.color}-100 p-2 rounded-lg`}>
+                        <i
+                          className={`fas fa-${item.icon} text-${item.color}-600`}
+                        ></i>
+                      </div>
+                      <span>
+                        {item.label === "Paid"
+                          ? t("addTickets.paidTicket")
+                          : t("addTickets.freeTicket")}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      <div className="absolute flex items-center justify-end w-2/4 p-4 rounded-lg cursor-pointer bottom-20 right-4">
+      <div className="flex justify-end mt-4">
         <button
           className="px-6 py-2 text-white bg-orange-600 rounded-lg"
           onClick={onSaveAll}
@@ -177,7 +236,11 @@ const TicketTypeSelector = ({ onSelectType }) => {
               </svg>
             )}
             <div className="ml-4">
-              <h2 className="text-lg font-semibold">{type === "Paid" ? t("addTickets.paidTicket") : t("addTickets.freeTicket")}</h2>
+              <h2 className="text-lg font-semibold">
+                {type === "Paid"
+                  ? t("addTickets.paidTicket")
+                  : t("addTickets.freeTicket")}
+              </h2>
               <p className="text-gray-600">
                 {type === "Paid"
                   ? t("addTickets.paidTicketDescription")
@@ -197,42 +260,60 @@ const TicketTypeSelector = ({ onSelectType }) => {
   );
 };
 
-// Function to convert ISO format to yyyy-MM-dd
 const formatDateForInput = (isoDate) => {
   if (!isoDate) return "";
   return isoDate.split("T")[0];
 };
 
-const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd, onNext, isReadOnly }) => {
+const AddTicket = ({
+  ticketData,
+  onTicketsUpdate,
+  eventId,
+  eventStart,
+  eventEnd,
+  onNext,
+  isReadOnly,
+  venueType,
+  seatingLayout,
+  seatingMapImage,
+  seatingMapImageVersions,
+}) => {
   const { t } = useTranslation();
   const [tickets, setTickets] = useState(ticketData || []);
-  const [newTicket, setNewTicket] = useState({
-    eventId: eventId || "",
-    ticketId: "",
-    ticketName: "",
-    ticketType: "Paid",
-    price: "",
-    quantity: "",
-    startTime: "",
-    endTime: "",
-    isLocal: true, // Mark new tickets as local
-  });
+  const [localSeatingMapImage, setSeatingMapImage] = useState(seatingMapImage);
+  const [localSeatingMapImageVersions, setSeatingMapImageVersions] = useState(
+    (seatingMapImageVersions || []).map((v) => ({ image: v, layout: null }))
+  );
+  const [localSeatingLayout, setLocalSeatingLayout] = useState(seatingLayout);
+const [newTicket, setNewTicket] = useState({
+  eventId: eventId || "",
+  ticketId: null, // Sử dụng null thay vì ticket-<timestamp>
+  ticketName: "",
+  ticketType: "Paid",
+  price: "",
+  quantity: "",
+  startTime: "",
+  endTime: "",
+  isLocal: true,
+});
   const [typeTicket, setTypeTicket] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
   const [showOverview, setShowOverview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingTicket, setEditingTicket] = useState(null);
+  const [isSeatingEditorOpen, setIsSeatingEditorOpen] = useState(false);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     const formattedTickets = (ticketData || []).map((ticket) => ({
       ...ticket,
       startTime: formatDateForInput(ticket.startTime),
       endTime: formatDateForInput(ticket.endTime),
-      isLocal: ticket.isLocal || false, // Ensure existing tickets have isLocal flag
+      isLocal: ticket.isLocal || false,
+      ticketId: ticket.ticketId || `ticket-${Date.now()}`,
     }));
     setTickets(formattedTickets);
+    setShowOverview(formattedTickets.length > 0);
   }, [ticketData]);
 
   useEffect(() => {
@@ -254,12 +335,18 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     }
   };
 
-  const handleTicketClick = (type) => {
-    setTypeTicket(type);
-    setNewTicket((prev) => ({ ...prev, ticketType: type, isLocal: true }));
-    setShowForm(true);
-    setEditingTicket(null);
-  };
+const handleTicketClick = (type) => {
+  if (isReadOnly) return;
+  setTypeTicket(type);
+  setNewTicket((prev) => ({
+    ...prev,
+    ticketType: type,
+    ticketId: null, // Sử dụng null
+    isLocal: true,
+  }));
+  setShowForm(true);
+  setEditingTicket(null);
+};
 
   useEffect(() => {
     setNewTicket((prev) => ({ ...prev, ticketType: typeTicket }));
@@ -267,7 +354,10 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
   const validateTicketDates = (ticket) => {
     if (!eventStart || !eventEnd) {
-      return { isValid: false, message: t("addTickets.errors.eventDatesNotSet") };
+      return {
+        isValid: false,
+        message: t("addTickets.errors.eventDatesNotSet"),
+      };
     }
 
     const ticketStart = new Date(ticket.startTime);
@@ -276,15 +366,24 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     const eventEndDate = new Date(eventEnd);
 
     if (ticketStart > eventStartDate) {
-      return { isValid: false, message: t("addTickets.errors.invalidStartDate") };
+      return {
+        isValid: false,
+        message: t("addTickets.errors.invalidStartDate"),
+      };
     }
 
     if (ticketStart > eventEndDate) {
-      return { isValid: false, message: t("addTickets.errors.startAfterEventEnd") };
+      return {
+        isValid: false,
+        message: t("addTickets.errors.startAfterEventEnd"),
+      };
     }
 
     if (ticketEnd > eventStartDate) {
-      return { isValid: false, message: t("addTickets.errors.endAfterEventStart") };
+      return {
+        isValid: false,
+        message: t("addTickets.errors.endAfterEventStart"),
+      };
     }
 
     return { isValid: true, message: "" };
@@ -326,11 +425,14 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
 
     const updatedTickets = [...tickets, { ...newTicket, isLocal: true }];
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets);
-
+    onTicketsUpdate(updatedTickets, {
+      image: localSeatingMapImage,
+      versions: localSeatingMapImageVersions,
+      layout: JSON.stringify(localSeatingLayout),
+    });
     setNewTicket({
       eventId: eventId || "",
-      ticketId: "",
+      ticketId: `ticket-${Date.now()}`,
       ticketName: "",
       ticketType: "Paid",
       price: "",
@@ -341,6 +443,7 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     });
     setShowForm(false);
     setShowOverview(true);
+    setIsSeatingEditorOpen(true);
   };
 
   const handleEditTicket = (ticket) => {
@@ -376,8 +479,11 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
-    // Check if the ticket has been sold
-    if (editingTicket.sold > 0 && editingTicket.price !== tickets.find(t => t.ticketId === editingTicket.ticketId).price) {
+    if (
+      editingTicket.sold > 0 &&
+      editingTicket.price !==
+        tickets.find((t) => t.ticketId === editingTicket.ticketId)?.price
+    ) {
       Swal.fire({
         icon: "warning",
         title: t("addTickets.errors.ticketSoldWarningTitle"),
@@ -406,80 +512,43 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
     }
 
     const updatedTickets = tickets.map((ticket) =>
-      ticket.ticketId === editingTicket.ticketId && !ticket.isLocal
-        ? editingTicket
-        : ticket.ticketId === editingTicket.ticketId
-        ? editingTicket
-        : ticket
+      ticket.ticketId === editingTicket.ticketId ? editingTicket : ticket
     );
     setTickets(updatedTickets);
-    onTicketsUpdate(updatedTickets);
+    onTicketsUpdate(updatedTickets, {
+      image: localSeatingMapImage,
+      versions: localSeatingMapImageVersions,
+      layout: JSON.stringify(localSeatingLayout),
+    });
     setEditingTicket(null);
     setShowForm(false);
+    setIsSeatingEditorOpen(true);
   };
 
-  const handleDeleteTicket = async (index, ticket) => {
+  const handleDeleteTicket = (index, ticket) => {
     if (isReadOnly) return;
-    const confirm = await Swal.fire({
+    Swal.fire({
       icon: "warning",
       title: t("addTickets.errors.confirmDeletion"),
       text: t("addTickets.errors.deleteConfirmation"),
       showCancelButton: true,
       confirmButtonText: t("addTickets.delete"),
       cancelButtonText: t("addTickets.cancel"),
-    });
-
-    if (!confirm.isConfirmed) return;
-
-    if (ticket.isLocal || !ticket.ticketId) {
-      // Local ticket: remove from state
+    }).then((result) => {
+      if (!result.isConfirmed) return;
       const updatedTickets = tickets.filter((_, i) => i !== index);
       setTickets(updatedTickets);
-      onTicketsUpdate(updatedTickets);
+      onTicketsUpdate(updatedTickets, {
+        image: localSeatingMapImage,
+        versions: localSeatingMapImageVersions,
+        layout: JSON.stringify(localSeatingLayout),
+      });
       Swal.fire({
         icon: "success",
-        title: t("addTickets.success.title"),
-        text: t("addTickets.success.deleteSuccess"),
+        title: "Thành công",
+        text: "Xóa thành công",
       });
-    } else {
-      // Database ticket: call API
-      try {
-        const response = await fetch(
-          `https://event-management-server-asi9.onrender.com/api/ticket/delete/${ticket.ticketId}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const data = await response.json();
-        if (data.data === true) {
-          const updatedTickets = tickets.filter((_, i) => i !== index);
-          setTickets(updatedTickets);
-          onTicketsUpdate(updatedTickets);
-          Swal.fire({
-            icon: "success",
-            title: t("addTickets.success.title"),
-            text: t("addTickets.success.deleteSuccess"),
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: t("addTickets.errors.title"),
-            text: data.msg || t("addTickets.errors.deleteError"),
-          });
-        }
-      } catch (error) {
-        console.error("Error deleting ticket:", error);
-        Swal.fire({
-          icon: "error",
-          title: t("addTickets.errors.title"),
-          text: t("addTickets.errors.deleteError"),
-        });
-      }
-    }
+    });
   };
 
   const saveTicketsToDatabase = () => {
@@ -491,7 +560,51 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
       });
       return;
     }
+    onTicketsUpdate(tickets, {
+      image: localSeatingMapImage,
+      versions: localSeatingMapImageVersions,
+      layout: JSON.stringify(localSeatingLayout),
+    });
     if (onNext) onNext();
+  };
+
+  const handleSeatingLayoutSave = (data) => {
+    const { image, layout } = data;
+    try {
+      setSeatingMapImage(image);
+      setLocalSeatingLayout(layout);
+      setSeatingMapImageVersions((prev) => [
+        ...prev,
+        { image, layout: JSON.stringify(layout) },
+      ]);
+      onTicketsUpdate(tickets, {
+        image,
+        versions: [...localSeatingMapImageVersions, { image, layout: JSON.stringify(layout) }],
+        layout: JSON.stringify(layout),
+      });
+      setIsSeatingEditorOpen(false);
+      Swal.fire({
+        icon: "success",
+        title: "Thành công",
+        text: "Bố cục chỗ ngồi đã được lưu.",
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Lỗi",
+        text: "Không thể lưu bố cục. Vui lòng thử lại.",
+      });
+    }
+  };
+
+  const handleSelectVersion = (version) => {
+    setSeatingMapImage(version.image);
+    setLocalSeatingLayout(version.layout ? JSON.parse(version.layout) : null);
+    onTicketsUpdate(tickets, {
+      image: version.image,
+      versions: localSeatingMapImageVersions,
+      layout: version.layout,
+    });
   };
 
   return loading ? (
@@ -502,18 +615,20 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
         <h1 className="mb-4 text-4xl font-bold text-gray-900">
           {t("addTickets.title")}
         </h1>
-        <p className="mb-6 text-gray-600">
-          {t("addTickets.description")}
-        </p>
+        <p className="mb-6 text-gray-600">{t("addTickets.description")}</p>
         {!showOverview && tickets.length === 0 ? (
           <TicketTypeSelector onSelectType={handleTicketClick} />
         ) : (
           <TicketOverview
             tickets={tickets}
+            seatingMapImage={localSeatingMapImage}
+            seatingMapImageVersions={localSeatingMapImageVersions}
             onAddTicket={handleTicketClick}
             onSaveAll={saveTicketsToDatabase}
             onEditTicket={handleEditTicket}
             onDeleteTicket={handleDeleteTicket}
+            onOpenSeatingEditor={() => setIsSeatingEditorOpen(true)}
+            onSelectVersion={handleSelectVersion}
           />
         )}
       </main>
@@ -538,6 +653,17 @@ const AddTicket = ({ ticketData, onTicketsUpdate, eventId, eventStart, eventEnd,
           isReadOnly={isReadOnly}
         />
       )}
+      <SeatingLayoutEditor
+        isOpen={isSeatingEditorOpen}
+        onClose={() => setIsSeatingEditorOpen(false)}
+        venueType={venueType || "indoor"}
+        onSave={handleSeatingLayoutSave}
+        availableTickets={tickets.map((ticket) => ({
+          ...ticket,
+          ticketId: ticket.ticketId, // Đảm bảo ticketId được giữ nguyên
+        }))}
+        seatingLayout={localSeatingLayout}
+      />
     </div>
   );
 };
