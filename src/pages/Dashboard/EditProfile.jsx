@@ -122,79 +122,81 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!validateForm(t)) return;
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!validateForm(t)) return;
 
-    setIsSubmitting(true);
-    try {
-      let organizerLogo = formData.organizer.organizerLogo;
-      if (logoFile && user?.primaryRoles?.includes("ORGANIZER")) {
-        const uploadedIds = await uploadFilesToCloudinary([logoFile], t);
-        if (uploadedIds.length > 0) {
-          organizerLogo = uploadedIds[0];
-        } else {
-          throw new Error(t('editProfile.swal.logoUploadErrorText'));
-        }
+  setIsSubmitting(true);
+  try {
+    let organizerLogo = formData.organizer.organizerLogo;
+    if (logoFile && user?.primaryRoles?.includes("ORGANIZER")) {
+      const uploadedIds = await uploadFilesToCloudinary([logoFile], t);
+      if (uploadedIds.length > 0) {
+        organizerLogo = uploadedIds[0];
+      } else {
+        throw new Error(t('editProfile.swal.logoUploadErrorText'));
       }
-
-      const updatedData = {
-        ...formData,
-        organizer: user?.primaryRoles?.includes("ORGANIZER") ? {
-          ...formData.organizer,
-          organizerLogo,
-        } : null,
-      };
-
-      const response = await axios.put(
-        "https://event-management-server-asi9.onrender.com/api/auth/save-change",
-        updatedData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.status === 200) {
-        Swal.fire({
-          icon: "success",
-          title: t('editProfile.swal.successTitle'),
-          text: t('editProfile.swal.successText'),
-        });
-        if (onUpdate) onUpdate(response.data);
-        onClose();
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      Swal.fire({
-        icon: "error",
-        title: t('editProfile.swal.errorTitle'),
-        text: error.response?.data?.message || t('editProfile.swal.updateErrorText'),
-      });
-    } finally {
-      setIsSubmitting(false);
     }
-  };
+
+    // Loại bỏ organizerId khỏi organizer trong formData
+    const updatedData = {
+      ...formData,
+      organizer: user?.primaryRoles?.includes("ORGANIZER") ? {
+        ...formData.organizer,
+        organizerId: undefined, // Đảm bảo không gửi organizerId
+        organizerLogo,
+      } : null,
+    };
+
+    const response = await axios.put(
+      "https://event-management-server-asi9.onrender.com/api/auth/save-change",
+      updatedData,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (response.status === 200) {
+      Swal.fire({
+        icon: "success",
+        title: t('editProfile.swal.successTitle'),
+        text: t('editProfile.swal.successText'),
+      });
+      if (onUpdate) onUpdate(response.data);
+      onClose();
+    }
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    Swal.fire({
+      icon: "error",
+      title: t('editProfile.swal.errorTitle'),
+      text: error.response?.data?.message || t('editProfile.swal.updateErrorText'),
+    });
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="relative w-full">
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl"
+        className="absolute text-xl text-gray-500 top-4 right-4 hover:text-gray-700"
         aria-label={t('editProfile.closeButtonAria')}
       >
         <i className="fa-solid fa-xmark"></i>
       </button>
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+      <h2 className="mb-6 text-2xl font-bold text-center text-gray-800">
         {t('editProfile.title')}
       </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Personal Information */}
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid gap-4 md:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('editProfile.personalInfo.fullNameLabel')}
             </label>
             <input
@@ -205,11 +207,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
             {errors.fullName && (
-              <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.fullName}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('editProfile.personalInfo.emailLabel')}
             </label>
             <input
@@ -220,11 +222,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
               className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
             />
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              <p className="mt-1 text-xs text-red-500">{errors.email}</p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('editProfile.personalInfo.genderLabel')}
             </label>
             <select
@@ -240,7 +242,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('editProfile.personalInfo.birthdayLabel')}
             </label>
             <input
@@ -252,7 +254,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
             />
           </div>
           <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block mb-1 text-sm font-medium text-gray-700">
               {t('editProfile.personalInfo.addressLabel')}
             </label>
             <input
@@ -267,13 +269,13 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
 
         {/* Organizer Information */}
         {user?.primaryRoles?.includes("ORGANIZER") && (
-          <div className="border-t pt-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4">
+          <div className="pt-6 border-t">
+            <h3 className="mb-4 text-lg font-semibold text-gray-800">
               {t('editProfile.organizerInfo.title')}
             </h3>
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerNameLabel')}
                 </label>
                 <input
@@ -284,11 +286,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
                 {errors.organizerName && (
-                  <p className="text-red-500 text-xs mt-1">{errors.organizerName}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.organizerName}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerLogoLabel')}
                 </label>
                 <input
@@ -301,12 +303,12 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
                   <img
                     src={logoPreview}
                     alt={t('editProfile.organizerInfo.organizerLogoAlt')}
-                    className="mt-2 w-24 h-24 rounded-full object-cover"
+                    className="object-cover w-24 h-24 mt-2 rounded-full"
                   />
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerAddressLabel')}
                 </label>
                 <input
@@ -318,7 +320,7 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerWebsiteLabel')}
                 </label>
                 <input
@@ -329,11 +331,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
                 {errors.organizerWebsite && (
-                  <p className="text-red-500 text-xs mt-1">{errors.organizerWebsite}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.organizerWebsite}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerPhoneLabel')}
                 </label>
                 <input
@@ -344,11 +346,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
                   className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                 />
                 {errors.organizerPhone && (
-                  <p className="text-red-500 text-xs mt-1">{errors.organizerPhone}</p>
+                  <p className="mt-1 text-xs text-red-500">{errors.organizerPhone}</p>
                 )}
               </div>
               <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block mb-1 text-sm font-medium text-gray-700">
                   {t('editProfile.organizerInfo.organizerDescLabel')}
                 </label>
                 <textarea
@@ -364,11 +366,11 @@ const EditProfile = ({ onClose, userData, onUpdate }) => {
         )}
 
         {/* Buttons */}
-        <div className="flex justify-end space-x-4 mt-6">
+        <div className="flex justify-end mt-6 space-x-4">
           <button
             type="button"
             onClick={onClose}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition"
+            className="px-4 py-2 text-gray-700 transition bg-gray-200 rounded-lg hover:bg-gray-300"
             disabled={isSubmitting}
           >
             {t('editProfile.buttons.cancel')}
