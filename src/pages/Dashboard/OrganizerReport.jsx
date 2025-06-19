@@ -225,16 +225,16 @@ const OrganizerDashboard = () => {
               <div className={`rounded-full p-2 mb-2`} style={{ backgroundColor: stat.color }}>
                 <i className={`${stat.icon} text-[#1e293d]`}></i>
               </div>
-              <p className="text-sm text-gray-600 mb-1 select-none">{stat.title}</p>
+              <p className="mb-1 text-sm text-gray-600 select-none">{stat.title}</p>
               <p className="font-bold text-lg text-[#1e1e2d]">{stat.value}</p>
             </div>
           ))}
         </div>
 
-        <h1 className="font-bold text-lg mb-4 select-none">{t('organizerDashboard.statistics')}</h1>
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 mb-6">
+        <h1 className="mb-4 text-lg font-bold select-none">{t('organizerDashboard.statistics')}</h1>
+        <div className="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-1">
           <div className="bg-[#f9fafb] rounded-xl p-4">
-            <h2 className="text-sm font-semibold mb-4">
+            <h2 className="mb-4 text-sm font-semibold">
               {t('organizerDashboard.revenueOverTime')} {selectedYear ? `(${selectedYear})` : ''}
             </h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
@@ -264,7 +264,7 @@ const OrganizerDashboard = () => {
           </div>
         </div>
 
-        <h1 className="font-bold text-lg mb-4 select-none">{t('organizerDashboard.yourEvents')}</h1>
+        <h1 className="mb-4 text-lg font-bold select-none">{t('organizerDashboard.yourEvents')}</h1>
         <div className="mb-4">
           <input
             type="text"
@@ -278,7 +278,7 @@ const OrganizerDashboard = () => {
         <div className="mt-6 bg-white rounded-md shadow text-[14px]">
           <div className="flex items-center p-4 border-b border-gray-200">
             <div
-              className="w-1/2 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/2 text-gray-600 cursor-pointer"
               onClick={() => handleSort('event')}
               aria-label={t('organizerDashboard.event')}
             >
@@ -290,7 +290,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('location')}
               aria-label={t('organizerDashboard.location')}
             >
@@ -302,7 +302,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('sold')}
               aria-label={t('organizerDashboard.sold')}
             >
@@ -314,7 +314,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('gross')}
               aria-label={t('organizerDashboard.gross')}
             >
@@ -326,7 +326,7 @@ const OrganizerDashboard = () => {
               )}
             </div>
             <div
-              className="w-1/6 text-gray-600 cursor-pointer flex items-center"
+              className="flex items-center w-1/6 text-gray-600 cursor-pointer"
               onClick={() => handleSort('status')}
               aria-label={t('organizerDashboard.status')}
             >
@@ -368,7 +368,7 @@ const OrganizerDashboard = () => {
         </div>
 
         {totalPages > 1 && (
-          <div className="mt-4 flex justify-end items-center space-x-2">
+          <div className="flex items-center justify-end mt-4 space-x-2">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
