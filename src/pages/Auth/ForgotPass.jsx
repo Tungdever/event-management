@@ -22,7 +22,7 @@ const ForgotPassword = () => {
       if (response.statusCode === 200) {
         setMessage(t('forgotPassword.successMessage'));
         setError('');
-        setTimeout(() => navigate('/login'), 3000); // Redirect to login after 3 seconds
+ 
       } else {
         setError(response.msg || t('forgotPassword.errorMessage'));
         setMessage('');

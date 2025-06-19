@@ -5,7 +5,7 @@ import { api } from './api';
 import { useAuth } from './AuthProvider';
 import { jwtDecode } from 'jwt-decode';
 import Swal from 'sweetalert2';
-
+import Loader from "../../components/Loading";
 const LoginForm = () => {
   const { t } = useTranslation(); // Hook to access translations
   const [email, setEmail] = useState('');
@@ -13,13 +13,17 @@ const LoginForm = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
   const { login } = useAuth();
-
+  const [isLoading, setIsLoading] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      setIsLoading(true);
       const response = await api.login(email, password);
       const token = response.data;
-      if (!token) throw new Error(t('login.errorMessage'));
+      if (!token) {
+        setIsLoading(false);
+        throw new Error(t('login.errorMessage'));
+      }
 
       const decoded = jwtDecode(token);
       login(token, decoded);
@@ -34,7 +38,7 @@ const LoginForm = () => {
       } else {
         // Default redirect based on role
         const primaryRole = decoded.roles.includes('ROLE_ADMIN') ? 'ADMIN' :
-                           decoded.roles.includes('ROLE_ORGANIZER') ? 'ORGANIZER' : 'ATTENDEE';
+          decoded.roles.includes('ROLE_ORGANIZER') ? 'ORGANIZER' : 'ATTENDEE';
         if (primaryRole === 'ADMIN') navigate('/admin');
         else if (primaryRole === 'ORGANIZER') navigate('/dashboard');
         else navigate('/');
@@ -55,10 +59,18 @@ const LoginForm = () => {
       }
       setError(error.msg || error.message || 'Đăng nhập thất bại. Vui lòng kiểm tra thông tin đăng nhập.');
     }
+    finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      {isLoading && (
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex justify-center items-center z-10">
+          <Loader />
+        </div>
+      )}
       <div className="w-full max-w-md p-10 transition-all duration-300 transform bg-white shadow-md rounded-xl sm:max-w-lg animate-in">
         <h2 className="mb-6 text-3xl font-bold text-center text-gray-800">{t('login.title')}</h2>
         {error && (

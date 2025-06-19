@@ -376,7 +376,7 @@ const EventSignUp = () => {
         setCurrentStep(nextStepToShow);
         setTransitionKey((prev) => prev + 1);
         setNextStepToShow(null);
-      }, 400);
+      }, 200);
       return () => clearTimeout(timer);
     }
   }, [isExiting, nextStepToShow]);

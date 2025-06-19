@@ -41,7 +41,6 @@ const ResetPassword = () => {
       if (response.statusCode === 200) {
         setMessage(t('resetPassword.successMessage'));
         setError('');
-        setTimeout(() => navigate('/login'), 2000);
       } else {
         setError(response.msg || t('resetPassword.errorMessage'));
         setMessage('');

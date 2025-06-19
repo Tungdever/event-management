@@ -82,7 +82,7 @@ const Navbar = ({ setCityEvents }) => {
   const token = localStorage.getItem("token");
 
   const locations = [
-    { slug: "all-location"},
+    { slug: "all-location" },
     { slug: "ho-chi-minh" },
     { slug: "ha-noi" },
     { slug: "da-nang" },
@@ -201,7 +201,7 @@ const Navbar = ({ setCityEvents }) => {
                     setIsDropdownOpen(false);
                   }}
                 >
-                  {t("homePage.locations." +`${location.slug}`)}
+                  {t("homePage.locations." + `${location.slug}`)}
                   {selectedLocation === t("homePage.locations." + `${location.slug}`) && (
                     <i className="text-blue-800 bi bi-check"></i>
                   )}
@@ -416,20 +416,11 @@ const TopDestinations = () => {
 };
 
 const HomePage = () => {
-  const [loading, setLoading] = useState(true);
+
   const { user } = useAuth();
   const [cityEvents, setCityEvents] = useState([]);
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 150);
-  }, []);
 
-  return loading ? (
-    <div className="flex items-center justify-center h-screen">
-      <Loader />
-    </div>
-  ) : (
+  return (
     <div className="flex flex-col min-h-screen">
       <SliderEvent />
       {/* <EventListings /> */}
@@ -440,6 +431,6 @@ const HomePage = () => {
       <TopDestinations />
       <Footer />
     </div>
-  );
+  )
 };
 export default HomePage;

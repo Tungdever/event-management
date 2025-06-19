@@ -34,18 +34,10 @@ const ProfileDropdown = () => {
     try {
       await api.logout();
       logout();
-      Swal.fire({
-        icon: "success",
-        title: t('navbar.logoutSuccess.title'),
-        text: t('navbar.logoutSuccess.text'),
-      });
+      localStorage.removeItem("token");
       navigate("/login");
     } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: t('navbar.logoutError.title'),
-        text: t('navbar.logoutError.text'),
-      });
+      
     }
   };
 

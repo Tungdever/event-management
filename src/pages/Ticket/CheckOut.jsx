@@ -33,14 +33,14 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
   }, [toastMessage]);
 
   const buyFreeTicket = async (checkoutData) => {
-    setIsLoading(true);
+    setIsLoading(true); // Start loading
     const token = localStorage.getItem('token');
     let userId;
 
     if (!token) {
       setToastMessage(t("checkout.errors.tokenMissing"));
       setToastType("error");
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading
       return;
     }
 
@@ -70,9 +70,7 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
       });
 
       if (response.data.statusCode === 1 || response.data.statusCode === "1") {
-        setTimeout(() => {
-          navigate(`/payment-result?orderCode=${response.data.data}`);
-        }, 500);
+        navigate(`/payment-result?orderCode=${response.data.data}`);
       } else {
         setToastMessage(t("checkout.errors.unexpectedResponse"));
         setToastType("error");
@@ -82,11 +80,12 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
       setToastType("error");
       console.error("Error in buyFreeTicket:", error);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading
     }
   };
 
-  const checkoutHandle = () => {
+  const checkoutHandle = async () => {
+    setIsLoading(true); // Start loading for checkout
     const checkoutData = {
       amount: totalPrice,
       tickets: selectedTickets,
@@ -95,8 +94,9 @@ const Checkout = ({ onClose, selectedTickets, eventData }) => {
     localStorage.setItem('eventCheckout', window.location.href);
     if (totalPrice > 0) {
       navigate("/checkout", { state: checkoutData });
+      setIsLoading(false); // Stop loading after navigation
     } else {
-      buyFreeTicket(checkoutData);
+      await buyFreeTicket(checkoutData); // Await API call
     }
   };
 
