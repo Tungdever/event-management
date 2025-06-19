@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import Loader from "../../components/Loading";
 import TicketForm from "./TicketForm";
 import Swal from "sweetalert2";
 import { CiTrash } from "react-icons/ci";
@@ -299,7 +298,7 @@ const [newTicket, setNewTicket] = useState({
   const [typeTicket, setTypeTicket] = useState("Paid");
   const [showForm, setShowForm] = useState(false);
   const [showOverview, setShowOverview] = useState(false);
-  const [loading, setLoading] = useState(true);
+
   const [editingTicket, setEditingTicket] = useState(null);
   const [isSeatingEditorOpen, setIsSeatingEditorOpen] = useState(false);
   const navigate = useNavigate();
@@ -316,11 +315,7 @@ const [newTicket, setNewTicket] = useState({
     setShowOverview(formattedTickets.length > 0);
   }, [ticketData]);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
-  }, []);
+  
 
   const handleChange = (e) => {
     if (isReadOnly) return;
@@ -607,9 +602,7 @@ const handleTicketClick = (type) => {
     });
   };
 
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <div className="flex flex-col lg:flex-row bg-gray-50">
       <main className="flex-1 min-h-screen p-6">
         <h1 className="mb-4 text-4xl font-bold text-gray-900">

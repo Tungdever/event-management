@@ -146,9 +146,7 @@ const EventForm = ({ event, setEvent, onNext, isReadOnly }) => {
     }
   }, [editor, event.eventDesc]);
 
-  return loading ? (
-    <Loader />
-  ) : (
+  return (
     <div className="max-w-3xl p-4 mx-auto">
       {isReadOnly && (
         <p className="mb-4 text-red-500">
@@ -293,9 +291,9 @@ const EventForm = ({ event, setEvent, onNext, isReadOnly }) => {
       <SectionEvent
         segmentData={event.segment}
         onSegmentUpdate={handleSegmentUpdate}
-        eventStart={event.eventLocation?.startTime} 
+        eventStart={event.eventLocation?.startTime}
         eventEnd={event.eventLocation?.endTime}
-        isReadOnly={isReadOnly}   
+        isReadOnly={isReadOnly}
       />
       <OverviewSection
         content={event.overviewContent || { text: "", media: [] }}

@@ -10,23 +10,27 @@ import AdminRoleAssignment from "./AssignRole";
 import ViewProfile from "./ViewProfile";
 import OrganizerDashboard from "./OrganizerReport";
 import Loader from "../../components/Loading";
-
+import { useLocation } from "react-router-dom";
 const OrganizerLayout = () => {
   const { t } = useTranslation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentComponent, setCurrentComponent] = useState("Dashboard");
   const [loading, setLoading] = useState(true);
-
+  const location = useLocation();
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   useEffect(() => {
+    // Kiểm tra state từ navigation và cập nhật currentComponent
+    if (location.state?.component) {
+      setCurrentComponent(location.state.component);
+    }
     setTimeout(() => {
       setLoading(false);
     }, 100);
     window.scrollTo(0, 0);
-  }, []);
+  }, [location.state]); // Thêm location.state vào dependency array
 
   const sidebarItems = [
     { key: "Dashboard", label: t('sidebar.organizerDashboard') },

@@ -75,7 +75,7 @@ const CRUDEvent = () => {
         } else {
           Swal.fire({
             icon: "warning",
-            title: t("createEventPage.errors.invalidFile"),
+            title: t("createEventPage.errors.title"),
             text: t("createEventPage.errors.invalidFile"),
           });
           continue;
@@ -84,7 +84,7 @@ const CRUDEvent = () => {
         if (!blob.type.startsWith('image/')) {
           Swal.fire({
             icon: "warning",
-            title: t("createEventPage.errors.invalidFileType"),
+            title: t("createEventPage.errors.title"),
             text: t("createEventPage.errors.invalidFileType"),
           });
           continue;
@@ -92,7 +92,7 @@ const CRUDEvent = () => {
         if (blob.size > 10 * 1024 * 1024) {
           Swal.fire({
             icon: "warning",
-            title: t("createEventPage.errors.fileSizeTooLarge"),
+            title: t("createEventPage.errors.title"),
             text: t("createEventPage.errors.fileSizeTooLarge"),
           });
           continue;
@@ -117,7 +117,7 @@ const CRUDEvent = () => {
       } catch (error) {
         Swal.fire({
           icon: "error",
-          title: t("createEventPage.errors.uploadFailed", { message: "" }),
+          title: t("createEventPage.errors.title", { message: "" }),
           text: t("createEventPage.errors.uploadFailed", { message: error.message }),
         });
       }
@@ -325,19 +325,22 @@ const CRUDEvent = () => {
       };
 
       setEvent(updatedEvent);
-      setIsLoading(false);
+      
       Swal.fire({
         icon: 'success',
         title: 'Thành công',
         text: `Sự kiện đã được ${eventStatus === "public" ? "xuất bản" : "lưu dưới dạng bản nháp"} thành công!`,
       });
-      setTimeout(() => navigate('/'), 300);
+      navigate('/dashboard', { state: { component: 'Events' } });
     } catch (error) {
       Swal.fire({
         icon: 'error',
         title: 'Lỗi',
         text: `Lỗi khi xử lý sự kiện: ${error.message}`,
       });
+      
+    }
+    finally {
       setIsLoading(false);
     }
   };

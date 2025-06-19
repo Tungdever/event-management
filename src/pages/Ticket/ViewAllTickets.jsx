@@ -27,13 +27,6 @@ export default function ViewAllTickets() {
   };
 
   useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 250);
-    window.scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
     const fetch = async () => {
       setLoading(true);
       setError(null);

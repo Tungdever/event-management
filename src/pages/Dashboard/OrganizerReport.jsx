@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement } from 'chart.js';
-
+import Loader from "../../components/Loading";
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement);
 
@@ -27,7 +27,6 @@ class ChartErrorBoundary extends Component {
 const OrganizerDashboard = () => {
   const { t } = useTranslation();
   const [data, setData] = useState({});
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -37,7 +36,7 @@ const OrganizerDashboard = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const chartRef = useRef(null);
-
+  const [isLoading, setIsLoading] = useState(true);
   // Generate list of years
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: currentYear - 2020 + 1 }, (_, i) => 2020 + i);
@@ -60,7 +59,6 @@ const OrganizerDashboard = () => {
 
   const fetchDashboardData = async (year = "") => {
     try {
-      setLoading(true);
       const response = await axios.get("http://localhost:8080/api/v1/organizer/dashboard", {
         headers: {
           "Content-Type": "application/json",
@@ -97,7 +95,7 @@ const OrganizerDashboard = () => {
         events: [],
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -146,15 +144,15 @@ const OrganizerDashboard = () => {
     if (!sortConfig.key || !sortConfig.direction) return 0;
 
     const aValue = sortConfig.key === 'event' ? a.eventName.toLowerCase() :
-                   sortConfig.key === 'location' ? a.eventLocation.venueName.toLowerCase() :
-                   sortConfig.key === 'sold' ? a.sold :
-                   sortConfig.key === 'gross' ? a.eventRevenue :
-                   getCategoryLabel(a.eventStatus, 'eventStatus').toLowerCase();
+      sortConfig.key === 'location' ? a.eventLocation.venueName.toLowerCase() :
+        sortConfig.key === 'sold' ? a.sold :
+          sortConfig.key === 'gross' ? a.eventRevenue :
+            getCategoryLabel(a.eventStatus, 'eventStatus').toLowerCase();
     const bValue = sortConfig.key === 'event' ? b.eventName.toLowerCase() :
-                   sortConfig.key === 'location' ? b.eventLocation.venueName.toLowerCase() :
-                   sortConfig.key === 'sold' ? b.sold :
-                   sortConfig.key === 'gross' ? b.eventRevenue :
-                   getCategoryLabel(b.eventStatus, 'eventStatus').toLowerCase();
+      sortConfig.key === 'location' ? b.eventLocation.venueName.toLowerCase() :
+        sortConfig.key === 'sold' ? b.sold :
+          sortConfig.key === 'gross' ? b.eventRevenue :
+            getCategoryLabel(b.eventStatus, 'eventStatus').toLowerCase();
 
     if (sortConfig.direction === 'asc') {
       return aValue > bValue ? 1 : -1;
@@ -194,7 +192,11 @@ const OrganizerDashboard = () => {
     ],
   };
 
-  return (
+  return isLoading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) : (
     <section className="space-y-6 overflow-y-auto p-6">
       <div className="bg-white rounded-xl p-6">
         <div className="flex justify-between items-center mb-6">
@@ -237,32 +239,26 @@ const OrganizerDashboard = () => {
             </h2>
             <div className="relative" style={{ maxHeight: '300px' }}>
               <ChartErrorBoundary>
-                {loading ? (
-                  <div className="text-center text-gray-600">Đang tải...</div>
-                ) : data.revenueOverTime && data.revenueOverTime.data.length > 0 ? (
-                  <Line
-                    key={`chart-${selectedYear}`} // Thêm key để tái tạo canvas
-                    ref={chartRef}
-                    data={revenueOverTimeData}
-                    options={{
-                      responsive: true,
-                      maintainAspectRatio: false,
-                      plugins: {
-                        legend: { position: 'top' },
-                        title: {
-                          display: true,
-                          text: `${t('organizerDashboard.revenueOverTime')} ${selectedYear ? `(${selectedYear})` : ''}`
-                        },
+                <Line
+                  key={`chart-${selectedYear}`} // Thêm key để tái tạo canvas
+                  ref={chartRef}
+                  data={revenueOverTimeData}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                      legend: { position: 'top' },
+                      title: {
+                        display: true,
+                        text: `${t('organizerDashboard.revenueOverTime')} ${selectedYear ? `(${selectedYear})` : ''}`
                       },
-                      scales: {
-                        y: { beginAtZero: true },
-                      },
-                    }}
-                  />) : (
-                  <div className="text-center text-gray-600">
-                    Không có dữ liệu doanh thu cho {selectedYear || 'tất cả các năm'}
-                  </div>
-                )}
+                    },
+                    scales: {
+                      y: { beginAtZero: true },
+                    },
+                  }}
+                />
+
               </ChartErrorBoundary>
             </div>
           </div>
@@ -342,39 +338,33 @@ const OrganizerDashboard = () => {
               )}
             </div>
           </div>
-          {loading ? (
-            <div className="p-4 text-center text-gray-600">{t('organizerDashboard.loading')}</div>
-          ) : error ? (
-            <div className="p-4 text-center text-red-600">{error}</div>
-          ) : currentEvents.length === 0 ? (
-            <div className="p-4 text-center text-gray-600">{t('organizerDashboard.noEvents')}</div>
-          ) : (
-            currentEvents.map((event) => (
-              <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
-                <div className="w-1/2 flex items-center space-x-4 text-[13px]">
-                  {event.eventImages[0] ? (
-                    <img
-                      src={event.eventImages[0]}
-                      alt={event.eventName}
-                      className="w-16 h-16 object-cover rounded-md"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
-                      <span className="text-gray-500">{t('organizerDashboard.noImage')}</span>
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-[16px] font-semibold">{event.eventName}</h3>
-                    <p className="text-gray-600">{getCategoryLabel(event.eventType)}</p>
+
+          {currentEvents.map((event) => (
+            <div key={event.eventId} className="flex items-center p-4 relative hover:bg-gray-100">
+              <div className="w-1/2 flex items-center space-x-4 text-[13px]">
+                {event.eventImages[0] ? (
+                  <img
+                    src={event.eventImages[0]}
+                    alt={event.eventName}
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                ) : (
+                  <div className="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                    <span className="text-gray-500">{t('organizerDashboard.noImage')}</span>
                   </div>
+                )}
+                <div>
+                  <h3 className="text-[16px] font-semibold">{event.eventName}</h3>
+                  <p className="text-gray-600">{getCategoryLabel(event.eventType)}</p>
                 </div>
-                <div className="w-1/6 text-gray-600">{event.eventLocation.venueName}</div>
-                <div className="w-1/6 text-gray-600">{event.sold}</div>
-                <div className="w-1/6 text-gray-600">{event.eventRevenue?.toLocaleString() ?? 0} {t('currency.vnd')}</div>
-                <div className="w-1/6 text-gray-600">{getCategoryLabel(event.eventStatus, 'eventStatus')}</div>
               </div>
-            ))
-          )}
+              <div className="w-1/6 text-gray-600">{event.eventLocation.venueName}</div>
+              <div className="w-1/6 text-gray-600">{event.sold}</div>
+              <div className="w-1/6 text-gray-600">{event.eventRevenue?.toLocaleString() ?? 0} {t('currency.vnd')}</div>
+              <div className="w-1/6 text-gray-600">{getCategoryLabel(event.eventStatus, 'eventStatus')}</div>
+            </div>
+          ))}
+
         </div>
 
         {totalPages > 1 && (
@@ -382,11 +372,10 @@ const OrganizerDashboard = () => {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-3 py-1 rounded-md text-sm ${
-                currentPage === 1
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm ${currentPage === 1
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
               aria-label={t('organizerDashboard.previous')}
             >
               {t('organizerDashboard.previous')}
@@ -395,11 +384,10 @@ const OrganizerDashboard = () => {
               <button
                 key={page}
                 onClick={() => handlePageChange(page)}
-                className={`px-3 py-1 rounded-md text-sm ${
-                  currentPage === page
-                    ? 'bg-[#3b82f6] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+                className={`px-3 py-1 rounded-md text-sm ${currentPage === page
+                  ? 'bg-[#3b82f6] text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                  }`}
                 aria-label={`${t('organizerDashboard.page')} ${page}`}
               >
                 {page}
@@ -408,11 +396,10 @@ const OrganizerDashboard = () => {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-3 py-1 rounded-md text-sm ${
-                currentPage === totalPages
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              className={`px-3 py-1 rounded-md text-sm ${currentPage === totalPages
+                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
               aria-label={t('organizerDashboard.next')}
             >
               {t('organizerDashboard.next')}

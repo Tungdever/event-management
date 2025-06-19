@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../Auth/AuthProvider";
 import { useTranslation } from "react-i18next";
-
+import Loader from "../../components/Loading";
 const Calendar = () => {
   const { t } = useTranslation();
   const [currentMonth, setCurrentMonth] = useState(new Date());
@@ -13,7 +13,7 @@ const Calendar = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [showCreateEventDialog, setShowCreateEventDialog] = useState(false);
   const [events, setEvents] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -49,7 +49,6 @@ const Calendar = () => {
     }
 
     try {
-      setIsLoading(true);
       const response = await fetch(`http://localhost:8080/api/role-assignment/${user.userId}/get-events`, {
         headers: {
           "Content-Type": "application/json",
@@ -166,8 +165,8 @@ const Calendar = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-white rounded-[6px] shadow p-6 max-w-7xl mx-auto">
           {isLoading && (
-            <div className="flex justify-center items-center h-64">
-              <div className="text-lg font-semibold text-teal-600 animate-pulse">{t('calendar.loading')}</div>
+            <div className="absolute inset-0 bg-white bg-opacity-75 flex justify-center items-center z-10">
+              <Loader />
             </div>
           )}
           {error && (

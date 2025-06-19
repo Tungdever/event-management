@@ -12,12 +12,7 @@ export default function ViewTicket() {
   const { orderCode } = useParams();
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    setTimeout(() => {
-      setLoading(false);
-    }, 250);
-    window.scrollTo(0, 0);
-  }, []);
+  
 
   useEffect(() => {
     console.log(orderCode);
@@ -49,6 +44,7 @@ export default function ViewTicket() {
       } catch (err) {
         console.error(err);
       } finally {
+        setLoading(false);
       }
     };
     fetch();

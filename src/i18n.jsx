@@ -1253,6 +1253,7 @@ const resources = {
           text: 'Event created successfully! Event ID: {{eventId}}',
         },
         errors: {
+          title: 'Error',
           requiredField: 'Please fill in the {{field}} field.',
           invalidFileType: 'Only JPEG or PNG image formats are supported.',
           fileSizeTooLarge: 'Image size exceeds 10MB.',
@@ -2889,6 +2890,7 @@ const resources = {
           text: 'Sự kiện đã được lưu dưới dạng bản nháp thành công! ID: {{eventId}}',
         },
         errors: {
+          title: 'Lỗi',
           requiredField: 'Vui lòng điền trường {{field}}.',
           invalidFileType: 'Chỉ hỗ trợ định dạng hình ảnh JPEG hoặc PNG.',
           fileSizeTooLarge: 'Dung lượng ảnh vượt quá 10MB.',

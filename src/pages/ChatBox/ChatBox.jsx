@@ -9,6 +9,7 @@ import { IoSend } from "react-icons/io5";
 import MediaPreviewModal from "./MediaPreviewModal";
 import Swal from "sweetalert2";
 import { useTranslation } from 'react-i18next';
+import Loader from "../../components/Loading";
 
 const ChatBox = () => {
   const { t } = useTranslation();
@@ -22,6 +23,7 @@ const ChatBox = () => {
   const [typingStatus, setTypingStatus] = useState({});
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const [currentUser, setCurrentUser] = useState({ userId: "", email: "" });
@@ -81,6 +83,7 @@ const ChatBox = () => {
   }, [token]);
 
   const fetchUser = async (userId) => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `http://localhost:8080/chat/${userId}/list-chat`,
@@ -112,6 +115,8 @@ const ChatBox = () => {
         title: t('errors.generic'),
         text: t('errors.loadUserListFailed'),
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -126,6 +131,7 @@ const ChatBox = () => {
       setSearchedUsers([]);
       return;
     }
+    setIsLoading(true);
     try {
       const response = await axios.get(
         `http://localhost:8080/chat/search?query=${encodeURIComponent(
@@ -145,6 +151,8 @@ const ChatBox = () => {
     } catch (error) {
       console.error("Error searching users:", error);
       setSearchedUsers([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -161,6 +169,7 @@ const ChatBox = () => {
 
   useEffect(() => {
     if (selectedUser && currentUser.userId) {
+      setIsLoading(true);
       axios
         .get(
           `http://localhost:8080/chat/history/${currentUser.userId}/${selectedUser.userId}`,
@@ -192,6 +201,9 @@ const ChatBox = () => {
             title: t('errors.generic'),
             text: t('errors.loadChatHistoryFailed'),
           });
+        })
+        .finally(() => {
+          setIsLoading(false);
         });
     }
   }, [selectedUser, currentUser.userId, token]);
@@ -208,15 +220,11 @@ const ChatBox = () => {
               receivedMessage.recipientEmail === selectedUser.email)
           ) {
             setMessages((prevMessages) => {
-              const messageKey = `${receivedMessage.timestamp}_${
-                receivedMessage.senderEmail
-              }_${receivedMessage.mediaUrl || ""}`;
+              const messageKey = `${receivedMessage.timestamp}_${receivedMessage.senderEmail}_${receivedMessage.mediaUrl || ""}`;
               if (
                 prevMessages.some(
                   (msg) =>
-                    `${msg.timestamp}_${msg.senderEmail}_${
-                      msg.mediaUrl || ""
-                    }` === messageKey
+                    `${msg.timestamp}_${msg.senderEmail}_${msg.mediaUrl || ""}` === messageKey
                 )
               ) {
                 return prevMessages;
@@ -291,6 +299,7 @@ const ChatBox = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    setIsLoading(true);
     const formData = new FormData();
     formData.append("file", file);
 
@@ -328,6 +337,8 @@ const ChatBox = () => {
         title: t('errors.generic'),
         text: t('errors.uploadFileFailed'),
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -449,10 +460,45 @@ const ChatBox = () => {
             />
           </div>
         </div>
-        <div className="overflow-y-auto h-[calc(100%-120px)]">
-          {searchQuery ? (
-            searchedUsers.length > 0 ? (
-              searchedUsers.map((user) => (
+        {isLoading ? (
+          <div className="flex justify-center items-center h-[calc(100%-120px)]">
+            <Loader />
+          </div>
+        ) : (
+          <div className="overflow-y-auto h-[calc(100%-120px)]">
+            {searchQuery ? (
+              searchedUsers.length > 0 ? (
+                searchedUsers.map((user) => (
+                  <div
+                    key={user.userId}
+                    className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
+                      selectedUser?.userId === user.userId ? "bg-teal-100" : ""
+                    } ${user.unreadCount > 0 ? "font-semibold bg-gray-100" : ""}`}
+                    onClick={() => {
+                      setSelectedUser(user);
+                      setIsSidebarOpen(false);
+                    }}
+                  >
+                    <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
+                      {user.name[0]}
+                    </div>
+                    <div className="ml-3 flex-1 flex items-center">
+                      <p className="text-sm truncate">{user.name}</p>
+                      {user.unreadCount > 0 && (
+                        <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                          {user.unreadCount}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="p-4 text-gray-500 text-sm">
+                  {t('chatBox.noUsersFound')}
+                </p>
+              )
+            ) : users.length > 0 ? (
+              users.map((user) => (
                 <div
                   key={user.userId}
                   className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
@@ -478,43 +524,18 @@ const ChatBox = () => {
               ))
             ) : (
               <p className="p-4 text-gray-500 text-sm">
-                {t('chatBox.noUsersFound')}
+                {t('chatBox.noChatHistory')}
               </p>
-            )
-          ) : users.length > 0 ? (
-            users.map((user) => (
-              <div
-                key={user.userId}
-                className={`p-4 flex items-center cursor-pointer hover:bg-teal-50 ${
-                  selectedUser?.userId === user.userId ? "bg-teal-100" : ""
-                } ${user.unreadCount > 0 ? "font-semibold bg-gray-100" : ""}`}
-                onClick={() => {
-                  setSelectedUser(user);
-                  setIsSidebarOpen(false);
-                }}
-              >
-                <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
-                  {user.name[0]}
-                </div>
-                <div className="ml-3 flex-1 flex items-center">
-                  <p className="text-sm truncate">{user.name}</p>
-                  {user.unreadCount > 0 && (
-                    <span className="ml-2 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {user.unreadCount}
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="p-4 text-gray-500 text-sm">
-              {t('chatBox.noChatHistory')}
-            </p>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </div>
       <div className="flex-1 flex flex-col bg-white">
-        {selectedUser ? (
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <Loader />
+          </div>
+        ) : selectedUser ? (
           <>
             <div className="p-4 bg-gray-50 border-b border-gray-200 flex items-center">
               <div className="w-10 h-10 bg-teal-500 rounded-full flex items-center justify-center text-white text-base shadow-sm">
