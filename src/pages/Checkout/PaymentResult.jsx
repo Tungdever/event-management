@@ -11,7 +11,6 @@ export default function PaymentResultPage() {
       const query = new URLSearchParams(window.location.search);
       const orderCode = query.get("orderCode");
       const token = localStorage.getItem('token');
-
       try {
         const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/payment/status/${orderCode}`, {
           headers: {
@@ -23,6 +22,9 @@ export default function PaymentResultPage() {
         setData(response.data);
       } catch (err) {
         console.error(err);
+      }
+      finally {
+        setLoading(false);
       }
     };
     fetchPaymentStatus();
