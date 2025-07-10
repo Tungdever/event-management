@@ -12,7 +12,7 @@ export default function PaymentResultPage() {
       const orderCode = query.get("orderCode");
       const token = localStorage.getItem('token');
       try {
-        const response = await axios.get(`https://event-management-server-asi9.onrender.com/api/v1/payment/status/${orderCode}`, {
+        const response = await axios.get(`http://localhost:8080/api/v1/payment/status/${orderCode}`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`

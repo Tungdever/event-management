@@ -12,7 +12,7 @@ const RolePermissionPage = () => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/permissions', {
+      const response = await fetch('http://localhost:8080/api/permissions', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,

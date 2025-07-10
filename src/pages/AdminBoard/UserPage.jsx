@@ -20,7 +20,7 @@ const UserPage = () => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/auth/users', {
+      const response = await fetch('http://localhost:8080/api/auth/users', {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to fetch users');
@@ -37,7 +37,7 @@ const UserPage = () => {
     try {
       setError(null);
       if (!token) throw new Error('No token found');
-      const response = await fetch('https://event-management-server-asi9.onrender.com/api/roles/ADMIN/created', {
+      const response = await fetch('http://localhost:8080/api/roles/ADMIN/created', {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to fetch roles');
@@ -97,7 +97,7 @@ const UserPage = () => {
   }, {});
 const lockUser = async (email) => {
   try {
-    const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/users/${email}/lock`, {
+    const response = await fetch(`http://localhost:8080/api/auth/users/${email}/lock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     });
@@ -120,7 +120,7 @@ const lockUser = async (email) => {
 
 const unlockUser = async (email) => {
   try {
-    const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/users/${email}/unlock`, {
+    const response = await fetch(`http://localhost:8080/api/auth/users/${email}/unlock`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     });

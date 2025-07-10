@@ -40,22 +40,22 @@ const TicketDashboard = () => {
     const fetchData = async () => {
       try {
         const [statsRes, ticketTypesRes, recentOrdersRes, checkInTicketsRes] = await Promise.all([
-          axios.get(`https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/stats`, config)
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/stats`, config)
             .catch((err) => {
               toast.error(t("ticketSold.errors.fetchStatsFailed"));
               throw err;
             }),
-          axios.get(`https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/ticket-types`, config)
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/ticket-types`, config)
             .catch((err) => {
               toast.error(t("ticketSold.errors.fetchTicketTypesFailed"));
               throw err;
             }),
-          axios.get(`https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/recent-orders`, config)
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/recent-orders`, config)
             .catch((err) => {
               toast.error(t("ticketSold.errors.fetchOrdersFailed"));
               throw err;
             }),
-          axios.get(`https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/check-in-tickets`, config)
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/check-in-tickets`, config)
             .catch((err) => {
               toast.error(t("ticketSold.errors.fetchCheckInFailed"));
               throw err;
@@ -86,7 +86,7 @@ const TicketDashboard = () => {
 
     try {
       const response = await axios.get(
-        `https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/check-in/${ticketCode}`,
+        `http://localhost:8080/api/ticket/${eventId}/check-in/${ticketCode}`,
         config
       );
 
@@ -108,12 +108,12 @@ const TicketDashboard = () => {
 
       toast.success(t("ticketSold.success.checkInSuccess", { ticketCode }));
       const updatedTickets = await axios.get(
-        `https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/check-in-tickets`,
+        `http://localhost:8080/api/ticket/${eventId}/check-in-tickets`,
         config
       );
       setCheckInTickets(updatedTickets.data);
       const updatedStats = await axios.get(
-        `https://event-management-server-asi9.onrender.com/api/ticket/${eventId}/stats`,
+        `http://localhost:8080/api/ticket/${eventId}/stats`,
         config
       );
       setStats(updatedStats.data);

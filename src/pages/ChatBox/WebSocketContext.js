@@ -27,7 +27,7 @@ export const WebSocketProvider = ({ children }) => {
             clientRef.current = null;
         }
 
-        const socket = new SockJS("https://event-management-server-asi9.onrender.com/ws");
+        const socket = new SockJS("http://localhost:8080/ws");
         const client = Stomp.over(socket);
         clientRef.current = client; // Lưu client mới
         const token = localStorage.getItem("token");

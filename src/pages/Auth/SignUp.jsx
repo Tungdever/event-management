@@ -237,7 +237,7 @@ const EmailStep = ({ onNext, setEmail }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`https://event-management-server-asi9.onrender.com/api/auth/send-verification-code/${inputEmail}`, {
+      const response = await fetch(`http://localhost:8080/api/auth/send-verification-code/${inputEmail}`, {
         method: 'POST',
       });
 

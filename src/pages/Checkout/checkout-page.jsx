@@ -79,7 +79,7 @@ const CheckoutPage = (props) => {
     try {
       let response;
       if (method === "MoMo") {
-        response = await axios.post('https://event-management-server-asi9.onrender.com/api/v1/payment/create-momo', data, {
+        response = await axios.post('http://localhost:8080/api/v1/payment/create-momo', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -87,7 +87,7 @@ const CheckoutPage = (props) => {
         });
         window.location.href = response.data.payUrl;
       } else if (method === "VNPAY") {
-        response = await axios.post('https://event-management-server-asi9.onrender.com/api/v1/payment/create-vnpay', data, {
+        response = await axios.post('http://localhost:8080/api/v1/payment/create-vnpay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -95,7 +95,7 @@ const CheckoutPage = (props) => {
         });
         window.location.href = response.data.paymentUrl;
       } else if (method === "PayPal") {
-        response = await axios.post('https://event-management-server-asi9.onrender.com/api/v1/payment/paypal/pay', data, {
+        response = await axios.post('http://localhost:8080/api/v1/payment/paypal/pay', data, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
