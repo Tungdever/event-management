@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 const LocationDropdown = ({ onLocationChange }) => {
   const { t } = useTranslation();
-  const [selected, setSelected] = useState("ho-chi-minh");
+  const [selected, setSelected] = useState("all-locations");
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -140,7 +140,7 @@ const SearchBar = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState("ho-chi-minh");
+  const [selectedLocation, setSelectedLocation] = useState("all-locations");
   const [searchHistory, setSearchHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
   const searchRef = useRef(null);

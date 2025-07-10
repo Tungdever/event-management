@@ -9,7 +9,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import { Scanner } from "@yudiel/react-qr-scanner";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
-
+import Loader from "../../components/Loading";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const TicketDashboard = () => {
@@ -27,6 +27,7 @@ const TicketDashboard = () => {
   const [qrResults, setQrResults] = useState([]);
   const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
   const [exportOption, setExportOption] = useState("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -36,26 +37,44 @@ const TicketDashboard = () => {
       },
     };
 
-    axios
-      .get(`http://localhost:8080/api/ticket/${eventId}/stats`, config)
-      .then((res) => setStats(res.data))
-      .catch((err) => toast.error(t("ticketSold.errors.fetchStatsFailed")));
+    const fetchData = async () => {
+      try {
+        const [statsRes, ticketTypesRes, recentOrdersRes, checkInTicketsRes] = await Promise.all([
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/stats`, config)
+            .catch((err) => {
+              toast.error(t("ticketSold.errors.fetchStatsFailed"));
+              throw err;
+            }),
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/ticket-types`, config)
+            .catch((err) => {
+              toast.error(t("ticketSold.errors.fetchTicketTypesFailed"));
+              throw err;
+            }),
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/recent-orders`, config)
+            .catch((err) => {
+              toast.error(t("ticketSold.errors.fetchOrdersFailed"));
+              throw err;
+            }),
+          axios.get(`http://localhost:8080/api/ticket/${eventId}/check-in-tickets`, config)
+            .catch((err) => {
+              toast.error(t("ticketSold.errors.fetchCheckInFailed"));
+              throw err;
+            }),
+        ]);
 
-    axios
-      .get(`http://localhost:8080/api/ticket/${eventId}/ticket-types`, config)
-      .then((res) => setTicketTypes(res.data))
-      .catch((err) => toast.error(t("ticketSold.errors.fetchTicketTypesFailed")));
+        setStats(statsRes.data);
+        setTicketTypes(ticketTypesRes.data);
+        setRecentOrders(recentOrdersRes.data);
+        setCheckInTickets(checkInTicketsRes.data);
+      } catch (err) {
+        // Errors are already handled in individual catch blocks with toast notifications
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    axios
-      .get(`http://localhost:8080/api/ticket/${eventId}/recent-orders`, config)
-      .then((res) => setRecentOrders(res.data))
-      .catch((err) => toast.error(t("ticketSold.errors.fetchOrdersFailed")));
-
-    axios
-      .get(`http://localhost:8080/api/ticket/${eventId}/check-in-tickets`, config)
-      .then((res) => setCheckInTickets(res.data))
-      .catch((err) => toast.error(t("ticketSold.errors.fetchCheckInFailed")));
-  }, [eventId]);
+    fetchData();
+  }, []);
 
   const handleCheckIn = async (ticketCode) => {
     const token = localStorage.getItem("token");
@@ -70,6 +89,23 @@ const TicketDashboard = () => {
         `http://localhost:8080/api/ticket/${eventId}/check-in/${ticketCode}`,
         config
       );
+
+      if (response.data.statusCode === 0) {
+        if (response.data.msg === "The ticket was checked") {
+          toast.warning(t("ticketSold.warnings.ticketAlreadyChecked", { ticketCode }));
+          return false;
+        } else if (response.data.msg === "The ticket was canceled") {
+          toast.error(t("ticketSold.errors.ticketCanceled", { ticketCode }));
+          return false;
+        } else if (response.data.msg === "The Ticket not in this event!") {
+          toast.error(t("ticketSold.errors.ticketNotInEvent", { ticketCode }));
+          return false;
+        } else if (response.data.msg === "The Ticket not found!") {
+          toast.error(t("ticketSold.errors.ticketNotFound", { ticketCode }));
+          return false;
+        }
+      }
+
       toast.success(t("ticketSold.success.checkInSuccess", { ticketCode }));
       const updatedTickets = await axios.get(
         `http://localhost:8080/api/ticket/${eventId}/check-in-tickets`,
@@ -86,7 +122,7 @@ const TicketDashboard = () => {
       toast.error(
         t("ticketSold.errors.checkInFailed", {
           ticketCode,
-          message: err.response?.data?.message || err.message
+          message: err.response?.data?.message || err.message,
         })
       );
       return false;
@@ -177,7 +213,7 @@ const TicketDashboard = () => {
     labels: [
       t("ticketSold.chart.sold"),
       t("ticketSold.chart.checked"),
-      t("ticketSold.chart.canceled")
+      t("ticketSold.chart.canceled"),
     ],
     datasets: [
       {
@@ -200,7 +236,11 @@ const TicketDashboard = () => {
     maintainAspectRatio: false,
   };
 
-  return (
+  return loading ? (
+    <div className="flex justify-center items-center h-screen">
+      <Loader />
+    </div>
+  ) : (
     <div className="flex-1 p-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">{t("ticketSold.title")}</h1>

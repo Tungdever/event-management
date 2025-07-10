@@ -81,12 +81,10 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     date: "",
     startTime: "",
     endTime: "",
-    locationType: "venue",
     venueName: "",
     venueSlug: "",
     address: "",
     city: "",
-    meetingUrl: "",
     coordinates: { lng: 106.6297, lat: 10.8231 }, // Default: TP. HCM
     ...locationData,
   });
@@ -98,6 +96,58 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
   const GOONG_API_KEY = 'LCv2x0WklhLYAtlkZD2BafC5xgsvBLGfvOrH85KY';
   const GOONG_MAPTILES_KEY = '86BxcY13sfsT38WWDKsjrCwD5vQG52emVDLddjmF';
   const prevLocationRef = useRef(eventLocation);
+
+  // Hàm chuẩn hóa chuỗi để so sánh
+  const normalizeString = useCallback((str) => {
+    return str
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase()
+      .replace(/thanh pho/gi, "tp")
+      .replace(/city/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }, []);
+
+  // Hàm tìm thành phố khớp gần nhất
+  const findBestMatchingCity = useCallback((cityName) => {
+    if (!cityName) return null;
+
+    const normalizedCityName = normalizeString(cityName);
+    let bestMatch = null;
+    let highestScore = 0;
+
+    for (const city of vietnamCities) {
+      const normalizedVietnamCity = normalizeString(city.name);
+      // Tính tỷ lệ ký tự chung
+      const commonChars = [...normalizedCityName].filter((char) =>
+        normalizedVietnamCity.includes(char)
+      ).length;
+      const score = commonChars / Math.max(normalizedCityName.length, normalizedVietnamCity.length);
+
+      // Tăng điểm nếu chuỗi chứa nhau hoặc khớp chính xác
+      if (
+        normalizedCityName === normalizedVietnamCity ||
+        normalizedCityName.includes(normalizedVietnamCity) ||
+        normalizedVietnamCity.includes(normalizedCityName)
+      ) {
+        const bonus = 0.3; // Tăng điểm cho khớp gần đúng
+        const adjustedScore = score + bonus;
+        if (adjustedScore > highestScore) {
+          highestScore = adjustedScore;
+          bestMatch = city;
+        }
+      } else if (score > highestScore) {
+        highestScore = score;
+        bestMatch = city;
+      }
+    }
+
+    console.log(`City matching: ${cityName} -> ${bestMatch ? bestMatch.name : 'No match'}, Score: ${highestScore}`);
+    return bestMatch && highestScore >= 0.4 ? bestMatch : null; // Giảm ngưỡng để tăng khả năng khớp
+  }, [normalizeString]);
 
   // Memoize onLocationUpdate to prevent unnecessary re-renders
   const memoizedOnLocationUpdate = useCallback(onLocationUpdate, []);
@@ -113,7 +163,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
 
   // Initialize map
   useEffect(() => {
-    if (eventLocation.locationType !== "venue" || !mapContainerRef.current || !GOONG_MAPTILES_KEY) {
+    if (!mapContainerRef.current || !GOONG_MAPTILES_KEY) {
       if (!GOONG_MAPTILES_KEY) {
         Swal.fire({
           icon: "error",
@@ -124,44 +174,51 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
       return;
     }
 
-    try {
-      goongjs.accessToken = GOONG_MAPTILES_KEY;
-      const map = new goongjs.Map({
-        container: mapContainerRef.current,
-        style: "https://tiles.goong.io/assets/goong_map_web.json",
-        center: [eventLocation.coordinates.lng, eventLocation.coordinates.lat],
-        zoom: 14,
-      });
+    const initializeMap = () => {
+      try {
+        goongjs.accessToken = GOONG_MAPTILES_KEY;
+        const map = new goongjs.Map({
+          container: mapContainerRef.current,
+          style: "https://tiles.goong.io/assets/goong_map_web.json",
+          center: [eventLocation.coordinates.lng, eventLocation.coordinates.lat],
+          zoom: 14,
+        });
 
-      const marker = new goongjs.Marker({ color: "#ff0000" })
-        .setLngLat([eventLocation.coordinates.lng, eventLocation.coordinates.lat])
-        .addTo(map);
+        map.on("load", () => {
+          const marker = new goongjs.Marker({ color: "#ff0000" })
+            .setLngLat([eventLocation.coordinates.lng, eventLocation.coordinates.lat])
+            .addTo(map);
+          markerRef.current = marker;
+        });
 
-      mapRef.current = map;
-      markerRef.current = marker;
+        map.on("error", (e) => {
+          console.error("Map error:", e);
+          Swal.fire({
+            icon: "error",
+            title: t("eventDateLocate.error"),
+            text: t("eventDateLocate.mapLoadFailed"),
+          });
+        });
 
-      map.on("error", (e) => {
-        console.error("Map error:", e);
+        mapRef.current = map;
+      } catch (error) {
+        console.error("Failed to initialize map:", error);
         Swal.fire({
           icon: "error",
           title: t("eventDateLocate.error"),
-          text: t("eventDateLocate.mapLoadFailed"),
+          text: t("eventDateLocate.mapInitFailed"),
         });
-      });
+      }
+    };
 
-      return () => {
-        if (markerRef.current) markerRef.current.remove();
-        if (mapRef.current) mapRef.current.remove();
-      };
-    } catch (error) {
-      console.error("Failed to initialize map:", error);
-      Swal.fire({
-        icon: "error",
-        title: t("eventDateLocate.error"),
-        text: t("eventDateLocate.mapInitFailed"),
-      });
-    }
-  }, [eventLocation.locationType, GOONG_MAPTILES_KEY, t]);
+    const timer = setTimeout(initializeMap, 0);
+
+    return () => {
+      clearTimeout(timer);
+      if (markerRef.current) markerRef.current.remove();
+      if (mapRef.current) mapRef.current.remove();
+    };
+  }, [GOONG_MAPTILES_KEY, t, eventLocation.coordinates]);
 
   // Update map and marker when coordinates change
   useEffect(() => {
@@ -202,13 +259,10 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
     const hasStartTime = eventLocation.startTime && eventLocation.startTime.trim() !== "";
     const hasEndTime = eventLocation.endTime && eventLocation.endTime.trim() !== "";
     const isTimeValid = hasStartTime && hasEndTime && eventLocation.startTime < eventLocation.endTime;
-    if (eventLocation.locationType === "venue") {
-      const hasVenueName = eventLocation.venueName && eventLocation.venueName.trim() !== "";
-      const hasAddress = eventLocation.address && eventLocation.address.trim() !== "";
-      const hasCity = eventLocation.city && eventLocation.city.trim() !== "";
-      return hasDate && isTimeValid && hasVenueName && hasAddress && hasCity;
-    }
-    return hasDate && isTimeValid;
+    const hasVenueName = eventLocation.venueName && eventLocation.venueName.trim() !== "";
+    const hasAddress = eventLocation.address && eventLocation.address.trim() !== "";
+    const hasCity = eventLocation.city && eventLocation.city.trim() !== "";
+    return hasDate && isTimeValid && hasVenueName && hasAddress && hasCity;
   }, [eventLocation]);
 
   const handleChange = useCallback((e) => {
@@ -303,18 +357,24 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
           throw new Error("Invalid geocode response: missing location data");
         }
         const { lat, lng } = location;
-        const address = suggestion.description;
-        const city = vietnamCities.find((c) =>
-          suggestion.description.toLowerCase().includes(c.name.toLowerCase())
-        )?.slug || "";
-        const venueName = suggestion.structured_formatting?.main_text || eventLocation.venueName;
+        const fullAddress = suggestion.description;
+        // Split the address by commas
+        const addressParts = fullAddress.split(",").map((part) => part.trim());
+        // Extract venue name (first part) and city (last part)
+        const venueName = type === "venue" ? addressParts[0] : eventLocation.venueName;
+        const cityName = addressParts[addressParts.length - 1];
+        // Extract address by removing venue name and city
+        const address = addressParts.slice(1, -1).join(", ").trim();
+        // Find the best matching city
+        const cityMatch = findBestMatchingCity(cityName);
+        const citySlug = cityMatch ? cityMatch.slug : "";
 
         setEventLocation((prevData) => {
           const updatedData = {
             ...prevData,
-            address,
-            city,
-            venueName: type === "venue" ? venueName : prevData.venueName,
+            address: address || fullAddress, // Fallback to full address if no middle parts
+            city: citySlug,
+            venueName,
             coordinates: { lng, lat },
             venueSlug: type === "venue" ? normalizeVenueName(venueName) : prevData.venueSlug,
           };
@@ -332,19 +392,7 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
         });
       }
     },
-    [GOONG_API_KEY, eventLocation.venueName, normalizeVenueName, t]
-  );
-
-  const handleLocationTypeChange = useCallback(
-    (type) => {
-      if (isReadOnly) return;
-      setEventLocation((prevData) => ({
-        ...prevData,
-        locationType: type,
-        meetingUrl: "",
-      }));
-    },
-    [isReadOnly]
+    [GOONG_API_KEY, eventLocation.venueName, normalizeVenueName, t, findBestMatchingCity]
   );
 
   const handleComplete = useCallback(() => {
@@ -427,71 +475,66 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
           <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
             {t("eventDateLocate.location")}
           </label>
-          <div className="flex flex-col mb-2 space-y-3 sm:flex-row sm:space-y-0 sm:space-x-4 sm:mb-4">
-            <button
-              disabled={isReadOnly}
-              className={`${isReadOnly ? "cursor-not-allowed opacity-50" : ""} flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${
-                eventLocation.locationType === "venue" ? "border-blue-500 bg-blue-100" : "border-gray-300"
-              }`}
-              onClick={() => handleLocationTypeChange("venue")}
-            >
-              <i className="mr-2 text-sm text-gray-500 fas fa-map-marker-alt sm:text-base"></i>
-              <p className="font-semibold">{t("eventDateLocate.venue")}</p>
-            </button>
-            <button
-              className={`flex items-center p-3 sm:p-4 border rounded-lg w-full sm:w-1/3 text-sm sm:text-base ${
-                eventLocation.locationType === "online" ? "border-blue-500 bg-blue-100" : "border-gray-300"
-              }`}
-              onClick={() => handleLocationTypeChange("online")}
-            >
-              <i className="mr-2 text-sm text-blue-500 fas fa-video sm:text-base"></i>
-              <p className="font-semibold">{t("eventDateLocate.onlineEvent")}</p>
-            </button>
-          </div>
-          {eventLocation.locationType === "online" && (
-            <div className="mb-4">
-              <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
-                {t("eventDateLocate.meetingUrl")}
-              </label>
-              <input
-                type="url"
-                name="meetingUrl"
-                value={eventLocation.meetingUrl}
-                onChange={handleChange}
-                disabled={isReadOnly}
-                placeholder="https://example.com/meeting"
-                className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
-              />
-            </div>
-          )}
-          {eventLocation.locationType === "venue" && (
-            <div className="w-full max-w-full rounded-lg">
-              <form>
-                <div className="mb-4">
+          <div className="w-full max-w-full rounded-lg">
+            <form>
+              <div className="mb-4">
+                <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
+                  {t("eventDateLocate.venueName")} <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="venueName"
+                  value={eventLocation.venueName}
+                  onChange={handleVenueChange}
+                  disabled={isReadOnly}
+                  placeholder={t("eventDateLocate.venueNamePlaceholder")}
+                  className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
+                />
+                {!eventLocation.venueName && (
+                  <p className="mt-1 text-xs text-red-500 sm:text-sm">
+                    {t("eventDateLocate.venueNameRequired")}
+                  </p>
+                )}
+                {venueSuggestions.length > 0 && (
+                  <ul className="mt-2 overflow-y-auto border rounded-md max-h-40">
+                    {venueSuggestions.map((suggestion) => (
+                      <li
+                        key={suggestion.place_id}
+                        className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
+                        onClick={() => handleSuggestionClick(suggestion, "venue")}
+                      >
+                        {suggestion.description}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              <div className="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-2 sm:gap-4">
+                <div>
                   <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
-                    {t("eventDateLocate.venueName")} <span className="text-red-500">*</span>
+                    {t("eventDateLocate.address")} <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
-                    name="venueName"
-                    value={eventLocation.venueName}
-                    onChange={handleVenueChange}
+                    name="address"
+                    value={eventLocation.address}
+                    onChange={handleAddressChange}
                     disabled={isReadOnly}
-                    placeholder={t("eventDateLocate.venueNamePlaceholder")}
+                    placeholder={t("eventDateLocate.addressPlaceholder")}
                     className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
                   />
-                  {!eventLocation.venueName && (
+                  {!eventLocation.address && (
                     <p className="mt-1 text-xs text-red-500 sm:text-sm">
-                      {t("eventDateLocate.venueNameRequired")}
-                    </p>
+                      {t("eventDateLocate.addressRequired")}
+                  </p>
                   )}
-                  {venueSuggestions.length > 0 && (
+                  {addressSuggestions.length > 0 && (
                     <ul className="mt-2 overflow-y-auto border rounded-md max-h-40">
-                      {venueSuggestions.map((suggestion) => (
+                      {addressSuggestions.map((suggestion) => (
                         <li
                           key={suggestion.place_id}
                           className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                          onClick={() => handleSuggestionClick(suggestion, "venue")}
+                          onClick={() => handleSuggestionClick(suggestion, "address")}
                         >
                           {suggestion.description}
                         </li>
@@ -499,76 +542,42 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
                     </ul>
                   )}
                 </div>
-                <div className="grid grid-cols-1 gap-3 mb-4 sm:grid-cols-2 sm:gap-4">
-                  <div>
-                    <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
-                      {t("eventDateLocate.address")} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="address"
-                      value={eventLocation.address}
-                      onChange={handleAddressChange}
-                      disabled={isReadOnly}
-                      placeholder={t("eventDateLocate.addressPlaceholder")}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base"
-                    />
-                    {!eventLocation.address && (
-                      <p className="mt-1 text-xs text-red-500 sm:text-sm">
-                        {t("eventDateLocate.addressRequired")}
-                      </p>
-                    )}
-                    {addressSuggestions.length > 0 && (
-                      <ul className="mt-2 overflow-y-auto border rounded-md max-h-40">
-                        {addressSuggestions.map((suggestion) => (
-                          <li
-                            key={suggestion.place_id}
-                            className="px-3 py-2 text-sm cursor-pointer hover:bg-gray-100"
-                            onClick={() => handleSuggestionClick(suggestion, "address")}
-                          >
-                            {suggestion.description}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
-                      {t("eventDateLocate.city")} <span className="text-red-500">*</span>
-                    </label>
-                    <select
-                      name="city"
-                      value={eventLocation.city}
-                      onChange={handleChange}
-                      disabled={isReadOnly}
-                      className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base appearance-none"
-                      style={{ maxHeight: "200px", overflowY: "auto" }}
-                    >
-                      <option value="">{t("eventDateLocate.selectCity")}</option>
-                      {vietnamCities.map((city) => (
-                        <option key={city.slug} value={city.slug}>
-                          {city.name}
-                        </option>
-                      ))}
-                    </select>
-                    {!eventLocation.city && (
-                      <p className="mt-1 text-xs text-red-500 sm:text-sm">
-                        {t("eventDateLocate.cityRequired")}
-                      </p>
-                    )}
-                  </div>
+                <div>
+                  <label className="block mb-2 text-sm text-gray-700 sm:text-base lg:text-lg">
+                    {t("eventDateLocate.city")} <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    name="city"
+                    value={eventLocation.city}
+                    onChange={handleChange}
+                    disabled={isReadOnly}
+                    className="w-full px-3 sm:px-4 py-2 sm:py-2.5 lg:py-3 border rounded-md text-sm sm:text-base appearance-none"
+                    style={{ maxHeight: "200px", overflowY: "auto" }}
+                  >
+                    <option value="">{t("eventDateLocate.selectCity")}</option>
+                    {vietnamCities.map((city) => (
+                      <option key={city.slug} value={city.slug}>
+                        {city.name}
+                      </option>
+                    ))}
+                  </select>
+                  {!eventLocation.city && (
+                    <p className="mt-1 text-xs text-red-500 sm:text-sm">
+                      {t("eventDateLocate.cityRequired")}
+                    </p>
+                  )}
                 </div>
-              </form>
-              <div className="relative h-64 mt-4 sm:h-80">
-                <div ref={mapContainerRef} style={{ width: "100%", height: "100%", position: "relative" }} />
-                {!GOONG_MAPTILES_KEY && (
-                  <p className="mt-2 text-sm text-red-500">
-                    {t("eventDateLocate.maptilesKeyMissing")}
-                  </p>
-                )}
               </div>
+            </form>
+            <div className="relative h-64 mt-4 sm:h-80">
+              <div ref={mapContainerRef} style={{ width: "100%", height: "100%", position: "relative" }} />
+              {!GOONG_MAPTILES_KEY && (
+                <p className="mt-2 text-sm text-red-500">
+                  {t("eventDateLocate.maptilesKeyMissing")}
+                </p>
+              )}
             </div>
-          )}
+          </div>
           {!isReadOnly && (
             <button
               className={`mt-4 px-4 sm:px-6 py-2 sm:py-2.5 lg:py-3 rounded-lg text-sm sm:text-base ${
@@ -611,33 +620,13 @@ const DatetimeLocation = ({ locationData, onLocationUpdate, isReadOnly }) => {
             <div className="flex items-start sm:ml-4 lg:ml-12">
               <i className="mr-2 text-sm text-blue-500 fas fa-map-marker-alt sm:text-base lg:text-base"></i>
               <div>
-                {eventLocation.locationType === "online" ? (
-                  <>
-                    <p className="text-xs font-medium text-gray-800 sm:text-sm lg:text-base">
-                      {t("eventDateLocate.onlineEvent")}
-                    </p>
-                    {eventLocation.meetingUrl && (
-                      <a
-                        href={eventLocation.meetingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-500 underline sm:text-sm"
-                      >
-                        {eventLocation.meetingUrl}
-                      </a>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <p className="text-xs font-medium text-gray-800 sm:text-sm lg:text-base">
-                      {eventLocation.venueName
-                        ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(
-                            eventLocation.city
-                          )}`
-                        : t("eventDateLocate.locationNotSet")}
-                    </p>
-                  </>
-                )}
+                <p className="text-xs font-medium text-gray-800 sm:text-sm lg:text-base">
+                  {eventLocation.venueName
+                    ? `${eventLocation.venueName}, ${eventLocation.address}, ${getCityDisplayName(
+                        eventLocation.city
+                      )}`
+                    : t("eventDateLocate.locationNotSet")}
+                </p>
               </div>
             </div>
           </div>

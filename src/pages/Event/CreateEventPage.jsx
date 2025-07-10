@@ -27,11 +27,10 @@ const CRUDEvent = () => {
       date: "",
       startTime: "",
       endTime: "",
-      locationType: "online",
+      locationType: "venue",
       venueName: "",
       address: "",
       city: "",
-      meetingUrl: "",
     },
     tags: [],
     eventVisibility: "public",
@@ -43,8 +42,8 @@ const CRUDEvent = () => {
     tickets: [],
     segment: [],
     seatingMapImage: null,
-    seatingLayout: null, // Thêm mới: Lưu dữ liệu JSON của bố cục
-    seatingMapImageVersions: [], // Thêm mới: Lưu danh sách phiên bản ảnh bố cục
+    seatingLayout: null,
+    seatingMapImageVersions: [],
   });
   const token = localStorage.getItem("token");
 
@@ -68,7 +67,7 @@ const CRUDEvent = () => {
         } else if (typeof file === "string" && file.startsWith("http")) {
           uploadedIds.push(file);
           continue;
-        } else if (typeof file === "string" && file.startsWith("blob:") || file.startsWith("data:")) { // Cập nhật: Hỗ trợ base64
+        } else if (typeof file === "string" && (file.startsWith("blob:") || file.startsWith("data:"))) {
           const response = await fetch(file);
           if (!response.ok) throw new Error(t("createEventPage.errors.uploadFailed", { message: `Failed to fetch blob: ${file}` }));
           blob = await response.blob();
@@ -162,7 +161,6 @@ const CRUDEvent = () => {
         seatingMapImageId = seatingMapImageIds[0] || null;
       }
 
-      // Thêm mới: Xử lý seatingMapImageVersions
       if (event.seatingMapImageVersions && event.seatingMapImageVersions.length > 0) {
         seatingMapImageVersionIds = await Promise.all(
           event.seatingMapImageVersions.map(async (version) => {
@@ -220,12 +218,11 @@ const CRUDEvent = () => {
           ? `${event.eventLocation.date}T${event.eventLocation.endTime}:00`
           : "",
         eventLocation: {
-          locationType: event.eventLocation.locationType || "online",
+          locationType: "venue",
           venueName: event.eventLocation.venueName || "",
           venueSlug: event.eventLocation.venueSlug || "",
           address: event.eventLocation.address || "",
           city: event.eventLocation.city || "",
-          meetingUrl: event.eventLocation.meetingUrl || "",
         },
         tags: event.tags?.join("|") || "",
         eventVisibility: event.eventVisibility || "public",
@@ -237,8 +234,8 @@ const CRUDEvent = () => {
         mediaContent: uploadedMediaIds,
         userId: user.userId,
         seatingMapImage: seatingMapImageId,
-        seatingLayout: event.seatingLayout ? JSON.stringify(event.seatingLayout) : null, // Thêm mới: Lưu seatingLayout
-        seatingMapImageVersions: seatingMapImageVersionIds, // Thêm mới: Lưu phiên bản ảnh
+        seatingLayout: event.seatingLayout ? JSON.stringify(event.seatingLayout) : null,
+        seatingMapImageVersions: seatingMapImageVersionIds,
       };
 
       console.log("Data sent to API:", dataEvent);
@@ -321,7 +318,7 @@ const CRUDEvent = () => {
           })),
         },
         seatingMapImage: seatingMapImageId,
-        seatingMapImageVersions: seatingMapImageVersionIds, // Thêm mới: Cập nhật phiên bản ảnh
+        seatingMapImageVersions: seatingMapImageVersionIds,
       };
 
       setEvent(updatedEvent);
@@ -345,13 +342,13 @@ const CRUDEvent = () => {
     }
   };
 
-  const handleTicketsUpdate = (updatedTickets, { image, versions, layout }) => { // Cập nhật: Nhận thêm versions và layout
+  const handleTicketsUpdate = (updatedTickets, { image, versions, layout }) => {
     setEvent((prevEvent) => ({
       ...prevEvent,
       tickets: updatedTickets || [],
       seatingMapImage: image || prevEvent.seatingMapImage,
-      seatingLayout: layout ? JSON.parse(layout) : prevEvent.seatingLayout, // Thêm mới: Cập nhật seatingLayout
-      seatingMapImageVersions: versions || prevEvent.seatingMapImageVersions, // Thêm mới: Cập nhật phiên bản ảnh
+      seatingLayout: layout ? JSON.parse(layout) : prevEvent.seatingLayout,
+      seatingMapImageVersions: versions || prevEvent.seatingMapImageVersions,
     }));
   };
 
@@ -363,15 +360,10 @@ const CRUDEvent = () => {
       startTime: event.eventLocation.startTime,
       endTime: event.eventLocation.endTime,
       overviewText: event.overviewContent.text,
+      venueName: event.eventLocation.venueName,
+      address: event.eventLocation.address,
+      city: event.eventLocation.city,
     };
-
-    if (event.eventLocation.locationType === "venue") {
-      requiredFields.venueName = event.eventLocation.venueName;
-      requiredFields.address = event.eventLocation.address;
-      requiredFields.city = event.eventLocation.city;
-    } else if (event.eventLocation.locationType === "online") {
-      requiredFields.meetingUrl = event.eventLocation.meetingUrl;
-    }
 
     for (const [key, value] of Object.entries(requiredFields)) {
       if (!value || (typeof value === "string" && value.trim() === "")) {
@@ -447,10 +439,10 @@ const CRUDEvent = () => {
             }
             onNext={() => setSelectedStep("publish")}
             t={t}
-            venueType={event.eventLocation.locationType} // Thêm mới: Truyền venueType
-            seatingLayout={event.seatingLayout} // Thêm mới: Truyền seatingLayout
-            seatingMapImage={event.seatingMapImage} // Thêm mới: Truyền seatingMapImage
-            seatingMapImageVersions={event.seatingMapImageVersions} // Thêm mới: Truyền phiên bản ảnh
+            venueType="venue"
+            seatingLayout={event.seatingLayout}
+            seatingMapImage={event.seatingMapImage}
+            seatingMapImageVersions={event.seatingMapImageVersions}
           />
         );
       case "publish":
@@ -493,18 +485,6 @@ const CRUDEvent = () => {
                     : t("createEventPage.noDateTime")}
                 </span>
               </div>
-              {event.eventLocation.locationType === "online" && event.eventLocation.meetingUrl && (
-                <div className="mt-2">
-                  <a
-                    href={event.eventLocation.meetingUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-500 underline"
-                  >
-                    {t("createEventPage.meetingLink", { link: event.eventLocation.meetingUrl })}
-                  </a>
-                </div>
-              )}
             </div>
             <h3 className="mb-2 text-lg font-semibold">{t("createEventPage.stepsTitle")}</h3>
             <div className="space-y-2">
@@ -529,7 +509,6 @@ const CRUDEvent = () => {
           <div className="w-full px-2 lg:w-3/4">{renderStepComponent()}</div>
         </div>
       )}
-     
     </>
   );
 };
